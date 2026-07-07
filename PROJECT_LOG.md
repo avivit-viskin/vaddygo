@@ -6,6 +6,14 @@
 
 ---
 
+## 08.07.2026 — שלב 0: הכנת הבקאנד להעלאה לריפו נפרד (בדיקת secrets + git מקומי)
+
+- **מה נעשה:** הוכנה תיקיית הבקאנד `C:\Vaddygo\ParentCommitteeAPI` להעלאה לריפו GitHub נפרד. (1) אומת ידנית שאין secrets: `appsettings.json` ו-`appsettings.Development.json` מכילים רק הגדרות Logging + AllowedHosts; `launchSettings.json` רק פורטים; ה-connection string ב-`Program.cs` הוא SQLite מקומי בלי סיסמה. (2) נוצר `.gitignore` תקני ל-.NET שמחריג `bin/`, `obj/`, `*.user`, קבצי SQLite (`*.db`, `-shm`, `-wal`) וכל `.env`/secrets. (3) בוצע `git init` + קומיט ראשון מקומי (ענף `main`, 18 קבצי מקור בלבד — קבצי ה-DB והבנייה לא נכנסו, אומת).
+- **למה:** משימת שלב 0 ב-ROADMAP. הכנה מקומית מלאה מקטינה את הצעד החיצוני (יצירת ריפו + דחיפה) לפעולה קטנה ומלווה לבעלת המוצר, ומבטיחה שסודות לא יעלו לענן.
+- **קבצים:** `C:\Vaddygo\ParentCommitteeAPI\.gitignore` (חדש) + git מקומי חדש שם; בריפו הפרונט: `ROADMAP.md`, `PROJECT_LOG.md`.
+- **החלטות:** לא בוצעה יצירת ריפו GitHub / דחיפה / פריסת Railway — אלה פעולות חיצוניות שדורשות אישור בעלת המוצר. `WeatherForecast.cs`/הבקר שלו (שאריות תבנית) הושארו כפי שהם — הסרתם היא שינוי קוד שיטופל ביישור הבקאנד בשלב 2.
+- **הצעד המומלץ הבא:** בעלת המוצר: ליצור ריפו GitHub פרטי לבקאנד ולדחוף (`git remote add origin <URL>` → `git push -u origin main`). לאחר מכן — שלב 2: יישור `StudentsController` לארכיטקטורה (Controller דק → `IStudentService` → `IRepository<Student>` + DTOs + ולידציה + Middleware שגיאות).
+
 ## 07.07.2026 — שלב 1 הושלם: תשתית פרונטאנד מלאה
 
 - **מה נעשה:** נבנתה כל תשתית הפרונטאנד לפי ARCHITECTURE.md: מבנה תיקיות מלא (`components/ pages/ services/ hooks/ styles/`), שכבת API יחידה (`services/api.js` — כתובת מ-`REACT_APP_API_URL`, שגיאות אחידות בעברית), hook גנרי `useApi` (טעינה/שגיאה/נתונים), ערכת עיצוב `styles/theme.css` (סגול `#7C3AED`, RTL גלובלי, פינות מעוגלות, אזורי מגע 44px), 9 רכיבי בסיס (Button, Input, Card, Modal, Table, Spinner, EmptyState, ErrorMessage, BrandName), ניווט תחתון `BottomNav` עם React Router v6 וחמישה עמודים (בית, תלמידים, לוח שנה, מתנות, קבצים). מסך התלמידים הקיים הועבר ל-`StudentsPage` עם שלושת המצבים המחייבים. נוספו 6 טסטים. `index.html` עודכן ל-`lang="he" dir="rtl"` וכותרת VaadyGo.

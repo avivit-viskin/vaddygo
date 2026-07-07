@@ -16,7 +16,7 @@
 - ✅ מערך תיעוד מלא בריפו + פרומפט גנרי לסוכנים
 - ✅ CI ב-GitHub Actions: בדיקות + build על כל push
 - ☐ פריסה ל-Railway + דומיין (לפי [DEPLOYMENT.md](DEPLOYMENT.md)) — באחריות בעלת המוצר עם ליווי
-- ☐ העלאת הבקאנד (`C:\Vaddygo\ParentCommitteeAPI`) לריפו GitHub נפרד, כולל בדיקה שאין secrets ב-appsettings.json
+- 🔄 העלאת הבקאנד (`C:\Vaddygo\ParentCommitteeAPI`) לריפו GitHub נפרד `[Claude Code, 08.07.2026]` — **הכנה מקומית הושלמה:** אומת שאין secrets ב-appsettings.json / appsettings.Development.json / launchSettings.json; נוצר `.gitignore` (מחריג bin/obj, `*.user`, קבצי SQLite `*.db`, וכל env/secrets); בוצע `git init` + קומיט ראשון מקומי (main). **נותר לבעלת המוצר:** ליצור ריפו GitHub פרטי ולדחוף (`git remote add origin ...` → `git push -u origin main`) — פעולה חיצונית שדורשת אישור.
 - ☐ פריסת הבקאנד ל-Railway + עדכון `REACT_APP_API_URL` בפרונט + CORS לדומיין הייצור
 
 ## שלב 1 — תשתית פרונטאנד ✅

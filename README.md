@@ -1,70 +1,39 @@
-# Getting Started with Create React App
+# VaadyGo 💜
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+מערכת לניהול ועד הורים בגנים ובבתי ספר — תלמידים, גבייה, תקציב, אירועים, מתנות, ספקים, קבצים ועוזרת AI. הכל במקום אחד, בעברית, מותאם לנייד.
 
-## Available Scripts
+**המשתמשות:** חברות ועד בלבד (2-3 לגן), לא כל ההורים.
 
-In the project directory, you can run:
+## מבנה המערכת
 
-### `npm start`
+| רכיב | טכנולוגיה | מיקום |
+|------|-----------|-------|
+| צד לקוח (הריפו הזה) | React | `Desktop\parentcommitteefrontend`, רץ על http://localhost:3000 |
+| צד שרת | ASP.NET Core Web API | `C:\Vaddygo\ParentCommitteeAPI`, רץ על https://localhost:7017 |
+| מסד נתונים | SQLite (בעתיד SQL Server) | קובץ `vaadygo.db` בצד השרת |
+| אחסון בענן | Railway | פריסה אוטומטית מ-main אחרי CI |
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## איך מריצים מקומית
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+1. מפעילים את השרת (ParentCommitteeAPI) מ-Visual Studio.
+2. בתיקייה הזאת: `npm install` (פעם ראשונה בלבד) ואז `npm start`.
+3. נפתח דפדפן על http://localhost:3000.
 
-### `npm test`
+## מסמכי הפרויקט — סדר קריאה לכל סוכן AI ומפתח
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+1. [README.md](README.md) — המסמך הזה
+2. [ARCHITECTURE.md](ARCHITECTURE.md) — כללי הארכיטקטורה המחייבים
+3. [AI_RULES.md](AI_RULES.md) — כללי עבודה לסוכני AI והרשאות
+4. [ROADMAP.md](ROADMAP.md) — מסמך המשימות של החזון: איפה אנחנו ומה הלאה
+5. [PROJECT_LOG.md](PROJECT_LOG.md) — יומן הפרויקט: מה נעשה עד עכשיו
+6. [DEPLOYMENT.md](DEPLOYMENT.md) — איך המערכת עולה לאוויר (CI/CD + Railway)
 
-### `npm run build`
+**מתחילים לעבוד עם סוכן חדש? מדביקים לו את [AGENT_PROMPT.md](AGENT_PROMPT.md).**
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## עקרונות על
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+- עברית מלאה, RTL, Mobile-First, צבע ראשי סגול `#7C3AED`
+- קוד גנרי לשימוש חוזר — אף פעם לא משכפלים לוגיקה
+- כל מסך עם מצבי טעינה / שגיאה / ריק
+- אין secrets בקוד. אף פעם.
+- כל משימה מסתיימת בעדכון PROJECT_LOG.md

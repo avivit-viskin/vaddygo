@@ -1,0 +1,22 @@
+# PROJECT_LOG.md — יומן הפרויקט
+
+זהו הזיכרון של הפרויקט. כל סוכן חדש מתחיל מקריאתו, וכל משימה שהושלמה מוסיפה רשומה בפורמט:
+`## [תאריך] — [שם המשימה]` עם: מה נעשה / למה / קבצים / החלטות / הצעד הבא.
+רשומות חדשות נוספות **למעלה**.
+
+---
+
+## 07.07.2026 — תשתית: GitHub, תיעוד מלא, CI
+
+- **מה נעשה:** הפרויקט נדחף לראשונה ל-GitHub‏ (https://github.com/avivit-viskin/vaddygo). נוצר מערך תיעוד מלא (README, ARCHITECTURE, AI_RULES, ROADMAP, PROJECT_LOG, DEPLOYMENT, AGENT_PROMPT). הוקם CI ב-GitHub Actions שמריץ בדיקות ו-build על כל push. תוקן הטסט הדיפולטי של CRA שנכשל. נוספה חבילת `serve` להגשת ה-build ב-Railway.
+- **למה:** לפי האפיון, PROJECT_LOG הוא הזיכרון של הפרויקט וכל סוכן מתחיל ממנו; CI מבטיח שכל דחיפה ל-main נבדקת לפני פריסה אוטומטית ל-Railway.
+- **קבצים:** README.md, AGENT_PROMPT.md, ARCHITECTURE.md, AI_RULES.md, ROADMAP.md, PROJECT_LOG.md, DEPLOYMENT.md, ‎.github/workflows/ci.yml, src/App.test.js, package.json, ‎.gitignore
+- **החלטות ארכיטקטוניות:** עבודה ישירה על main (אישור קבוע מבעלת המוצר) עם CI כשער איכות; Railway ב-Wait for CI כך שפריסה קורית רק אחרי בדיקות ירוקות; כתובת ה-API תעבור ל-`REACT_APP_API_URL` בשלב 1.
+- **הצעד המומלץ הבא:** בעלת המוצר מחברת את הריפו ל-Railway ומפיקה דומיין לפי DEPLOYMENT.md. אחר כך: שלב 1 ב-ROADMAP — מבנה תיקיות + api.js + רכיבי בסיס.
+
+## 07.07.2026 — קומיט ראשון ודחיפה ל-GitHub
+
+- **מה נעשה:** קומיט ראשון של שלד CRA עם מסך רשימת תלמידים (App.js קורא ל-GET /api/students). תוקן remote שגוי, הוצא settings.local.json מהריפו.
+- **למה:** נקודת פתיחה מגובה לפרויקט.
+- **קבצים:** כל קבצי הפרויקט הראשוניים.
+- **הצעד המומלץ הבא:** בוצע — ראו הרשומה שמעל.

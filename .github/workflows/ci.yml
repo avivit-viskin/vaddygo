@@ -1,0 +1,33 @@
+# CI של VaadyGo — רץ אוטומטית על כל push ו-Pull Request ל-main.
+# אם משהו כאן נכשל, Railway לא יפרוס את הגרסה (Wait for CI).
+
+name: CI
+
+on:
+  push:
+    branches: [main]      # כל דחיפה ל-main מפעילה את הבדיקות
+  pull_request:
+    branches: [main]      # וגם כל Pull Request שמכוון ל-main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest        # המחשב הווירטואלי שמריץ את הבדיקות
+
+    steps:
+      - name: Checkout code       # מוריד את הקוד מהריפו למחשב הווירטואלי
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js       # מתקין Node.js גרסה 20 (מה שמריץ React)
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm              # שומר את התלויות במטמון כדי שריצות הבאות יהיו מהירות
+
+      - name: Install dependencies   # מתקין את כל החבילות בדיוק לפי package-lock.json
+        run: npm ci
+
+      - name: Run tests              # מריץ את הטסטים; --watchAll=false = ריצה חד-פעמית
+        run: npm test -- --watchAll=false
+
+      - name: Build                  # בונה את גרסת הייצור; אם ה-build נשבר - נכשל כאן
+        run: npm run build

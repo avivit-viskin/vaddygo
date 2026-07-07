@@ -1,8 +1,22 @@
 import { render, screen } from '@testing-library/react';
 import App from './App';
 
-test('renders learn react link', () => {
+// מדמים את קריאת השרת כדי שהטסט לא יהיה תלוי בשרת אמיתי
+beforeEach(() => {
+  global.fetch = jest.fn(() => new Promise(() => {}));
+});
+
+afterEach(() => {
+  delete global.fetch;
+});
+
+test('renders VaadyGo heading', () => {
   render(<App />);
-  const linkElement = screen.getByText(/learn react/i);
-  expect(linkElement).toBeInTheDocument();
+  const heading = screen.getByRole('heading', { name: /VaadyGo/i });
+  expect(heading).toBeInTheDocument();
+});
+
+test('renders students list title', () => {
+  render(<App />);
+  expect(screen.getByText(/רשימת התלמידים בגן/)).toBeInTheDocument();
 });

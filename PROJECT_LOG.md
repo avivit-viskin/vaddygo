@@ -6,6 +6,14 @@
 
 ---
 
+## 07.07.2026 — כלל עיצוב חדש: השם VaadyGo תמיד מודגש ב-UI
+
+- **מה נעשה:** נוסף כלל UI/UX ל-ARCHITECTURE.md: השם **VaadyGo** מוצג תמיד מודגש (bold) בכל מקום שהוא מופיע ב-UI.
+- **למה:** הנחיה של בעלת המוצר (אביבית) — חיזוק המותג בכל המסכים.
+- **קבצים:** ARCHITECTURE.md, PROJECT_LOG.md
+- **החלטות:** לא נדרש שינוי קוד כרגע — המופע היחיד היום הוא ב-`<h1>` ב-App.js, שכבר מודגש כברירת מחדל. הכלל מחייב מכאן והלאה כל מסך חדש.
+- **הצעד המומלץ הבא:** בשלב 1 של ה-ROADMAP (ערכת עיצוב), לעגן את הכלל ברכיב גנרי (למשל `<BrandName />`) כדי שלא יישכח.
+
 ## 07.07.2026 — תשתית: GitHub, תיעוד מלא, CI
 
 - **מה נעשה:** הפרויקט נדחף לראשונה ל-GitHub‏ (https://github.com/avivit-viskin/vaddygo). נוצר מערך תיעוד מלא (README, ARCHITECTURE, AI_RULES, ROADMAP, PROJECT_LOG, DEPLOYMENT, AGENT_PROMPT). הוקם CI ב-GitHub Actions שמריץ בדיקות ו-build על כל push. תוקן הטסט הדיפולטי של CRA שנכשל. נוספה חבילת `serve` להגשת ה-build ב-Railway.

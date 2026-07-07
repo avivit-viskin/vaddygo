@@ -19,7 +19,7 @@
 - ☐ העלאת הבקאנד (`C:\Vaddygo\ParentCommitteeAPI`) לריפו GitHub נפרד, כולל בדיקה שאין secrets ב-appsettings.json
 - ☐ פריסת הבקאנד ל-Railway + עדכון `REACT_APP_API_URL` בפרונט + CORS לדומיין הייצור
 
-## שלב 1 — תשתית פרונטאנד ☐
+## שלב 1 — תשתית פרונטאנד 🔄 [Claude Code, 07.07.2026]
 
 **צד לקוח:**
 - ☐ מבנה תיקיות: `components/` `pages/` `services/` `hooks/` `styles/` — כל קומפוננטה בקובץ נפרד

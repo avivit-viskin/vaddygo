@@ -41,7 +41,9 @@ src/
 - השם **VaadyGo** מוצג תמיד מודגש (bold) בכל מקום שהוא מופיע ב-UI.
 - נגישות: ניגודיות מספקת, אזורי מגע 44px לפחות, תווית לכל שדה.
 
-## צד שרת — ASP.NET Core (בתיקייה `C:\Vaddygo\ParentCommitteeAPI`)
+## צד שרת — ASP.NET Core (בתיקיית `backend/` בריפו — mono-repo)
+
+> **mono-repo (החלטת בעלת המוצר, 08.07.2026):** קוד השרת חי בתיקיית `backend/` באותו ריפו של הפרונטאנד. מקור האמת לקוד השרת הוא `backend/` — שם עורכים ודוחפים. (עותק פיתוח מקומי היסטורי קיים ב-`C:\Vaddygo\ParentCommitteeAPI`; יש לפתוח את הפרויקט מ-`backend/` כדי לא ליצור שני עותקים שמתפצלים.)
 
 - **Controllers** — דקים בלבד: מקבלים בקשה, מעבירים ל-Service, מחזירים תשובה.
 - **Services** — כל הלוגיקה העסקית. לכל Service יש Interface (`IStudentService`) ורישום ב-Dependency Injection.

@@ -6,6 +6,14 @@
 
 ---
 
+## 08.07.2026 — הבקאנד הוכנס לריפו (mono-repo, תיקיית `backend/`)
+
+- **מה נעשה:** לפי החלטת בעלת המוצר לעבוד ב-**mono-repo** (הכל בריפו אחד), קוד השרת `ParentCommitteeAPI` הוכנס לתיקיית `backend/` בתוך ריפו `vaddygo`, נדחף ל-main. הועברו **רק קבצי המקור שגיט עוקב אחריהם** (18 קבצים) באמצעות `git archive HEAD` → חילוץ ל-`backend/` — כך שקבצי `bin/`, `obj/`, ו-SQLite (`*.db`) לא נכנסו. `backend/.gitignore` נשמר (מחריג build/db/secrets גם בתת-התיקייה).
+- **למה:** בעלת המוצר בחרה mono-repo כשהתבקשה להכריע (הכתובת שנתנה הייתה הריפו הקיים של הפרונט; הובהר שדחיפת הבקאנד לשם הייתה דורסת את הפרונט, ולכן במקום זה — תיקיית משנה). זה מבטל את הצורך בריפו GitHub שני ובאישור ליצירתו.
+- **קבצים:** `backend/` (18 קבצי מקור: Program.cs, AppDbContext.cs, Controllers, Models, Migrations, appsettings*, launchSettings, csproj, slnx, .gitignore), `ARCHITECTURE.md`, `ROADMAP.md`, `PROJECT_LOG.md`.
+- **החלטות:** מקור האמת לקוד השרת הוא מעתה `backend/` בריפו. העותק ב-`C:\Vaddygo\ParentCommitteeAPI` הוא עותק פיתוח מקומי ישן — כדי למנוע שני עותקים שמתפצלים, יש לפתוח/לערוך את השרת מ-`backend/`. ה-`git init` המקומי שנוצר קודם ב-`C:\Vaddygo` הוסר (מיותר ב-mono-repo). לא נגעתי בקוד השרת עצמו — יישורו לארכיטקטורה (Service/Repository/DTOs) הוא שלב 2.
+- **הצעד המומלץ הבא:** שלב 2 — מסך תלמידים מלא (לקוח, לפי UI_SPEC ס' 11) + יישור `StudentsController` בבקאנד לארכיטקטורה (Controller דק → `IStudentService` → `IRepository<Student>` + DTOs + ולידציה + Middleware). בנוסף: פריסת הבקאנד ל-Railway מתיקיית `backend/` + עדכון `REACT_APP_API_URL`.
+
 ## 08.07.2026 — אפיון מסכים מלא מהפנקס + פונט מותג Rubik
 
 - **מה נעשה:** בעלת המוצר שלחה 11 צילומי פנקס עם אפיון כל המסכים. נוצר UI_SPEC.md — תרגום מלא ומחייב של האפיון (פתיחה, כניסה, אשף הרשמה, הגדרת גבייה, מסך בית, צוות, התראות, תלמידים, מתנות, קבצים, עוזרת AI). הוחל פונט מותג Rubik בכל המערכת (index.html + theme.css). ROADMAP עודכן (שלב 3 הורחב למסכי פתיחה/הרשמה/גבייה; שלבים 4, 7 פורטו). נוצר קובץ שאלות לבעלת המוצר: שולחן העבודה → "VaadyGo - שאלות אפיון.doc".

@@ -19,14 +19,14 @@
 - ☐ העלאת הבקאנד (`C:\Vaddygo\ParentCommitteeAPI`) לריפו GitHub נפרד, כולל בדיקה שאין secrets ב-appsettings.json
 - ☐ פריסת הבקאנד ל-Railway + עדכון `REACT_APP_API_URL` בפרונט + CORS לדומיין הייצור
 
-## שלב 1 — תשתית פרונטאנד 🔄 [Claude Code, 07.07.2026]
+## שלב 1 — תשתית פרונטאנד ✅
 
 **צד לקוח:**
-- ☐ מבנה תיקיות: `components/` `pages/` `services/` `hooks/` `styles/` — כל קומפוננטה בקובץ נפרד
-- ☐ `services/api.js` יחיד: כתובת בסיס מ-`REACT_APP_API_URL`, פונקציות get/post/put/del, טיפול שגיאות אחיד
-- ☐ `styles/theme.css`: משתני צבע (ראשי `#7C3AED`, רקעים בהירים), טיפוגרפיה, RTL גלובלי, פינות מעוגלות
-- ☐ רכיבי בסיס גנריים: `Button`, `Input` (עם תווית ושגיאה ליד השדה), `Card`, `Modal`, `Table`, `Spinner`, `EmptyState`, `ErrorMessage`, `BrandName` (השם **VaadyGo** תמיד מודגש)
-- ☐ React Router + `BottomNav` — ניווט תחתון קבוע (בית, תלמידים, לוח שנה, מתנות, קבצים) עם אזורי מגע 44px+
+- ✅ מבנה תיקיות: `components/` `pages/` `services/` `hooks/` `styles/` — כל קומפוננטה בקובץ נפרד
+- ✅ `services/api.js` יחיד: כתובת בסיס מ-`REACT_APP_API_URL`, פונקציות get/post/put/del, טיפול שגיאות אחיד
+- ✅ `styles/theme.css`: משתני צבע (ראשי `#7C3AED`, רקעים בהירים), טיפוגרפיה, RTL גלובלי, פינות מעוגלות
+- ✅ רכיבי בסיס גנריים: `Button`, `Input` (עם תווית ושגיאה ליד השדה), `Card`, `Modal`, `Table`, `Spinner`, `EmptyState`, `ErrorMessage`, `BrandName` (השם **VaadyGo** תמיד מודגש)
+- ✅ React Router + `BottomNav` — ניווט תחתון קבוע (בית, תלמידים, לוח שנה, מתנות, קבצים) עם אזורי מגע 44px+
 
 **צד שרת:** אין — שלב זה כולו בלקוח.
 

@@ -1,28 +1,34 @@
-import { useState, useEffect } from "react";
+import { Routes, Route, Navigate } from "react-router-dom";
+import BrandName from "./components/BrandName";
+import BottomNav from "./components/BottomNav";
+import HomePage from "./pages/HomePage";
+import StudentsPage from "./pages/StudentsPage";
+import CalendarPage from "./pages/CalendarPage";
+import GiftsPage from "./pages/GiftsPage";
+import FilesPage from "./pages/FilesPage";
 
+/*
+  App — שלד האפליקציה: כותרת עליונה, אזור התוכן לפי הנתיב, וניווט תחתון קבוע.
+*/
 function App() {
-  const [students, setStudents] = useState([]);
-  const [error, setError] = useState("");
-
-  useEffect(() => {
-    fetch("https://localhost:7017/api/students")
-      .then((res) => res.json())
-      .then((data) => setStudents(data))
-      .catch(() => setError("אופס — לא הצלחנו להתחבר לשרת. בדקי שהוא רץ 🙂"));
-  }, []);
-
   return (
-    <div dir="rtl" style={{ fontFamily: "Arial", padding: "24px" }}>
-      <h1>VaadyGo 💜</h1>
-      <h2>רשימת התלמידים בגן</h2>
-      {error && <p style={{ color: "red" }}>{error}</p>}
-      <ul>
-        {students.map((s) => (
-          <li key={s.id} style={{ marginBottom: "8px" }}>
-            <b>{s.firstName} {s.lastName}</b> — כיתה {s.className}, טלפון הורה: {s.parentPhoneNumber}
-          </li>
-        ))}
-      </ul>
+    <div dir="rtl">
+      <header className="app-header">
+        <h1>
+          <BrandName withHeart />
+        </h1>
+      </header>
+      <main className="app-main">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/students" element={<StudentsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/gifts" element={<GiftsPage />} />
+          <Route path="/files" element={<FilesPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
+      <BottomNav />
     </div>
   );
 }

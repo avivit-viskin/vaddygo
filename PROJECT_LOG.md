@@ -6,6 +6,14 @@
 
 ---
 
+## 07.07.2026 — שלב 1 הושלם: תשתית פרונטאנד מלאה
+
+- **מה נעשה:** נבנתה כל תשתית הפרונטאנד לפי ARCHITECTURE.md: מבנה תיקיות מלא (`components/ pages/ services/ hooks/ styles/`), שכבת API יחידה (`services/api.js` — כתובת מ-`REACT_APP_API_URL`, שגיאות אחידות בעברית), hook גנרי `useApi` (טעינה/שגיאה/נתונים), ערכת עיצוב `styles/theme.css` (סגול `#7C3AED`, RTL גלובלי, פינות מעוגלות, אזורי מגע 44px), 9 רכיבי בסיס (Button, Input, Card, Modal, Table, Spinner, EmptyState, ErrorMessage, BrandName), ניווט תחתון `BottomNav` עם React Router v6 וחמישה עמודים (בית, תלמידים, לוח שנה, מתנות, קבצים). מסך התלמידים הקיים הועבר ל-`StudentsPage` עם שלושת המצבים המחייבים. נוספו 6 טסטים. `index.html` עודכן ל-`lang="he" dir="rtl"` וכותרת VaadyGo.
+- **למה:** זהו הבסיס שכל המסכים הבאים ייבנו עליו — בלי לשכפל עיצוב או לוגיקת רשת.
+- **קבצים:** `src/components/` (10 קבצים), `src/pages/` (5), `src/services/` (2), `src/hooks/useApi.js`, `src/styles/theme.css`, `src/App.js`, `src/index.js`, `src/App.test.js`, `public/index.html`, `.env.development`, `.env.test`, `package.json`. נמחקו קבצי CRA מתים: `App.css`, `index.css`, `logo.svg`.
+- **החלטות:** React Router **v6** (ולא v7) — יציב עם Create React App, עם דגלי future של v7 כדי שלא יהיו אזהרות והמעבר העתידי יהיה קל. כתובת השרת בפיתוח יושבת ב-`.env.development` (לא סוד); בייצור תוגדר ב-Railway Variables כשהבקאנד יעלה (שלב 0). פקודת ההגשה `npx serve -s build` כבר תומכת בניתוב צד-לקוח.
+- **הצעד המומלץ הבא:** שלב 2 — מסך תלמידים מלא (טופס הוספה/עריכה, מחיקה, חיפוש) + יישור הבקאנד לארכיטקטורה. במקביל, בעלת המוצר יכולה להשלים את חיבור Railway לפי DEPLOYMENT.md כדי שהאתר יהיה באוויר.
+
 ## 07.07.2026 — כלל עיצוב חדש: השם VaadyGo תמיד מודגש ב-UI
 
 - **מה נעשה:** נוסף כלל UI/UX ל-ARCHITECTURE.md: השם **VaadyGo** מוצג תמיד מודגש (bold) בכל מקום שהוא מופיע ב-UI.

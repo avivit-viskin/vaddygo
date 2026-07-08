@@ -6,6 +6,14 @@ using ParentCommitteeAPI.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// בענן (Railway) מוזרק משתנה PORT ומאזינים עליו ב-HTTP —
+// ה-TLS (https) מטופל על ידי Railway לפני שהבקשה מגיעה אלינו.
+var port = Environment.GetEnvironmentVariable("PORT");
+if (!string.IsNullOrEmpty(port))
+{
+    builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
+}
+
 // חיבור מסד הנתונים — המחרוזת מ-appsettings.json.
 // מעבר עתידי ל-SQL Server = החלפת ה-ConnectionString בלבד, בלי לגעת בקוד.
 builder.Services.AddDbContext<AppDbContext>(options =>
@@ -45,7 +53,11 @@ app.UseMiddleware<ErrorHandlingMiddleware>();
 // הפעל CORS
 app.UseCors("AllowFrontend");
 
-app.UseHttpsRedirection();
+// הפניה ל-https רק בפיתוח מקומי — בענן Railway מסיים את ה-TLS בעצמו
+if (app.Environment.IsDevelopment())
+{
+    app.UseHttpsRedirection();
+}
 
 app.UseAuthorization();
 

@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — שלב 0: הבקאנד מוכן לפריסה ב-Railway (הצד הטכני)
+
+- **מה נעשה:** הבקאנד הוכן לענן: `backend/Dockerfile` (בנייה דו-שלבית, ‎.NET 10) + `.dockerignore`; ‏`Program.cs` מאזין למשתנה `PORT` שמזריק Railway ומדלג על הפניית https בענן (Railway מסיים TLS); ל-CI נוסף job שבונה את הבקאנד על כל push — שרת שבור חוסם פריסה. ‏DEPLOYMENT.md הורחב במדריך צעד-אחר-צעד: שירות שני מהריפו (Root Directory=`backend`), ‏Volume קבוע ב-`/data` למסד ה-SQLite, משתני סביבה (`ConnectionStrings__Default`, ‏`Cors__AllowedOrigins__0`), דומיין על פורט 8080, וחיבור הפרונט עם `REACT_APP_API_URL`. אומת ש-dotnet build עובר אחרי השינויים.
+- **למה:** בלי בקאנד באוויר האתר החי מציג רק את הודעת השגיאה; אחרי הפריסה כל המסכים יעבדו מול נתונים אמיתיים.
+- **קבצים:** backend/Dockerfile (חדש), backend/.dockerignore (חדש), backend/Program.cs, ‏.github/workflows/ci.yml, DEPLOYMENT.md.
+- **החלטות:** (1) Dockerfile ולא זיהוי אוטומטי — דטרמיניסטי ושקוף. (2) SQLite על Volume ב-`/data` — בלי Volume הנתונים נמחקים בכל פריסה; המעבר ל-SQL Server נשאר החלפת connection string (שלב 11). (3) `PORT=8080` כברירת מחדל בקונטיינר, תואם להוראת הדומיין במדריך.
+- **הצעד המומלץ הבא:** בעלת המוצר מבצעת את פעולות הדשבורד לפי DEPLOYMENT.md (סעיף "פריסת הבקאנד"). אחר כך: שלב 4 (מסך הבית) או צד השרת של שלב 6 (EventsController).
+
 ## 09.07.2026 — שלב 2 הושלם: מסך תלמידים מלא (לקוח + שרת)
 
 - **מה נעשה:** **בשרת** — ‏`StudentsController` יושר לארכיטקטורה המחייבת: Controller דק ← `IStudentService` (BL) ← `IRepository<Student>` גנרי (DAL), עם שלושה DTOs (בסיס ולידציה משותף `StudentWriteDto`), ולידציה ב-DataAnnotations (חובה/אורך/פורמט טלפון 05X-XXXXXXX), ‏Middleware שגיאות מרכזי (לוג מלא, הודעה ידידותית בעברית ללקוח), ‏ILogger במזהים בלבד (בלי שמות/טלפונים), ומעבר מרשימה זמנית בזיכרון ל-SQLite האמיתי — מיגרציות רצות אוטומטית בעלייה, ו-connection string + CORS עברו ל-appsettings (פיתוח: localhost:3000 בלבד). **בלקוח** — ‏`StudentsPage` מלא: כרטיסים עם מונה "X תלמידים", חיפוש חופשי, סינון לפי כיתה, הוספה ועריכה באותו `StudentForm` במודאל (ולידציה זהה לשרת, כפתור נעול בשליחה), מחיקה עם `ConfirmDialog`. נוספו רכיבים גנריים: `Select`, ‏`ConfirmDialog`, ‏hook ‏`useForm`; ‏`api.js` מציג כעת את הודעת השגיאה שהשרת שלח. 7 טסטים חדשים + build ירוק. אומת מקצה לקצה מול שרת רץ (יצירה, ולידציה 400, עדכון, מחיקה 204).

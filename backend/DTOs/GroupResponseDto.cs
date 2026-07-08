@@ -9,6 +9,7 @@ namespace ParentCommitteeAPI.DTOs
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
+        public int Year { get; set; }
         public int ChildrenCount { get; set; }
         public int StaffCount { get; set; }
         public List<string> Subgroups { get; set; } = new();

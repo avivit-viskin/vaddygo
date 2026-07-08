@@ -22,6 +22,10 @@ namespace ParentCommitteeAPI.DTOs
         [Range(0, 100, ErrorMessage = "מספר אנשי הצוות חייב להיות בין 0 ל-100")]
         public int StaffCount { get; set; }
 
+        /* שנת הלימודים (אופציונלי) — אם לא נשלח, השרת קובע לפי התאריך הנוכחי */
+        [Range(2020, 2100, ErrorMessage = "שנת הלימודים אינה תקינה")]
+        public int? Year { get; set; }
+
         // שמות הקבוצות שסומנו באשף (תינוקייה, פעוטות...) — יכול להיות ריק
         public List<string> Subgroups { get; set; } = new();
 

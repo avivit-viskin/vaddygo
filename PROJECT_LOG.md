@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — שלב 4 הושלם: מסך הבית — דשבורד מלא (שרת + לקוח)
+
+- **מה נעשה:** נבנה מסך הבית לפי UI_SPEC ס' 8, שרת ולקוח. **שרת:** endpoint חדש `GET /api/dashboard` — כל החישובים ב-`DashboardService` (יעד גבייה, נגבה, יתרת קופה, חוב פתוח, פירוק לפי אמצעי תשלום ולפי קטגוריה, התראות, ימי הולדת קרובים); מודל `StaffMember` חדש עם CRUD מלא ב-`/api/staff` (שם, תפקיד, תאריך לידה — UI_SPEC ס' 8); נוסף שדה `Year` ל-`Group` עם כלל שנת-לימודים משותף (`SchoolYear.cs`) ו-Migration‏ `AddYearAndStaffMembers`. **לקוח:** `HomePage` חדש — כותרת "שם הגן + שנה עברית" (המרה אוטומטית: 2026→תשפ"ז), פעמון עם מונה התראות, כרטיס גבייה עם החלפה בין יעד ליתרה/חוב, בר התקדמות, פירוק ביט/פייבוקס/מזומן, תשלומים לפי קטגוריות, וימי הולדת של הצוות עם הוספה ועריכה במודאל. נוספו 4 טסטים (סה"כ 27 עוברים) + build ירוק.
+- **למה:** זה המסך הראשון שבעלת המוצר רואה בכל כניסה — תמונת מצב של הוועד במבט אחד, לפי האפיון מהפנקס.
+- **קבצים:** שרת: `backend/Models/StaffMember.cs`, `backend/Models/Group.cs` (Year), `backend/DTOs/DashboardResponseDto.cs`, `backend/DTOs/StaffMemberDtos.cs`, `backend/DTOs/GroupCreateDto.cs`+`GroupResponseDto.cs` (Year), `backend/Services/{IDashboardService,DashboardService,IStaffService,StaffService,SchoolYear}.cs`, `backend/Services/GroupService.cs`, `backend/Controllers/{DashboardController,StaffController}.cs`, `backend/AppDbContext.cs`, `backend/Program.cs` (DI), Migration חדשה. לקוח: `src/pages/HomePage.js`, `src/pages/home/` (CollectionCard, AlertsList, CategoryList, StaffBirthdays, StaffForm + טסטים), `src/services/{dashboardService,staffService,schoolYear,format}.js`, `src/styles/home.css`.
+- **החלטות:** (1) הנגבה-בפועל ופירוק אמצעי התשלום מוחזרים כ-0 עד שמודל Payment ייבנה בשלב 5 — מבנה התשובה כבר סופי כדי ששלב 5 לא ישבור את הלקוח. (2) מסך הבית עובד גם בלי שרת: fallback מקומי שבונה את אותו מבנה מנתוני האשף (חשוב כל עוד הבקאנד לא פרוס). (3) אנשי צוות שנוצרו בלי שרת נשמרים ב-localStorage ויסונכרנו בעתיד; רשומות מקומיות מסומנות `isLocal`. (4) גנים שנוצרו לפני עמודת Year מקבלים את השנה הנוכחית (fallback בשרת). (5) תוקן באג מנוסחת הקריאה של האשף: `/groups` → `/api/groups` (הוסכם עם ממצא הסשן המקביל).
+- **הצעד הבא:** שלב 5 (תשלומים) כבר נתפס — כשיושלם, לחבר את הנגבה-בפועל בדשבורד לנתוני אמת (ה-TODO מסומן ב-`DashboardService`). לבעלת המוצר: פריסת הבקאנד לפי DEPLOYMENT.md תדליק את הסנכרון המלא.
+
 ## 09.07.2026 — שלב 0: הבקאנד מוכן לפריסה ב-Railway (הצד הטכני)
 
 - **מה נעשה:** הבקאנד הוכן לענן: `backend/Dockerfile` (בנייה דו-שלבית, ‎.NET 10) + `.dockerignore`; ‏`Program.cs` מאזין למשתנה `PORT` שמזריק Railway ומדלג על הפניית https בענן (Railway מסיים TLS); ל-CI נוסף job שבונה את הבקאנד על כל push — שרת שבור חוסם פריסה. ‏DEPLOYMENT.md הורחב במדריך צעד-אחר-צעד: שירות שני מהריפו (Root Directory=`backend`), ‏Volume קבוע ב-`/data` למסד ה-SQLite, משתני סביבה (`ConnectionStrings__Default`, ‏`Cors__AllowedOrigins__0`), דומיין על פורט 8080, וחיבור הפרונט עם `REACT_APP_API_URL`. אומת ש-dotnet build עובר אחרי השינויים.

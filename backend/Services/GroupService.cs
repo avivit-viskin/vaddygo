@@ -41,6 +41,7 @@ namespace ParentCommitteeAPI.Services
             {
                 Name = dto.Name.Trim(),
                 City = dto.City.Trim(),
+                Year = dto.Year ?? SchoolYear.Current(),
                 ChildrenCount = dto.ChildrenCount,
                 StaffCount = dto.StaffCount,
                 Subgroups = string.Join(",", dto.Subgroups.Select(s => s.Trim()).Where(s => s.Length > 0)),
@@ -67,6 +68,7 @@ namespace ParentCommitteeAPI.Services
                 Id = group.Id,
                 Name = group.Name,
                 City = group.City,
+                Year = group.Year,
                 ChildrenCount = group.ChildrenCount,
                 StaffCount = group.StaffCount,
                 Subgroups = group.Subgroups.Length == 0

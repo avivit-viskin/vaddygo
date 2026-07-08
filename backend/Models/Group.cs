@@ -10,6 +10,11 @@ namespace ParentCommitteeAPI.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
+
+        /* שנת הלימודים לפי השנה הלועזית שבה היא נפתחת בספטמבר (2026 = תשפ"ז).
+           לא נאסף באשף — נקבע בשרת לפי התאריך; מוצג בכותרת מסך הבית. */
+        public int Year { get; set; }
+
         public int ChildrenCount { get; set; }
         public int StaffCount { get; set; }
         public string Subgroups { get; set; } = string.Empty;

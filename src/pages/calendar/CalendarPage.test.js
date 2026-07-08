@@ -59,6 +59,51 @@ test("טופס האירוע לא נשלח בלי שם ותאריך", async () =>
   expect(await screen.findByText("מה שם האירוע?")).toBeInTheDocument();
 });
 
+test("מדור החגים מציג שם, תאריך וכפתור תקציב לכל חג", async () => {
+  render(<CalendarPage initialDate={new Date(2026, 11, 1)} />);
+  await screen.findByText("דצמבר 2026");
+
+  expect(
+    screen.getByRole("button", { name: "הגדרת תקציב לחג חנוכה" })
+  ).toBeInTheDocument();
+});
+
+test("הגדרת תקציב לחג: חלון עם הנוסח, שמירה והצגה ליד החג", async () => {
+  render(<CalendarPage initialDate={new Date(2026, 11, 1)} />);
+  await screen.findByText("דצמבר 2026");
+
+  fireEvent.click(screen.getByRole("button", { name: "הגדרת תקציב לחג חנוכה" }));
+
+  // הנוסח של בעלת המוצר, עם VaadyGo מודגש
+  expect(
+    screen.getByText(/לפני שנמשיך לנהל נכון בעזרת/)
+  ).toBeInTheDocument();
+  const brand = screen.getByText("VaadyGo");
+  expect(brand.tagName).toBe("STRONG");
+
+  fireEvent.change(screen.getByLabelText('סכום (בש"ח) *'), {
+    target: { value: "800" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "שמירת התקציב" }));
+
+  expect(
+    await screen.findByRole("button", { name: "עריכת התקציב לחג חנוכה" })
+  ).toBeInTheDocument();
+  expect(screen.getByText(/תקציב: 800/)).toBeInTheDocument();
+});
+
+test("תקציב חג לא נשמר בלי סכום תקין", async () => {
+  render(<CalendarPage initialDate={new Date(2026, 11, 1)} />);
+  await screen.findByText("דצמבר 2026");
+
+  fireEvent.click(screen.getByRole("button", { name: "הגדרת תקציב לחג חנוכה" }));
+  fireEvent.click(screen.getByRole("button", { name: "שמירת התקציב" }));
+
+  expect(
+    await screen.findByText(/נא להזין סכום בש״ח/)
+  ).toBeInTheDocument();
+});
+
 test("מחיקת אירוע עם אישור מסירה אותו מהרשימה", async () => {
   localStorage.setItem(
     "vaadygo.events",

@@ -30,14 +30,16 @@ const SPAN_HOLIDAYS = [
 const hebrewFormatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
   day: "numeric",
   month: "long",
+  year: "numeric",
 });
 
-// מחזיר את התאריך העברי (יום + שם חודש) של תאריך לועזי
+// מחזיר את התאריך העברי (יום + שם חודש + שנה) של תאריך לועזי
 function toHebrewDate(date) {
   const parts = hebrewFormatter.formatToParts(date);
   return {
     day: Number(parts.find((p) => p.type === "day").value),
     month: parts.find((p) => p.type === "month").value,
+    year: Number(parts.find((p) => p.type === "year").value),
   };
 }
 
@@ -69,20 +71,24 @@ function observedIndependenceDay(nominalDate) {
 }
 
 /*
-  מחזיר Map: יום-בחודש (מספר) → מערך שמות חגים, עבור חודש לועזי נתון.
-  סורק גם ימים קצת לפני ואחרי החודש כדי לתפוס חגים מרובי-ימים שהתחילו
-  בחודש הקודם ואת הזזות יום העצמאות.
+  מופעי החגים בחודש לועזי נתון.
+  מחזיר מערך: { name, days (ימי החודש), hebrewYear } — ממוין לפי היום הראשון.
+  hebrewYear משמש כמזהה של המופע (למשל לתקציב חג): חנוכה תשפ"ז הוא אותו
+  מופע גם כשרואים אותו בדצמבר וגם בינואר.
 */
-export function getHolidaysForMonth(year, monthIndex) {
-  const holidaysByDay = new Map();
+export function getHolidayOccurrencesForMonth(year, monthIndex) {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  const occurrences = new Map(); // "שם|שנה עברית" → מופע
 
-  const addIfInMonth = (date, name) => {
+  const addDay = (date, name, hebrewYear) => {
     if (date.getFullYear() !== year || date.getMonth() !== monthIndex) return;
-    const day = date.getDate();
-    const names = holidaysByDay.get(day) || [];
-    if (!names.includes(name)) names.push(name);
-    holidaysByDay.set(day, names);
+    const key = `${name}|${hebrewYear}`;
+    const occurrence =
+      occurrences.get(key) || { name, hebrewYear, days: [] };
+    if (!occurrence.days.includes(date.getDate())) {
+      occurrence.days.push(date.getDate());
+    }
+    occurrences.set(key, occurrence);
   };
 
   // טווח סריקה: 10 ימים לפני תחילת החודש (חנוכה באורך 8) עד 3 ימים אחריו
@@ -92,24 +98,44 @@ export function getHolidaysForMonth(year, monthIndex) {
 
     for (const holiday of SINGLE_DAY_HOLIDAYS) {
       if (hebrew.month === holiday.month && hebrew.day === holiday.day) {
-        addIfInMonth(date, holiday.name);
+        addDay(date, holiday.name, hebrew.year);
       }
     }
 
     for (const holiday of SPAN_HOLIDAYS) {
       if (hebrew.month === holiday.month && hebrew.day === holiday.day) {
         for (let i = 0; i < holiday.length; i++) {
-          addIfInMonth(addDays(date, i), holiday.name);
+          addDay(addDays(date, i), holiday.name, hebrew.year);
         }
       }
     }
 
     if (hebrew.month === "Iyar" && hebrew.day === 5) {
       const independence = observedIndependenceDay(date);
-      addIfInMonth(independence, "יום העצמאות");
-      addIfInMonth(addDays(independence, -1), "יום הזיכרון");
+      addDay(independence, "יום העצמאות", hebrew.year);
+      addDay(addDays(independence, -1), "יום הזיכרון", hebrew.year);
     }
   }
 
+  return [...occurrences.values()]
+    .map((occurrence) => ({
+      ...occurrence,
+      days: occurrence.days.sort((a, b) => a - b),
+    }))
+    .sort((a, b) => a.days[0] - b.days[0]);
+}
+
+/*
+  מחזיר Map: יום-בחודש (מספר) → מערך שמות חגים — לסימון תגים ברשת הלוח.
+*/
+export function getHolidaysForMonth(year, monthIndex) {
+  const holidaysByDay = new Map();
+  for (const occurrence of getHolidayOccurrencesForMonth(year, monthIndex)) {
+    for (const day of occurrence.days) {
+      const names = holidaysByDay.get(day) || [];
+      if (!names.includes(occurrence.name)) names.push(occurrence.name);
+      holidaysByDay.set(day, names);
+    }
+  }
   return holidaysByDay;
 }

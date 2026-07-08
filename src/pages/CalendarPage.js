@@ -6,9 +6,19 @@ import {
   deleteEvent,
   parseEventDate,
 } from "../services/eventsService";
-import { getHolidaysForMonth } from "../data/holidays";
+import {
+  getHolidayBudgets,
+  setHolidayBudget,
+  holidayBudgetKey,
+} from "../services/holidayBudgetsService";
+import {
+  getHolidaysForMonth,
+  getHolidayOccurrencesForMonth,
+} from "../data/holidays";
 import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
+import HolidaysSection from "./calendar/HolidaysSection";
+import HolidayBudgetDialog from "./calendar/HolidayBudgetDialog";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
@@ -16,8 +26,10 @@ import ErrorMessage from "../components/ErrorMessage";
 import "../styles/calendar.css";
 
 /*
-  CalendarPage — לוח שנה חודשי בעברית: חגי ישראל + אירועי הגן,
-  עם הוספת אירוע (כולל תזכורת) ומחיקה באישור.
+  CalendarPage — מסך לוח השנה, בנוי משלושה מדורים (לפי בקשת בעלת המוצר):
+  1. הלוח עצמו + אפשרות הוספת אירוע בצד.
+  2. חגים: שם ותאריך של כל חג בחודש + הגדרת תקציב לחג בחלון ייעודי.
+  3. האירועים שלי — רשימת אירועי הגן של החודש, עם מחיקה באישור.
 */
 const monthTitleFormatter = new Intl.DateTimeFormat("he", {
   month: "long",
@@ -48,11 +60,18 @@ function CalendarPage({ initialDate }) {
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [budgetTarget, setBudgetTarget] = useState(null);
 
   const { data: events, isLoading, error, reload } = useApi(getEvents);
+  const { data: budgets, reload: reloadBudgets } = useApi(getHolidayBudgets);
 
   const year = viewDate.getFullYear();
   const monthIndex = viewDate.getMonth();
+
+  const holidayOccurrences = useMemo(
+    () => getHolidayOccurrencesForMonth(year, monthIndex),
+    [year, monthIndex]
+  );
 
   const holidaysByDay = useMemo(
     () => getHolidaysForMonth(year, monthIndex),
@@ -79,18 +98,6 @@ function CalendarPage({ initialDate }) {
     return map;
   }, [monthEvents]);
 
-  // רשימה ממוזגת של חגים + אירועים, ממוינת לפי יום בחודש
-  const monthItems = useMemo(() => {
-    const items = [];
-    for (const [day, names] of holidaysByDay) {
-      for (const name of names) items.push({ day, name, isHoliday: true });
-    }
-    for (const event of monthEvents) {
-      items.push({ day: event.date.getDate(), name: event.name, event });
-    }
-    return items.sort((a, b) => a.day - b.day);
-  }, [holidaysByDay, monthEvents]);
-
   const lastOfMonth = new Date(year, monthIndex + 1, 0, 12);
   const hebrewFirst = hebrewMonthFormatter.format(viewDate);
   const hebrewLast = hebrewFullFormatter.format(lastOfMonth);
@@ -116,6 +123,15 @@ function CalendarPage({ initialDate }) {
     }
   }
 
+  async function handleSaveBudget(amount) {
+    await setHolidayBudget(
+      holidayBudgetKey(budgetTarget.name, budgetTarget.hebrewYear),
+      amount
+    );
+    setBudgetTarget(null);
+    await reloadBudgets();
+  }
+
   if (isLoading) {
     return <Spinner text="טוען את לוח השנה..." />;
   }
@@ -132,73 +148,85 @@ function CalendarPage({ initialDate }) {
 
   return (
     <div>
-      <div className="calendar-header">
-        <button
-          type="button"
-          className="calendar-nav-button"
-          aria-label="החודש הקודם"
-          onClick={() => moveMonth(-1)}
-        >
-          ›
-        </button>
-        <div className="calendar-header__titles">
-          <h2 className="calendar-header__month">
-            {monthTitleFormatter.format(viewDate)}
-          </h2>
-          <p className="calendar-header__hebrew">
-            {hebrewFirst}–{hebrewLast}
-          </p>
+      {/* מדור 1: הלוח + הוספת אירוע בצד */}
+      <div className="calendar-layout">
+        <div className="calendar-layout__grid">
+          <div className="calendar-header">
+            <button
+              type="button"
+              className="calendar-nav-button"
+              aria-label="החודש הקודם"
+              onClick={() => moveMonth(-1)}
+            >
+              ›
+            </button>
+            <div className="calendar-header__titles">
+              <h2 className="calendar-header__month">
+                {monthTitleFormatter.format(viewDate)}
+              </h2>
+              <p className="calendar-header__hebrew">
+                {hebrewFirst}–{hebrewLast}
+              </p>
+            </div>
+            <button
+              type="button"
+              className="calendar-nav-button"
+              aria-label="החודש הבא"
+              onClick={() => moveMonth(1)}
+            >
+              ‹
+            </button>
+          </div>
+
+          <MonthGrid
+            year={year}
+            monthIndex={monthIndex}
+            holidaysByDay={holidaysByDay}
+            eventsByDay={eventsByDay}
+          />
         </div>
-        <button
-          type="button"
-          className="calendar-nav-button"
-          aria-label="החודש הבא"
-          onClick={() => moveMonth(1)}
-        >
-          ‹
-        </button>
+
+        <aside className="calendar-side">
+          <Button onClick={() => setIsFormOpen(true)}>+ הוספת אירוע</Button>
+          <p>מסיבות, ישיבות ועד, ימי צילום — הכל במקום אחד.</p>
+        </aside>
       </div>
 
-      <MonthGrid
+      {/* מדור 2: חגים החודש + תקציב לכל חג */}
+      <HolidaysSection
         year={year}
         monthIndex={monthIndex}
-        holidaysByDay={holidaysByDay}
-        eventsByDay={eventsByDay}
+        occurrences={holidayOccurrences}
+        budgets={budgets || {}}
+        onEditBudget={setBudgetTarget}
       />
 
-      <div className="calendar-actions">
-        <Button onClick={() => setIsFormOpen(true)}>+ הוספת אירוע</Button>
-      </div>
-
-      <div className="calendar-list">
-        <h3>החודש בלוח</h3>
-        {monthItems.length === 0 && (
-          <p>אין חגים או אירועים החודש — אפשר להוסיף אירוע ראשון!</p>
+      {/* מדור 3: האירועים שלי */}
+      <section className="calendar-list" aria-label="האירועים שלי החודש">
+        <h3>האירועים שלי</h3>
+        {monthEvents.length === 0 && (
+          <p>אין אירועים החודש — אפשר להוסיף את הראשון!</p>
         )}
-        {monthItems.map((item, index) => (
-          <div className="calendar-list__item" key={index}>
+        {monthEvents.map((event) => (
+          <div className="calendar-list__item" key={event.id}>
             <span className="calendar-list__date">
-              {listDateFormatter.format(new Date(year, monthIndex, item.day))}
+              {listDateFormatter.format(event.date)}
             </span>
             <span className="calendar-list__name">
-              {item.name}
-              {item.event?.reminder && " 🔔"}
+              {event.name}
+              {event.reminder && " 🔔"}
             </span>
-            {item.isHoliday ? (
-              <span className="calendar-list__tag">חג</span>
-            ) : (
-              <button
-                type="button"
-                className="calendar-list__delete"
-                aria-label={`מחיקת האירוע ${item.name}`}
-                onClick={() => setDeleteTarget(item.event)}
-              >
-                🗑️
-              </button>
-            )}
+            <button
+              type="button"
+              className="calendar-list__delete"
+              aria-label={`מחיקת האירוע ${event.name}`}
+              onClick={() => setDeleteTarget(event)}
+            >
+              🗑️
+            </button>
           </div>
         ))}
-      </div>
+      </section>
 
       <Modal
         isOpen={isFormOpen}
@@ -225,6 +253,20 @@ function CalendarPage({ initialDate }) {
           </Button>
         </div>
       </Modal>
+
+      {budgetTarget && (
+        <HolidayBudgetDialog
+          key={`${budgetTarget.name}-${budgetTarget.hebrewYear}`}
+          holiday={budgetTarget}
+          currentAmount={
+            (budgets || {})[
+              holidayBudgetKey(budgetTarget.name, budgetTarget.hebrewYear)
+            ] ?? null
+          }
+          onSave={handleSaveBudget}
+          onClose={() => setBudgetTarget(null)}
+        />
+      )}
     </div>
   );
 }

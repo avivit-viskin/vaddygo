@@ -370,3 +370,73 @@ h3 {
   font-size: 22px;
   line-height: 1;
 }
+
+/* ===== כותרת עמוד עם כפתור פעולה ===== */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.page-header h2 {
+  margin: 0;
+}
+
+/* ===== סרגל חיפוש וסינון ===== */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.toolbar .field {
+  flex: 1 1 180px;
+}
+
+/* ===== שורת כפתורים בטפסים ובדיאלוגים ===== */
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.form-actions .btn {
+  flex: 1;
+}
+
+/* ===== כרטיס תלמיד ===== */
+
+.student-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.student-card__details {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.student-card__details a {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+.student-card__actions {
+  display: flex;
+  gap: 8px;
+}
+
+/* ===== דיאלוג אישור ===== */
+
+.confirm-dialog__message {
+  margin: 0 0 8px;
+}

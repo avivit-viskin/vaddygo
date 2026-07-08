@@ -13,6 +13,29 @@ export class ApiError extends Error {
   }
 }
 
+/*
+  מחלץ הודעת שגיאה ידידותית שהשרת שלח (message או שגיאת ולידציה ראשונה);
+  אם אין — חוזרים להודעה כללית.
+*/
+async function extractErrorMessage(response) {
+  const fallback = "משהו השתבש בשרת. נסי שוב בעוד רגע.";
+  try {
+    const body = await response.json();
+    if (body && typeof body.message === "string") {
+      return body.message;
+    }
+    if (body && body.errors) {
+      const firstError = Object.values(body.errors).flat()[0];
+      if (typeof firstError === "string") {
+        return firstError;
+      }
+    }
+  } catch {
+    // הגוף אינו JSON — נשארים עם ההודעה הכללית
+  }
+  return fallback;
+}
+
 async function request(path, { method = "GET", body } = {}) {
   if (!BASE_URL) {
     throw new ApiError(
@@ -32,7 +55,7 @@ async function request(path, { method = "GET", body } = {}) {
   }
 
   if (!response.ok) {
-    throw new ApiError("משהו השתבש בשרת. נסי שוב בעוד רגע.", response.status);
+    throw new ApiError(await extractErrorMessage(response), response.status);
   }
 
   if (response.status === 204) {

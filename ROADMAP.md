@@ -40,8 +40,8 @@
 - ☐ חיפוש חופשי + סינון לפי כיתה
 
 **צד שרת (`ParentCommitteeAPI`):**
-- ☐ יישור `StudentsController` הקיים לארכיטקטורה: Controller דק → `IStudentService` → `IRepository<Student>`, עם DTOs‏ (`StudentCreateDto`, `StudentUpdateDto`, `StudentResponseDto`)
-- ☐ ולידציה בשרת (DataAnnotations: שדות חובה, אורך, פורמט טלפון) + Middleware שגיאות מרכזי + ILogger
+- ✅ יישור `StudentsController` הקיים לארכיטקטורה: Controller דק → `IStudentService` → `IRepository<Student>`, עם DTOs‏ (`StudentCreateDto`, `StudentUpdateDto`, `StudentResponseDto`) + מעבר מרשימה בזיכרון למסד SQLite האמיתי (מיגרציות רצות אוטומטית בעלייה)
+- ✅ ולידציה בשרת (DataAnnotations: שדות חובה, אורך, פורמט טלפון) + Middleware שגיאות מרכזי + ILogger
 
 ## שלב 3 — פתיחה, הרשמה והגדרת גן וגבייה 🔄 [Claude Fable, 08.07.2026] (אפיון מלא: UI_SPEC סעיפים 1-7)
 

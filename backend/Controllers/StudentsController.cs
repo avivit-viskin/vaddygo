@@ -1,73 +1,68 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using ParentCommitteeAPI.Models;
+using Microsoft.AspNetCore.Mvc;
+using ParentCommitteeAPI.DTOs;
+using ParentCommitteeAPI.Services;
 
 namespace ParentCommitteeAPI.Controllers
 {
+    /*
+      StudentsController — קונטרולר דק בלבד: מקבל בקשה, מעביר ל-Service, מחזיר תשובה.
+      הלוגיקה העסקית ב-IStudentService; הוולידציה מה-DTOs רצה אוטומטית ([ApiController])
+      ומחזירה 400 עם הודעות בעברית עוד לפני שהקוד כאן רץ.
+    */
     [ApiController]
     [Route("api/[controller]")]
     public class StudentsController : ControllerBase
     {
-        // נתונים דמיוניים (אחרי זה נוסיף database)
-        private static List<Student> students = new List<Student>
+        private readonly IStudentService _studentService;
+
+        public StudentsController(IStudentService studentService)
         {
-            new Student { Id = 1, FirstName = "דוד", LastName = "כהן", ParentPhoneNumber = "0501234567", Grade = 3, ClassName = "ג1" },
-            new Student { Id = 2, FirstName = "מרים", LastName = "לוי", ParentPhoneNumber = "0502345678", Grade = 4, ClassName = "ד1" },
-            new Student { Id = 3, FirstName = "יוסף", LastName = "גולדמן", ParentPhoneNumber = "0503456789", Grade = 3, ClassName = "ג2" }
-        };
+            _studentService = studentService;
+        }
 
         // GET: api/students
         [HttpGet]
-        public ActionResult<IEnumerable<Student>> GetAllStudents()
+        public async Task<ActionResult<IEnumerable<StudentResponseDto>>> GetAllStudents()
         {
-            return Ok(students);
+            return Ok(await _studentService.GetAllAsync());
         }
 
         // GET: api/students/1
         [HttpGet("{id}")]
-        public ActionResult<Student> GetStudent(int id)
+        public async Task<ActionResult<StudentResponseDto>> GetStudent(int id)
         {
-            var student = students.FirstOrDefault(s => s.Id == id);
+            var student = await _studentService.GetByIdAsync(id);
             if (student == null)
-                return NotFound("תלמיד לא נמצא");
+                return NotFound(new { message = "תלמיד לא נמצא" });
             return Ok(student);
         }
 
         // POST: api/students
         [HttpPost]
-        public ActionResult<Student> CreateStudent([FromBody] Student student)
+        public async Task<ActionResult<StudentResponseDto>> CreateStudent([FromBody] StudentCreateDto dto)
         {
-            student.Id = students.Max(s => s.Id) + 1;
-            students.Add(student);
-            return CreatedAtAction(nameof(GetStudent), new { id = student.Id }, student);
+            var created = await _studentService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetStudent), new { id = created.Id }, created);
         }
 
         // PUT: api/students/1
         [HttpPut("{id}")]
-        public IActionResult UpdateStudent(int id, [FromBody] Student updatedStudent)
+        public async Task<ActionResult<StudentResponseDto>> UpdateStudent(int id, [FromBody] StudentUpdateDto dto)
         {
-            var student = students.FirstOrDefault(s => s.Id == id);
-            if (student == null)
-                return NotFound("תלמיד לא נמצא");
-
-            student.FirstName = updatedStudent.FirstName;
-            student.LastName = updatedStudent.LastName;
-            student.ParentPhoneNumber = updatedStudent.ParentPhoneNumber;
-            student.Grade = updatedStudent.Grade;
-            student.ClassName = updatedStudent.ClassName;
-
-            return Ok(student);
+            var updated = await _studentService.UpdateAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "תלמיד לא נמצא" });
+            return Ok(updated);
         }
 
         // DELETE: api/students/1
         [HttpDelete("{id}")]
-        public IActionResult DeleteStudent(int id)
+        public async Task<IActionResult> DeleteStudent(int id)
         {
-            var student = students.FirstOrDefault(s => s.Id == id);
-            if (student == null)
-                return NotFound("תלמיד לא נמצא");
-
-            students.Remove(student);
-            return Ok("תלמיד נמחק בהצלחה");
+            var deleted = await _studentService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new { message = "תלמיד לא נמצא" });
+            return NoContent();
         }
     }
 }

@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — שלב 2 הושלם: מסך תלמידים מלא (לקוח + שרת)
+
+- **מה נעשה:** **בשרת** — ‏`StudentsController` יושר לארכיטקטורה המחייבת: Controller דק ← `IStudentService` (BL) ← `IRepository<Student>` גנרי (DAL), עם שלושה DTOs (בסיס ולידציה משותף `StudentWriteDto`), ולידציה ב-DataAnnotations (חובה/אורך/פורמט טלפון 05X-XXXXXXX), ‏Middleware שגיאות מרכזי (לוג מלא, הודעה ידידותית בעברית ללקוח), ‏ILogger במזהים בלבד (בלי שמות/טלפונים), ומעבר מרשימה זמנית בזיכרון ל-SQLite האמיתי — מיגרציות רצות אוטומטית בעלייה, ו-connection string + CORS עברו ל-appsettings (פיתוח: localhost:3000 בלבד). **בלקוח** — ‏`StudentsPage` מלא: כרטיסים עם מונה "X תלמידים", חיפוש חופשי, סינון לפי כיתה, הוספה ועריכה באותו `StudentForm` במודאל (ולידציה זהה לשרת, כפתור נעול בשליחה), מחיקה עם `ConfirmDialog`. נוספו רכיבים גנריים: `Select`, ‏`ConfirmDialog`, ‏hook ‏`useForm`; ‏`api.js` מציג כעת את הודעת השגיאה שהשרת שלח. 7 טסטים חדשים + build ירוק. אומת מקצה לקצה מול שרת רץ (יצירה, ולידציה 400, עדכון, מחיקה 204).
+- **למה:** מסך התלמידים הוא הבסיס לגבייה (שלב 5) — כל תלמיד עם טלפון הורה לתזכורות; והשכבות בשרת הן התבנית לכל ה-API-ים הבאים (שלב 3 שרת כבר נבנה עליהן).
+- **קבצים:** שרת: `backend/DTOs/` (4), `backend/Repositories/` (2), `backend/Services/` (2), `backend/Middleware/ErrorHandlingMiddleware.cs`, `backend/Controllers/StudentsController.cs`, `backend/Program.cs`, `backend/appsettings.json`, `backend/Models/` (תיקוני nullable). לקוח: `src/pages/StudentsPage.js` + `StudentsPage.test.js`, `src/components/{StudentForm,StudentCard,ConfirmDialog,Select}.js`, `src/hooks/useForm.js`, `src/services/{studentsService,api}.js`, `src/styles/theme.css`.
+- **החלטות:** ‏(1) טלפון נשמר מנורמל בלי מקף; הוולידציה מקבלת את שני הפורמטים — זהה בלקוח ובשרת. (2) ‏DELETE מחזיר 204; ‏NotFound מחזיר `{ message }` בעברית ש-api.js יודע להציג. (3) שדה `Grade` נשאר במודל אך לא נחשף ב-DTOs — החלוקה לקבוצות מוסדרת בקשר Student→Group (שלב 3 שרת). (4) תאריך לידה ואופן תשלום מ-UI_SPEC ס' 11 יתווספו בשלבים 3/5 (תלויים בקטגוריות גבייה) — לא הומצאו שדות. (5) הלוגים באנגלית ובמזהים בלבד — פרטי ילדים והורים לא נכתבים ללוג.
+- **הצעד המומלץ הבא:** שלב 4 (מסך הבית) או שלב 5 (תשלומים) — שניהם פתוחים; וחיבור Railway (שלב 0) אצל בעלת המוצר.
+
 ## 09.07.2026 — שלב 3 הושלם: Group API בשרת + חיבור אשף ההרשמה
 
 - **מה נעשה:** נבנה צד השרת של שלב 3 לפי הארכיטקטורה: מודלים `Group` ו-`CollectionCategory` (+ קשר אופציונלי Student→Group), Migration‏ `AddGroupAndCollectionCategories`, שכבות מלאות (`GroupsController` דק → `IGroupService`/`GroupService`) עם DTOs וולידציה בעברית. יעד הגבייה מחושב בשרת. `onboardingService` בפרונט חובר ל-`POST /api/groups` עם נפילה חיננית לשמירה מקומית כשהשרת לא זמין (כפתור "כניסה לאפליקציה" ננעל בזמן השמירה). אומת מקצה לקצה מול שרת רץ: יצירה, שליפה, ושגיאות ולידציה. 23 טסטים עוברים, build ירוק.

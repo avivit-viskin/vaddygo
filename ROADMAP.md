@@ -10,14 +10,14 @@
 
 ---
 
-## שלב 0 — תשתית פרויקט 🔄 [Claude Fable, 09.07.2026 — הכנת פריסת הבקאנד]
+## שלב 0 — תשתית פרויקט 🔄 (נותרו רק פעולות דשבורד של בעלת המוצר)
 
 - ✅ ריפו Git + דחיפה ל-GitHub‏ (https://github.com/avivit-viskin/vaddygo)
 - ✅ מערך תיעוד מלא בריפו + פרומפט גנרי לסוכנים
 - ✅ CI ב-GitHub Actions: בדיקות + build על כל push
 - ☐ פריסה ל-Railway + דומיין (לפי [DEPLOYMENT.md](DEPLOYMENT.md)) — באחריות בעלת המוצר עם ליווי
 - ✅ הבקאנד עלה לריפו `[Claude Code, 08.07.2026]` — **החלטת בעלת המוצר: mono-repo** (הכל בריפו אחד). קוד השרת נמצא כעת בתיקיית `backend/` בתוך ריפו `vaddygo`. אומת שאין secrets (appsettings.json / appsettings.Development.json / launchSettings.json); `backend/.gitignore` מחריג bin/obj, `*.user`, קבצי SQLite `*.db`, env/secrets. הועברו קבצי מקור בלבד (18) — לא bin/obj/db.
-- ☐ פריסת הבקאנד ל-Railway + עדכון `REACT_APP_API_URL` בפרונט + CORS לדומיין הייצור
+- 🔄 פריסת הבקאנד ל-Railway — **הצד הטכני מוכן** [Claude Fable, 09.07.2026]: Dockerfile + ‎.dockerignore, האזנה ל-PORT של Railway, https-redirect רק בפיתוח, CI בונה גם את הבקאנד. **נותר לבעלת המוצר** (מדריך מלא ב-[DEPLOYMENT.md](DEPLOYMENT.md)): שירות שני מהריפו עם Root Directory=`backend`, ‏Volume ב-`/data`, משתני `ConnectionStrings__Default` ו-`Cors__AllowedOrigins__0`, דומיין (פורט 8080), ו-`REACT_APP_API_URL` בשירות הפרונט
 
 ## שלב 1 — תשתית פרונטאנד ✅
 
@@ -57,7 +57,7 @@
 - ✅ שכבות מלאות: `GroupsController` דק → `IGroupService`/`GroupService` → EF, עם DTOs וולידציה בעברית; יעד הגבייה מחושב בשרת (סה"כ לתלמיד × ילדים)
 - ✅ אומת מקצה לקצה: POST יצר גן עם קטגוריות (יעד 37,400 ₪ ל-22 ילדים), GET מחזיר, ולידציה מחזירה 400 עם הודעות בעברית
 
-## שלב 4 — מסך הבית ☐
+## שלב 4 — מסך הבית 🔄 [Claude Fable B, 09.07.2026]
 
 **צד שרת:** ☐ endpoint סיכום `GET /api/dashboard`: יעד גבייה, נגבה בפועל, יתרת קופה, חוב פתוח, פירוק לפי אמצעי תשלום וקטגוריה, התראות (חושב ב-Service, לא בלקוח)
 **צד לקוח:** ☐ `HomePage` לפי UI_SPEC ס' 8: בר עליון (לוגו, שם גן+שנה, פעמון), כרטיס גבייה עם החלפה בין סכום כולל ליתרת קופה, בר התקדמות, פירוק ביט/פייבוקס/מזומן, התראות, תשלומים לפי קטגוריות, ימי הולדת של הצוות

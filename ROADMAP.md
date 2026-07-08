@@ -43,7 +43,7 @@
 - ☐ יישור `StudentsController` הקיים לארכיטקטורה: Controller דק → `IStudentService` → `IRepository<Student>`, עם DTOs‏ (`StudentCreateDto`, `StudentUpdateDto`, `StudentResponseDto`)
 - ☐ ולידציה בשרת (DataAnnotations: שדות חובה, אורך, פורמט טלפון) + Middleware שגיאות מרכזי + ILogger
 
-## שלב 3 — פתיחה, הרשמה והגדרת גן וגבייה ☐ (אפיון מלא: UI_SPEC סעיפים 1-7)
+## שלב 3 — פתיחה, הרשמה והגדרת גן וגבייה 🔄 [Claude Fable, 08.07.2026] (אפיון מלא: UI_SPEC סעיפים 1-7)
 
 **צד לקוח:**
 - ☐ מסך פתיחה (Welcome) עם נוסח הפתיחה מהאפיון + "שנתחיל?" / "כבר יש לי חשבון — כניסה" (UI_SPEC ס' 1)

@@ -1,0 +1,47 @@
+using Microsoft.AspNetCore.Mvc;
+using ParentCommitteeAPI.DTOs;
+using ParentCommitteeAPI.Services;
+
+namespace ParentCommitteeAPI.Controllers
+{
+    /*
+      GroupsController — קונטרולר דק: מקבל בקשה, מעביר ל-IGroupService, מחזיר תשובה.
+      משרת את אשף ההרשמה (UI_SPEC ס' 3-6).
+    */
+    [ApiController]
+    [Route("api/[controller]")]
+    public class GroupsController : ControllerBase
+    {
+        private readonly IGroupService _groupService;
+
+        public GroupsController(IGroupService groupService)
+        {
+            _groupService = groupService;
+        }
+
+        // GET: api/groups
+        [HttpGet]
+        public async Task<ActionResult<IEnumerable<GroupResponseDto>>> GetAllGroups()
+        {
+            return Ok(await _groupService.GetAllAsync());
+        }
+
+        // GET: api/groups/1
+        [HttpGet("{id}")]
+        public async Task<ActionResult<GroupResponseDto>> GetGroup(int id)
+        {
+            var group = await _groupService.GetByIdAsync(id);
+            if (group == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(group);
+        }
+
+        // POST: api/groups
+        [HttpPost]
+        public async Task<ActionResult<GroupResponseDto>> CreateGroup([FromBody] GroupCreateDto dto)
+        {
+            var created = await _groupService.CreateAsync(dto);
+            return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created);
+        }
+    }
+}

@@ -30,6 +30,7 @@ function OnboardingWizard() {
   const navigate = useNavigate();
   const [step, setStep] = useState(1);
   const [errors, setErrors] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
   const [data, setData] = useState({
     city: "",
     ganName: "",
@@ -67,8 +68,9 @@ function OnboardingWizard() {
     setStep((s) => Math.max(s - 1, 1));
   }
 
-  function handleFinish() {
-    saveOnboarding(data);
+  async function handleFinish() {
+    setIsSaving(true);
+    await saveOnboarding(data); // גם אם השרת לא זמין — נשמר מקומית וממשיכים
     navigate("/");
   }
 
@@ -97,7 +99,9 @@ function OnboardingWizard() {
         )}
         {step < TOTAL_STEPS && <Button onClick={handleNext}>המשך</Button>}
         {step === TOTAL_STEPS && (
-          <Button onClick={handleFinish}>כניסה לאפליקציה</Button>
+          <Button onClick={handleFinish} isLoading={isSaving}>
+            כניסה לאפליקציה
+          </Button>
         )}
       </div>
     </div>

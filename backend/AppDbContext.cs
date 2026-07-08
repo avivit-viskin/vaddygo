@@ -12,5 +12,7 @@ namespace ParentCommitteeAPI
         public DbSet<Student> Students { get; set; }
         public DbSet<Event> Events { get; set; }
         public DbSet<Budget> Budgets { get; set; }
+        public DbSet<Group> Groups { get; set; }
+        public DbSet<CollectionCategory> CollectionCategories { get; set; }
     }
 }

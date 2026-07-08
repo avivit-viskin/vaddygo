@@ -29,6 +29,7 @@ builder.Services.AddControllers();
 // רישום השכבות ב-DI: ‏Repository גנרי (DAL) ו-Services (BL)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 builder.Services.AddScoped<IStudentService, StudentService>();
+builder.Services.AddScoped<IGroupService, GroupService>();
 
 var app = builder.Build();
 

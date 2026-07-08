@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — שלב 3 הושלם: Group API בשרת + חיבור אשף ההרשמה
+
+- **מה נעשה:** נבנה צד השרת של שלב 3 לפי הארכיטקטורה: מודלים `Group` ו-`CollectionCategory` (+ קשר אופציונלי Student→Group), Migration‏ `AddGroupAndCollectionCategories`, שכבות מלאות (`GroupsController` דק → `IGroupService`/`GroupService`) עם DTOs וולידציה בעברית. יעד הגבייה מחושב בשרת. `onboardingService` בפרונט חובר ל-`POST /api/groups` עם נפילה חיננית לשמירה מקומית כשהשרת לא זמין (כפתור "כניסה לאפליקציה" ננעל בזמן השמירה). אומת מקצה לקצה מול שרת רץ: יצירה, שליפה, ושגיאות ולידציה. 23 טסטים עוברים, build ירוק.
+- **למה:** משלים את אשף ההרשמה — הנתונים שהמשתמשת מזינה נשמרים עכשיו במסד האמיתי.
+- **קבצים:** backend: Models/Group.cs, Models/CollectionCategory.cs, Models/Student.cs, AppDbContext.cs, Program.cs, DTOs/GroupCreateDto.cs, DTOs/GroupResponseDto.cs, Services/IGroupService.cs, Services/GroupService.cs, Controllers/GroupsController.cs, Migrations/*AddGroupAndCollectionCategories*; frontend: src/services/onboardingService.js, src/pages/onboarding/OnboardingWizard.js + טסט.
+- **החלטות:** (1) `GroupService` ניגש ל-DbContext ישירות (לא דרך ה-Repository הגנרי) כי גן נטען תמיד עם הקטגוריות שלו (Include) — חריגה מתועדת. (2) קבוצות הגן נשמרות כמחרוזת מופרדת בפסיקים (KISS) — ינורמלו לטבלה אם יקבלו התנהגות. (3) ועדים נוספים (ריבוי ועדים) נשארו מקומיים בלבד — ממתין לתשובת בעלת המוצר (שאלה 3) לפני עיצוב רב-ועדים. (4) שם קטגוריה נשלח לשרת בלי הסיומת "(אופציונלי)".
+- **הצעד המומלץ הבא:** שלב 0 — פריסת הבקאנד ל-Railway (+ `REACT_APP_API_URL` ו-CORS לדומיין הייצור), כדי שהאתר החי יעבוד מול נתונים אמיתיים. לחלופין: צד שרת של שלב 6 (EventsController) שהתפנה, או שלב 4 (מסך הבית).
+
 ## 08.07.2026 — שלב 6 (צד לקוח): לוח שנה עברי עם חגים ואירועים
 
 - **מה נעשה:** נבנה `CalendarPage` מלא — תצוגת חודש בעברית (רשת ראשון-שבת, ניווט בין חודשים, כותרת לועזית + טווח חודשים עבריים), חגי ישראל מסומנים בלוח וברשימה חודשית, הוספת אירוע במודאל (שם, תאריך, מיקום, תיאור, תזכורת 🔔) עם ולידציה וכפתור נעול, ומחיקת אירוע עם מודאל אישור. נוספו 7 טסטים (כולל אימות שחנוכה 2026 וראש השנה 2026 מחושבים נכון).

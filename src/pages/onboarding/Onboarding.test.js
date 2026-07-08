@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import { MemoryRouter } from "react-router-dom";
 import WelcomePage from "../WelcomePage";
@@ -40,7 +40,7 @@ test("האשף לא ממשיך מצעד 1 בלי פרטי חובה", () => {
   expect(screen.getByText("שלב 1 מתוך 5")).toBeInTheDocument();
 });
 
-test("מסלול מלא באשף: מילוי, סיכום ושמירה", () => {
+test("מסלול מלא באשף: מילוי, סיכום ושמירה", async () => {
   renderWithRouter(<OnboardingWizard />);
 
   userEvent.type(screen.getByLabelText("עיר / יישוב"), "תל אביב");
@@ -69,7 +69,11 @@ test("מסלול מלא באשף: מילוי, סיכום ושמירה", () => {
   ).toBeInTheDocument();
   userEvent.click(screen.getByRole("button", { name: "כניסה לאפליקציה" }));
 
-  const saved = getOnboarding();
-  expect(saved.ganName).toBe("גן הפרחים");
-  expect(saved.city).toBe("תל אביב");
+  // השמירה אסינכרונית (מנסה שרת ונופלת לגיבוי מקומי) — מחכים שתסתיים
+  await waitFor(() => {
+    const saved = getOnboarding();
+    expect(saved).not.toBeNull();
+    expect(saved.ganName).toBe("גן הפרחים");
+    expect(saved.city).toBe("תל אביב");
+  });
 });

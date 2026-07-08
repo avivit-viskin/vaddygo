@@ -6,6 +6,14 @@
 
 ---
 
+## 08.07.2026 — שלב 3 (צד לקוח): מסכי פתיחה, כניסה ואשף הרשמה
+
+- **מה נעשה:** נבנו כל מסכי הכניסה לפי UI_SPEC ס' 1-6: `WelcomePage` (נוסח הפתיחה המדויק מהפנקס + שני כפתורים), `LoginPage` (מייל, סיסמה עם עין — UI בלבד), ואשף `OnboardingWizard` ב-5 צעדים (פרטי גן → קבוצות גן/בי"ס → ועדים נוספים 1-4 → הגדרת גבייה ב-4 קטגוריות עם 1/2/3 תשלומים וחישוב יעד אוטומטי → סיכום "הכל מוכן!"). כניסה ראשונה ל-`/` מפנה ל-`/welcome`; אחרי סיום האשף נכנסים לאפליקציה. נוספו 3 טסטים (סה"כ 9 עוברים) + build ירוק.
+- **למה:** אלה המסכים הראשונים שכל משתמשת חדשה פוגשת, לפי האפיון מהפנקס.
+- **קבצים:** src/pages/WelcomePage.js, src/pages/LoginPage.js, src/pages/onboarding/ (OnboardingWizard, GanDetailsStep, GroupsStep, CommitteesStep, CollectionStep, SummaryStep + טסט), src/services/onboardingService.js, src/styles/onboarding.css, src/App.js (נתיבים + הסתרת ניווט במסכי פתיחה), src/App.test.js (סימון onboarding בטסטים).
+- **החלטות:** נתוני האשף נשמרים ב-localStorage דרך onboardingService עד שיהיה Group API — ההחלפה תהיה בשירות בלבד, בלי לגעת במסכים. סכומי הפנקס (1,200/500/400/125) הם placeholders, לא ערכי ברירת מחדל. לא מוצגת הודעת "נשלחה הזמנה ל-X משתמשים" כי הזמנות עוד לא באמת נשלחות. עיר בהקלדה חופשית עד שבעלת המוצר תאשר מקור לרשימת יישובים. פריטי ❓ נשארו בקובץ השאלות.
+- **הצעד המומלץ הבא:** צד השרת של שלב 3 (מודל Group + CollectionCategory + חיבור onboardingService ל-API) — כדאי על בסיס הארכיטקטורה החדשה שיושרה בבקאנד. במקביל: פריסת הבקאנד ל-Railway (שלב 0).
+
 ## 08.07.2026 — הבקאנד הוכנס לריפו (mono-repo, תיקיית `backend/`)
 
 - **מה נעשה:** לפי החלטת בעלת המוצר לעבוד ב-**mono-repo** (הכל בריפו אחד), קוד השרת `ParentCommitteeAPI` הוכנס לתיקיית `backend/` בתוך ריפו `vaddygo`, נדחף ל-main. הועברו **רק קבצי המקור שגיט עוקב אחריהם** (18 קבצים) באמצעות `git archive HEAD` → חילוץ ל-`backend/` — כך שקבצי `bin/`, `obj/`, ו-SQLite (`*.db`) לא נכנסו. `backend/.gitignore` נשמר (מחריג build/db/secrets גם בתת-התיקייה).

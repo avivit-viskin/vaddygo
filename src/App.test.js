@@ -14,8 +14,17 @@ function renderAt(path) {
   );
 }
 
+// מסמנים שההגדרה הראשונית הושלמה, כדי שהטסטים יגיעו למסך הבית ולא יופנו למסך הפתיחה
+beforeEach(() => {
+  localStorage.setItem(
+    "vaadygo.onboarding",
+    JSON.stringify({ ganName: "גן הבדיקות" })
+  );
+});
+
 // מדמים את קריאות השרת כדי שהטסטים לא יהיו תלויים בשרת אמיתי
 afterEach(() => {
+  localStorage.clear();
   delete global.fetch;
 });
 

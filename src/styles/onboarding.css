@@ -1,0 +1,191 @@
+/*
+  onboarding.css — עיצוב מסכי הפתיחה, הכניסה ואשף ההרשמה (שלב 3).
+  משתמש אך ורק במשתני theme.css — אין כאן צבעים קשיחים.
+*/
+
+/* ===== מסך פתיחה ===== */
+
+.welcome {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 24px;
+  background: linear-gradient(
+    180deg,
+    var(--color-primary-light) 0%,
+    var(--color-bg) 60%
+  );
+}
+
+.welcome__logo {
+  font-size: 40px;
+  margin: 0 0 24px;
+  color: var(--color-primary);
+}
+
+.welcome__text {
+  max-width: 420px;
+  font-size: var(--font-size-lg);
+  color: var(--color-text);
+  margin: 0 0 16px;
+}
+
+.welcome__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  max-width: 320px;
+  margin-top: 24px;
+}
+
+/* ===== מסך כניסה ואשף ===== */
+
+.auth-page,
+.wizard {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px 96px;
+}
+
+.auth-page__logo,
+.wizard__logo {
+  text-align: center;
+  font-size: 28px;
+  color: var(--color-primary);
+  margin: 8px 0 16px;
+}
+
+.auth-page__hint {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  text-align: center;
+  margin: 12px 0 0;
+}
+
+.auth-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+/* שדה סיסמה עם כפתור עין */
+.password-field {
+  position: relative;
+}
+
+.password-field__eye {
+  position: absolute;
+  top: 34px;
+  left: 8px;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
+/* ===== אשף — צעדים ===== */
+
+.wizard__progress {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin-bottom: 12px;
+}
+
+.wizard__question {
+  font-size: var(--font-size-lg);
+  font-weight: 500;
+  margin: 16px 0 8px;
+}
+
+.wizard__actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+}
+
+.wizard__actions > * {
+  flex: 1;
+}
+
+/* צ'יפים לבחירה (קבוצות, מספר ועדים, תשלומים) */
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 8px 0;
+}
+
+.chip {
+  min-height: var(--touch-target);
+  padding: 8px 18px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  font-size: var(--font-size-base);
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.chip--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: #fff;
+  font-weight: 500;
+}
+
+/* שורת קטגוריית גבייה */
+.category-row {
+  border-bottom: 1px solid var(--color-border);
+  padding: 12px 0;
+}
+
+.category-row__name {
+  font-weight: 500;
+  margin-bottom: 4px;
+}
+
+.category-row__installments {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* סיכום הגבייה והכרטיס הסופי */
+.totals {
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: 12px 16px;
+  margin-top: 16px;
+  font-weight: 500;
+}
+
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-list li {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.summary-list li:last-child {
+  border-bottom: none;
+}
+
+.summary-list .summary-list__value {
+  font-weight: 500;
+}

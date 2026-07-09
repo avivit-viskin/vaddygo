@@ -1,17 +1,19 @@
+import { api } from "./api";
+
 /*
   eventsService.js — אירועי הגן ללוח השנה.
 
-  שמות השדות זהים למודל Event בשרת (name, eventDate, description, location)
-  בתוספת reminder (יתווסף לשרת במשימת צד-השרת של שלב 6).
+  מנסה קודם את השרת (‏/api/events); אם אינו זמין — נופל ל-localStorage,
+  כך שהלוח עובד גם לפני שהבקאנד פרוס לענן. כשהבקאנד יהיה זמין, אותן
+  קריאות ילכו למסד האמיתי בלי לשנות אף מסך.
 
-  ⏳ זמני: עד שקיים endpoint‏ /api/events בשרת, האירועים נשמרים ב-localStorage
-  של הדפדפן. הפונקציות אסינכרוניות בכוונה — כשה-API יהיה מוכן מחליפים רק
-  את הגוף שלהן בקריאות api.get/post/del, בלי לשנות אף מסך.
+  שמות השדות זהים למודל Event בשרת: name, eventDate, description,
+  location, reminder.
 */
 
 const STORAGE_KEY = "vaadygo.events";
 
-function readAll() {
+function readLocal() {
   try {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
   } catch {
@@ -19,35 +21,47 @@ function readAll() {
   }
 }
 
-function writeAll(events) {
+function writeLocal(events) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
 }
 
-// ממיר מחרוזת תאריך "YYYY-MM-DD" ל-Date מקומי בצהריים (יציב מול אזורי זמן)
+// ממיר מחרוזת תאריך ("YYYY-MM-DD" או ISO מהשרת) ל-Date מקומי בצהריים
+// (יציב מול אזורי זמן — התאריך לא "זז" יום אחורה).
 export function parseEventDate(dateString) {
   const [year, month, day] = dateString.split("T")[0].split("-").map(Number);
   return new Date(year, month - 1, day, 12);
 }
 
 export async function getEvents() {
-  return readAll();
+  try {
+    return await api.get("/api/events");
+  } catch {
+    return readLocal();
+  }
 }
 
 export async function addEvent({ name, eventDate, description, location, reminder }) {
-  const events = readAll();
-  const newEvent = {
-    id: Date.now(),
+  const payload = {
     name,
     eventDate,
     description: description || "",
     location: location || "",
     reminder: Boolean(reminder),
   };
-  writeAll([...events, newEvent]);
-  return newEvent;
+  try {
+    return await api.post("/api/events", payload);
+  } catch {
+    const newEvent = { id: Date.now(), ...payload };
+    writeLocal([...readLocal(), newEvent]);
+    return newEvent;
+  }
 }
 
 export async function deleteEvent(id) {
-  writeAll(readAll().filter((event) => event.id !== id));
+  try {
+    await api.del(`/api/events/${id}`);
+  } catch {
+    writeLocal(readLocal().filter((event) => event.id !== id));
+  }
   return null;
 }

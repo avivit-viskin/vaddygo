@@ -146,3 +146,61 @@
   padding-top: 12px;
   border-top: 1px solid var(--color-border);
 }
+
+/* ===== תזכורת גורפת לחייבים ===== */
+
+.bulk-reminder__done {
+  text-align: center;
+  color: var(--color-success);
+  font-weight: 700;
+  padding: 12px 0;
+}
+
+.bulk-reminder__textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.bulk-reminder__textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+.bulk-reminder__note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 10px 0 12px;
+}
+
+.bulk-reminder__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.bulk-reminder__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background-color: var(--color-surface);
+}
+
+.bulk-reminder__send {
+  text-decoration: none;
+  flex-shrink: 0;
+}

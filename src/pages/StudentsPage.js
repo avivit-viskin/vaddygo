@@ -20,6 +20,7 @@ import StudentCard from "../components/StudentCard";
 import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
+import BulkReminderButton from "../components/BulkReminderButton";
 import "../styles/students.css";
 
 /*
@@ -166,6 +167,11 @@ function StudentsPage() {
       <div className="page-header">
         <h2>{totalCount} תלמידים</h2>
         <div className="page-header__actions">
+          <BulkReminderButton
+            unpaidStudents={(students ?? []).filter(
+              (s) => summaries[s.id]?.hasUnpaid
+            )}
+          />
           <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
             📄 ייבוא מקובץ
           </Button>

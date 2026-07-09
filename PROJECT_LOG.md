@@ -6,6 +6,22 @@
 
 ---
 
+## 09.07.2026 — הרשמה: השלמה אוטומטית לעיר + רכיב Autocomplete גנרי [Claude Fable 5]
+
+- **מה נעשה:** שדה "עיר" באשף ההרשמה קיבל **השלמה אוטומטית**. נבנה רכיב גנרי `Autocomplete` (מציג הצעות מסוננות תוך כדי הקלדה, **ומאפשר גם ערך חופשי** שאינו ברשימה), קובץ נתונים `src/data/israeliCities.js` (~110 היישובים הגדולים/מוכרים), וחיבור לשדה העיר ב-`GanDetailsStep`. פרונט-בלבד, לא תלוי בשרת. קומפילציה נקייה (תוקנה אזהרת נגישות: `combobox` דורש `aria-controls`). commit `5e018a0`.
+- **למה:** בקשת בעלת המוצר — השלמה אוטומטית לעיר, עם נפילה להקלדה חופשית ליישוב שלא ברשימה.
+- **קבצים:** `src/components/Autocomplete.js` (חדש), `src/data/israeliCities.js` (חדש), `src/styles/autocomplete.css` (חדש), `src/pages/onboarding/GanDetailsStep.js`.
+- **החלטות:** הרשימה חלקית (הערים הגדולות) + הקלדה חופשית — לא חוסמת יישוב חסר; להחלפה ברשימת היישובים הרשמית המלאה (הלמ"ס) די להחליף קובץ אחד. הרכיב גנרי — ישרת גם את רשימת הגנים-לפי-עיר בהמשך.
+- **הצעד המומלץ הבא:** רשימת גנים/בתי ספר **לפי העיר שנבחרה** (מוסדות חינוך של משרד החינוך) — הבקשה הפתוחה הנותרת של בעלת המוצר; יכולה להשתמש באותו רכיב `Autocomplete`.
+
+## 09.07.2026 — מסך תלמידים: תאריך לידה + סכום ששולם לכל תלמיד [Claude Fable 5]
+
+- **מה נעשה:** לכל תלמיד נוסף **תאריך לידה** ותצוגת **כמה שילם** בכרטיס. שרת: שדה `BirthDate` (DateOnly, אופציונלי) ב-`Student` וב-DTOs, `StudentService` מזריק את מאגר התשלומים ומחזיר `TotalPaid` (סכום התשלומים ששולמו) לכל תלמיד, ו-Migration‏ `AddStudentBirthDate` (עמודה additive). לקוח: שדה תאריך לידה בטופס (ריק→null), וכרטיס התלמיד מציג יום הולדת בקטן (🎂) ו"שולם עד כה: X ₪". אומת מקצה-לקצה (POST 201 עם תאריך, GET מחזיר `birthDate`+`totalPaid`, קומפילציה נקייה). commit `57babd5`.
+- **למה:** בקשת בעלת המוצר — ליד כל תלמיד יום הולדת בקטן וכמה כסף העביר.
+- **קבצים:** `backend/Models/Student.cs`, `backend/DTOs/{StudentWriteDto,StudentResponseDto}.cs`, `backend/Services/StudentService.cs`, Migration `AddStudentBirthDate`; `src/components/{StudentCard,StudentForm}.js`, `src/pages/StudentsPage.js`, `src/services/format.js`.
+- **החלטות:** `BirthDate` אופציונלי (לא שובר תלמידים קיימים); `TotalPaid` מחושב בשרת (לא נשמר במסד) מסכום התשלומים ששולמו. בוצע על **בסיס נקי** — ה-WIP המקביל (ספקים/אבטחה) הוחנה בצד (stash) ואז הוחזר, כדי שהמיגרציה שלי לא תתערבב בשלהם.
+- **הצעד המומלץ הבא:** רישום תשלום מהיר ישירות מכרטיס התלמיד (כיום דרך מסך תשלומים נפרד).
+
 ## 09.07.2026 — 🚀 שלב 0 הושלם: המערכת עלתה לאוויר מקצה-לקצה (Railway)
 
 - **מה נעשה:** בעלת המוצר פרסה את המערכת המלאה ל-Railway בליווי צעד-אחר-צעד. פרויקט Railway אחד (`superb-hope`) עם **שני שירותים**: הפרונט (`vaddygo`, `https://vaddygo-production.up.railway.app`) והבקאנד החדש (`soothing-clarity`, `https://soothing-clarity-production.up.railway.app`). הבקאנד: Root Directory=`backend`, Builder=**Dockerfile** (זוהה אוטומטית), Volume ב-`/data`, ומשתני סביבה — `ConnectionStrings__Default=Data Source=/data/vaadygo.db`, `Cors__AllowedOrigins__0`=כתובת הפרונט, `Jwt__Key`=מפתח אקראי. הפרונט חובר עם `REACT_APP_API_URL`=כתובת הבקאנד (נבנה מחדש כדי לצרוב אותה). **אימות:** `GET /api/health` החזיר `{"status":"ok","database":"ok"}`; הרשמת משתמש, הגדרת גן והוספת תלמיד נשמרו ושׂרדו יציאה-וחזרה — כלומר נתונים אמיתיים בשרת, לא ב-localStorage.

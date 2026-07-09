@@ -100,9 +100,12 @@
 
 **⚠️ לפני פריסת הבקאנד:** ‏main כולל אכיפת אבטחה גורפת בשרת. הפרונט כבר שולח token, אז זרם הרשמה→כניסה→שימוש עובד; אבל חובה להגדיר `Jwt__Key` (מחרוזת אקראית ארוכה) ב-Railway Variables — אחרת נעשה שימוש במפתח פיתוח חלש.
 
-## שלב 11 — הקשחת ייצור 🔄 [Claude Code, 09.07.2026 — Health Checks]
+## שלב 11 — הקשחת ייצור ☐ (Health Checks ✅)
 
-☐ מעבר ל-SQL Server (החלפת connection string) · ☐ גיבויים אוטומטיים · 🔄 Monitoring + Health Checks · ☐ CORS לדומיין הייצור בלבד
+☐ מעבר ל-SQL Server (החלפת connection string) · ☐ גיבויים אוטומטיים · ✅ Monitoring + Health Checks [Claude Code, 09.07.2026] · ☐ CORS לדומיין הייצור בלבד
+
+- ✅ **Health Check** — `GET /api/health` (`HealthController`, ‏`[AllowAnonymous]` כדי שבודק הבריאות של Railway לא ייחסם ע"י אכיפת ה-token משלב 10): מחזיר 200 כשהשרת והמסד זמינים (בודק `Database.CanConnectAsync`), ו-503 אם אין גישה למסד. אומת מקצה-לקצה: 200 בלי token מול 401 ל-`/api/students` בלי token. **מומלץ להגדיר את הנתיב הזה כ-Health Check Path ב-Railway.**
+- ☐ שאר ההקשחה (SQL Server, גיבויים, CORS לדומיין הייצור) — תלוי בפריסה בפועל ובדומיין, לביצוע יחד עם עליית הבקאנד ל-Railway.
 
 ---
 

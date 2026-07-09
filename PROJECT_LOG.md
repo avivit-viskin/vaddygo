@@ -6,6 +6,15 @@
 
 ---
 
+## 09.07.2026 — שלב 11 (חלקי): Health Check endpoint + סריקת שם סופית
+
+- **מה נעשה:** (1) **Health Check** — נוסף `HealthController` עם `GET /api/health` (‏`[AllowAnonymous]`) שמחזיר 200 כשהשרת והמסד זמינים (בודק `Database.CanConnectAsync`) ו-503 כשאין גישה למסד. קריטי אחרי שלב 10: ה-`FallbackPolicy` אוכף token על כל endpoint, כך שבלי `[AllowAnonymous]` בודק הבריאות של Railway היה מקבל 401. (2) **סריקת שם סופית** — אחרי ששלבים 7/9/10 נדחפו, הוחלפו 8 המופעים האחרונים של "VaadyGo"→"VaddyGo" בקוד שלהם (פרומפט העוזרת שמוצג למשתמשת, קבועי Issuer/Audience של ה-JWT, והערות). אין יותר אף "VaadyGo" בריפו.
+- **למה:** בלי endpoint בריאות פתוח, פלטפורמת הפריסה לא יכולה לבדוק אם השרת חי (כל שאר ה-endpoints דורשים token). זה מסיר חסם לפני העלייה ל-Railway.
+- **קבצים:** `backend/Controllers/HealthController.cs` (חדש); סריקת שם: `backend/Services/AiService.cs`, `backend/Services/JwtTokenService.cs`, `backend/Models/User.cs`, `backend/Models/Vendor.cs`, `src/pages/gifts/VendorForm.js`, `PROJECT_LOG.md`. ROADMAP עודכן.
+- **החלטות:** ‏(1) קונטרולר עם `[AllowAnonymous]` ולא `MapHealthChecks` — לא דורש שינוי ב-Program.cs (הימנעות מהתנגשות עם שלב 10 שעדיין 🔄), ומחזיר גם סטטוס מסד. (2) קבועי ה-JWT הם מקור-אמת יחיד (`JwtSettings`) שגם ההפקה וגם האימות מפנים אליו — שינוי הערך בטוח, ואין עדיין טוקנים שהונפקו. (3) שאר הקשחת שלב 11 (SQL Server, גיבויים, CORS לדומיין) נשארת פתוחה — תלויה בפריסה בפועל; שחררתי את התפיסה.
+- **אימות:** אומת מקצה-לקצה בעותק מבודד (השרת של אביבית רץ במקביל, לא הופרע): `/api/health` בלי token → 200 `{status:ok,database:ok}`; `/api/students` בלי token → 401. build נקי (0 אזהרות).
+- **הצעד המומלץ הבא:** פריסת הבקאנד ל-Railway (שלב 0) עם `/api/health` כ-Health Check Path ו-`Jwt__Key` במשתני סביבה; אחר כך Google OAuth (סיום שלב 10) שיפתח את שלב 8 (Drive).
+
 ## 09.07.2026 — שלב 10: אבטחה וכניסה — בסיס מלא (שרת + לקוח), נותר Google OAuth
 
 - **מה נעשה:** אינטגרציה והשלמה של שלב האבטחה. **שרת (אונטגר מסשן phase-10 מקביל שכבר לא רץ, אומת ונדחף):** מודל `User` (שם משתמש, מייל, `PasswordHash`, `GoogleId`, `Role`, `SubscriptionValidUntil`), `AuthService` (הרשמה/כניסה, גיבוב PBKDF2 ב-`PasswordHasher`), `SubscriptionPolicy` שמעניק תוקף עד 30.8 של השנה שאחרי הרכישה, `JwtTokenService` (תוקף ה-token = תוקף המנוי, מפתח מ-env בלבד), ו-`FallbackPolicy` שדורש token בכל endpoint (`AuthController` הוא `[AllowAnonymous]`). Migration‏ `AddUsers`. **לקוח (נכתב עכשיו):** `authService` (login/register/logout/getToken/isSuperAdmin), `api.js` מצרף `Authorization: Bearer <token>` לכל בקשה (קריאת המפתח ישירות מ-localStorage כדי למנוע תלות מעגלית), `LoginPage` ו-`RegisterPage` אמיתיים מול `/api/auth`, והגנת ניתוב ב-`App.js` (מסך שאינו ציבורי בלי token → מסך פתיחה). זרם: פתיחה → הרשמה (שם משתמש/סיסמה) → אשף הגן → בית. 5 טסטי לקוח חדשים; סה"כ 50 עוברים + build ירוק. אומת מקצה-לקצה מול שרת רץ: הרשמה החזירה תוקף 30.8.2027, ‏`/api/vendors` = 401 בלי token ו-200 איתו.

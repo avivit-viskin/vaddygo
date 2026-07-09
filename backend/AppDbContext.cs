@@ -16,5 +16,8 @@ namespace ParentCommitteeAPI
         public DbSet<CollectionCategory> CollectionCategories { get; set; }
         public DbSet<StaffMember> StaffMembers { get; set; }
         public DbSet<Payment> Payments { get; set; }
+        public DbSet<Vendor> Vendors { get; set; }
+        public DbSet<VendorProduct> VendorProducts { get; set; }
+        public DbSet<Gift> Gifts { get; set; }
     }
 }

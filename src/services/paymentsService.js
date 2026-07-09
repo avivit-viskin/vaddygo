@@ -15,6 +15,24 @@ export function saveStudentPayment(studentId, categoryId, payment) {
 }
 
 /*
+  סיכום מצב התשלומים של תלמיד (כמה קטגוריות שולמו מתוך הכל), לתצוגת תג
+  ברשימת התלמידים. ⏳ כרגע קריאה אחת לתלמיד; אם מספר התלמידים יגדל מאוד
+  כדאי endpoint סיכום מרוכז בשרת (`GET /api/students/payments-summary`).
+*/
+export async function getPaymentSummary(studentId) {
+  const payments = await getStudentPayments(studentId);
+  const totalCount = payments.length;
+  const paidCount = payments.filter((p) => p.isPaid).length;
+  return {
+    studentId: Number(studentId),
+    paidCount,
+    totalCount,
+    allPaid: totalCount > 0 && paidCount === totalCount,
+    hasUnpaid: payments.some((p) => !p.isPaid),
+  };
+}
+
+/*
   בונה קישור וואטסאפ עם הודעת תזכורת מוכנה. פותח את וואטסאפ עם ההודעה
   כבר מוקלדת — הוועד רק לוחץ "שלח". בלי סליקה בתוך המערכת (UI_SPEC ס' 15).
 */

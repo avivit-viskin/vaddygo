@@ -435,6 +435,24 @@ h3 {
   gap: 8px;
 }
 
+/* תג סטטוס תשלום ליד שם התלמיד: אפור=חלקי/אין, ירוק=שולם הכל */
+.pay-badge {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  background-color: var(--color-border);
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.pay-badge--paid {
+  background-color: #dcfce7;
+  color: var(--color-success);
+}
+
 /* ===== דיאלוג אישור ===== */
 
 .confirm-dialog__message {

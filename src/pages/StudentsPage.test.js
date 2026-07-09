@@ -43,11 +43,18 @@ function jsonResponse(data, status = 200) {
   });
 }
 
-/* מדמה שרת קטן: GET מחזיר את הרשימה, ושאר הפעולות מעדכנות אותה. */
-function mockServer(initialStudents) {
+/*
+  מדמה שרת קטן: GET מחזיר את הרשימה, GET .../payments מחזיר את תשלומי התלמיד
+  (למונה התג ולסינון), ושאר הפעולות מעדכנות את הרשימה.
+*/
+function mockServer(initialStudents, paymentsByStudent = {}) {
   let students = [...initialStudents];
   global.fetch = jest.fn((url, options = {}) => {
     const method = options.method ?? "GET";
+    if (method === "GET" && url.endsWith("/payments")) {
+      const studentId = Number(url.split("/").slice(-2)[0]);
+      return jsonResponse(paymentsByStudent[studentId] ?? []);
+    }
     if (method === "POST") {
       const created = { id: 99, ...JSON.parse(options.body) };
       students = [...students, created];
@@ -96,6 +103,29 @@ test("חיפוש חופשי מסנן את הכרטיסים ומציג הודעה
   expect(
     screen.getByText(/לא נמצאו תלמידים שמתאימים לחיפוש/)
   ).toBeInTheDocument();
+});
+
+test("מציג תג סטטוס תשלום ומסנן למי שטרם שילם", async () => {
+  mockServer([dana, noam], {
+    1: [
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, isPaid: true },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, isPaid: true },
+    ],
+    2: [
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, isPaid: false },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, isPaid: true },
+    ],
+  });
+  renderPage();
+
+  // התגים נטענים ברקע אחרי הכרטיסים
+  expect(await screen.findByText("שולם 2/2")).toBeInTheDocument(); // דנה שילמה הכל
+  expect(screen.getByText("שולם 1/2")).toBeInTheDocument(); // נועם חלקי
+
+  // סינון "רק מי שטרם שילם" מסתיר את מי ששילמה הכל
+  await userEvent.click(screen.getByLabelText("הצג רק מי שטרם שילם"));
+  expect(screen.queryByText(/דנה כהן/)).not.toBeInTheDocument();
+  expect(screen.getByText(/נועם לוי/)).toBeInTheDocument();
 });
 
 test("סינון לפי כיתה מציג רק את תלמידי הכיתה שנבחרה", async () => {

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
@@ -7,9 +7,11 @@ import {
   updateStudent,
   deleteStudent,
 } from "../services/studentsService";
+import { getPaymentSummary } from "../services/paymentsService";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Select from "../components/Select";
+import Checkbox from "../components/Checkbox";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -29,6 +31,11 @@ function StudentsPage() {
 
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("");
+  const [onlyUnpaid, setOnlyUnpaid] = useState(false);
+
+  // סיכום תשלומים לכל תלמיד (לתג ולסינון) — נטען אחרי שהתלמידים הגיעו,
+  // לא חוסם את הצגת הכרטיסים. { [studentId]: { paidCount, totalCount, allPaid, hasUnpaid } }
+  const [summaries, setSummaries] = useState({});
 
   // הטופס משמש גם להוספה (editedStudent ריק) וגם לעריכה
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -38,6 +45,28 @@ function StudentsPage() {
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+
+  // טעינת סיכומי התשלום במקביל לכל התלמידים (ברקע, אחרי הרשימה)
+  useEffect(() => {
+    if (!students || students.length === 0) {
+      setSummaries({});
+      return;
+    }
+    let cancelled = false;
+    Promise.all(
+      students.map((student) => getPaymentSummary(student.id).catch(() => null))
+    ).then((results) => {
+      if (cancelled) return;
+      const next = {};
+      results.forEach((summary) => {
+        if (summary) next[summary.studentId] = summary;
+      });
+      setSummaries(next);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [students]);
 
   const classNames = useMemo(
     () =>
@@ -53,6 +82,14 @@ function StudentsPage() {
       if (classFilter && student.className !== classFilter) {
         return false;
       }
+      // "טרם שילמו": מסתיר רק תלמידים שידוע שסיימו לשלם; מי שהסיכום שלו
+      // עדיין לא נטען נשאר גלוי כדי לא להעלים תלמידים בטעות.
+      if (onlyUnpaid) {
+        const summary = summaries[student.id];
+        if (summary && !summary.hasUnpaid) {
+          return false;
+        }
+      }
       if (!term) {
         return true;
       }
@@ -60,7 +97,7 @@ function StudentsPage() {
         `${student.firstName} ${student.lastName} ${student.className} ${student.parentPhoneNumber}`.toLowerCase();
       return haystack.includes(term);
     });
-  }, [students, searchTerm, classFilter]);
+  }, [students, searchTerm, classFilter, onlyUnpaid, summaries]);
 
   function openAddForm() {
     setEditedStudent(null);
@@ -150,6 +187,12 @@ function StudentsPage() {
                 </option>
               ))}
             </Select>
+            <Checkbox
+              id="students-only-unpaid"
+              label="הצג רק מי שטרם שילם"
+              checked={onlyUnpaid}
+              onChange={(event) => setOnlyUnpaid(event.target.checked)}
+            />
           </div>
 
           {visibleStudents.length === 0 ? (
@@ -159,6 +202,7 @@ function StudentsPage() {
               <StudentCard
                 key={student.id}
                 student={student}
+                summary={summaries[student.id]}
                 onPayments={(s) => navigate(`/students/${s.id}/payments`)}
                 onEdit={openEditForm}
                 onDelete={setStudentToDelete}

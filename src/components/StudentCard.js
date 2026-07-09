@@ -3,16 +3,24 @@ import Button from "./Button";
 
 /*
   StudentCard — כרטיס תלמיד אחד ברשימה: שם מלא, כיתה/קבוצה, טלפון הורה
-  (לחיץ לחיוג מהנייד), ופעולות עריכה ומחיקה.
+  (לחיץ לחיוג מהנייד), תג סטטוס תשלום, ופעולות תשלומים/עריכה/מחיקה.
   תצוגה בלבד — הלוגיקה אצל ההורה (StudentsPage).
+  summary אופציונלי: { paidCount, totalCount, allPaid } — נטען אחרי הכרטיסים.
 */
-function StudentCard({ student, onPayments, onEdit, onDelete }) {
+function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
   return (
     <Card>
       <div className="student-card">
         <div className="student-card__details">
           <strong>
             {student.firstName} {student.lastName}
+            {summary && summary.totalCount > 0 && (
+              <span
+                className={`pay-badge${summary.allPaid ? " pay-badge--paid" : ""}`}
+              >
+                שולם {summary.paidCount}/{summary.totalCount}
+              </span>
+            )}
           </strong>
           <span>כיתה/קבוצה: {student.className}</span>
           <span>

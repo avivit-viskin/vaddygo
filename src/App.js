@@ -16,6 +16,7 @@ import RegisterPage from "./pages/RegisterPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import PurchasePage from "./pages/PurchasePage";
+import CheckoutPage from "./pages/CheckoutPage";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -100,6 +101,7 @@ function App() {
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
+          <Route path="/pay" element={<CheckoutPage />} />
           <Route
             path="/institutions/:id/purchase"
             element={<PurchasePage />}

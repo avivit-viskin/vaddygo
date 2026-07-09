@@ -1,0 +1,87 @@
+/*
+  checkout.css — מסך התשלום (דמו). משתמש במשתני theme.css בלבד.
+*/
+
+.checkout {
+  max-width: 440px;
+  margin: 0 auto;
+}
+
+/* פס "מסך הדגמה" — ברור שאין חיוב אמיתי */
+.checkout__demo-banner {
+  margin: 0 0 16px;
+  padding: 10px 14px;
+  border-radius: var(--radius-sm);
+  background-color: #fff7ed;
+  border: 1px solid #fdba74;
+  color: #9a3412;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.5;
+}
+
+/* סיכום הסכום לתשלום */
+.checkout__summary {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding-bottom: 16px;
+  margin-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.checkout__for {
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.checkout__amount {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+/* תוקף + CVV זה לצד זה */
+.checkout__row {
+  display: flex;
+  gap: 12px;
+}
+
+.checkout__row .field {
+  flex: 1;
+}
+
+.checkout .btn {
+  width: 100%;
+  margin-top: 4px;
+}
+
+/* מסך הצלחה */
+.checkout__success {
+  text-align: center;
+  padding: 12px 0;
+}
+
+.checkout__success-icon {
+  font-size: 56px;
+  margin-bottom: 8px;
+}
+
+.checkout__paid-amount {
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-success);
+  margin: 4px 0 12px;
+}
+
+.checkout__demo-note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0 0 20px;
+}
+
+.checkout__back {
+  display: inline-block;
+  text-decoration: none;
+}

@@ -49,6 +49,7 @@ builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 
 // אימות JWT — בודק את ה-token שהלקוח שולח בכותרת Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)

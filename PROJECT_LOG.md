@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — שלב 8 הושלם: מסך קבצים — קישורי תיקיות Google Drive (ידני)
+
+- **מה נעשה:** מומש מסך הקבצים לפי הגישה המעודכנת של בעלת המוצר (קישורים ידניים במקום OAuth). **שרת:** מודל `DriveFolder` (שם + קישור) + Migration‏ `AddDriveFolders` + שכבות מלאות — `FoldersController` (`api/folders`) דק → `IDriveFolderService`/`DriveFolderService` → `IRepository<DriveFolder>` גנרי, עם DTOs וולידציה בעברית (קישור חייב http/https). **לקוח:** `FilesPage` — כל תיקייה מוצגת כקישור שנפתח בדרייב (טאב חדש), עם הוספה/עריכה (`FolderForm`) ומחיקה באישור, מצבי טעינה/שגיאה/ריק, ו-fallback ל-localStorage. 3 טסטי לקוח (סה"כ 53 עוברים) + build ירוק.
+- **למה:** בעלת המוצר רצתה דרך פשוטה לרכז קישורים לתיקיות הדרייב של הוועד בלי לחפש ביניהן — בלי המורכבות (והתלות בשלב 10) של OAuth אמיתי.
+- **קבצים:** שרת: `backend/Models/DriveFolder.cs`, `backend/DTOs/DriveFolderDtos.cs`, `backend/Services/{IDriveFolderService,DriveFolderService}.cs`, `backend/Controllers/FoldersController.cs`, `backend/AppDbContext.cs`, `backend/Program.cs` (DI), Migration `AddDriveFolders`. לקוח: `src/pages/FilesPage.js`, `src/pages/files/{FolderForm,FilesPage.test}.js`, `src/services/filesService.js`, `src/styles/files.css`. תיעוד: UI_SPEC ס' 13 עודכן לגישת הקישורים הידניים.
+- **החלטות:** (1) **בלי OAuth בשלב זה** — קישורים ידניים נותנים את כל הערך (ריכוז התיקיות) בלי תלות בכניסת Google; OAuth אמיתי + העלאת קבצים = הרחבה עתידית עם שלב 10. (2) המשתמשת אחראית להרשאות השיתוף בדרייב — המערכת רק שומרת קישור. (3) **אימות e2e נדחה לפריסה** — השרת המקומי היה תפוס ע"י סוכן אחר (פורט 5195), ולא עצרתי אותו כדי לא להפריע; ה-build עובר וה-CRUD זהה בדיוק ל-Vendor/Gift שמאומתים בייצור.
+- **הצעד הבא:** לפי בקשת בעלת המוצר — ייבוא תלמידים מרשימה (הדבקה/CSV) במקום הקלדה ידנית (ממתין לאישור הגישה: שמות-בלבד עם טלפון אופציונלי). בהמשך: כניסת Google (שלב 10) שתפתח גם OAuth ל-Drive.
+
 ## 09.07.2026 — עוזרת ה-AI: מעבר מ-Claude ל-Google Gemini (מסלול חינמי) [Claude Code]
 
 - **מה נעשה:** לפי החלטת בעלת המוצר, ספק ה-AI הוחלף מ-Anthropic Claude ל-**Google Gemini** במסלול החינמי. שוכתב `AiService` לקרוא ל-Gemini `generateContent` (Generative Language API) דרך אותו HttpClient: כתובת `…/v1beta/models/{model}:generateContent`, מפתח בכותרת `x-goog-api-key`, גוף עם `systemInstruction`/`contents`/`generationConfig`, וחילוץ מ-`candidates[0].content.parts[].text`. טיפול בחסימות בטיחות (‏`promptFeedback.blockReason` וגם `finishReason=SAFETY`). דגם ברירת מחדל `gemini-2.5-flash` (זמין במסלול החינמי; ניתן להחליף ל-`gemini-3.5-flash` דרך `Gemini__Model` בלי שינוי קוד).

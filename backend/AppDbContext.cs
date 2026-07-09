@@ -21,6 +21,7 @@ namespace ParentCommitteeAPI
         public DbSet<VendorSocialLink> VendorSocialLinks { get; set; }
         public DbSet<Gift> Gifts { get; set; }
         public DbSet<User> Users { get; set; }
+        public DbSet<DriveFolder> DriveFolders { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

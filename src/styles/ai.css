@@ -1,0 +1,98 @@
+/*
+  ai.css — עיצוב מסך עוזרת ה-AI והכפתור הצף. משתמש רק במשתני theme.css.
+*/
+
+.ai-page__title {
+  font-size: var(--font-size-lg);
+  margin-bottom: 4px;
+}
+
+.ai-page__subtitle {
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+}
+
+/* צ'יפים לשאלות מהירות */
+.ai-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.ai-chip {
+  min-height: var(--touch-target);
+  padding: 8px 14px;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: right;
+}
+
+.ai-chip:hover:not(:disabled) {
+  background-color: var(--color-primary-light);
+}
+
+.ai-chip:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.ai-form {
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  resize: vertical;
+}
+
+.ai-textarea:focus {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+  border-color: var(--color-primary);
+}
+
+/* התשובה — שומרת על מעברי שורה מהמודל */
+.ai-answer {
+  margin: 0;
+  white-space: pre-wrap;
+  line-height: 1.7;
+}
+
+/* כפתור AI צף מעל הניווט התחתון */
+.ai-fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px);
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: var(--color-primary);
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  z-index: 40;
+}
+
+.ai-fab__icon {
+  font-size: 26px;
+  line-height: 1;
+}

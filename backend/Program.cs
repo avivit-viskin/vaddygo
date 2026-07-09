@@ -45,6 +45,8 @@ builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 
+builder.Services.AddHttpClient<IAiService, AiService>();
+
 var app = builder.Build();
 
 // הרצת מיגרציות בעלייה — המסד תמיד קיים ותואם למודל, גם בהתקנה נקייה

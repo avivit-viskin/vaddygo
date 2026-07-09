@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import BrandName from "./components/BrandName";
 import BottomNav from "./components/BottomNav";
+import AiFab from "./components/AiFab";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import StudentPaymentsPage from "./pages/StudentPaymentsPage";
@@ -10,6 +11,7 @@ import FilesPage from "./pages/FilesPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
+import AiAssistantPage from "./pages/AiAssistantPage";
 import { isOnboardingComplete } from "./services/onboardingService";
 
 /*
@@ -55,9 +57,11 @@ function App() {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />
+          <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
+      {!isFullScreen && location.pathname !== "/assistant" && <AiFab />}
       {!isFullScreen && <BottomNav />}
     </div>
   );

@@ -39,13 +39,16 @@ namespace ParentCommitteeAPI.Services
             }
 
             var staff = await _db.StaffMembers.AsNoTracking().ToListAsync();
+            var paidPayments = await _db.Payments.AsNoTracking()
+                .Where(p => p.IsPaid)
+                .ToListAsync();
             var today = DateTime.Today;
 
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
             var target = totalPerChild * group.ChildrenCount;
 
-            /* עד שלב 5 (מודל Payment) אין תשלומים במסד — הנגבה 0 והחוב הוא כל היעד */
-            decimal collected = 0m;
+            /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (שלב 5) */
+            var collected = paidPayments.Sum(p => p.Amount);
             var openDebt = target - collected;
             var boxBalance = collected;
 
@@ -68,20 +71,25 @@ namespace ParentCommitteeAPI.Services
                 ProgressPercent = target == 0 ? 0 : (int)Math.Round(collected / target * 100),
                 ByPaymentMethod = new List<DashboardAmountDto>
                 {
-                    new() { Method = "bit", Amount = 0m },
-                    new() { Method = "paybox", Amount = 0m },
-                    new() { Method = "cash", Amount = 0m },
+                    new() { Method = "bit", Amount = SumByMethod(paidPayments, "bit") },
+                    new() { Method = "paybox", Amount = SumByMethod(paidPayments, "paybox") },
+                    new() { Method = "cash", Amount = SumByMethod(paidPayments, "cash") },
                 },
                 ByCategory = group.Categories.Select(c => new DashboardCategoryDto
                 {
                     Name = c.Name,
                     TargetAmount = c.AmountPerChild * group.ChildrenCount,
-                    CollectedAmount = 0m,
+                    CollectedAmount = paidPayments
+                        .Where(p => p.CollectionCategoryId == c.Id)
+                        .Sum(p => p.Amount),
                 }).ToList(),
                 Alerts = BuildAlerts(group, collected, birthdays, today),
                 UpcomingBirthdays = birthdays,
             };
         }
+
+        private static decimal SumByMethod(List<Payment> payments, string method) =>
+            payments.Where(p => p.Method == method).Sum(p => p.Amount);
 
         private static List<DashboardAlertDto> BuildAlerts(
             Group group, decimal collected, List<DashboardBirthdayDto> birthdays, DateTime today)

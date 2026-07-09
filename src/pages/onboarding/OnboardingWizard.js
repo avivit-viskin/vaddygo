@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import BrandName from "../../components/BrandName";
 import Button from "../../components/Button";
 import { saveOnboarding } from "../../services/onboardingService";
+import { saveActiveOnboarding } from "../../services/institutionsService";
 import GanDetailsStep from "./GanDetailsStep";
 import GroupsStep from "./GroupsStep";
 import CommitteesStep from "./CommitteesStep";
@@ -71,6 +72,8 @@ function OnboardingWizard() {
   async function handleFinish() {
     setIsSaving(true);
     await saveOnboarding(data); // גם אם השרת לא זמין — נשמר מקומית וממשיכים
+    // רושם את המוסד ברשימת המוסדות (ראשי + נוספים מהשמות שהוזנו)
+    saveActiveOnboarding(data);
     navigate("/");
   }
 

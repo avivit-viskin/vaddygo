@@ -1,0 +1,128 @@
+/*
+  sidemenu.css — תפריט הצד ומחליף המוסדות (UI_SPEC ס' 3.5), על בסיס theme.css.
+*/
+
+.sidemenu-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.35);
+  z-index: 50;
+}
+
+.sidemenu {
+  position: fixed;
+  inset-block: 0;
+  inset-inline-start: 0;
+  width: min(300px, 82vw);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+}
+
+.sidemenu__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-lg);
+}
+
+.sidemenu__close {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.sidemenu__title {
+  margin: 8px 0 0;
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+}
+
+.institutions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.institutions__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  border-radius: var(--radius-md);
+  padding: 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+  min-height: 44px;
+  text-align: start;
+}
+
+.institutions__item--active {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+
+.institutions__badge {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.institutions__badge--locked {
+  color: var(--color-text-muted);
+}
+
+.institutions__empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.sidemenu__footer {
+  margin-top: auto;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.sidemenu__logout {
+  border: none;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  min-height: 44px;
+}
+
+/* כפתור התפריט בכותרת + שם המוסד הפעיל */
+.app-header__menu {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 1.4rem;
+  min-width: 44px;
+  min-height: 44px;
+}
+
+.app-header__institution {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.purchase__note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

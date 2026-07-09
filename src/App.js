@@ -1,6 +1,8 @@
+import { useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
 import BrandName from "./components/BrandName";
 import BottomNav from "./components/BottomNav";
+import SideMenu from "./components/SideMenu";
 import AiFab from "./components/AiFab";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
@@ -13,8 +15,10 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import AiAssistantPage from "./pages/AiAssistantPage";
+import PurchasePage from "./pages/PurchasePage";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated } from "./services/authService";
+import { getActiveInstitution } from "./services/institutionsService";
 
 /*
   App — שלד האפליקציה: כותרת עליונה, אזור התוכן לפי הנתיב, וניווט תחתון קבוע.
@@ -27,8 +31,13 @@ const PUBLIC_ROUTES = ["/welcome", "/login", "/register"];
 
 function App() {
   const location = useLocation();
-  const isFullScreen = FULL_SCREEN_ROUTES.includes(location.pathname);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
+  const isPurchase = location.pathname.startsWith("/institutions/");
+  const isFullScreen =
+    FULL_SCREEN_ROUTES.includes(location.pathname) || isPurchase;
   const isPublic = PUBLIC_ROUTES.includes(location.pathname);
+  const activeInstitution = getActiveInstitution();
 
   // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות
   if (!isAuthenticated() && !isPublic) {
@@ -47,10 +56,24 @@ function App() {
     <div dir="rtl">
       {!isFullScreen && (
         <header className="app-header">
+          <button
+            type="button"
+            className="app-header__menu"
+            aria-label="תפריט"
+            onClick={() => setIsMenuOpen(true)}
+          >
+            ☰
+          </button>
           <h1>
             <BrandName withHeart />
           </h1>
+          {activeInstitution && (
+            <span className="app-header__institution">{activeInstitution.name}</span>
+          )}
         </header>
+      )}
+      {!isFullScreen && (
+        <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       )}
       <main className="app-main">
         <Routes>
@@ -77,6 +100,10 @@ function App() {
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
+          <Route
+            path="/institutions/:id/purchase"
+            element={<PurchasePage />}
+          />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

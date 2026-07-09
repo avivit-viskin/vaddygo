@@ -8,6 +8,7 @@ import "../styles/payments.css";
   BulkReminderButton — תזכורת גורפת לכל ההורים שטרם שילמו.
   וואטסאפ לא שולח לכמה נמענים בקישור אחד, לכן נפתחת שיחה נפרדת לכל הורה:
   המשתמשת לוחצת "שליחה" ליד כל שם. ההודעה גנרית וניתנת לעריכה לפני השליחה.
+  לחיצה על "שליחה" מסמנת את ההורה כ"נשלח" ומראה התקדמות — כדי לא לשלוח פעמיים.
 */
 const DEFAULT_MESSAGE = [
   "שלום לך :)",
@@ -19,10 +20,22 @@ const DEFAULT_MESSAGE = [
 function BulkReminderButton({ unpaidStudents }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(DEFAULT_MESSAGE);
+  const [sentIds, setSentIds] = useState(() => new Set());
+
+  function open() {
+    // כל פתיחה מתחילה קמפיין נקי
+    setSentIds(new Set());
+    setMessage(DEFAULT_MESSAGE);
+    setIsOpen(true);
+  }
+
+  function markSent(id) {
+    setSentIds((prev) => new Set(prev).add(id));
+  }
 
   return (
     <>
-      <Button variant="secondary" onClick={() => setIsOpen(true)}>
+      <Button variant="secondary" onClick={open}>
         📣 תזכורת לחייבים
       </Button>
       <Modal
@@ -45,28 +58,41 @@ function BulkReminderButton({ unpaidStudents }) {
               onChange={(event) => setMessage(event.target.value)}
             />
             <p className="bulk-reminder__note">
-              וואטסאפ נפתח לכל הורה בנפרד — לוחצים "שליחה" ליד כל שם.{" "}
-              <strong>{unpaidStudents.length}</strong> הורים ברשימה.
+              וואטסאפ נפתח לכל הורה בנפרד — לוחצים "שליחה" ליד כל שם. נשלחו{" "}
+              <strong>{sentIds.size}</strong> מתוך{" "}
+              <strong>{unpaidStudents.length}</strong>.
             </p>
             <ul className="bulk-reminder__list">
-              {unpaidStudents.map((student) => (
-                <li key={student.id} className="bulk-reminder__item">
-                  <span>
-                    {student.firstName} {student.lastName}
-                  </span>
-                  <a
-                    className="bulk-reminder__send"
-                    href={buildWhatsappReminderUrl(
-                      student.parentPhoneNumber,
-                      message
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
+              {unpaidStudents.map((student) => {
+                const isSent = sentIds.has(student.id);
+                return (
+                  <li
+                    key={student.id}
+                    className={`bulk-reminder__item${
+                      isSent ? " bulk-reminder__item--sent" : ""
+                    }`}
                   >
-                    <Button variant="secondary">שליחה 💬</Button>
-                  </a>
-                </li>
-              ))}
+                    <span>
+                      {isSent && "✅ "}
+                      {student.firstName} {student.lastName}
+                    </span>
+                    <a
+                      className="bulk-reminder__send"
+                      href={buildWhatsappReminderUrl(
+                        student.parentPhoneNumber,
+                        message
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => markSent(student.id)}
+                    >
+                      <Button variant="secondary">
+                        {isSent ? "שליחה חוזרת" : "שליחה 💬"}
+                      </Button>
+                    </a>
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

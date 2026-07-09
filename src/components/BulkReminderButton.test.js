@@ -32,6 +32,18 @@ test("עריכת ההודעה משתקפת בקישורי הוואטסאפ", () 
   expect(link.getAttribute("href")).toContain(encodeURIComponent("תזכורת קצרה"));
 });
 
+test("לחיצה על 'שליחה' מסמנת את ההורה כנשלח ומעדכנת את המונה", () => {
+  render(<BulkReminderButton unpaidStudents={unpaid} />);
+  fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));
+
+  expect(screen.getByText(/נשלחו/).textContent).toContain("0");
+  fireEvent.click(screen.getAllByRole("link", { name: /שליחה/ })[0]);
+
+  // המונה עלה, והכפתור הראשון הפך ל"שליחה חוזרת"
+  expect(screen.getByText(/נשלחו/).textContent).toContain("1");
+  expect(screen.getByRole("link", { name: /שליחה חוזרת/ })).toBeInTheDocument();
+});
+
 test("כשאין חייבים — מוצגת הודעה שכולם שילמו", () => {
   render(<BulkReminderButton unpaidStudents={[]} />);
   fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));

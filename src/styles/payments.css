@@ -204,3 +204,14 @@
   text-decoration: none;
   flex-shrink: 0;
 }
+
+/* הורה שכבר תזכרנו — רקע ירקרק ומודגש */
+.bulk-reminder__item--sent {
+  border-color: var(--color-success);
+  background-color: var(--success-soft, #e2f4ea);
+}
+
+.bulk-reminder__item--sent span {
+  color: var(--color-success);
+  font-weight: 700;
+}

@@ -6,7 +6,7 @@ import Button from "./Button";
   (לחיץ לחיוג מהנייד), ופעולות עריכה ומחיקה.
   תצוגה בלבד — הלוגיקה אצל ההורה (StudentsPage).
 */
-function StudentCard({ student, onEdit, onDelete }) {
+function StudentCard({ student, onPayments, onEdit, onDelete }) {
   return (
     <Card>
       <div className="student-card">
@@ -23,6 +23,7 @@ function StudentCard({ student, onEdit, onDelete }) {
           </span>
         </div>
         <div className="student-card__actions">
+          <Button onClick={() => onPayments(student)}>תשלומים 💰</Button>
           <Button variant="secondary" onClick={() => onEdit(student)}>
             עריכה
           </Button>

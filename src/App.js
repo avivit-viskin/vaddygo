@@ -3,6 +3,7 @@ import BrandName from "./components/BrandName";
 import BottomNav from "./components/BottomNav";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
+import StudentPaymentsPage from "./pages/StudentPaymentsPage";
 import CalendarPage from "./pages/CalendarPage";
 import GiftsPage from "./pages/GiftsPage";
 import FilesPage from "./pages/FilesPage";
@@ -47,6 +48,10 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/onboarding" element={<OnboardingWizard />} />
           <Route path="/students" element={<StudentsPage />} />
+          <Route
+            path="/students/:studentId/payments"
+            element={<StudentPaymentsPage />}
+          />
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />

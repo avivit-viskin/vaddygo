@@ -9,6 +9,10 @@ export function getStudents() {
   return api.get("/api/students");
 }
 
+export function getStudent(id) {
+  return api.get(`/api/students/${id}`);
+}
+
 export function createStudent(student) {
   return api.post("/api/students", student);
 }

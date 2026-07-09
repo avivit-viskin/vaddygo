@@ -1,0 +1,90 @@
+/*
+  payments.css — מסך תשלומי תלמיד (שלב 5).
+*/
+
+.payments__back {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.payments__header {
+  margin-bottom: 16px;
+}
+
+.payments__header h2 {
+  margin-bottom: 4px;
+}
+
+.payments__summary {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* ===== שורת תשלום לקטגוריה ===== */
+
+.payment-row {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-right: 4px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  padding: 14px 16px;
+  margin-bottom: 12px;
+}
+
+/* פס צבע ימני: אפור = טרם שולם, ירוק = שולם */
+.payment-row--paid {
+  border-right-color: var(--color-success);
+  background-color: #f0fdf4;
+}
+
+.payment-row__head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.payment-row__category {
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}
+
+.payment-row__amount {
+  color: var(--color-text-muted);
+  white-space: nowrap;
+}
+
+.payment-row__actions {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+
+/* ה-Select תופס את הרוחב הפנוי; הכפתור נשאר בגודלו */
+.payment-row__actions .field {
+  flex: 1;
+  margin-bottom: 0;
+}
+
+.payment-row__status {
+  flex: 1;
+  color: var(--color-success);
+  font-weight: 700;
+}
+
+/* ===== כפתור וואטסאפ ===== */
+
+.payments__whatsapp {
+  display: block;
+  margin-top: 20px;
+  text-decoration: none;
+}
+
+.payments__whatsapp .btn {
+  width: 100%;
+}

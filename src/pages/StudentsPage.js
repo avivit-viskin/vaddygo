@@ -1,4 +1,5 @@
 import { useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
   getStudents,
@@ -23,6 +24,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
   הוספה ועריכה באותו טופס במודאל, ומחיקה עם דיאלוג אישור.
 */
 function StudentsPage() {
+  const navigate = useNavigate();
   const { data: students, isLoading, error, reload } = useApi(getStudents);
 
   const [searchTerm, setSearchTerm] = useState("");
@@ -157,6 +159,7 @@ function StudentsPage() {
               <StudentCard
                 key={student.id}
                 student={student}
+                onPayments={(s) => navigate(`/students/${s.id}/payments`)}
                 onEdit={openEditForm}
                 onDelete={setStudentToDelete}
               />

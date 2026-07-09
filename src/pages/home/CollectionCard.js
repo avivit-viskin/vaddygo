@@ -1,14 +1,13 @@
 import { useState } from "react";
 import Card from "../../components/Card";
 import { formatShekels } from "../../services/format";
+import { paymentMethodLabel } from "../../services/paymentMethods";
 
 /*
   CollectionCard — כרטיס הגבייה הראשי (UI_SPEC ס' 8):
   החלפה בין סכום הגבייה הכולל ליתרת הקופה מול החוב הפתוח,
   בר התקדמות באחוזים, ופירוק לפי אמצעי תשלום (ביט/פייבוקס/מזומן).
 */
-const METHOD_LABELS = { bit: "ביט", paybox: "פייבוקס", cash: "מזומן" };
-
 function CollectionCard({ dashboard }) {
   const [showBalance, setShowBalance] = useState(false);
 
@@ -62,7 +61,7 @@ function CollectionCard({ dashboard }) {
       <ul className="methods">
         {dashboard.byPaymentMethod.map((m) => (
           <li key={m.method} className="methods__item">
-            <span className="methods__name">{METHOD_LABELS[m.method] || m.method}</span>
+            <span className="methods__name">{paymentMethodLabel(m.method)}</span>
             <span className="methods__amount">{formatShekels(m.amount)}</span>
           </li>
         ))}

@@ -1,4 +1,5 @@
 import { render, screen } from "@testing-library/react";
+import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import StudentsPage from "./StudentsPage";
 
@@ -6,7 +7,17 @@ import StudentsPage from "./StudentsPage";
   טסטים למסך התלמידים המלא (שלב 2): מונה, חיפוש, סינון,
   הוספה עם ולידציה, עריכה ומחיקה עם אישור.
   קריאות השרת מדומות דרך global.fetch — בלי שרת אמיתי.
+  עטוף ב-MemoryRouter כי המסך משתמש בניווט לתשלומים (שלב 5).
 */
+
+/* מרנדר את המסך בתוך Router (המסך מנווט למסך התשלומים) */
+function renderPage() {
+  return render(
+    <MemoryRouter future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
+      <StudentsPage />
+    </MemoryRouter>
+  );
+}
 
 const dana = {
   id: 1,
@@ -63,7 +74,7 @@ afterEach(() => {
 
 test("מציג מונה עם מספר התלמידים וכרטיס לכל תלמיד", async () => {
   mockServer([dana, noam]);
-  render(<StudentsPage />);
+  renderPage();
 
   expect(
     await screen.findByRole("heading", { name: /2 תלמידים/ })
@@ -74,7 +85,7 @@ test("מציג מונה עם מספר התלמידים וכרטיס לכל תל�
 
 test("חיפוש חופשי מסנן את הכרטיסים ומציג הודעה כשאין תוצאות", async () => {
   mockServer([dana, noam]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/דנה כהן/);
 
   await userEvent.type(screen.getByLabelText("חיפוש"), "נועם");
@@ -89,7 +100,7 @@ test("חיפוש חופשי מסנן את הכרטיסים ומציג הודעה
 
 test("סינון לפי כיתה מציג רק את תלמידי הכיתה שנבחרה", async () => {
   mockServer([dana, noam]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/דנה כהן/);
 
   await userEvent.selectOptions(
@@ -102,7 +113,7 @@ test("סינון לפי כיתה מציג רק את תלמידי הכיתה שנ
 
 test("טופס ההוספה מציג שגיאות ולידציה בעברית ליד השדות", async () => {
   mockServer([]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/עדיין אין תלמידים/);
 
   await userEvent.click(screen.getByRole("button", { name: /הוספת תלמיד/ }));
@@ -122,7 +133,7 @@ test("טופס ההוספה מציג שגיאות ולידציה בעברית ל
 
 test("הוספת תלמיד: שולח POST לשרת ומציג את התלמיד החדש", async () => {
   mockServer([]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/עדיין אין תלמידים/);
 
   await userEvent.click(screen.getByRole("button", { name: /הוספת תלמיד/ }));
@@ -141,7 +152,7 @@ test("הוספת תלמיד: שולח POST לשרת ומציג את התלמיד
 
 test("עריכת תלמיד: הטופס נפתח עם הנתונים הקיימים ושולח PUT", async () => {
   mockServer([dana]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/דנה כהן/);
 
   await userEvent.click(screen.getByRole("button", { name: "עריכה" }));
@@ -161,7 +172,7 @@ test("עריכת תלמיד: הטופס נפתח עם הנתונים הקיימ�
 
 test("מחיקת תלמיד: דיאלוג אישור עם השם, ואחרי אישור נשלח DELETE", async () => {
   mockServer([dana]);
-  render(<StudentsPage />);
+  renderPage();
   await screen.findByText(/דנה כהן/);
 
   await userEvent.click(screen.getByRole("button", { name: "מחיקה" }));

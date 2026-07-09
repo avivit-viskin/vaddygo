@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { buildWhatsappReminderUrl } from "../services/paymentsService";
 import Modal from "./Modal";
 import Button from "./Button";
+import Select from "./Select";
 import "../styles/payments.css";
 
 /*
@@ -21,11 +22,27 @@ function BulkReminderButton({ unpaidStudents }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(DEFAULT_MESSAGE);
   const [sentIds, setSentIds] = useState(() => new Set());
+  const [classFilter, setClassFilter] = useState("");
+
+  // כיתות/קבוצות של החייבים — לסינון (מוצג רק כשיש יותר מאחת)
+  const classNames = useMemo(
+    () =>
+      [...new Set(unpaidStudents.map((s) => s.className).filter(Boolean))].sort(
+        (a, b) => a.localeCompare(b, "he")
+      ),
+    [unpaidStudents]
+  );
+
+  const shownStudents = classFilter
+    ? unpaidStudents.filter((s) => s.className === classFilter)
+    : unpaidStudents;
+  const sentShown = shownStudents.filter((s) => sentIds.has(s.id)).length;
 
   function open() {
     // כל פתיחה מתחילה קמפיין נקי
     setSentIds(new Set());
     setMessage(DEFAULT_MESSAGE);
+    setClassFilter("");
     setIsOpen(true);
   }
 
@@ -57,13 +74,28 @@ function BulkReminderButton({ unpaidStudents }) {
               value={message}
               onChange={(event) => setMessage(event.target.value)}
             />
+            {classNames.length > 1 && (
+              <Select
+                id="bulk-class-filter"
+                label="סינון לפי כיתה/קבוצה"
+                value={classFilter}
+                onChange={(event) => setClassFilter(event.target.value)}
+              >
+                <option value="">כל הכיתות</option>
+                {classNames.map((name) => (
+                  <option key={name} value={name}>
+                    {name}
+                  </option>
+                ))}
+              </Select>
+            )}
             <p className="bulk-reminder__note">
               וואטסאפ נפתח לכל הורה בנפרד — לוחצים "שליחה" ליד כל שם. נשלחו{" "}
-              <strong>{sentIds.size}</strong> מתוך{" "}
-              <strong>{unpaidStudents.length}</strong>.
+              <strong>{sentShown}</strong> מתוך{" "}
+              <strong>{shownStudents.length}</strong>.
             </p>
             <ul className="bulk-reminder__list">
-              {unpaidStudents.map((student) => {
+              {shownStudents.map((student) => {
                 const isSent = sentIds.has(student.id);
                 return (
                   <li

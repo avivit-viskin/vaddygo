@@ -4,7 +4,7 @@ using System.Text.Json;
 namespace ParentCommitteeAPI.Services
 {
     /*
-      AiService — עוזרת ה-AI של VaadyGo. קוראת ל-Claude (Anthropic Messages API)
+      AiService — עוזרת ה-AI של VaddyGo. קוראת ל-Claude (Anthropic Messages API)
       דרך HttpClient. מפתח ה-API מגיע ממשתני סביבה בלבד (Anthropic:ApiKey) —
       לעולם לא בקוד. הדגם הוא claude-opus-4-8 כברירת מחדל.
       פרטיות: לא נשלחים לבינה שמות/טלפונים של ילדים או הורים — רק שאלה ורקע כללי.
@@ -15,7 +15,7 @@ namespace ParentCommitteeAPI.Services
 
         // ה-persona והכללים של העוזרת. עברית, טון חם, בלי להמציא נתונים ובלי מידע מזהה.
         private const string SystemPrompt =
-            "את העוזרת החכמה של VaadyGo — מערכת לניהול ועד הורים בגנים ובבתי ספר. " +
+            "את העוזרת החכמה של VaddyGo — מערכת לניהול ועד הורים בגנים ובבתי ספר. " +
             "התפקיד שלך לעזור לחברות הוועד: לנסח הודעות להורים (תזכורות תשלום, הזמנות " +
             "לאירועים, עדכונים), לתת רעיונות (למשל למתנות ולחגים) ולעזור להבין את מצב הוועד. " +
             "עני תמיד בעברית, בטון חם ומכבד, בקצרה ולעניין. אם חסר לך מידע כדי לענות — " +

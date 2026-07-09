@@ -48,8 +48,8 @@ namespace ParentCommitteeAPI.Services
     /* הגדרות JWT משותפות לשירות ההפקה ולאימות ב-Program.cs — מקור אמת אחד */
     public static class JwtSettings
     {
-        public const string Issuer = "VaadyGo";
-        public const string Audience = "VaadyGoClient";
+        public const string Issuer = "VaddyGo";
+        public const string Audience = "VaddyGoClient";
 
         public static string GetKey(IConfiguration config)
         {

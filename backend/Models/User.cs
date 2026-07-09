@@ -17,7 +17,7 @@ namespace ParentCommitteeAPI.Models
         // מזהה חשבון Google (sub) — למשתמש שהתחבר/נרשם עם Google. אופציונלי.
         public string? GoogleId { get; set; }
 
-        // תפקיד: "Member" (חבר/ת ועד) או "SuperAdmin" (מנהלת VaadyGo — ניהול ספקים)
+        // תפקיד: "Member" (חבר/ת ועד) או "SuperAdmin" (מנהלת VaddyGo — ניהול ספקים)
         public string Role { get; set; } = "Member";
 
         // המנוי תקף עד תאריך זה (כולל). אחריו הכניסה נחסמת.

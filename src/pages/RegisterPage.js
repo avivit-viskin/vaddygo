@@ -3,6 +3,7 @@ import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Input from "../components/Input";
+import PasswordField from "../components/PasswordField";
 import ErrorMessage from "../components/ErrorMessage";
 import useForm from "../hooks/useForm";
 import { register } from "../services/authService";
@@ -67,11 +68,10 @@ function RegisterPage() {
             onChange={handleChange}
             error={errors.email}
           />
-          <Input
+          <PasswordField
             id="register-password"
             name="password"
             label="סיסמה"
-            type="password"
             value={values.password}
             onChange={handleChange}
             error={errors.password}

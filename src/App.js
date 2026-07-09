@@ -10,20 +10,38 @@ import GiftsPage from "./pages/GiftsPage";
 import FilesPage from "./pages/FilesPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
+import RegisterPage from "./pages/RegisterPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import { isOnboardingComplete } from "./services/onboardingService";
+import { isAuthenticated } from "./services/authService";
 
 /*
   App — שלד האפליקציה: כותרת עליונה, אזור התוכן לפי הנתיב, וניווט תחתון קבוע.
   מסכי הפתיחה/כניסה/הרשמה מוצגים במסך מלא — בלי כותרת וניווט תחתון.
-  כניסה ראשונה (עוד אין הגדרת גן) מופנית למסך הפתיחה.
+  משתמשת שאינה מחוברת מופנית למסך הפתיחה; מחוברת בלי הגדרת גן — לאשף.
 */
-const FULL_SCREEN_ROUTES = ["/welcome", "/login", "/onboarding"];
+const FULL_SCREEN_ROUTES = ["/welcome", "/login", "/register", "/onboarding"];
+// נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token)
+const PUBLIC_ROUTES = ["/welcome", "/login", "/register"];
 
 function App() {
   const location = useLocation();
   const isFullScreen = FULL_SCREEN_ROUTES.includes(location.pathname);
+  const isPublic = PUBLIC_ROUTES.includes(location.pathname);
+
+  // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות
+  if (!isAuthenticated() && !isPublic) {
+    return (
+      <div dir="rtl">
+        <main className="app-main">
+          <Routes>
+            <Route path="*" element={<Navigate to="/welcome" replace />} />
+          </Routes>
+        </main>
+      </div>
+    );
+  }
 
   return (
     <div dir="rtl">
@@ -42,12 +60,13 @@ function App() {
               isOnboardingComplete() ? (
                 <HomePage />
               ) : (
-                <Navigate to="/welcome" replace />
+                <Navigate to="/onboarding" replace />
               )
             }
           />
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
           <Route path="/onboarding" element={<OnboardingWizard />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route

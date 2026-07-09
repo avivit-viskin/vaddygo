@@ -5,6 +5,10 @@
 
 const BASE_URL = process.env.REACT_APP_API_URL;
 
+// מפתח ה-token מוגדר גם ב-authService; נקרא כאן ישירות מ-localStorage
+// כדי להימנע מתלות מעגלית (authService מייבא את api).
+const TOKEN_KEY = "vaadygo.token";
+
 export class ApiError extends Error {
   constructor(message, status = null) {
     super(message);
@@ -43,11 +47,20 @@ async function request(path, { method = "GET", body } = {}) {
     );
   }
 
+  const headers = {};
+  if (body) {
+    headers["Content-Type"] = "application/json";
+  }
+  const token = localStorage.getItem(TOKEN_KEY);
+  if (token) {
+    headers.Authorization = `Bearer ${token}`;
+  }
+
   let response;
   try {
     response = await fetch(`${BASE_URL}${path}`, {
       method,
-      headers: body ? { "Content-Type": "application/json" } : undefined,
+      headers: Object.keys(headers).length ? headers : undefined,
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {

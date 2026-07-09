@@ -24,7 +24,7 @@ function WelcomePage() {
         שקיפות — ואתם סוף־סוף יכולים לנשום.
       </p>
       <div className="welcome__actions">
-        <Button onClick={() => navigate("/onboarding")}>שנתחיל?</Button>
+        <Button onClick={() => navigate("/register")}>שנתחיל?</Button>
         <Button variant="secondary" onClick={() => navigate("/login")}>
           כבר יש לי חשבון — כניסה
         </Button>

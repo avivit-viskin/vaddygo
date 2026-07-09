@@ -14,8 +14,10 @@ function renderAt(path) {
   );
 }
 
-// מסמנים שההגדרה הראשונית הושלמה, כדי שהטסטים יגיעו למסך הבית ולא יופנו למסך הפתיחה
+// מסמנים משתמשת מחוברת (token) + הגדרה ראשונית שהושלמה, כדי שהטסטים
+// יגיעו למסכים הפנימיים ולא יופנו למסך הפתיחה/כניסה
 beforeEach(() => {
+  localStorage.setItem("vaadygo.token", "test-token");
   localStorage.setItem(
     "vaadygo.onboarding",
     JSON.stringify({ ganName: "גן הבדיקות" })
@@ -82,4 +84,11 @@ test('מסך התלמידים מציג שגיאה ידידותית כשהשרת 
   global.fetch = jest.fn(() => Promise.reject(new TypeError('network error')));
   renderAt('/students');
   expect(await screen.findByText(/לא הצלחנו להתחבר לשרת/)).toBeInTheDocument();
+});
+
+test('משתמשת לא מחוברת מופנית ממסך פנימי למסך הפתיחה', () => {
+  localStorage.removeItem('vaadygo.token');
+  renderAt('/students');
+  // בלי token אין גישה למסך התלמידים — מגיעים למסך הפתיחה
+  expect(screen.getByText(/ברוכים הבאים למשפחת/)).toBeInTheDocument();
 });

@@ -13,7 +13,7 @@ function CommitteesStep({ data, onChange }) {
 
   return (
     <>
-      <p className="wizard__question">האם את מנהלת עוד ועד?</p>
+      <p className="wizard__question">האם זה הוועד היחיד בניהולך?</p>
       <div className="chips">
         <button
           type="button"
@@ -21,7 +21,7 @@ function CommitteesStep({ data, onChange }) {
           aria-pressed={data.extraCommittees === 0}
           onClick={() => setCount(0)}
         >
-          לא
+          כן
         </button>
         {[1, 2, 3, 4].map((n) => (
           <button

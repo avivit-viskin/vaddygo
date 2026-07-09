@@ -38,7 +38,7 @@ namespace ParentCommitteeAPI.Services
             // שורה לכל קטגוריה: הרשומה הקיימת, או ברירת מחדל "טרם שולם" לפי סכום הקטגוריה
             return categories
                 .Select(category => existing.TryGetValue(category.Id, out var payment)
-                    ? ToResponse(payment, category.Name)
+                    ? ToResponse(payment, category)
                     : DefaultResponse(studentId, category))
                 .ToList();
         }
@@ -61,8 +61,9 @@ namespace ParentCommitteeAPI.Services
                 _db.Payments.Add(payment);
             }
 
-            payment.Amount = dto.Amount;
-            payment.Method = string.IsNullOrEmpty(dto.Method) ? null : dto.Method;
+            payment.BitAmount = dto.BitAmount;
+            payment.PayBoxAmount = dto.PayBoxAmount;
+            payment.CashAmount = dto.CashAmount;
             payment.IsPaid = dto.IsPaid;
             // תאריך התשלום נקבע בשרת בעת הסימון, ומתאפס אם מבטלים את הסימון
             payment.PaidDate = dto.IsPaid ? (payment.PaidDate ?? DateTime.UtcNow) : null;
@@ -72,7 +73,7 @@ namespace ParentCommitteeAPI.Services
                 "Payment saved (StudentId: {StudentId}, CategoryId: {CategoryId}, IsPaid: {IsPaid})",
                 studentId, categoryId, payment.IsPaid);
 
-            return ToResponse(payment, category.Name);
+            return ToResponse(payment, category);
         }
 
         /* קטגוריות הגבייה של הגן שהוגדר באשף (הגן הראשון — גן יחיד) */
@@ -93,19 +94,23 @@ namespace ParentCommitteeAPI.Services
             CollectionCategoryId = category.Id,
             CategoryName = category.Name,
             Amount = category.AmountPerChild,
-            Method = null,
+            BitAmount = 0,
+            PayBoxAmount = 0,
+            CashAmount = 0,
             IsPaid = false,
             PaidDate = null,
         };
 
-        private static PaymentResponseDto ToResponse(Payment payment, string categoryName) => new()
+        private static PaymentResponseDto ToResponse(Payment payment, CollectionCategory category) => new()
         {
             Id = payment.Id,
             StudentId = payment.StudentId,
             CollectionCategoryId = payment.CollectionCategoryId,
-            CategoryName = categoryName,
-            Amount = payment.Amount,
-            Method = payment.Method,
+            CategoryName = category.Name,
+            Amount = category.AmountPerChild,
+            BitAmount = payment.BitAmount,
+            PayBoxAmount = payment.PayBoxAmount,
+            CashAmount = payment.CashAmount,
             IsPaid = payment.IsPaid,
             PaidDate = payment.PaidDate,
         };

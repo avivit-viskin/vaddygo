@@ -5,6 +5,10 @@ namespace ParentCommitteeAPI.Models
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
+
+        /* שם ההורה (אופציונלי) — נאסף בייבוא מקובץ ובטופס התלמיד */
+        public string ParentName { get; set; } = string.Empty;
+
         public string ParentPhoneNumber { get; set; } = string.Empty;
         public int Grade { get; set; }
         public string ClassName { get; set; } = string.Empty;

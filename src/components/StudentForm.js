@@ -39,6 +39,7 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
       {
         firstName: initialStudent?.firstName ?? "",
         lastName: initialStudent?.lastName ?? "",
+        parentName: initialStudent?.parentName ?? "",
         birthDate: initialStudent?.birthDate ?? "",
         className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
@@ -63,6 +64,14 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         value={values.lastName}
         onChange={handleChange}
         error={errors.lastName}
+      />
+      <Input
+        id="student-parent-name"
+        name="parentName"
+        label="שם הורה (לא חובה)"
+        value={values.parentName}
+        onChange={handleChange}
+        error={errors.parentName}
       />
       <Input
         id="student-birth-date"

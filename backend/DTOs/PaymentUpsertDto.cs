@@ -3,36 +3,32 @@ using System.ComponentModel.DataAnnotations;
 namespace ParentCommitteeAPI.DTOs
 {
     /*
-      PaymentUpsertDto — עדכון מצב תשלום של תלמיד עבור קטגוריה (יצירה או עדכון).
-      הוולידציה המותנית (IValidatableObject) רצה אוטומטית עם [ApiController]
-      ומחזירה 400 עם הודעות בעברית.
+      PaymentUpsertDto — עדכון תשלום של תלמיד עבור קטגוריה: סכום נפרד לכל
+      אמצעי (ביט/פייבוקס/מזומן) + סימון "שולם". הוולידציה המותנית רצה
+      אוטומטית עם [ApiController] ומחזירה 400 עם הודעות בעברית.
     */
     public class PaymentUpsertDto : IValidatableObject
     {
-        public decimal Amount { get; set; }
-
-        /* אמצעי תשלום: bit / paybox / cash. חובה כשמסמנים ששולם. */
-        public string? Method { get; set; }
+        public decimal BitAmount { get; set; }
+        public decimal PayBoxAmount { get; set; }
+        public decimal CashAmount { get; set; }
 
         public bool IsPaid { get; set; }
 
-        private static readonly string[] AllowedMethods = { "bit", "paybox", "cash" };
-
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
-            if (Amount < 0)
+            if (BitAmount < 0 || PayBoxAmount < 0 || CashAmount < 0)
             {
-                yield return new ValidationResult("הסכום לא יכול להיות שלילי", new[] { nameof(Amount) });
+                yield return new ValidationResult(
+                    "הסכום לא יכול להיות שלילי",
+                    new[] { nameof(BitAmount), nameof(PayBoxAmount), nameof(CashAmount) });
             }
 
-            if (!string.IsNullOrEmpty(Method) && !AllowedMethods.Contains(Method))
+            if (IsPaid && BitAmount + PayBoxAmount + CashAmount <= 0)
             {
-                yield return new ValidationResult("אמצעי תשלום לא תקין", new[] { nameof(Method) });
-            }
-
-            if (IsPaid && string.IsNullOrEmpty(Method))
-            {
-                yield return new ValidationResult("יש לבחור אמצעי תשלום כדי לסמן ששולם", new[] { nameof(Method) });
+                yield return new ValidationResult(
+                    "יש להזין סכום באחד האמצעים כדי לסמן ששולם",
+                    new[] { nameof(BitAmount) });
             }
         }
     }

@@ -9,6 +9,7 @@ namespace ParentCommitteeAPI.DTOs
         public int Id { get; set; }
         public string FirstName { get; set; } = string.Empty;
         public string LastName { get; set; } = string.Empty;
+        public string ParentName { get; set; } = string.Empty;
         public string ClassName { get; set; } = string.Empty;
         public string ParentPhoneNumber { get; set; } = string.Empty;
 

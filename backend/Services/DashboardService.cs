@@ -47,8 +47,8 @@ namespace ParentCommitteeAPI.Services
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
             var target = totalPerChild * group.ChildrenCount;
 
-            /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (שלב 5) */
-            var collected = paidPayments.Sum(p => p.Amount);
+            /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (סכום כל האמצעים) */
+            var collected = paidPayments.Sum(PaidTotal);
             var openDebt = target - collected;
             var boxBalance = collected;
 
@@ -71,9 +71,9 @@ namespace ParentCommitteeAPI.Services
                 ProgressPercent = target == 0 ? 0 : (int)Math.Round(collected / target * 100),
                 ByPaymentMethod = new List<DashboardAmountDto>
                 {
-                    new() { Method = "bit", Amount = SumByMethod(paidPayments, "bit") },
-                    new() { Method = "paybox", Amount = SumByMethod(paidPayments, "paybox") },
-                    new() { Method = "cash", Amount = SumByMethod(paidPayments, "cash") },
+                    new() { Method = "bit", Amount = paidPayments.Sum(p => p.BitAmount) },
+                    new() { Method = "paybox", Amount = paidPayments.Sum(p => p.PayBoxAmount) },
+                    new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) },
                 },
                 ByCategory = group.Categories.Select(c => new DashboardCategoryDto
                 {
@@ -81,15 +81,15 @@ namespace ParentCommitteeAPI.Services
                     TargetAmount = c.AmountPerChild * group.ChildrenCount,
                     CollectedAmount = paidPayments
                         .Where(p => p.CollectionCategoryId == c.Id)
-                        .Sum(p => p.Amount),
+                        .Sum(PaidTotal),
                 }).ToList(),
                 Alerts = BuildAlerts(group, collected, birthdays, today),
                 UpcomingBirthdays = birthdays,
             };
         }
 
-        private static decimal SumByMethod(List<Payment> payments, string method) =>
-            payments.Where(p => p.Method == method).Sum(p => p.Amount);
+        /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים */
+        private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount;
 
         private static List<DashboardAlertDto> BuildAlerts(
             Group group, decimal collected, List<DashboardBirthdayDto> birthdays, DateTime today)

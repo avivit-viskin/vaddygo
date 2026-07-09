@@ -5,9 +5,8 @@ namespace ParentCommitteeAPI.Models
       מקושר ל-CollectionCategory הקיים (משלב 3) ולא לטבלת קטגוריות חדשה —
       אותן קטגוריות שהוגדרו באשף ההרשמה הן קטגוריות התשלום (DRY).
 
-      MVP: רשומה אחת לכל (תלמיד, קטגוריה) עם סימון שולם/לא שולם ידני.
-      חלוקה לתשלומים (1/2/3) ומעקב פר-תשלום הם הרחבה עתידית — הקטגוריה כבר
-      מחזיקה את מספר התשלומים.
+      התשלום יכול להתחלק בין אמצעים: סכום נפרד לכל אמצעי (ביט/פייבוקס/מזומן),
+      והסך שנגבה לקטגוריה = סכום שלושתם.
     */
     public class Payment
     {
@@ -19,11 +18,10 @@ namespace ParentCommitteeAPI.Models
         public int CollectionCategoryId { get; set; }
         public CollectionCategory? Category { get; set; }
 
-        /* הסכום שנרשם בפועל (ברירת מחדל: הסכום לתלמיד של הקטגוריה) */
-        public decimal Amount { get; set; }
-
-        /* אמצעי התשלום: bit / paybox / cash. null כל עוד לא סומן ששולם. */
-        public string? Method { get; set; }
+        /* סכום ששולם בכל אמצעי (אפשר לפצל תשלום בין אמצעים) */
+        public decimal BitAmount { get; set; }
+        public decimal PayBoxAmount { get; set; }
+        public decimal CashAmount { get; set; }
 
         public bool IsPaid { get; set; }
 

@@ -92,7 +92,7 @@ namespace ParentCommitteeAPI.Services
             return payments
                 .Where(p => p.IsPaid)
                 .GroupBy(p => p.StudentId)
-                .ToDictionary(g => g.Key, g => g.Sum(p => p.Amount));
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount));
         }
 
         /* מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפון בלי מקף. */
@@ -100,6 +100,7 @@ namespace ParentCommitteeAPI.Services
         {
             student.FirstName = dto.FirstName.Trim();
             student.LastName = dto.LastName.Trim();
+            student.ParentName = dto.ParentName.Trim();
             student.ClassName = dto.ClassName.Trim();
             student.ParentPhoneNumber = dto.ParentPhoneNumber.Trim().Replace("-", "");
             student.BirthDate = dto.BirthDate;
@@ -110,6 +111,7 @@ namespace ParentCommitteeAPI.Services
             Id = student.Id,
             FirstName = student.FirstName,
             LastName = student.LastName,
+            ParentName = student.ParentName,
             ClassName = student.ClassName,
             ParentPhoneNumber = student.ParentPhoneNumber,
             BirthDate = student.BirthDate,

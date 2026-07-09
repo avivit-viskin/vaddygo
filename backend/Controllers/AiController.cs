@@ -28,7 +28,7 @@ namespace ParentCommitteeAPI.Controllers
             {
                 return StatusCode(503, new
                 {
-                    message = "עוזרת ה-AI עדיין לא הופעלה. יש להגדיר מפתח Anthropic במשתני הסביבה."
+                    message = "עוזרת ה-AI עדיין לא הופעלה. יש להגדיר מפתח Google Gemini במשתני הסביבה."
                 });
             }
 

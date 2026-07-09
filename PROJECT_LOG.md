@@ -6,6 +6,15 @@
 
 ---
 
+## 09.07.2026 — עוזרת ה-AI: מעבר מ-Claude ל-Google Gemini (מסלול חינמי) [Claude Code]
+
+- **מה נעשה:** לפי החלטת בעלת המוצר, ספק ה-AI הוחלף מ-Anthropic Claude ל-**Google Gemini** במסלול החינמי. שוכתב `AiService` לקרוא ל-Gemini `generateContent` (Generative Language API) דרך אותו HttpClient: כתובת `…/v1beta/models/{model}:generateContent`, מפתח בכותרת `x-goog-api-key`, גוף עם `systemInstruction`/`contents`/`generationConfig`, וחילוץ מ-`candidates[0].content.parts[].text`. טיפול בחסימות בטיחות (‏`promptFeedback.blockReason` וגם `finishReason=SAFETY`). דגם ברירת מחדל `gemini-2.5-flash` (זמין במסלול החינמי; ניתן להחליף ל-`gemini-3.5-flash` דרך `Gemini__Model` בלי שינוי קוד).
+- **למה:** בעלת המוצר בחרה להתחיל במסלול חינמי ולעבור לתשלום רק אם יהיה ביקוש. Gemini מציע מדרגה חינמית מוגבלת; Claude/Anthropic הוא בתשלום מהרגע הראשון.
+- **קבצים:** `backend/Services/AiService.cs` (שוכתב), `backend/appsettings.json` (סקשן `Anthropic`→`Gemini`, מפתח ריק — בלי סוד), `backend/Controllers/AiController.cs` (הודעת 503 מעודכנת). **הממשק `IAiService` לא השתנה** — הקונטרולר ומסך העוזרת בלקוח לא נגעו. `Program.cs` לא שונה (רישום ה-HttpClient הגנרי מתאים לכל ספק) — נמנעה התנגשות עם סוכן שלב 8 שעורך אותו כרגע.
+- **החלטות:** (1) שימוש ב-`generateContent` הקלאסי והיציב (ולא ב-Interactions API החדש) — מבנה JSON מתועד ופשוט לניתוח ידני ב-C#. (2) המפתח רק ממשתני סביבה (`Gemini:ApiKey`), לעולם לא בקוד. (3) הפרטיות נשמרה: ה-persona לא שולח שמות/טלפונים — **שימי לב שהמסלול החינמי של Google עשוי להשתמש בנתונים לשיפור המוצר** (בשונה ממסלול בתשלום), ולכן חשוב שלא יישלחו פרטים מזהים.
+- **אימות:** build נקי (0 אזהרות) בעותק מבודד; מקצה-לקצה: הרשמה→טוקן, ואז `POST /api/ai/ask` עם הטוקן החזיר **503** ("לא הופעלה") — מוכיח שהחיווט תקין וממתין רק למפתח. הנתיב המלא ייבדק עם המפתח האמיתי של בעלת המוצר.
+- **הצעד הבא:** בעלת המוצר יוצרת מפתח חינמי ב-Google AI Studio (aistudio.google.com) ומוסיפה משתנה `Gemini__ApiKey` ל-Railway Variables בשירות הבקאנד; אחר כך בדיקה מהאפליקציה החיה.
+
 ## 09.07.2026 — הרשמה: השלמה אוטומטית לעיר + רכיב Autocomplete גנרי [Claude Fable 5]
 
 - **מה נעשה:** שדה "עיר" באשף ההרשמה קיבל **השלמה אוטומטית**. נבנה רכיב גנרי `Autocomplete` (מציג הצעות מסוננות תוך כדי הקלדה, **ומאפשר גם ערך חופשי** שאינו ברשימה), קובץ נתונים `src/data/israeliCities.js` (~110 היישובים הגדולים/מוכרים), וחיבור לשדה העיר ב-`GanDetailsStep`. פרונט-בלבד, לא תלוי בשרת. קומפילציה נקייה (תוקנה אזהרת נגישות: `combobox` דורש `aria-controls`). commit `5e018a0`.

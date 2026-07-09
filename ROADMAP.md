@@ -89,10 +89,10 @@
 
 ## שלב 9 — עוזרת AI ✅ [Claude Code B, 09.07.2026]
 
-- ✅ **צד שרת:** `AiController` (`POST /api/ai/ask`) דק → `IAiService`/`AiService` שקורא ל-Claude (Anthropic Messages API, דגם `claude-opus-4-8`) דרך HttpClient. **מפתח ה-API רק ממשתני סביבה** (`Anthropic:ApiKey`) — לעולם לא בקוד; כשהמפתח חסר מוחזר 503 עם הודעה ידידותית. persona בעברית, טיפול בסירוב בטיחותי (stop_reason=refusal), לוגים בלי גוף התשובה.
+- ✅ **צד שרת:** `AiController` (`POST /api/ai/ask`) דק → `IAiService`/`AiService`. **ספק ה-AI: Google Gemini במסלול חינמי** (החלטת בעלת המוצר, 09.07.2026; הוחלף מ-Claude/Anthropic) — קריאה ל-`generateContent`, דגם `gemini-2.5-flash` (ניתן להחליף דרך `Gemini__Model`). **מפתח ה-API רק ממשתני סביבה** (`Gemini:ApiKey`) — לעולם לא בקוד; כשהמפתח חסר מוחזר 503 עם הודעה ידידותית. persona בעברית, טיפול בחסימת בטיחות (blockReason/finishReason=SAFETY), לוגים בלי גוף התשובה.
 - ✅ **צד לקוח:** `AiAssistantPage` (UI_SPEC ס' 14): פתיח "במה ברצונך לעזור?", צ'יפים לשאלות מהירות, שדה שאלה חופשית, ותשובה עם מצבי טעינה/שגיאה; כפתור AI צף (`AiFab`, UI_SPEC ס' 10) בנתיב `/assistant`. `aiService` דרך שכבת ה-API.
 - ✅ **פרטיות:** לא נשלחים לבינה שמות/טלפונים של ילדים או הורים — רק טקסט השאלה (ורקע כללי לא-מזהה אם יצורף בעתיד).
-- ⏳ **נותר לבעלת המוצר:** להוסיף מפתח Anthropic ל-User Secrets (פיתוח) ול-Railway Variables (ייצור) כדי להפעיל את העוזרת. 3 טסטי לקוח + build ירוק; endpoint אומת מקצה-לקצה (503 ללא מפתח, 400 על שאלה ריקה).
+- ⏳ **נותר לבעלת המוצר:** ליצור מפתח חינמי ב-Google AI Studio ולהוסיף `Gemini__ApiKey` ל-Railway Variables (ייצור) / User Secrets (פיתוח) כדי להפעיל את העוזרת. 3 טסטי לקוח + build ירוק; endpoint אומת מקצה-לקצה (503 ללא מפתח).
 
 ## שלב 10 — אבטחה וכניסה 🔄 [Claude Fable, 09.07.2026] — **בסיס הושלם; נותר Google OAuth**
 

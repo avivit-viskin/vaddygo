@@ -1,18 +1,23 @@
 import Input from "../../components/Input";
+import Autocomplete from "../../components/Autocomplete";
+import { ISRAELI_CITIES } from "../../data/israeliCities";
 
 /*
   GanDetailsStep — צעד 1 באשף: פרטי הגן/בית הספר (UI_SPEC סעיף 3).
-  העיר בהקלדה חופשית בינתיים — רשימת יישובים תחובר כשבעלת המוצר תאשר מקור נתונים.
+  העיר עם השלמה אוטומטית מרשימת היישובים, ועם אפשרות להקלדה חופשית
+  ליישוב שאינו ברשימה.
 */
 function GanDetailsStep({ data, errors, onChange }) {
   return (
     <>
       <p className="wizard__question">ברוכים הבאים! כמה פרטים ומזנקים...</p>
-      <Input
+      <Autocomplete
         id="ob-city"
         label="עיר / יישוב"
+        placeholder="התחילי להקליד עיר..."
+        options={ISRAELI_CITIES}
         value={data.city}
-        onChange={(e) => onChange({ city: e.target.value })}
+        onChange={(city) => onChange({ city })}
         error={errors.city}
       />
       <Input

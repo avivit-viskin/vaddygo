@@ -1,4 +1,7 @@
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using ParentCommitteeAPI;
 using ParentCommitteeAPI.Middleware;
 using ParentCommitteeAPI.Repositories;
@@ -44,7 +47,36 @@ builder.Services.AddScoped<IPaymentService, PaymentService>();
 builder.Services.AddScoped<IEventService, EventService>();
 builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 
+// אימות JWT — בודק את ה-token שהלקוח שולח בכותרת Authorization
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,       // token שפג (כשהמנוי פג) נדחה אוטומטית
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = JwtSettings.Issuer,
+            ValidAudience = JwtSettings.Audience,
+            IssuerSigningKey = new SymmetricSecurityKey(
+                Encoding.UTF8.GetBytes(JwtSettings.GetKey(builder.Configuration))),
+        };
+    });
+
+// ברירת מחדל: כל endpoint דורש משתמש מזוהה. פתיחת חריגים דרך [AllowAnonymous]
+// (מסך ההרשמה/כניסה). כך "כל endpoint מוגן" בלי לגעת בכל קונטרולר בנפרד.
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
+
+// עוזרת ה-AI — HttpClient מוקצה (typed) לקריאות ל-Anthropic; המפתח מ-Anthropic:ApiKey
 builder.Services.AddHttpClient<IAiService, AiService>();
 
 var app = builder.Build();
@@ -67,6 +99,7 @@ if (app.Environment.IsDevelopment())
     app.UseHttpsRedirection();
 }
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

@@ -1,0 +1,86 @@
+using Microsoft.EntityFrameworkCore;
+using ParentCommitteeAPI.Auth;
+using ParentCommitteeAPI.DTOs;
+using ParentCommitteeAPI.Models;
+
+namespace ParentCommitteeAPI.Services
+{
+    /*
+      AuthService — הלוגיקה העסקית של הרשמה וכניסה:
+      גיבוב סיסמה, בדיקת ייחודיות שם משתמש/מייל, חישוב תוקף המנוי,
+      אימות בכניסה, והפקת JWT. אין כאן HTTP — רק BL.
+    */
+    public class AuthService : IAuthService
+    {
+        private readonly AppDbContext _db;
+        private readonly IJwtTokenService _jwt;
+        private readonly ILogger<AuthService> _logger;
+
+        public AuthService(AppDbContext db, IJwtTokenService jwt, ILogger<AuthService> logger)
+        {
+            _db = db;
+            _jwt = jwt;
+            _logger = logger;
+        }
+
+        public async Task<AuthResult> RegisterAsync(RegisterDto dto)
+        {
+            var username = dto.Username.Trim();
+            var email = dto.Email.Trim().ToLowerInvariant();
+
+            if (await _db.Users.AnyAsync(u => u.Username == username))
+            {
+                return new AuthResult(null, "שם המשתמש כבר תפוס — נסי שם אחר");
+            }
+            if (await _db.Users.AnyAsync(u => u.Email == email))
+            {
+                return new AuthResult(null, "כתובת המייל כבר רשומה במערכת");
+            }
+
+            var user = new User
+            {
+                Username = username,
+                Email = email,
+                PasswordHash = PasswordHasher.Hash(dto.Password),
+                Role = "Member",
+                SubscriptionValidUntil = SubscriptionPolicy.ValidUntil(DateTime.UtcNow),
+            };
+
+            _db.Users.Add(user);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("User registered (Id: {UserId})", user.Id);
+
+            return new AuthResult(BuildResponse(user), null);
+        }
+
+        public async Task<AuthResult> LoginAsync(LoginDto dto)
+        {
+            var identifier = dto.UsernameOrEmail.Trim();
+            var lower = identifier.ToLowerInvariant();
+            var user = await _db.Users.FirstOrDefaultAsync(
+                u => u.Username == identifier || u.Email == lower);
+
+            // הודעה אחידה לשם משתמש/סיסמה שגויים — לא חושפים מה מהם שגוי
+            if (user == null || !PasswordHasher.Verify(dto.Password, user.PasswordHash))
+            {
+                return new AuthResult(null, "שם משתמש או סיסמה שגויים");
+            }
+
+            if (!SubscriptionPolicy.IsActive(user.SubscriptionValidUntil))
+            {
+                return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
+            }
+
+            _logger.LogInformation("User logged in (Id: {UserId})", user.Id);
+            return new AuthResult(BuildResponse(user), null);
+        }
+
+        private AuthResponseDto BuildResponse(User user) => new()
+        {
+            Token = _jwt.CreateToken(user),
+            Username = user.Username,
+            Role = user.Role,
+            SubscriptionValidUntil = user.SubscriptionValidUntil,
+        };
+    }
+}

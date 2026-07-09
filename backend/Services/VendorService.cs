@@ -22,15 +22,13 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<List<VendorResponseDto>> GetAllAsync()
         {
-            var vendors = await _db.Vendors.Include(v => v.Products).ToListAsync();
+            var vendors = await WithChildren(_db.Vendors).ToListAsync();
             return vendors.Select(ToResponse).ToList();
         }
 
         public async Task<VendorResponseDto?> GetByIdAsync(int id)
         {
-            var vendor = await _db.Vendors
-                .Include(v => v.Products)
-                .FirstOrDefaultAsync(v => v.Id == id);
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
             return vendor == null ? null : ToResponse(vendor);
         }
 
@@ -40,7 +38,9 @@ namespace ParentCommitteeAPI.Services
             {
                 Name = dto.Name.Trim(),
                 CatalogUrl = dto.CatalogUrl.Trim(),
+                WhatsApp = dto.WhatsApp.Trim(),
                 Products = MapProducts(dto.Products),
+                SocialLinks = MapSocialLinks(dto.SocialLinks),
             };
 
             _db.Vendors.Add(vendor);
@@ -52,9 +52,7 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<VendorResponseDto?> UpdateAsync(int id, VendorUpdateDto dto)
         {
-            var vendor = await _db.Vendors
-                .Include(v => v.Products)
-                .FirstOrDefaultAsync(v => v.Id == id);
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
             if (vendor == null)
             {
                 return null;
@@ -62,9 +60,12 @@ namespace ParentCommitteeAPI.Services
 
             vendor.Name = dto.Name.Trim();
             vendor.CatalogUrl = dto.CatalogUrl.Trim();
-            // מחליפים את רשימת המוצרים כולה — פשוט ותואם לעריכה בטופס הלקוח
+            vendor.WhatsApp = dto.WhatsApp.Trim();
+            // מחליפים את רשימות הבנים כולן — פשוט ותואם לעריכה בטופס הלקוח
             _db.VendorProducts.RemoveRange(vendor.Products);
+            _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
             vendor.Products = MapProducts(dto.Products);
+            vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
 
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor updated (Id: {VendorId})", id);
@@ -73,9 +74,7 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<bool> DeleteAsync(int id)
         {
-            var vendor = await _db.Vendors
-                .Include(v => v.Products)
-                .FirstOrDefaultAsync(v => v.Id == id);
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
             if (vendor == null)
             {
                 return false;
@@ -87,6 +86,10 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        /* ספק נטען תמיד עם המוצרים והקישורים החברתיים שלו */
+        private static IQueryable<Vendor> WithChildren(IQueryable<Vendor> query) =>
+            query.Include(v => v.Products).Include(v => v.SocialLinks);
+
         private static List<VendorProduct> MapProducts(List<VendorProductDto> products) =>
             products
                 .Where(p => !string.IsNullOrWhiteSpace(p.Name))
@@ -94,6 +97,17 @@ namespace ParentCommitteeAPI.Services
                 {
                     Name = p.Name.Trim(),
                     Price = p.Price,
+                    ImageUrl = p.ImageUrl.Trim(),
+                })
+                .ToList();
+
+        private static List<VendorSocialLink> MapSocialLinks(List<VendorSocialLinkDto> links) =>
+            links
+                .Where(l => !string.IsNullOrWhiteSpace(l.Url))
+                .Select(l => new VendorSocialLink
+                {
+                    Label = l.Label.Trim(),
+                    Url = l.Url.Trim(),
                 })
                 .ToList();
 
@@ -102,11 +116,19 @@ namespace ParentCommitteeAPI.Services
             Id = vendor.Id,
             Name = vendor.Name,
             CatalogUrl = vendor.CatalogUrl,
+            WhatsApp = vendor.WhatsApp,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,
                 Name = p.Name,
                 Price = p.Price,
+                ImageUrl = p.ImageUrl,
+            }).ToList(),
+            SocialLinks = vendor.SocialLinks.Select(l => new VendorSocialLinkResponseDto
+            {
+                Id = l.Id,
+                Label = l.Label,
+                Url = l.Url,
             }).ToList(),
         };
     }

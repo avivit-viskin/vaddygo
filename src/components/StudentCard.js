@@ -1,5 +1,6 @@
 import Card from "./Card";
 import Button from "./Button";
+import PaymentRequestButton from "./PaymentRequestButton";
 import { formatShekels, formatBirthday } from "../services/format";
 
 /*
@@ -39,6 +40,7 @@ function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
         </div>
         <div className="student-card__actions">
           <Button onClick={() => onPayments(student)}>תשלומים 💰</Button>
+          <PaymentRequestButton student={student} />
           <Button variant="secondary" onClick={() => onEdit(student)}>
             עריכה
           </Button>

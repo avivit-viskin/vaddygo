@@ -46,8 +46,8 @@ function toInternationalPhone(phone) {
   return digits.startsWith("0") ? `972${digits.slice(1)}` : digits;
 }
 
-/* הודעת תזכורת ידידותית עם פירוט הקטגוריות שטרם שולמו והסכום הכולל. */
-export function buildReminderMessage(studentFullName, unpaidPayments) {
+/* הראש המשותף של הודעת תשלום: ברכה, פירוט הקטגוריות שטרם שולמו, וסכום כולל. */
+function reminderHead(studentFullName, unpaidPayments) {
   const lines = unpaidPayments.map((p) => `• ${p.categoryName}: ${formatShekels(p.amount)}`);
   const total = unpaidPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
   return [
@@ -55,6 +55,27 @@ export function buildReminderMessage(studentFullName, unpaidPayments) {
     `תזכורת ידידותית מהוועד לתשלומים עבור ${studentFullName}:`,
     ...lines,
     `סה"כ לתשלום: ${formatShekels(total)}`,
-    "תודה רבה! 💜",
-  ].join("\n");
+  ];
+}
+
+/* הודעת תזכורת ידידותית עם פירוט הקטגוריות שטרם שולמו והסכום הכולל. */
+export function buildReminderMessage(studentFullName, unpaidPayments) {
+  return [...reminderHead(studentFullName, unpaidPayments), "תודה רבה! 💜"].join("\n");
+}
+
+/*
+  הודעת בקשת תשלום לפי אמצעי: לביט/פייבוקס מצורף קישור התשלום של הוועד;
+  למזומן (או כשאין קישור) — תזכורת להסדרת התשלום בלבד. ההודעה נשלחת להורה בוואטסאפ.
+*/
+export function buildPaymentRequestMessage(studentFullName, unpaidPayments, method, links) {
+  const head = reminderHead(studentFullName, unpaidPayments);
+  let tail;
+  if (method === "bit" && links?.bit) {
+    tail = [`לתשלום מהיר בביט: ${links.bit}`, "תודה רבה! 💜"];
+  } else if (method === "paybox" && links?.paybox) {
+    tail = [`לתשלום דרך פייבוקס: ${links.paybox}`, "תודה רבה! 💜"];
+  } else {
+    tail = ["נא להסדיר את התשלום בהקדם, תודה! 💜"];
+  }
+  return [...head, "", ...tail].join("\n");
 }

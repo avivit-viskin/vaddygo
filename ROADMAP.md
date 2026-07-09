@@ -100,9 +100,9 @@
 
 **⚠️ לפני פריסת הבקאנד:** ‏main כולל אכיפת אבטחה גורפת בשרת. הפרונט כבר שולח token, אז זרם הרשמה→כניסה→שימוש עובד; אבל חובה להגדיר `Jwt__Key` (מחרוזת אקראית ארוכה) ב-Railway Variables — אחרת נעשה שימוש במפתח פיתוח חלש.
 
-## שלב 11 — הקשחת ייצור ☐
+## שלב 11 — הקשחת ייצור 🔄 [Claude Code, 09.07.2026 — Health Checks]
 
-☐ מעבר ל-SQL Server (החלפת connection string) · ☐ גיבויים אוטומטיים · ☐ Monitoring + Health Checks · ☐ CORS לדומיין הייצור בלבד
+☐ מעבר ל-SQL Server (החלפת connection string) · ☐ גיבויים אוטומטיים · 🔄 Monitoring + Health Checks · ☐ CORS לדומיין הייצור בלבד
 
 ---
 

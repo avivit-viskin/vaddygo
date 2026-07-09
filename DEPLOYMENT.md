@@ -1,4 +1,4 @@
-# DEPLOYMENT.md — איך VaadyGo עולה לאוויר
+# DEPLOYMENT.md — איך VaddyGo עולה לאוויר
 
 ## התמונה הגדולה
 

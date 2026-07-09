@@ -28,9 +28,9 @@ afterEach(() => {
   delete global.fetch;
 });
 
-test('שם המותג VaadyGo מוצג מודגש בכותרת', () => {
+test('שם המותג VaddyGo מוצג מודגש בכותרת', () => {
   renderAt('/');
-  const heading = screen.getByRole('heading', { name: /VaadyGo/ });
+  const heading = screen.getByRole('heading', { name: /VaddyGo/ });
   expect(heading).toBeInTheDocument();
   expect(heading.querySelector('strong.brand-name')).not.toBeNull();
 });

@@ -1,4 +1,4 @@
-# CI של VaadyGo — רץ אוטומטית על כל push ו-Pull Request ל-main.
+# CI של VaddyGo — רץ אוטומטית על כל push ו-Pull Request ל-main.
 # אם משהו כאן נכשל, Railway לא יפרוס את הגרסה (Wait for CI).
 
 name: CI

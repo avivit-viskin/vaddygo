@@ -12,14 +12,13 @@
 
 ---
 
-## שלב 0 — תשתית פרויקט 🔄 (נותרו רק פעולות דשבורד של בעלת המוצר)
+## שלב 0 — תשתית פרויקט ✅
 
 - ✅ ריפו Git + דחיפה ל-GitHub‏ (https://github.com/avivit-viskin/vaddygo)
 - ✅ מערך תיעוד מלא בריפו + פרומפט גנרי לסוכנים
 - ✅ CI ב-GitHub Actions: בדיקות + build על כל push
-- ☐ פריסה ל-Railway + דומיין (לפי [DEPLOYMENT.md](DEPLOYMENT.md)) — באחריות בעלת המוצר עם ליווי
+- ✅ **המערכת באוויר מקצה-לקצה** [בעלת המוצר עם ליווי, 09.07.2026]: פרויקט Railway אחד `superb-hope` עם שני שירותים — **הפרונט** (`vaddygo`, כתובת `https://vaddygo-production.up.railway.app`) ו-**הבקאנד** (`soothing-clarity`, כתובת `https://soothing-clarity-production.up.railway.app`, Root Directory=`backend`, Builder=Dockerfile). ‏Volume ב-`/data`; משתנים: `ConnectionStrings__Default=Data Source=/data/vaadygo.db`, `Cors__AllowedOrigins__0`=כתובת הפרונט, `Jwt__Key` הוגדר. הפרונט מחובר דרך `REACT_APP_API_URL`=כתובת הבקאנד. אומת: `/api/health` מחזיר `database:ok`, והרשמה+הוספת תלמיד נשמרים ומשׂרדים ריענון (נתונים אמיתיים בשרת). ניקוי: נמחקו 5 פרויקטי Railway כפולים שנוצרו בטעות.
 - ✅ הבקאנד עלה לריפו `[Claude Code, 08.07.2026]` — **החלטת בעלת המוצר: mono-repo** (הכל בריפו אחד). קוד השרת נמצא כעת בתיקיית `backend/` בתוך ריפו `vaddygo`. אומת שאין secrets (appsettings.json / appsettings.Development.json / launchSettings.json); `backend/.gitignore` מחריג bin/obj, `*.user`, קבצי SQLite `*.db`, env/secrets. הועברו קבצי מקור בלבד (18) — לא bin/obj/db.
-- 🔄 פריסת הבקאנד ל-Railway — **הצד הטכני מוכן** [Claude Fable, 09.07.2026]: Dockerfile + ‎.dockerignore, האזנה ל-PORT של Railway, https-redirect רק בפיתוח, CI בונה גם את הבקאנד. **נותר לבעלת המוצר** (מדריך מלא ב-[DEPLOYMENT.md](DEPLOYMENT.md)): שירות שני מהריפו עם Root Directory=`backend`, ‏Volume ב-`/data`, משתני `ConnectionStrings__Default` ו-`Cors__AllowedOrigins__0`, דומיין (פורט 8080), ו-`REACT_APP_API_URL` בשירות הפרונט
 
 ## שלב 1 — תשתית פרונטאנד ✅
 

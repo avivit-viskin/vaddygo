@@ -6,6 +6,14 @@
 
 ---
 
+## 09.07.2026 — 🚀 שלב 0 הושלם: המערכת עלתה לאוויר מקצה-לקצה (Railway)
+
+- **מה נעשה:** בעלת המוצר פרסה את המערכת המלאה ל-Railway בליווי צעד-אחר-צעד. פרויקט Railway אחד (`superb-hope`) עם **שני שירותים**: הפרונט (`vaddygo`, `https://vaddygo-production.up.railway.app`) והבקאנד החדש (`soothing-clarity`, `https://soothing-clarity-production.up.railway.app`). הבקאנד: Root Directory=`backend`, Builder=**Dockerfile** (זוהה אוטומטית), Volume ב-`/data`, ומשתני סביבה — `ConnectionStrings__Default=Data Source=/data/vaadygo.db`, `Cors__AllowedOrigins__0`=כתובת הפרונט, `Jwt__Key`=מפתח אקראי. הפרונט חובר עם `REACT_APP_API_URL`=כתובת הבקאנד (נבנה מחדש כדי לצרוב אותה). **אימות:** `GET /api/health` החזיר `{"status":"ok","database":"ok"}`; הרשמת משתמש, הגדרת גן והוספת תלמיד נשמרו ושׂרדו יציאה-וחזרה — כלומר נתונים אמיתיים בשרת, לא ב-localStorage.
+- **למה:** זה ההבדל בין "אתר הדגמה" ל"מוצר חי" — מכאן חברות ועד יכולות להירשם ולעבוד באמת, והנתונים נשמרים.
+- **קבצים:** ללא שינוי קוד — פעולות דשבורד ב-Railway. עודכנו `ROADMAP.md` (שלב 0 → ✅) ו-`PROJECT_LOG.md`. `DEPLOYMENT.md` הושלם קודם עם משתנה `Jwt__Key`.
+- **החלטות/לקחים:** (1) **נמחקו 5 פרויקטי Railway כפולים** (`generous-respect`, `innovative-nature`, `skillful-learning`, `precious-gentleness`, `humorous-reflection`) שנוצרו בטעות מ"New Project" חוזר — צריך פרויקט אחד עם שני שירותים, לא פרויקט לכל שירות. (2) Railway זיהה את ה-Dockerfile אוטומטית ברגע ש-Root Directory הוגדר ל-`backend` — לא היה צריך לבחור Builder ידנית. (3) `REACT_APP_API_URL` נצרב בזמן build של הפרונט, ולכן חובה Deploy-מחדש של הפרונט אחרי הגדרתו.
+- **הצעד הבא:** להשלים את שלב 10 (כניסת Google + אכיפת SuperAdmin על ניהול ספקים) ואת שלב 8 (Google Drive), ולסיים את שלב 11 (הקשחת ייצור — כבר יש Health Check).
+
 ## 09.07.2026 — שלב 11 (חלקי): Health Check endpoint + סריקת שם סופית
 
 - **מה נעשה:** (1) **Health Check** — נוסף `HealthController` עם `GET /api/health` (‏`[AllowAnonymous]`) שמחזיר 200 כשהשרת והמסד זמינים (בודק `Database.CanConnectAsync`) ו-503 כשאין גישה למסד. קריטי אחרי שלב 10: ה-`FallbackPolicy` אוכף token על כל endpoint, כך שבלי `[AllowAnonymous]` בודק הבריאות של Railway היה מקבל 401. (2) **סריקת שם סופית** — אחרי ששלבים 7/9/10 נדחפו, הוחלפו 8 המופעים האחרונים של "VaadyGo"→"VaddyGo" בקוד שלהם (פרומפט העוזרת שמוצג למשתמשת, קבועי Issuer/Audience של ה-JWT, והערות). אין יותר אף "VaadyGo" בריפו.

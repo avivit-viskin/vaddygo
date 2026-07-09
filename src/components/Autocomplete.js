@@ -11,6 +11,8 @@ import "../styles/autocomplete.css";
     options       — מערך מחרוזות להצעות
     onChange(val) — נקרא עם ערך המחרוזת (לא event) בכל הקלדה או בחירה
     maxSuggestions — כמה הצעות להציג (ברירת מחדל 8)
+    filterLocally — האם לסנן את ההצעות לפי הטקסט (ברירת מחדל true).
+                    false כשההצעות כבר מסוננות במקור (למשל תוצאות משרת).
 */
 function Autocomplete({
   id,
@@ -21,18 +23,22 @@ function Autocomplete({
   options = [],
   onChange,
   maxSuggestions = 8,
+  filterLocally = true,
 }) {
   const [isOpen, setIsOpen] = useState(false);
   const blurTimer = useRef(null);
   const listId = `${id}-list`;
 
   const filtered = useMemo(() => {
+    if (!filterLocally) {
+      return options.slice(0, maxSuggestions);
+    }
     const query = value.trim().toLowerCase();
     const matches = query
       ? options.filter((option) => option.toLowerCase().includes(query))
       : options;
     return matches.slice(0, maxSuggestions);
-  }, [value, options, maxSuggestions]);
+  }, [value, options, maxSuggestions, filterLocally]);
 
   // לא מציגים רשימה כשההצעה היחידה זהה למה שכבר מוקלד
   const showList =

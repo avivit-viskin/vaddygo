@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { askAssistant } from "../services/aiService";
+import { whatsappShareUrl } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
@@ -100,6 +101,14 @@ function AiAssistantPage() {
       {answer && (
         <Card title="התשובה של העוזרת">
           <p className="ai-answer">{answer}</p>
+          <a
+            className="ai-share"
+            href={whatsappShareUrl(answer)}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button>שתפי בוואטסאפ 💬</Button>
+          </a>
         </Card>
       )}
     </div>

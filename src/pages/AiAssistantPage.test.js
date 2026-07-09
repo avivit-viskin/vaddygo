@@ -58,3 +58,26 @@ test("כשהעוזרת לא מופעלת בשרת — מוצגת הודעה יד
 
   expect(await screen.findByText(/עדיין לא הופעלה/)).toBeInTheDocument();
 });
+
+test("אחרי תשובה מופיע כפתור שיתוף לוואטסאפ עם תוכן התשובה", async () => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: true,
+      status: 200,
+      json: () => Promise.resolve({ answer: "הודעה חמה להורים 💜" }),
+    })
+  );
+  renderPage();
+
+  fireEvent.change(screen.getByLabelText("השאלה שלך"), {
+    target: { value: "נסחי הודעה" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "שליחה לעוזרת" }));
+
+  await screen.findByText(/הודעה חמה להורים/);
+  const share = screen.getByRole("link", { name: /שתפי בוואטסאפ/ });
+  expect(share.getAttribute("href")).toContain("wa.me/?text=");
+  expect(share.getAttribute("href")).toContain(
+    encodeURIComponent("הודעה חמה להורים 💜")
+  );
+});

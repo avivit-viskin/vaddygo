@@ -74,6 +74,17 @@
   line-height: 1.7;
 }
 
+/* כפתור שיתוף התשובה לוואטסאפ */
+.ai-share {
+  display: block;
+  margin-top: 14px;
+  text-decoration: none;
+}
+
+.ai-share .btn {
+  width: 100%;
+}
+
 /* כפתור AI צף מעל הניווט התחתון */
 .ai-fab {
   position: fixed;

@@ -19,3 +19,11 @@ export function whatsappUrl(value) {
   const international = digits.startsWith("0") ? `972${digits.slice(1)}` : digits;
   return `https://wa.me/${international}`;
 }
+
+/*
+  whatsappShareUrl — קישור שיתוף עם טקסט מוכן, בלי נמען מוגדר:
+  וואטסאפ נפתח עם ההודעה מוקלדת והמשתמשת בוחרת למי לשלוח.
+*/
+export function whatsappShareUrl(text) {
+  return `https://wa.me/?text=${encodeURIComponent(text || "")}`;
+}

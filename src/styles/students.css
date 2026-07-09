@@ -1,0 +1,57 @@
+/*
+  students.css — עיצוב ייעודי למסך התלמידים (כפתורי הכותרת + ייבוא מקובץ).
+*/
+
+.page-header__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.students-import {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.students-import__steps {
+  margin: 0;
+  padding-inline-start: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
+.students-import__file {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+}
+
+.students-import__count {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.students-import__result {
+  padding: 10px 12px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
+.students-import__result ul {
+  margin: 6px 0 0;
+  padding-inline-start: 18px;
+}
+
+.students-import__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}

@@ -34,7 +34,9 @@ function mockServer() {
       collectionCategoryId: 1,
       categoryName: "הזנה",
       amount: 1200,
-      method: null,
+      bitAmount: 0,
+      payBoxAmount: 0,
+      cashAmount: 0,
       isPaid: false,
       paidDate: null,
     },
@@ -44,7 +46,9 @@ function mockServer() {
       collectionCategoryId: 2,
       categoryName: "דמי ועד",
       amount: 500,
-      method: "cash",
+      bitAmount: 0,
+      payBoxAmount: 0,
+      cashAmount: 500,
       isPaid: true,
       paidDate: "2026-07-09T00:00:00Z",
     },
@@ -98,33 +102,34 @@ test("מציג שורה לכל קטגוריה עם סיכום כמה שולמו"
   expect(screen.getByText(/שולמו 1 מתוך 2 קטגוריות/)).toBeInTheDocument();
   expect(screen.getByText("הזנה")).toBeInTheDocument();
   expect(screen.getByText("דמי ועד")).toBeInTheDocument();
-  // הקטגוריה ששולמה מציגה סטטוס עם אמצעי התשלום
-  expect(screen.getByText(/שולם ✓ \(מזומן\)/)).toBeInTheDocument();
+  // הקטגוריה ששולמה מציגה סטטוס עם פירוט האמצעים (מזומן 500)
+  expect(screen.getByText(/שולם ✓ \(מזומן/)).toBeInTheDocument();
 });
 
-test("סימון קטגוריה כשולמה שולח PUT ומעדכן את הסטטוס", async () => {
+test("הזנת סכום באמצעי וסימון ששולם שולח PUT ומעדכן את הסטטוס", async () => {
   mockServer();
   renderPage();
   await screen.findByText(/תשלומים — הילי לוי/);
 
-  await userEvent.selectOptions(screen.getByLabelText("אמצעי תשלום"), "bit");
+  // מזינים סכום בשדה "ביט" של הקטגוריה שטרם שולמה, ומסמנים ששולם
+  await userEvent.type(screen.getByLabelText("ביט"), "300");
   await userEvent.click(screen.getByRole("button", { name: "סמן ששולם" }));
 
-  expect(await screen.findByText(/שולם ✓ \(ביט\)/)).toBeInTheDocument();
+  expect(await screen.findByText(/שולם ✓ \(ביט/)).toBeInTheDocument();
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining("/api/students/1/payments/1"),
     expect.objectContaining({ method: "PUT" })
   );
 });
 
-test("סימון ששולם בלי אמצעי תשלום מציג שגיאה ולא שולח לשרת", async () => {
+test("סימון ששולם בלי שום סכום מציג שגיאה ולא שולח לשרת", async () => {
   mockServer();
   renderPage();
   await screen.findByText(/תשלומים — הילי לוי/);
 
   await userEvent.click(screen.getByRole("button", { name: "סמן ששולם" }));
 
-  expect(await screen.findByText("יש לבחור אמצעי תשלום")).toBeInTheDocument();
+  expect(await screen.findByText(/יש להזין סכום/)).toBeInTheDocument();
   expect(global.fetch).not.toHaveBeenCalledWith(
     expect.stringContaining("/payments/1"),
     expect.objectContaining({ method: "PUT" })

@@ -19,6 +19,8 @@ import EmptyState from "../components/EmptyState";
 import StudentCard from "../components/StudentCard";
 import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
+import StudentsImport from "./students/StudentsImport";
+import "../styles/students.css";
 
 /*
   StudentsPage — מסך התלמידים המלא (שלב 2, לפי UI_SPEC ס' 11):
@@ -45,6 +47,9 @@ function StudentsPage() {
   const [studentToDelete, setStudentToDelete] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
+
+  // ייבוא תלמידים מקובץ
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // טעינת סיכומי התשלום במקביל לכל התלמידים (ברקע, אחרי הרשימה)
   useEffect(() => {
@@ -160,7 +165,12 @@ function StudentsPage() {
     <div>
       <div className="page-header">
         <h2>{totalCount} תלמידים</h2>
-        <Button onClick={openAddForm}>+ הוספת תלמיד</Button>
+        <div className="page-header__actions">
+          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+            📄 ייבוא מקובץ
+          </Button>
+          <Button onClick={openAddForm}>+ הוספת תלמיד</Button>
+        </div>
       </div>
 
       {totalCount === 0 ? (
@@ -225,6 +235,17 @@ function StudentsPage() {
           initialStudent={editedStudent}
           onSubmit={saveStudent}
           onCancel={closeForm}
+        />
+      </Modal>
+
+      <Modal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
+        title="ייבוא תלמידים מקובץ"
+      >
+        <StudentsImport
+          onDone={reload}
+          onCancel={() => setIsImportOpen(false)}
         />
       </Modal>
 

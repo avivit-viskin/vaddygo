@@ -1,10 +1,11 @@
 import Card from "./Card";
 import Button from "./Button";
+import { formatShekels, formatBirthday } from "../services/format";
 
 /*
-  StudentCard — כרטיס תלמיד אחד ברשימה: שם מלא, כיתה/קבוצה, טלפון הורה
-  (לחיץ לחיוג מהנייד), תג סטטוס תשלום, ופעולות תשלומים/עריכה/מחיקה.
-  תצוגה בלבד — הלוגיקה אצל ההורה (StudentsPage).
+  StudentCard — כרטיס תלמיד אחד ברשימה: שם מלא, יום הולדת (בקטן), סכום ששולם,
+  כיתה/קבוצה, טלפון הורה (לחיץ לחיוג מהנייד), תג סטטוס תשלום,
+  ופעולות תשלומים/עריכה/מחיקה. תצוגה בלבד — הלוגיקה אצל ההורה (StudentsPage).
   summary אופציונלי: { paidCount, totalCount, allPaid } — נטען אחרי הכרטיסים.
 */
 function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
@@ -22,7 +23,13 @@ function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
               </span>
             )}
           </strong>
+          {student.birthDate && (
+            <small className="student-card__birthday">
+              🎂 יום הולדת: {formatBirthday(student.birthDate)}
+            </small>
+          )}
           <span>כיתה/קבוצה: {student.className}</span>
+          <span>שולם עד כה: <strong>{formatShekels(student.totalPaid)}</strong></span>
           <span>
             טלפון הורה:{" "}
             <a href={`tel:${student.parentPhoneNumber}`} dir="ltr">

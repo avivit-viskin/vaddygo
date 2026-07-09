@@ -39,6 +39,7 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
       {
         firstName: initialStudent?.firstName ?? "",
         lastName: initialStudent?.lastName ?? "",
+        birthDate: initialStudent?.birthDate ?? "",
         className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
       },
@@ -62,6 +63,15 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         value={values.lastName}
         onChange={handleChange}
         error={errors.lastName}
+      />
+      <Input
+        id="student-birth-date"
+        name="birthDate"
+        label="תאריך לידה (לא חובה)"
+        type="date"
+        value={values.birthDate}
+        onChange={handleChange}
+        error={errors.birthDate}
       />
       <Input
         id="student-class-name"

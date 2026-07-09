@@ -11,5 +11,11 @@ namespace ParentCommitteeAPI.DTOs
         public string LastName { get; set; } = string.Empty;
         public string ClassName { get; set; } = string.Empty;
         public string ParentPhoneNumber { get; set; } = string.Empty;
+
+        /* תאריך לידה (אופציונלי) — להצגת יום ההולדת ברשימה */
+        public DateOnly? BirthDate { get; set; }
+
+        /* סך התשלומים ששולמו עד כה — מחושב בשרת מהתשלומים, לא נשמר במסד */
+        public decimal TotalPaid { get; set; }
     }
 }

@@ -14,3 +14,10 @@ export function formatDayMonth(isoDate) {
     month: "numeric",
   });
 }
+
+/* "2023-05-08" ← "8.5.2023" (תאריך מלא; פירוק ידני כדי לא להיות תלוי באזור זמן) */
+export function formatBirthday(isoDate) {
+  if (!isoDate) return "";
+  const [year, month, day] = isoDate.slice(0, 10).split("-");
+  return `${Number(day)}.${Number(month)}.${year}`;
+}

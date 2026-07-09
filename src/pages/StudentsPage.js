@@ -114,12 +114,14 @@ function StudentsPage() {
     setEditedStudent(null);
   }
 
-  /* שמירה משותפת להוספה ולעריכה; שגיאה נזרקת הלאה ומוצגת בתוך הטופס. */
+  /* שמירה משותפת להוספה ולעריכה; שגיאה נזרקת הלאה ומוצגת בתוך הטופס.
+     תאריך לידה ריק נשלח כ-null (ולא כמחרוזת ריקה) כדי שהשרת יקבל אותו. */
   async function saveStudent(values) {
+    const payload = { ...values, birthDate: values.birthDate || null };
     if (editedStudent) {
-      await updateStudent(editedStudent.id, values);
+      await updateStudent(editedStudent.id, payload);
     } else {
-      await createStudent(values);
+      await createStudent(payload);
     }
     closeForm();
     await reload();

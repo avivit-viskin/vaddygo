@@ -23,5 +23,8 @@ namespace ParentCommitteeAPI.DTOs
         [Required(ErrorMessage = "טלפון הורה הוא שדה חובה")]
         [RegularExpression(@"^05\d-?\d{7}$", ErrorMessage = "מספר הטלפון אינו תקין — הפורמט: 05X-XXXXXXX")]
         public string ParentPhoneNumber { get; set; } = string.Empty;
+
+        /* תאריך לידה (אופציונלי) — יום/חודש/שנה, להצגת יום ההולדת ברשימה */
+        public DateOnly? BirthDate { get; set; }
     }
 }

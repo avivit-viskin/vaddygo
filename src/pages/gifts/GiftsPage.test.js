@@ -88,3 +88,41 @@ test("פתיחת דף ספק מציגה את המוצרים והמחירים", a
   expect(await screen.findByText("כוס מעוצבת")).toBeInTheDocument();
   expect(screen.getByText("30 ₪")).toBeInTheDocument();
 });
+
+test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמונת מוצר", async () => {
+  localStorage.setItem(
+    "vaadygo.vendors",
+    JSON.stringify([
+      {
+        id: 7,
+        name: "מתנות בלב",
+        catalogUrl: "",
+        whatsApp: "054-1234567",
+        products: [
+          { name: "כוס מעוצבת", price: 30, imageUrl: "https://x.test/cup.jpg" },
+        ],
+        socialLinks: [
+          { label: "אינסטגרם", url: "https://instagram.com/matanotbalev" },
+        ],
+      },
+    ])
+  );
+
+  render(<GiftsPage />);
+
+  userEvent.click(await screen.findByRole("button", { name: /מתנות בלב/ }));
+
+  // כפתור וואטסאפ בונה קישור wa.me עם קידומת בינלאומית (0 מוביל → 972)
+  const whatsapp = await screen.findByRole("link", { name: /וואטסאפ/ });
+  expect(whatsapp).toHaveAttribute("href", "https://wa.me/972541234567");
+  // רשת חברתית
+  expect(screen.getByRole("link", { name: "אינסטגרם" })).toHaveAttribute(
+    "href",
+    "https://instagram.com/matanotbalev"
+  );
+  // תמונת מוצר
+  expect(screen.getByAltText("כוס מעוצבת")).toHaveAttribute(
+    "src",
+    "https://x.test/cup.jpg"
+  );
+});

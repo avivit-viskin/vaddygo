@@ -14,9 +14,6 @@ export function validateStudent(values) {
   if (!values.lastName.trim()) {
     errors.lastName = "שם משפחה הוא שדה חובה";
   }
-  if (!values.className.trim()) {
-    errors.className = "כיתה/קבוצה היא שדה חובה";
-  }
 
   const phone = values.parentPhoneNumber.trim();
   if (!phone) {
@@ -41,7 +38,6 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         lastName: initialStudent?.lastName ?? "",
         parentName: initialStudent?.parentName ?? "",
         birthDate: initialStudent?.birthDate ?? "",
-        className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
       },
       validateStudent
@@ -81,14 +77,6 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         value={values.birthDate}
         onChange={handleChange}
         error={errors.birthDate}
-      />
-      <Input
-        id="student-class-name"
-        name="className"
-        label="כיתה/קבוצה"
-        value={values.className}
-        onChange={handleChange}
-        error={errors.className}
       />
       <Input
         id="student-parent-phone"

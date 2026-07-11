@@ -94,44 +94,32 @@ afterEach(() => {
   delete global.fetch;
 });
 
-test("מציג שורה לכל קטגוריה עם סיכום כמה שולמו", async () => {
+test("מציג שורה לכל קטגוריה עם שדות אמצעי תשלום וכפתור אישור", async () => {
   mockServer();
   renderPage();
 
   expect(await screen.findByText(/תשלומים — הילי לוי/)).toBeInTheDocument();
-  expect(screen.getByText(/שולמו 1 מתוך 2 קטגוריות/)).toBeInTheDocument();
   expect(screen.getByText("הזנה")).toBeInTheDocument();
   expect(screen.getByText("דמי ועד")).toBeInTheDocument();
-  // הקטגוריה ששולמה מציגה סטטוס עם פירוט האמצעים (מזומן 500)
-  expect(screen.getByText(/שולם ✓ \(מזומן/)).toBeInTheDocument();
+  // לכל קטגוריה שדה "ביט" (וגם פייבוקס/מזומן) וכפתור אישור אחד לשמירת הכל
+  expect(screen.getAllByLabelText("ביט")).toHaveLength(2);
+  expect(screen.getByRole("button", { name: "אישור" })).toBeInTheDocument();
 });
 
-test("הזנת סכום באמצעי וסימון ששולם שולח PUT ומעדכן את הסטטוס", async () => {
+test("מילוי סכום ולחיצה על 'אישור' שומרת (PUT) ומחזירה לרשימת התלמידים", async () => {
   mockServer();
   renderPage();
   await screen.findByText(/תשלומים — הילי לוי/);
 
-  // מזינים סכום בשדה "ביט" של הקטגוריה שטרם שולמה, ומסמנים ששולם
-  await userEvent.type(screen.getByLabelText("ביט"), "300");
-  await userEvent.click(screen.getByRole("button", { name: "סמן ששולם" }));
+  // שדה "ביט" של הקטגוריה הראשונה (הזנה) — יש שדה כזה בכל שורה
+  const bitFields = screen.getAllByLabelText("ביט");
+  await userEvent.type(bitFields[0], "300");
+  await userEvent.click(screen.getByRole("button", { name: "אישור" }));
 
-  expect(await screen.findByText(/שולם ✓ \(ביט/)).toBeInTheDocument();
+  // אחרי השמירה חוזרים לרשימת התלמידים
+  expect(await screen.findByText("מסך התלמידים")).toBeInTheDocument();
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining("/api/students/1/payments/1"),
-    expect.objectContaining({ method: "PUT" })
-  );
-});
-
-test("סימון ששולם בלי שום סכום מציג שגיאה ולא שולח לשרת", async () => {
-  mockServer();
-  renderPage();
-  await screen.findByText(/תשלומים — הילי לוי/);
-
-  await userEvent.click(screen.getByRole("button", { name: "סמן ששולם" }));
-
-  expect(await screen.findByText(/יש להזין סכום/)).toBeInTheDocument();
-  expect(global.fetch).not.toHaveBeenCalledWith(
-    expect.stringContaining("/payments/1"),
     expect.objectContaining({ method: "PUT" })
   );
 });

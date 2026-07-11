@@ -8,7 +8,12 @@ import { formatShekels } from "../../services/format";
   ב-StudentPaymentsPage, שם יש כפתור "אישור" אחד ששומר את כל הקטגוריות יחד
   (אין כאן כפתור "שולם" נפרד לכל שורה).
 */
-function PaymentRow({ payment, amounts, onChange }) {
+/* "תשלום אחד" / "2 תשלומים" / "3 תשלומים" — כפי שהוגדר ב"עריכת גבייה" */
+function installmentsLabel(n) {
+  return n === 1 ? "תשלום אחד" : `${n} תשלומים`;
+}
+
+function PaymentRow({ payment, installments = 1, amounts, onChange }) {
   const total = PAYMENT_METHODS.reduce(
     (sum, m) => sum + (Number(amounts[m.value]) || 0),
     0
@@ -18,7 +23,9 @@ function PaymentRow({ payment, amounts, onChange }) {
     <div className={`payment-row${total > 0 ? " payment-row--paid" : ""}`}>
       <div className="payment-row__head">
         <span className="payment-row__category">{payment.categoryName}</span>
-        <span className="payment-row__amount">יעד: {formatShekels(payment.amount)}</span>
+        <span className="payment-row__amount">
+          יעד: {formatShekels(payment.amount)} · {installmentsLabel(installments)}
+        </span>
       </div>
 
       <div className="payment-row__methods">

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getStudent } from "../services/studentsService";
+import { getGroups } from "../services/groupsService";
 import {
   getStudentPayments,
   saveStudentPayment,
@@ -27,11 +28,12 @@ function StudentPaymentsPage() {
   const navigate = useNavigate();
 
   const load = useCallback(async () => {
-    const [student, payments] = await Promise.all([
+    const [student, payments, groups] = await Promise.all([
       getStudent(studentId),
       getStudentPayments(studentId),
+      getGroups(),
     ]);
-    return { student, payments };
+    return { student, payments, groups };
   }, [studentId]);
 
   const { data, isLoading, error, reload } = useApi(load);
@@ -68,6 +70,12 @@ function StudentPaymentsPage() {
 
   const { student, payments } = data;
   const fullName = `${student.firstName} ${student.lastName}`;
+
+  // מספר התשלומים לכל קטגוריה — כפי שהמנהל הגדיר ב"עריכת גבייה"
+  const installmentsByCategory = {};
+  (data.groups?.[0]?.categories ?? []).forEach((c) => {
+    installmentsByCategory[c.id] = c.installments;
+  });
   const unpaid = payments.filter((p) => !p.isPaid);
   const reminderUrl = buildWhatsappReminderUrl(
     student.parentPhoneNumber,
@@ -124,6 +132,7 @@ function StudentPaymentsPage() {
             <PaymentRow
               key={payment.collectionCategoryId}
               payment={payment}
+              installments={installmentsByCategory[payment.collectionCategoryId] ?? 1}
               amounts={amounts[payment.collectionCategoryId] ?? EMPTY_ROW}
               onChange={(next) =>
                 setAmounts((prev) => ({

@@ -1,6 +1,7 @@
 import {
   parseStudentRows,
   parseStudentGrid,
+  sheetToGrid,
   importStudents,
 } from "./studentsImport";
 
@@ -72,6 +73,36 @@ test("parseStudentGrid: טלפון מספרי הופך למחרוזת, ותאי�
     parentName: "",
     parentPhoneNumber: "501234567",
   });
+});
+
+test("sheetToGrid לוקח את נתוני הגיליון הראשון שיש בו שורות (מבנה read-excel-file v9)", () => {
+  // read-excel-file מחזיר מערך גיליונות: [{ sheet, data }]
+  const result = [
+    { sheet: "ריק", data: [] },
+    {
+      sheet: "תלמידים",
+      data: [
+        ["שם הילד", "שם ההורה", "טלפון"],
+        ["הילי לוי", "דנה לוי", "050-1234567"],
+        ["יובל כהן", "אבי כהן", "052-7654321"],
+      ],
+    },
+  ];
+
+  const grid = sheetToGrid(result);
+  expect(grid).toHaveLength(3);
+
+  const students = parseStudentGrid(grid);
+  expect(students).toHaveLength(2);
+  expect(students[0].firstName).toBe("הילי");
+  expect(students[1].firstName).toBe("יובל");
+});
+
+test("sheetToGrid תואם גם לגרסה שמחזירה מערך שורות ישירות", () => {
+  const rows = [["דן כהן", "אבי", "0501112223"]];
+  expect(sheetToGrid(rows)).toBe(rows);
+  expect(sheetToGrid([])).toEqual([]);
+  expect(sheetToGrid(null)).toEqual([]);
 });
 
 test("importStudents מסכם כמה נוספו וכמה נכשלו", async () => {

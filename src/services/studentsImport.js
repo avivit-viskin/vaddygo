@@ -82,6 +82,21 @@ export function parseStudentRows(text) {
 
 /* ── Excel (‏.xlsx) ─────────────────────────────────────── */
 
+/*
+  read-excel-file (v9) מחזיר מערך גיליונות בצורה [{ sheet, data }], כאשר data
+  הוא מערך השורות. לוקחים את הגיליון הראשון שיש בו נתונים (תמיכה גם בקובץ עם כמה
+  לשוניות). תואם גם לגרסאות ישנות שהחזירו ישירות מערך שורות.
+*/
+export function sheetToGrid(result) {
+  if (!Array.isArray(result) || result.length === 0) return [];
+  const first = result[0];
+  if (first && !Array.isArray(first) && Array.isArray(first.data)) {
+    const sheet = result.find((s) => s && s.data && s.data.length > 0) || first;
+    return sheet.data || [];
+  }
+  return result; // גרסה ישנה: כבר מערך שורות
+}
+
 /* מנתח טבלה מ-Excel: מערך של שורות, כל שורה מערך של תאים. */
 export function parseStudentGrid(grid) {
   const rows = [];
@@ -103,8 +118,8 @@ export async function parseStudentFile(file) {
   const name = (file?.name || "").toLowerCase();
   if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
     const { default: readXlsxFile } = await import("read-excel-file/browser");
-    const grid = await readXlsxFile(file);
-    return parseStudentGrid(grid);
+    const sheets = await readXlsxFile(file);
+    return parseStudentGrid(sheetToGrid(sheets));
   }
   const text = await file.text();
   return parseStudentRows(text);

@@ -9,6 +9,7 @@ import {
 } from "../services/studentsService";
 import { getPaymentSummary } from "../services/paymentsService";
 import { getGroups } from "../services/groupsService";
+import { getActiveServerGroupId } from "../services/institutionsService";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Select from "../components/Select";
@@ -78,7 +79,15 @@ function StudentsPage() {
 
   // הקבוצות מוגדרות בהגדרה הראשונית של הגן. שדה/פילטר הקבוצה מוצגים רק
   // כשהמוסד מחולק לקבוצות; אחרת אין "כיתה/קבוצה" בכלל.
-  const subgroups = useMemo(() => groups?.[0]?.subgroups ?? [], [groups]);
+  // חשוב לריבוי מוסדות: לוקחים את קבוצות המוסד ה*פעיל* (לפי serverGroupId),
+  // לא תמיד את הראשון ברשימה — אחרת מוסד שני יראה את קבוצות המוסד הראשון.
+  const subgroups = useMemo(() => {
+    if (!groups || groups.length === 0) return [];
+    const activeId = getActiveServerGroupId();
+    const activeGroup =
+      groups.find((g) => g.id === activeId) ?? groups[0];
+    return activeGroup?.subgroups ?? [];
+  }, [groups]);
   const hasGroups = subgroups.length > 0;
 
   const visibleStudents = useMemo(() => {

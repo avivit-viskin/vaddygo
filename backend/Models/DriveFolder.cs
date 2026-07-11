@@ -10,5 +10,8 @@ namespace ParentCommitteeAPI.Models
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
+
+        // המוסד שאליו שייכת התיקייה (ריבוי מוסדות) — null = ישן ללא שיוך
+        public int? GroupId { get; set; }
     }
 }

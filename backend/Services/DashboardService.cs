@@ -25,22 +25,31 @@ namespace ParentCommitteeAPI.Services
             _db = db;
         }
 
-        public async Task<DashboardResponseDto?> GetSummaryAsync()
+        public async Task<DashboardResponseDto?> GetSummaryAsync(int? groupId = null)
         {
-            /* המערכת מנהלת גן אחד (ריבוי מוסדות מחוץ לתחום) — הגן שהוגדר באשף */
-            var group = await _db.Groups
-                .Include(g => g.Categories)
-                .OrderBy(g => g.Id)
-                .FirstOrDefaultAsync();
+            /* המוסד הפעיל (לפי X-Institution). בלי כותרת — המוסד הראשון (התאמה לאחור). */
+            var group = groupId.HasValue
+                ? await _db.Groups
+                    .Include(g => g.Categories)
+                    .FirstOrDefaultAsync(g => g.Id == groupId.Value)
+                : await _db.Groups
+                    .Include(g => g.Categories)
+                    .OrderBy(g => g.Id)
+                    .FirstOrDefaultAsync();
 
             if (group == null)
             {
                 return null;
             }
 
-            var staff = await _db.StaffMembers.AsNoTracking().ToListAsync();
+            /* צוות ותשלומים מסוננים למוסד; null = רשומות ישנות בלי שיוך (מוצגות תמיד) */
+            var staff = await _db.StaffMembers.AsNoTracking()
+                .Where(s => s.GroupId == null || s.GroupId == group.Id)
+                .ToListAsync();
             var paidPayments = await _db.Payments.AsNoTracking()
-                .Where(p => p.IsPaid)
+                .Include(p => p.Student)
+                .Where(p => p.IsPaid
+                    && (p.Student == null || p.Student.GroupId == null || p.Student.GroupId == group.Id))
                 .ToListAsync();
             var today = DateTime.Today;
 

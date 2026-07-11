@@ -19,11 +19,15 @@ namespace ParentCommitteeAPI.Controllers
             _eventService = eventService;
         }
 
+        /* המוסד הפעיל שהלקוח שולח בכותרת X-Institution (מזהה ה-Group). null = בלי סינון. */
+        private int? ActiveGroupId =>
+            int.TryParse(Request.Headers["X-Institution"], out var id) ? id : null;
+
         // GET: api/events
         [HttpGet]
         public async Task<ActionResult<IEnumerable<EventResponseDto>>> GetAllEvents()
         {
-            return Ok(await _eventService.GetAllAsync());
+            return Ok(await _eventService.GetAllAsync(ActiveGroupId));
         }
 
         // GET: api/events/1
@@ -40,7 +44,7 @@ namespace ParentCommitteeAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<EventResponseDto>> CreateEvent([FromBody] EventCreateDto dto)
         {
-            var created = await _eventService.CreateAsync(dto);
+            var created = await _eventService.CreateAsync(dto, ActiveGroupId);
             return CreatedAtAction(nameof(GetEvent), new { id = created.Id }, created);
         }
 

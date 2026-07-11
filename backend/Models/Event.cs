@@ -10,5 +10,8 @@ namespace ParentCommitteeAPI.Models
 
         // תזכורת לאירוע (UI_SPEC ס' 6 / לוח שנה) — האם לשלוח תזכורת לפני האירוע
         public bool Reminder { get; set; }
+
+        // המוסד שאליו שייך האירוע (ריבוי מוסדות) — null = ישן ללא שיוך
+        public int? GroupId { get; set; }
     }
 }

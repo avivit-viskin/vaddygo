@@ -8,6 +8,6 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IDashboardService
     {
-        Task<DashboardResponseDto?> GetSummaryAsync();
+        Task<DashboardResponseDto?> GetSummaryAsync(int? groupId = null);
     }
 }

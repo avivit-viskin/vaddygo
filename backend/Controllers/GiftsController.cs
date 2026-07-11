@@ -19,11 +19,15 @@ namespace ParentCommitteeAPI.Controllers
             _giftService = giftService;
         }
 
+        /* המוסד הפעיל שהלקוח שולח בכותרת X-Institution (מזהה ה-Group). null = בלי סינון. */
+        private int? ActiveGroupId =>
+            int.TryParse(Request.Headers["X-Institution"], out var id) ? id : null;
+
         // GET: api/gifts
         [HttpGet]
         public async Task<ActionResult<IEnumerable<GiftResponseDto>>> GetAllGifts()
         {
-            return Ok(await _giftService.GetAllAsync());
+            return Ok(await _giftService.GetAllAsync(ActiveGroupId));
         }
 
         // GET: api/gifts/1
@@ -40,7 +44,7 @@ namespace ParentCommitteeAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<GiftResponseDto>> CreateGift([FromBody] GiftCreateDto dto)
         {
-            var created = await _giftService.CreateAsync(dto);
+            var created = await _giftService.CreateAsync(dto, ActiveGroupId);
             return CreatedAtAction(nameof(GetGift), new { id = created.Id }, created);
         }
 

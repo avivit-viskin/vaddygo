@@ -19,9 +19,13 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
-        public async Task<List<DriveFolderResponseDto>> GetAllAsync()
+        public async Task<List<DriveFolderResponseDto>> GetAllAsync(int? groupId = null)
         {
             var folders = await _folders.GetAllAsync();
+            if (groupId.HasValue)
+            {
+                folders = folders.Where(f => f.GroupId == null || f.GroupId == groupId.Value).ToList();
+            }
             return folders.Select(ToResponse).ToList();
         }
 
@@ -31,10 +35,11 @@ namespace ParentCommitteeAPI.Services
             return folder == null ? null : ToResponse(folder);
         }
 
-        public async Task<DriveFolderResponseDto> CreateAsync(DriveFolderCreateDto dto)
+        public async Task<DriveFolderResponseDto> CreateAsync(DriveFolderCreateDto dto, int? groupId = null)
         {
             var folder = new DriveFolder();
             ApplyWrite(folder, dto);
+            folder.GroupId = groupId;
             await _folders.AddAsync(folder);
             _logger.LogInformation("Drive folder created (Id: {FolderId})", folder.Id);
             return ToResponse(folder);

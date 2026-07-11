@@ -19,9 +19,13 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
-        public async Task<List<StaffMemberResponseDto>> GetAllAsync()
+        public async Task<List<StaffMemberResponseDto>> GetAllAsync(int? groupId = null)
         {
             var members = await _staff.GetAllAsync();
+            if (groupId.HasValue)
+            {
+                members = members.Where(m => m.GroupId == null || m.GroupId == groupId.Value).ToList();
+            }
             return members.Select(ToResponse).ToList();
         }
 
@@ -31,10 +35,11 @@ namespace ParentCommitteeAPI.Services
             return member == null ? null : ToResponse(member);
         }
 
-        public async Task<StaffMemberResponseDto> CreateAsync(StaffMemberCreateDto dto)
+        public async Task<StaffMemberResponseDto> CreateAsync(StaffMemberCreateDto dto, int? groupId = null)
         {
             var member = new StaffMember();
             ApplyWrite(member, dto);
+            member.GroupId = groupId;
             await _staff.AddAsync(member);
             _logger.LogInformation("Staff member created (Id: {StaffId})", member.Id);
             return ToResponse(member);

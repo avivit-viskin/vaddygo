@@ -19,11 +19,15 @@ namespace ParentCommitteeAPI.Controllers
             _folderService = folderService;
         }
 
+        /* המוסד הפעיל שהלקוח שולח בכותרת X-Institution (מזהה ה-Group). null = בלי סינון. */
+        private int? ActiveGroupId =>
+            int.TryParse(Request.Headers["X-Institution"], out var id) ? id : null;
+
         // GET: api/folders
         [HttpGet]
         public async Task<ActionResult<IEnumerable<DriveFolderResponseDto>>> GetAllFolders()
         {
-            return Ok(await _folderService.GetAllAsync());
+            return Ok(await _folderService.GetAllAsync(ActiveGroupId));
         }
 
         // GET: api/folders/1
@@ -40,7 +44,7 @@ namespace ParentCommitteeAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<DriveFolderResponseDto>> CreateFolder([FromBody] DriveFolderCreateDto dto)
         {
-            var created = await _folderService.CreateAsync(dto);
+            var created = await _folderService.CreateAsync(dto, ActiveGroupId);
             return CreatedAtAction(nameof(GetFolder), new { id = created.Id }, created);
         }
 

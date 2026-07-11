@@ -8,9 +8,9 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IStaffService
     {
-        Task<List<StaffMemberResponseDto>> GetAllAsync();
+        Task<List<StaffMemberResponseDto>> GetAllAsync(int? groupId = null);
         Task<StaffMemberResponseDto?> GetByIdAsync(int id);
-        Task<StaffMemberResponseDto> CreateAsync(StaffMemberCreateDto dto);
+        Task<StaffMemberResponseDto> CreateAsync(StaffMemberCreateDto dto, int? groupId = null);
         Task<StaffMemberResponseDto?> UpdateAsync(int id, StaffMemberUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }

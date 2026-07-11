@@ -19,9 +19,13 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
-        public async Task<List<GiftResponseDto>> GetAllAsync()
+        public async Task<List<GiftResponseDto>> GetAllAsync(int? groupId = null)
         {
             var gifts = await _gifts.GetAllAsync();
+            if (groupId.HasValue)
+            {
+                gifts = gifts.Where(g => g.GroupId == null || g.GroupId == groupId.Value).ToList();
+            }
             return gifts.Select(ToResponse).ToList();
         }
 
@@ -31,10 +35,11 @@ namespace ParentCommitteeAPI.Services
             return gift == null ? null : ToResponse(gift);
         }
 
-        public async Task<GiftResponseDto> CreateAsync(GiftCreateDto dto)
+        public async Task<GiftResponseDto> CreateAsync(GiftCreateDto dto, int? groupId = null)
         {
             var gift = new Gift();
             ApplyWrite(gift, dto);
+            gift.GroupId = groupId;
             await _gifts.AddAsync(gift);
             _logger.LogInformation("Gift created (Id: {GiftId})", gift.Id);
             return ToResponse(gift);

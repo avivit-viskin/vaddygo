@@ -8,9 +8,9 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IEventService
     {
-        Task<List<EventResponseDto>> GetAllAsync();
+        Task<List<EventResponseDto>> GetAllAsync(int? groupId = null);
         Task<EventResponseDto?> GetByIdAsync(int id);
-        Task<EventResponseDto> CreateAsync(EventCreateDto dto);
+        Task<EventResponseDto> CreateAsync(EventCreateDto dto, int? groupId = null);
         Task<EventResponseDto?> UpdateAsync(int id, EventUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }

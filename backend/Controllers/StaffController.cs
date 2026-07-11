@@ -19,11 +19,15 @@ namespace ParentCommitteeAPI.Controllers
             _staffService = staffService;
         }
 
+        /* המוסד הפעיל שהלקוח שולח בכותרת X-Institution (מזהה ה-Group). null = בלי סינון. */
+        private int? ActiveGroupId =>
+            int.TryParse(Request.Headers["X-Institution"], out var id) ? id : null;
+
         // GET: api/staff
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StaffMemberResponseDto>>> GetAllStaff()
         {
-            return Ok(await _staffService.GetAllAsync());
+            return Ok(await _staffService.GetAllAsync(ActiveGroupId));
         }
 
         // GET: api/staff/1
@@ -40,7 +44,7 @@ namespace ParentCommitteeAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<StaffMemberResponseDto>> CreateStaffMember([FromBody] StaffMemberCreateDto dto)
         {
-            var created = await _staffService.CreateAsync(dto);
+            var created = await _staffService.CreateAsync(dto, ActiveGroupId);
             return CreatedAtAction(nameof(GetStaffMember), new { id = created.Id }, created);
         }
 

@@ -7,9 +7,9 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IDriveFolderService
     {
-        Task<List<DriveFolderResponseDto>> GetAllAsync();
+        Task<List<DriveFolderResponseDto>> GetAllAsync(int? groupId = null);
         Task<DriveFolderResponseDto?> GetByIdAsync(int id);
-        Task<DriveFolderResponseDto> CreateAsync(DriveFolderCreateDto dto);
+        Task<DriveFolderResponseDto> CreateAsync(DriveFolderCreateDto dto, int? groupId = null);
         Task<DriveFolderResponseDto?> UpdateAsync(int id, DriveFolderUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }

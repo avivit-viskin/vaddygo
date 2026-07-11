@@ -19,9 +19,13 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
-        public async Task<List<EventResponseDto>> GetAllAsync()
+        public async Task<List<EventResponseDto>> GetAllAsync(int? groupId = null)
         {
             var events = await _events.GetAllAsync();
+            if (groupId.HasValue)
+            {
+                events = events.Where(e => e.GroupId == null || e.GroupId == groupId.Value).ToList();
+            }
             return events
                 .OrderBy(e => e.EventDate)
                 .Select(ToResponse)
@@ -34,10 +38,11 @@ namespace ParentCommitteeAPI.Services
             return item == null ? null : ToResponse(item);
         }
 
-        public async Task<EventResponseDto> CreateAsync(EventCreateDto dto)
+        public async Task<EventResponseDto> CreateAsync(EventCreateDto dto, int? groupId = null)
         {
             var item = new Event();
             ApplyWrite(item, dto);
+            item.GroupId = groupId;
             await _events.AddAsync(item);
             _logger.LogInformation("Event created (Id: {EventId})", item.Id);
             return ToResponse(item);

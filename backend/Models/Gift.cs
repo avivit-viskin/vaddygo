@@ -22,5 +22,8 @@ namespace ParentCommitteeAPI.Models
         // קישור אופציונלי לספק
         public int? VendorId { get; set; }
         public Vendor? Vendor { get; set; }
+
+        // המוסד שאליו שייכת המתנה (ריבוי מוסדות) — null = ישן ללא שיוך
+        public int? GroupId { get; set; }
     }
 }

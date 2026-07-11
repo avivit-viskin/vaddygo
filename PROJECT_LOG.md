@@ -6,6 +6,14 @@
 
 ---
 
+## 11.07.2026 — תקציבי החגים עברו לשרת (משותפים לכל חברות הוועד) [Claude Code B]
+
+- **מה נעשה:** תקציבי החגים (שנקבעים בלוח השנה, שלב 6) הועברו מ-localStorage מקומי ל**שרת** — כמו קישורי התשלום — כדי שכל 2-3 חברות הוועד יראו את אותם תקציבים, וכדי שהעוזרת התקציבית במסך המתנות תשקף אותם. **שרת** (תחת BACKEND_LOCK): נוסף שדה `HolidayBudgetsJson` למודל `Group` (מילון "שם חג|שנה עברית → סכום" כ-JSON) + Migration‏ `AddGroupHolidayBudgets`, נחשף כ-`HolidayBudgets` (Dictionary) ב-`GroupResponseDto`, ונוסף `PUT /api/groups/{id}/holiday-budgets` (‏`GroupsController` → `IGroupService.UpdateHolidayBudgetsAsync`). אומת מקצה-לקצה מול שרת רץ (יצירת גן=ריק, PUT עם חנוכה/פורים, GET מחזיר את הסכומים). **לקוח:** `holidayBudgetsService` הפך לאסינכרוני מול השרת (לפי `groupId` מ-onboarding) עם **נפילה חיננית ל-localStorage**; הקומפוננטות (`CalendarPage`, `HolidayBudgetDialog`, `GiftsPage`/`BudgetAssistant`) כבר אסינכרוניות אז השינוי שקוף. 15 טסטים (לוח שנה+מתנות) עוברים + build ירוק.
+- **למה:** לפי ה-README יש 2-3 חברות ועד לגן; תקציב שנשמר רק בדפדפן של אחת לא נראה לאחרות. שמירה ברמת הגן פותרת זאת ומחברת בין לוח השנה למסך המתנות בנתוני אמת.
+- **קבצים:** שרת: `Models/Group.cs`, `DTOs/GroupResponseDto.cs`, `Services/{IGroupService,GroupService}.cs`, `Controllers/GroupsController.cs`, `Migrations/*AddGroupHolidayBudgets*` + snapshot. לקוח: `src/services/holidayBudgetsService.js`.
+- **החלטות:** (1) עבודת השרת תחת **BACKEND_LOCK** (נתפס ב-80b1e7f, ישוחרר אחרי CI ירוק). (2) אחסון כ-JSON על ה-Group (ולא טבלה חדשה) — פשוט, additive, ומקביל לקישורי התשלום; המפתחות זהים ל-`holidayBudgetKey` בלקוח. (3) `Budget` הקיים הוא מודל תנועות כללי — לא מתאים, לכן לא נעשה בו שימוש. (4) נפילה מקומית נשמרת כמטמון.
+- **הצעד המומלץ הבא:** לאחד את קריאות ה-Group בלקוח ל-`groupsService` יחיד (payment links + holiday budgets + categories שולפים את אותו גן) לצמצום קריאות; ובריבוי-מוסדות — לוודא ש-`groupId` הוא של המוסד הפעיל.
+
 ## 11.07.2026 — ריבוי מוסדות Stage 2: הפרדת תלמידים לפי מוסד (שרת + לקוח)
 
 - **מה נעשה:** תחת נעילת backend, מומשה הפרדת הנתונים האמיתית — התלמידים מסוננים לפי המוסד הפעיל. **שרת:** `StudentService.GetAllAsync(int? groupId)` מסנן תלמידים לפי ה-Group; `CreateAsync(dto, groupId)` משייך תלמיד חדש למוסד; `StudentsController` קורא את המוסד הפעיל מכותרת **`X-Institution`** (מזהה ה-Group). Migration‏ `BackfillStudentGroup` משייכת תלמידים קיימים ללא שיוך למוסד הראשון. **לקוח:** `api.js` מצרף `X-Institution` לכל בקשה (מזהה ה-Group של המוסד הפעיל, מ-`institutionsService.getActiveServerGroupId`); `onboardingService.saveOnboarding` מחזיר את מזהה ה-Group, ו-`OnboardingWizard` שומר אותו כ-`serverGroupId` של המוסד. **אומת מקצה-לקצה מול שרת רץ:** תלמיד במוסד G1 + תלמיד ישן ללא שיוך שניהם מוצגים כש-G1 פעיל; במוסד אחר מוצג רק הישן (התלמיד של G1 מוסתר) — הפרדה עובדת ונתונים קיימים לא נעלמים. build (שרת+לקוח) ירוק; טסטי לקוח עוברים בבידוד.

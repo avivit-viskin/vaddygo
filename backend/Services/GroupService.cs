@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
@@ -106,6 +107,42 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        /* עדכון תקציבי החגים של הוועד — הדיקשנרי כולו נשמר כ-JSON ברמת הגן. */
+        public async Task<GroupResponseDto?> UpdateHolidayBudgetsAsync(int id, Dictionary<string, decimal> budgets)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+
+            group.HolidayBudgetsJson = (budgets == null || budgets.Count == 0)
+                ? null
+                : JsonSerializer.Serialize(budgets);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group holiday budgets updated (Id: {GroupId}, Count: {Count})",
+                id, budgets?.Count ?? 0);
+            return ToResponse(group);
+        }
+
+        private static Dictionary<string, decimal> ParseHolidayBudgets(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return new();
+            }
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, decimal>>(json) ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
         private static GroupResponseDto ToResponse(Group group)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
@@ -131,6 +168,7 @@ namespace ParentCommitteeAPI.Services
                 CollectionGoal = totalPerChild * group.ChildrenCount,
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
+                HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),
             };
         }
     }

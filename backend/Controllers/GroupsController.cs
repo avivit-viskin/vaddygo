@@ -65,5 +65,16 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "גן לא נמצא" });
             return Ok(updated);
         }
+
+        // PUT: api/groups/1/holiday-budgets — עדכון תקציבי החגים של הוועד (מלוח השנה)
+        [HttpPut("{id}/holiday-budgets")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateHolidayBudgets(
+            int id, [FromBody] Dictionary<string, decimal> budgets)
+        {
+            var updated = await _groupService.UpdateHolidayBudgetsAsync(id, budgets ?? new());
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
     }
 }

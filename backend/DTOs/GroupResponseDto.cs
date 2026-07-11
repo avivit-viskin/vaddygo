@@ -20,6 +20,9 @@ namespace ParentCommitteeAPI.DTOs
         // קישורי התשלום של הוועד (לבקשת תשלום); ריקים עד שהמשתמשת מגדירה אותם
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }
+
+        // תקציבי החגים של הוועד: מפתח "שם|שנה עברית" → סכום
+        public Dictionary<string, decimal> HolidayBudgets { get; set; } = new();
     }
 
     /*

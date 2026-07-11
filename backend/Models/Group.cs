@@ -24,6 +24,10 @@ namespace ParentCommitteeAPI.Models
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }
 
+        // תקציבי החגים של הוועד (מפתח "שם|שנה עברית" → סכום) כ-JSON — משותפים לכל
+        // החברות; מוגדרים בלוח השנה ומשמשים גם את העוזרת התקציבית במסך המתנות.
+        public string? HolidayBudgetsJson { get; set; }
+
         // קטגוריות הגבייה של הגן (הזנה, דמי ועד...) — יעד הגבייה נגזר מהן
         public List<CollectionCategory> Categories { get; set; } = new();
     }

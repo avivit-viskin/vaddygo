@@ -1,4 +1,8 @@
-import { parseStudentRows, importStudents } from "./studentsImport";
+import {
+  parseStudentRows,
+  parseStudentGrid,
+  importStudents,
+} from "./studentsImport";
 
 /*
   טסטים לניתוח קובץ הייבוא וליצירת התלמידים (UI_SPEC ס' 11).
@@ -36,6 +40,38 @@ test("קובץ בלי שורת כותרת עדיין נקרא", () => {
   const rows = parseStudentRows("הילי לוי,דנה לוי,050-1234567");
   expect(rows).toHaveLength(1);
   expect(rows[0].firstName).toBe("הילי");
+});
+
+test("parseStudentGrid מנתח טבלת Excel ומדלג על שורת הכותרת", () => {
+  const grid = [
+    ["שם הילד", "שם ההורה", "טלפון"],
+    ["הילי לוי", "דנה לוי", "050-1234567"],
+    ["יובל", "אבי", "052-7654321"],
+  ];
+  const rows = parseStudentGrid(grid);
+
+  expect(rows).toHaveLength(2);
+  expect(rows[0]).toEqual({
+    firstName: "הילי",
+    lastName: "לוי",
+    parentName: "דנה לוי",
+    parentPhoneNumber: "050-1234567",
+  });
+  expect(rows[1].firstName).toBe("יובל");
+  expect(rows[1].lastName).toBe("");
+});
+
+test("parseStudentGrid: טלפון מספרי הופך למחרוזת, ותאים ריקים לא מפילים", () => {
+  const grid = [["דן כהן", null, 501234567]];
+  const rows = parseStudentGrid(grid);
+
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).toEqual({
+    firstName: "דן",
+    lastName: "כהן",
+    parentName: "",
+    parentPhoneNumber: "501234567",
+  });
 });
 
 test("importStudents מסכם כמה נוספו וכמה נכשלו", async () => {

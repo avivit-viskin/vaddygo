@@ -1,19 +1,22 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import {
-  parseStudentRows,
+  parseStudentFile,
   importStudents,
   IMPORT_TEMPLATE,
 } from "../../services/studentsImport";
 
 /*
   StudentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11): מורידים תבנית, ממלאים
-  שם הילד / שם ההורה / טלפון, מעלים את הקובץ, והמערכת יוצרת את כולם.
-  מה שלא יובא נכון — מתקנים בעריכת התלמיד. onDone נקרא בסיום כדי לרענן.
+  שם הילד / שם ההורה / טלפון, מעלים קובץ Excel (‏.xlsx) או CSV, והמערכת יוצרת
+  את כולם. מה שלא יובא נכון — מתקנים בעריכת התלמיד. onDone מרענן את הרשימה,
+  onCancel סוגר את החלון (וגם נקרא אוטומטית כשהייבוא הצליח במלואו).
 */
 function StudentsImport({ onDone, onCancel }) {
   const [rows, setRows] = useState(null); // null=טרם נבחר קובץ
   const [fileName, setFileName] = useState("");
+  const [isReading, setIsReading] = useState(false);
+  const [readError, setReadError] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -27,14 +30,23 @@ function StudentsImport({ onDone, onCancel }) {
     URL.revokeObjectURL(url);
   }
 
-  function handleFile(event) {
+  async function handleFile(event) {
     const file = event.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
     setResult(null);
-    const reader = new FileReader();
-    reader.onload = () => setRows(parseStudentRows(String(reader.result)));
-    reader.readAsText(file, "UTF-8");
+    setRows(null);
+    setReadError("");
+    setIsReading(true);
+    try {
+      setRows(await parseStudentFile(file));
+    } catch (err) {
+      setReadError(
+        "לא הצלחנו לקרוא את הקובץ 😕 כדאי לוודא שזה קובץ Excel (‏.xlsx) או CSV, עם העמודות: שם הילד, שם ההורה, טלפון."
+      );
+    } finally {
+      setIsReading(false);
+    }
   }
 
   async function handleImport() {
@@ -43,7 +55,10 @@ function StudentsImport({ onDone, onCancel }) {
       const summary = await importStudents(rows);
       setResult(summary);
       if (summary.added > 0) {
-        onDone();
+        onDone(); // רענון הרשימה
+        if (summary.failed.length === 0) {
+          onCancel(); // הצלחה מלאה → סגירת החלון אוטומטית
+        }
       }
     } finally {
       setIsImporting(false);
@@ -57,7 +72,7 @@ function StudentsImport({ onDone, onCancel }) {
           מורידים את התבנית וממלאים בה: <strong>שם הילד · שם ההורה · טלפון</strong>{" "}
           (שורה לכל ילד).
         </li>
-        <li>שומרים את הקובץ ומעלים אותו כאן.</li>
+        <li>שומרים את הקובץ (Excel או CSV) ומעלים אותו כאן.</li>
         <li>מה שלא ייקלט נכון — עורכים ידנית אחר כך בכל תלמיד.</li>
       </ol>
 
@@ -66,11 +81,23 @@ function StudentsImport({ onDone, onCancel }) {
       </Button>
 
       <label className="students-import__file">
-        <span>בחירת קובץ (CSV):</span>
-        <input type="file" accept=".csv,.txt" onChange={handleFile} />
+        <span>בחירת קובץ (Excel או CSV):</span>
+        <input
+          type="file"
+          accept=".xlsx,.xls,.csv,.txt"
+          onChange={handleFile}
+        />
       </label>
 
-      {rows !== null && (
+      {isReading && <p className="students-import__count">קוראים את הקובץ...</p>}
+
+      {readError && (
+        <p className="students-import__error" role="alert">
+          {readError}
+        </p>
+      )}
+
+      {!isReading && !readError && rows !== null && (
         <p className="students-import__count">
           נמצאו <strong>{rows.length}</strong> תלמידים בקובץ {fileName && `(${fileName})`}.
         </p>

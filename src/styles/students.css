@@ -38,6 +38,15 @@
   border-radius: var(--radius-md);
 }
 
+.students-import__error {
+  margin: 0;
+  padding: 8px 12px;
+  background: var(--color-error-light, #fde8e8);
+  color: var(--color-error);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-sm);
+}
+
 .students-import__result {
   padding: 10px 12px;
   background: var(--color-bg);

@@ -17,16 +17,20 @@ import StaffForm from "./StaffForm";
 /*
   StaffBirthdays — צוות הגן וימי ההולדת הקרובים (UI_SPEC ס' 8):
   רשימה (שם · תפקיד · תאריך), הוספת איש צוות ועריכה בעיפרון.
-  לצד כל יום הולדת מוצג התקציב שהמערכת ממליצה למתנה = 3% מסך התקציב הכולל
-  (יעד הגבייה), שמגיע כ-prop ממסך הבית.
+  תקציב המתנות שהמערכת ממליצה = 3% מסך התקציב הכולל (יעד הגבייה) —
+  זהו סכום *כולל* לכל הצוות, שמתחלק שווה בשווה בין אנשי הצוות.
 */
-const GIFT_BUDGET_RATE = 0.03; // 3% מסך התקציב הכולל
+const GIFT_BUDGET_RATE = 0.03; // 3% מסך התקציב — סכום כולל לכל הצוות (לא לכל אחד)
 
 function StaffBirthdays({ onChanged, totalBudget = 0 }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
 
-  const recommendedGift = Math.round((totalBudget || 0) * GIFT_BUDGET_RATE);
+  const staffCount = (staff || []).length;
+  // 3% מהתקציב = תקציב המתנות הכולל לכל הצוות; מתחלק שווה בשווה בין אנשי הצוות
+  const totalGiftBudget = Math.round((totalBudget || 0) * GIFT_BUDGET_RATE);
+  const recommendedGift =
+    staffCount > 0 ? Math.round(totalGiftBudget / staffCount) : 0;
 
   async function handleSave(values) {
     if (editing?.id) {
@@ -50,6 +54,14 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
 
       {!isLoading && !error && sorted.length === 0 && (
         <EmptyState icon="🎈" message="עדיין אין אנשי צוות — הוסיפי את הראשונה!" />
+      )}
+
+      {!isLoading && !error && sorted.length > 0 && totalGiftBudget > 0 && (
+        <p className="staff__budget-total">
+          🎁 תקציב מתנות לכל הצוות: {formatShekels(totalGiftBudget)} (3% מהתקציב)
+          {" · "}
+          {formatShekels(recommendedGift)} לאיש צוות
+        </p>
       )}
 
       {!isLoading && !error && sorted.length > 0 && (

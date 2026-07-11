@@ -219,11 +219,19 @@
   gap: 2px;
 }
 
-/* התקציב שהמערכת ממליצה למתנה (3% מהתקציב), מתחת לשם */
+/* התקציב שהמערכת ממליצה למתנה (חלק הצוות מתוך ה-3% הכולל), מתחת לשם */
 .staff__gift {
   color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
   font-weight: 600;
+}
+
+/* סיכום תקציב המתנות הכולל לצוות (3% מהתקציב), מעל הרשימה */
+.staff__budget-total {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin: 0 0 8px;
 }
 
 .staff__side {

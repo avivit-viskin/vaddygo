@@ -4,6 +4,7 @@ import {
   getActiveInstitution,
   setActiveInstitution,
   beginActivation,
+  addInstitution,
 } from "./institutionsService";
 
 /*
@@ -56,6 +57,19 @@ test("הפעלת מוסד נוסף: רכישה → הרשמה → הופך מו�
   expect(nowActive.name).toBe("גן ב");
   // עדיין שני מוסדות בסך הכל
   expect(getInstitutions()).toHaveLength(2);
+});
+
+test("הוספת מוסד חדש מוסיפה מוסד לא-מופעל לרשימה", () => {
+  saveActiveOnboarding({ ganName: "גן א", extraCommitteeNames: [] });
+  const id = addInstitution("גן הרימון");
+
+  const list = getInstitutions();
+  expect(list).toHaveLength(2);
+  const added = list.find((i) => i.id === id);
+  expect(added.name).toBe("גן הרימון");
+  expect(added.activated).toBe(false);
+  // המוסד הפעיל לא השתנה
+  expect(getActiveInstitution().name).toBe("גן א");
 });
 
 test("מעבר בין שני מוסדות מופעלים טוען את נתוני ההרשמה של הפעיל", () => {

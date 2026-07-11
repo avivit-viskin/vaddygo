@@ -66,6 +66,25 @@ export function beginActivation(id) {
 }
 
 /*
+  הוספת מוסד חדש (ועד נוסף) — נוצר במצב לא-מופעל ("🔒 להפעלה"), ומופיע ברשימת
+  המוסדות. ההפעלה בפועל (רכישה + הרשמה) נעשית בלחיצה עליו. מחזיר את המזהה.
+*/
+export function addInstitution(name) {
+  const list = readList();
+  const id = `inst-extra-${Date.now()}`;
+  list.push({
+    id,
+    name: name.trim(),
+    type: "gan",
+    activated: false,
+    onboarding: null,
+    serverGroupId: null,
+  });
+  writeList(list);
+  return id;
+}
+
+/*
   נקרא בסיום אשף ההרשמה. בפעם הראשונה — יוצר את המוסד הראשי (מופעל) ואת
   המוסדות הנוספים ששמותיהם הוזנו (לא-מופעלים). אחרת — מפעיל את המוסד הפעיל
   הנוכחי עם נתוני ההרשמה שלו (הפעלת מוסד נוסף אחרי רכישה).

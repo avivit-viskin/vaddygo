@@ -13,6 +13,17 @@ import "../styles/onboarding.css";
 const INSTALLMENTS = [1, 2, 3];
 
 /*
+  קטגוריות גבייה מומלצות (המלצה כללית) — נטענות כברירת מחדל כשעדיין לא הוגדרו
+  קטגוריות, כדי לתת נקודת פתיחה. כל מוסד מתאים את הסכומים לעצמו לפני השמירה.
+*/
+const RECOMMENDED_CATEGORIES = [
+  { name: "הזנה", amount: "1200", installments: 2 },
+  { name: "דמי ועד", amount: "500", installments: 1 },
+  { name: "חוגים", amount: "400", installments: 1 },
+  { name: "ציוד אישי", amount: "125", installments: 1 },
+];
+
+/*
   CollectionSettingsPage — עריכת קטגוריות הגבייה של הגן אחרי ההרשמה
   (עד היום אפשר היה להגדיר אותן רק פעם אחת באשף). טוענת את הגן, מאפשרת
   להוסיף/לערוך/למחוק קטגוריות עם סכומים, ושומרת לשרת דרך
@@ -30,15 +41,19 @@ function CollectionSettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
 
-  // אתחול הרשימה המקומית מהגן ברגע שנטען
+  // אתחול הרשימה המקומית מהגן ברגע שנטען; אם עדיין אין קטגוריות —
+  // מתחילים מהמלצה כללית שאפשר להתאים.
   useEffect(() => {
     if (group && !ready) {
+      const existing = group.categories.map((c) => ({
+        name: c.name,
+        amount: String(c.amountPerChild),
+        installments: c.installments,
+      }));
       setCategories(
-        group.categories.map((c) => ({
-          name: c.name,
-          amount: String(c.amountPerChild),
-          installments: c.installments,
-        }))
+        existing.length > 0
+          ? existing
+          : RECOMMENDED_CATEGORIES.map((c) => ({ ...c }))
       );
       setReady(true);
     }
@@ -113,8 +128,9 @@ function CollectionSettingsPage() {
         <h2>עריכת גבייה — {group.name}</h2>
       </div>
       <p className="auth-page__hint" style={{ textAlign: "right", margin: "0 0 12px" }}>
-        הגדירי כמה גובים לכל קטגוריה. השינויים נשמרים בשרת ומשפיעים על מסך הבית
-        ועל התשלומים של כל תלמיד.
+        הסכומים המוצגים הם <strong>המלצה כללית</strong> — התאימי אותם לסכומים
+        שגובים במוסד שלך. השינויים נשמרים בשרת ומשפיעים על מסך הבית ועל התשלומים
+        של כל תלמיד.
       </p>
 
       {categories.map((cat, index) => (

@@ -45,4 +45,14 @@ namespace ParentCommitteeAPI.DTOs
         [Range(1, 3, ErrorMessage = "מספר התשלומים חייב להיות 1, 2 או 3")]
         public int Installments { get; set; } = 1;
     }
+
+    /*
+      GroupCategoriesUpdateDto — עדכון קטגוריות הגבייה של גן קיים (מסך "עריכת גבייה").
+      מחליף את כל רשימת הקטגוריות — כדי שאפשר יהיה להגדיר/לתקן את הסכומים
+      אחרי ההרשמה (עד היום אפשר היה להגדיר קטגוריות רק ביצירת הגן).
+    */
+    public class GroupCategoriesUpdateDto
+    {
+        public List<CollectionCategoryDto> Categories { get; set; } = new();
+    }
 }

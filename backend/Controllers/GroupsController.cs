@@ -54,5 +54,16 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "גן לא נמצא" });
             return Ok(updated);
         }
+
+        // PUT: api/groups/1/categories — עדכון קטגוריות הגבייה (מסך "עריכת גבייה")
+        [HttpPut("{id}/categories")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateCategories(
+            int id, [FromBody] GroupCategoriesUpdateDto dto)
+        {
+            var updated = await _groupService.UpdateCategoriesAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
     }
 }

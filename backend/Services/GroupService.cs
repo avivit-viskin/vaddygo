@@ -78,6 +78,34 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        /*
+          עדכון קטגוריות הגבייה של גן קיים — מחליף את כל הרשימה (מוחק את הישנות
+          ומוסיף את החדשות), כדי שאפשר להגדיר/לתקן את הסכומים אחרי ההרשמה.
+        */
+        public async Task<GroupResponseDto?> UpdateCategoriesAsync(int id, GroupCategoriesUpdateDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+
+            _db.CollectionCategories.RemoveRange(group.Categories);
+            group.Categories = dto.Categories.Select(c => new CollectionCategory
+            {
+                Name = c.Name.Trim(),
+                AmountPerChild = c.AmountPerChild,
+                Installments = c.Installments,
+            }).ToList();
+
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group categories updated (Id: {GroupId}, Categories: {CategoryCount})",
+                id, group.Categories.Count);
+            return ToResponse(group);
+        }
+
         private static GroupResponseDto ToResponse(Group group)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);

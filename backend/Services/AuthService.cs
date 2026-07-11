@@ -99,28 +99,20 @@ namespace ParentCommitteeAPI.Services
             var email = payload.Email.Trim().ToLowerInvariant();
             var googleId = payload.Subject;
 
-            // מאתרים לפי מזהה גוגל או לפי המייל (כדי לקשר חשבון קיים שנרשם עם מייל)
+            // מאתרים לפי מזהה גוגל או לפי המייל (לקשר חשבון קיים שנרשם עם אותו מייל)
             var user = await _db.Users.FirstOrDefaultAsync(
                 u => u.GoogleId == googleId || u.Email == email);
 
+            // כניסת Google היא רק למי שכבר יש לו חשבון (רכש והירשם) — לא יוצרים חשבון חדש
             if (user == null)
             {
-                // משתמש חדש דרך Google — אין סיסמה; שם משתמש ייחודי נגזר מהמייל
-                user = new User
-                {
-                    Username = await GenerateUniqueUsernameAsync(email),
-                    Email = email,
-                    GoogleId = googleId,
-                    Role = "Member",
-                    SubscriptionValidUntil = SubscriptionPolicy.ValidUntil(DateTime.UtcNow),
-                };
-                _db.Users.Add(user);
-                await _db.SaveChangesAsync();
-                _logger.LogInformation("User created via Google (Id: {UserId})", user.Id);
+                return new AuthResult(null,
+                    "לא נמצא חשבון המקושר לכתובת ה-Google הזו. יש להירשם תחילה, או להתחבר עם שם משתמש וסיסמה.");
             }
-            else if (string.IsNullOrEmpty(user.GoogleId))
+
+            // חשבון קיים (מייל+סיסמה) שמתחבר לראשונה עם Google — מקשרים את מזהה גוגל
+            if (string.IsNullOrEmpty(user.GoogleId))
             {
-                // חשבון קיים (מייל+סיסמה) — מקשרים אליו את מזהה גוגל
                 user.GoogleId = googleId;
                 await _db.SaveChangesAsync();
             }
@@ -132,22 +124,6 @@ namespace ParentCommitteeAPI.Services
 
             _logger.LogInformation("User logged in via Google (Id: {UserId})", user.Id);
             return new AuthResult(BuildResponse(user), null);
-        }
-
-        /* יוצר שם משתמש ייחודי מהחלק שלפני ה-@ במייל, עם מספר אם כבר תפוס */
-        private async Task<string> GenerateUniqueUsernameAsync(string email)
-        {
-            var baseName = new string(email.Split('@')[0]
-                .Where(c => char.IsLetterOrDigit(c)).ToArray());
-            if (baseName.Length < 3) baseName = "user" + baseName;
-
-            var candidate = baseName;
-            var suffix = 1;
-            while (await _db.Users.AnyAsync(u => u.Username == candidate))
-            {
-                candidate = $"{baseName}{suffix++}";
-            }
-            return candidate;
         }
 
         private AuthResponseDto BuildResponse(User user) => new()

@@ -37,10 +37,10 @@ export async function saveOnboarding(data) {
   try {
     const group = await api.post("/api/groups", toGroupPayload(data));
     persistLocally(data, { groupId: group.id, syncedWithServer: true });
-    return { synced: true };
+    return { synced: true, groupId: group.id };
   } catch {
     persistLocally(data, { syncedWithServer: false });
-    return { synced: false };
+    return { synced: false, groupId: null };
   }
 }
 

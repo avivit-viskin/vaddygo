@@ -71,9 +71,10 @@ function OnboardingWizard() {
 
   async function handleFinish() {
     setIsSaving(true);
-    await saveOnboarding(data); // גם אם השרת לא זמין — נשמר מקומית וממשיכים
-    // רושם את המוסד ברשימת המוסדות (ראשי + נוספים מהשמות שהוזנו)
-    saveActiveOnboarding(data);
+    const result = await saveOnboarding(data); // גם אם השרת לא זמין — נשמר מקומית וממשיכים
+    // רושם את המוסד ברשימת המוסדות (ראשי + נוספים מהשמות שהוזנו),
+    // עם מזהה ה-Group מהשרת כדי לסנן את הנתונים לפי מוסד
+    saveActiveOnboarding(data, result?.groupId ?? null);
     navigate("/");
   }
 

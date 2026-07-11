@@ -39,6 +39,11 @@ export function getActiveInstitution() {
   return list.find((i) => i.id === activeId) || list[0];
 }
 
+/* מזהה ה-Group בשרת של המוסד הפעיל — נשלח ב-X-Institution לסינון הנתונים. */
+export function getActiveServerGroupId() {
+  return getActiveInstitution()?.serverGroupId ?? null;
+}
+
 /*
   מעבר למוסד אחר. מותר רק למוסד מופעל. טוען את נתוני ההרשמה שלו למפתח
   המשותף כדי שכל האפליקציה תשקף אותו. מחזיר true בהצלחה.
@@ -65,7 +70,7 @@ export function beginActivation(id) {
   המוסדות הנוספים ששמותיהם הוזנו (לא-מופעלים). אחרת — מפעיל את המוסד הפעיל
   הנוכחי עם נתוני ההרשמה שלו (הפעלת מוסד נוסף אחרי רכישה).
 */
-export function saveActiveOnboarding(data) {
+export function saveActiveOnboarding(data, serverGroupId = null) {
   let list = readList();
   const stamp = Date.now();
 
@@ -77,6 +82,7 @@ export function saveActiveOnboarding(data) {
       type: data.institutionType || "gan",
       activated: true,
       onboarding: data,
+      serverGroupId, // מזהה ה-Group בשרת, לסינון הנתונים
     };
     const extras = (data.extraCommitteeNames || [])
       .filter((n) => n && n.trim())
@@ -86,6 +92,7 @@ export function saveActiveOnboarding(data) {
         type: "gan",
         activated: false,
         onboarding: null,
+        serverGroupId: null,
       }));
     list = [main, ...extras];
     localStorage.setItem(ACTIVE_KEY, mainId);
@@ -93,7 +100,13 @@ export function saveActiveOnboarding(data) {
     const activeId = localStorage.getItem(ACTIVE_KEY);
     list = list.map((i) =>
       i.id === activeId
-        ? { ...i, name: (data.ganName || i.name).trim(), activated: true, onboarding: data }
+        ? {
+            ...i,
+            name: (data.ganName || i.name).trim(),
+            activated: true,
+            onboarding: data,
+            serverGroupId: serverGroupId ?? i.serverGroupId ?? null,
+          }
         : i
     );
   }

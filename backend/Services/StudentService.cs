@@ -26,9 +26,17 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
-        public async Task<List<StudentResponseDto>> GetAllAsync()
+        public async Task<List<StudentResponseDto>> GetAllAsync(int? groupId = null)
         {
             var students = await _students.GetAllAsync();
+            // סינון לפי המוסד הפעיל. תלמידים ישנים ללא שיוך (GroupId==null) תמיד
+            // מוצגים, כדי שנתונים קיימים לא ייעלמו בעת המעבר לריבוי מוסדות.
+            if (groupId.HasValue)
+            {
+                students = students
+                    .Where(s => s.GroupId == null || s.GroupId == groupId.Value)
+                    .ToList();
+            }
             var paidByStudent = await GetPaidByStudentAsync();
             return students
                 .Select(s => ToResponse(s, paidByStudent.GetValueOrDefault(s.Id)))
@@ -47,12 +55,14 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(student, paidByStudent.GetValueOrDefault(id));
         }
 
-        public async Task<StudentResponseDto> CreateAsync(StudentCreateDto dto)
+        public async Task<StudentResponseDto> CreateAsync(StudentCreateDto dto, int? groupId = null)
         {
             var student = new Student();
             ApplyWrite(student, dto);
+            student.GroupId = groupId; // שיוך למוסד הפעיל (אם נשלח)
             await _students.AddAsync(student);
-            _logger.LogInformation("Student created (Id: {StudentId})", student.Id);
+            _logger.LogInformation("Student created (Id: {StudentId}, Group: {GroupId})",
+                student.Id, groupId);
             return ToResponse(student, 0m);
         }
 

@@ -20,11 +20,15 @@ namespace ParentCommitteeAPI.Controllers
             _studentService = studentService;
         }
 
+        /* המוסד הפעיל שהלקוח שולח בכותרת X-Institution (מזהה ה-Group). null = בלי סינון. */
+        private int? ActiveGroupId =>
+            int.TryParse(Request.Headers["X-Institution"], out var id) ? id : null;
+
         // GET: api/students
         [HttpGet]
         public async Task<ActionResult<IEnumerable<StudentResponseDto>>> GetAllStudents()
         {
-            return Ok(await _studentService.GetAllAsync());
+            return Ok(await _studentService.GetAllAsync(ActiveGroupId));
         }
 
         // GET: api/students/1
@@ -41,7 +45,7 @@ namespace ParentCommitteeAPI.Controllers
         [HttpPost]
         public async Task<ActionResult<StudentResponseDto>> CreateStudent([FromBody] StudentCreateDto dto)
         {
-            var created = await _studentService.CreateAsync(dto);
+            var created = await _studentService.CreateAsync(dto, ActiveGroupId);
             return CreatedAtAction(nameof(GetStudent), new { id = created.Id }, created);
         }
 

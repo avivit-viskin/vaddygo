@@ -8,9 +8,10 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IStudentService
     {
-        Task<List<StudentResponseDto>> GetAllAsync();
+        // groupId = המוסד הפעיל (מכותרת X-Institution). null = בלי סינון (תאימות לאחור).
+        Task<List<StudentResponseDto>> GetAllAsync(int? groupId = null);
         Task<StudentResponseDto?> GetByIdAsync(int id);
-        Task<StudentResponseDto> CreateAsync(StudentCreateDto dto);
+        Task<StudentResponseDto> CreateAsync(StudentCreateDto dto, int? groupId = null);
         Task<StudentResponseDto?> UpdateAsync(int id, StudentUpdateDto dto);
         Task<bool> DeleteAsync(int id);
     }

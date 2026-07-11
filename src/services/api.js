@@ -3,6 +3,8 @@
   כתובת הבסיס מגיעה ממשתנה הסביבה REACT_APP_API_URL — אין כתובות קשיחות בקוד.
 */
 
+import { getActiveServerGroupId } from "./institutionsService";
+
 const BASE_URL = process.env.REACT_APP_API_URL;
 
 // מפתח ה-token מוגדר גם ב-authService; נקרא כאן ישירות מ-localStorage
@@ -54,6 +56,11 @@ async function request(path, { method = "GET", body } = {}) {
   const token = localStorage.getItem(TOKEN_KEY);
   if (token) {
     headers.Authorization = `Bearer ${token}`;
+  }
+  // המוסד הפעיל — לסינון הנתונים בשרת לפי מוסד (ריבוי מוסדות)
+  const institutionId = getActiveServerGroupId();
+  if (institutionId != null) {
+    headers["X-Institution"] = String(institutionId);
   }
 
   let response;

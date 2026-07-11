@@ -1,9 +1,10 @@
-import { useCallback } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import { useParams, Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getStudent } from "../services/studentsService";
 import {
   getStudentPayments,
+  saveStudentPayment,
   buildWhatsappReminderUrl,
   buildReminderMessage,
 } from "../services/paymentsService";
@@ -14,13 +15,16 @@ import Button from "../components/Button";
 import PaymentRow from "./payments/PaymentRow";
 import "../styles/payments.css";
 
+const EMPTY_ROW = { bit: "", paybox: "", cash: "" };
+
 /*
   StudentPaymentsPage — תשלומי תלמיד לפי קטגוריות (שלב 5, UI_SPEC ס' 11+15):
-  שורה לכל קטגוריית גבייה עם סימון "שולם" ידני וסטטוס צבעוני,
-  וכפתור "שלחי תזכורת בוואטסאפ" עם הודעה מוכנה לקטגוריות שטרם שולמו.
+  לכל קטגוריה שדות סכום לביט/פייבוקס/מזומן; ממלאים את כל הקטגוריות,
+  ולוחצים "אישור" אחד בסוף ששומר הכל וחוזר לרשימת התלמידים.
 */
 function StudentPaymentsPage() {
   const { studentId } = useParams();
+  const navigate = useNavigate();
 
   const load = useCallback(async () => {
     const [student, payments] = await Promise.all([
@@ -31,6 +35,28 @@ function StudentPaymentsPage() {
   }, [studentId]);
 
   const { data, isLoading, error, reload } = useApi(load);
+
+  // הסכומים של כל הקטגוריות מנוהלים כאן; כפתור "אישור" אחד שומר את כולם.
+  // { [categoryId]: { bit, paybox, cash } }
+  const [amounts, setAmounts] = useState({});
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
+
+  // אתחול הסכומים מהנתונים שנטענו
+  useEffect(() => {
+    if (!data?.payments) {
+      return;
+    }
+    const init = {};
+    data.payments.forEach((p) => {
+      init[p.collectionCategoryId] = {
+        bit: p.bitAmount || "",
+        paybox: p.payBoxAmount || "",
+        cash: p.cashAmount || "",
+      };
+    });
+    setAmounts(init);
+  }, [data]);
 
   if (isLoading) {
     return <Spinner text="טוען את התשלומים..." />;
@@ -43,12 +69,36 @@ function StudentPaymentsPage() {
   const { student, payments } = data;
   const fullName = `${student.firstName} ${student.lastName}`;
   const unpaid = payments.filter((p) => !p.isPaid);
-  const paidCount = payments.length - unpaid.length;
-
   const reminderUrl = buildWhatsappReminderUrl(
     student.parentPhoneNumber,
     buildReminderMessage(fullName, unpaid)
   );
+
+  // שמירת כל הקטגוריות יחד; קטגוריה עם סכום כלשהו מסומנת "שולם".
+  async function confirm() {
+    setSaveError("");
+    setIsSaving(true);
+    try {
+      await Promise.all(
+        payments.map((p) => {
+          const a = amounts[p.collectionCategoryId] ?? EMPTY_ROW;
+          const bit = Number(a.bit) || 0;
+          const paybox = Number(a.paybox) || 0;
+          const cash = Number(a.cash) || 0;
+          return saveStudentPayment(studentId, p.collectionCategoryId, {
+            bitAmount: bit,
+            payBoxAmount: paybox,
+            cashAmount: cash,
+            isPaid: bit + paybox + cash > 0,
+          });
+        })
+      );
+      navigate("/students");
+    } catch (err) {
+      setSaveError(err.message);
+      setIsSaving(false);
+    }
+  }
 
   return (
     <div className="payments">
@@ -59,7 +109,7 @@ function StudentPaymentsPage() {
       <div className="payments__header">
         <h2>תשלומים — {fullName}</h2>
         <p className="payments__summary">
-          שולמו {paidCount} מתוך {payments.length} קטגוריות
+          מלאי כמה שולם בכל אמצעי, ולחצי "אישור" בסוף.
         </p>
       </div>
 
@@ -73,22 +123,38 @@ function StudentPaymentsPage() {
           {payments.map((payment) => (
             <PaymentRow
               key={payment.collectionCategoryId}
-              studentId={studentId}
               payment={payment}
-              onSaved={reload}
+              amounts={amounts[payment.collectionCategoryId] ?? EMPTY_ROW}
+              onChange={(next) =>
+                setAmounts((prev) => ({
+                  ...prev,
+                  [payment.collectionCategoryId]: next,
+                }))
+              }
             />
           ))}
 
-          {unpaid.length > 0 && (
-            <a
-              className="payments__whatsapp"
-              href={reminderUrl}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <Button>שלחי תזכורת בוואטסאפ 💬</Button>
-            </a>
+          {saveError && (
+            <p className="field__error" role="alert">
+              {saveError}
+            </p>
           )}
+
+          <div className="form-actions">
+            <Button onClick={confirm} isLoading={isSaving}>
+              אישור
+            </Button>
+            {unpaid.length > 0 && (
+              <a
+                className="payments__whatsapp"
+                href={reminderUrl}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button variant="secondary">שלחי תזכורת בוואטסאפ 💬</Button>
+              </a>
+            )}
+          </div>
         </>
       )}
     </div>

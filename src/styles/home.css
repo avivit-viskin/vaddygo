@@ -213,20 +213,7 @@
   color: var(--color-text-muted);
 }
 
-.staff__info {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-/* התקציב שהמערכת ממליצה למתנה (חלק הצוות מתוך ה-3% הכולל), מתחת לשם */
-.staff__gift {
-  color: var(--color-primary-dark);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-}
-
-/* סיכום תקציב המתנות הכולל לצוות (3% מהתקציב), מעל הרשימה */
+/* המלצה כללית אחת: כמה מומלץ להשקיע על מתנות לכל הצוות, מעל הרשימה */
 .staff__budget-total {
   color: var(--color-primary-dark);
   font-size: var(--font-size-sm);

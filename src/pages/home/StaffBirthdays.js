@@ -17,20 +17,17 @@ import StaffForm from "./StaffForm";
 /*
   StaffBirthdays — צוות הגן וימי ההולדת הקרובים (UI_SPEC ס' 8):
   רשימה (שם · תפקיד · תאריך), הוספת איש צוות ועריכה בעיפרון.
-  תקציב המתנות שהמערכת ממליצה = 3% מסך התקציב הכולל (יעד הגבייה) —
-  זהו סכום *כולל* לכל הצוות, שמתחלק שווה בשווה בין אנשי הצוות.
+  מעל הרשימה מוצגת המלצה כללית אחת: כמה מומלץ להשקיע על מתנות לכל הצוות
+  (3% מסך התקציב הכולל) — סכום אחד, בלי פירוט אישי לכל איש צוות.
 */
-const GIFT_BUDGET_RATE = 0.03; // 3% מסך התקציב — סכום כולל לכל הצוות (לא לכל אחד)
+const GIFT_BUDGET_RATE = 0.03; // חלק התקציב שמומלץ להקצות למתנות הצוות
 
 function StaffBirthdays({ onChanged, totalBudget = 0 }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
 
-  const staffCount = (staff || []).length;
-  // 3% מהתקציב = תקציב המתנות הכולל לכל הצוות; מתחלק שווה בשווה בין אנשי הצוות
+  // סכום כללי אחד שהמערכת ממליצה להשקיע על מתנות לכל הצוות
   const totalGiftBudget = Math.round((totalBudget || 0) * GIFT_BUDGET_RATE);
-  const recommendedGift =
-    staffCount > 0 ? Math.round(totalGiftBudget / staffCount) : 0;
 
   async function handleSave(values) {
     if (editing?.id) {
@@ -58,9 +55,7 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
 
       {!isLoading && !error && sorted.length > 0 && totalGiftBudget > 0 && (
         <p className="staff__budget-total">
-          🎁 תקציב מתנות לכל הצוות: {formatShekels(totalGiftBudget)} (3% מהתקציב)
-          {" · "}
-          {formatShekels(recommendedGift)} לאיש צוות
+          🎁 מומלץ להשקיע על מתנות לצוות: {formatShekels(totalGiftBudget)}
         </p>
       )}
 
@@ -68,16 +63,9 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
         <ul className="staff">
           {sorted.map((member) => (
             <li key={member.id} className="staff__item">
-              <div className="staff__info">
-                <div>
-                  <span className="staff__name">{member.fullName}</span>
-                  <span className="staff__role"> · {member.role}</span>
-                </div>
-                {recommendedGift > 0 && (
-                  <span className="staff__gift">
-                    🎁 מומלץ למתנה: {formatShekels(recommendedGift)}
-                  </span>
-                )}
+              <div>
+                <span className="staff__name">{member.fullName}</span>
+                <span className="staff__role"> · {member.role}</span>
               </div>
               <div className="staff__side">
                 <span className="staff__date">

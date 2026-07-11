@@ -8,6 +8,7 @@ import {
   deleteStudent,
 } from "../services/studentsService";
 import { getPaymentSummary } from "../services/paymentsService";
+import { getGroups } from "../services/groupsService";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Select from "../components/Select";
@@ -31,6 +32,7 @@ import "../styles/students.css";
 function StudentsPage() {
   const navigate = useNavigate();
   const { data: students, isLoading, error, reload } = useApi(getStudents);
+  const { data: groups } = useApi(getGroups);
 
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("");
@@ -74,13 +76,10 @@ function StudentsPage() {
     };
   }, [students]);
 
-  const classNames = useMemo(
-    () =>
-      [...new Set((students ?? []).map((student) => student.className))].sort(
-        (a, b) => a.localeCompare(b, "he")
-      ),
-    [students]
-  );
+  // הקבוצות מוגדרות בהגדרה הראשונית של הגן. שדה/פילטר הקבוצה מוצגים רק
+  // כשהמוסד מחולק לקבוצות; אחרת אין "כיתה/קבוצה" בכלל.
+  const subgroups = useMemo(() => groups?.[0]?.subgroups ?? [], [groups]);
+  const hasGroups = subgroups.length > 0;
 
   const visibleStudents = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -192,19 +191,21 @@ function StudentsPage() {
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
             />
-            <Select
-              id="students-class-filter"
-              label="סינון לפי כיתה"
-              value={classFilter}
-              onChange={(event) => setClassFilter(event.target.value)}
-            >
-              <option value="">כל הכיתות</option>
-              {classNames.map((name) => (
-                <option key={name} value={name}>
-                  {name}
-                </option>
-              ))}
-            </Select>
+            {hasGroups && (
+              <Select
+                id="students-class-filter"
+                label="סינון לפי קבוצה"
+                value={classFilter}
+                onChange={(event) => setClassFilter(event.target.value)}
+              >
+                <option value="">כל הקבוצות</option>
+                {subgroups.map((group) => (
+                  <option key={group} value={group}>
+                    {group}
+                  </option>
+                ))}
+              </Select>
+            )}
             <Checkbox
               id="students-only-unpaid"
               label="הצג רק מי שטרם שילם"
@@ -239,6 +240,7 @@ function StudentsPage() {
         <StudentForm
           key={editedStudent?.id ?? "new"}
           initialStudent={editedStudent}
+          subgroups={subgroups}
           onSubmit={saveStudent}
           onCancel={closeForm}
         />

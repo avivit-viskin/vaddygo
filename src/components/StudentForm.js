@@ -1,11 +1,13 @@
 import useForm from "../hooks/useForm";
 import Input from "./Input";
+import Select from "./Select";
 import Button from "./Button";
 
 /* פורמט טלפון נייד ישראלי: 05X-XXXXXXX (המקף אופציונלי) — זהה לוולידציה בשרת. */
 const ISRAELI_MOBILE_PATTERN = /^05\d-?\d{7}$/;
 
-export function validateStudent(values) {
+/* hasGroups=true → שדה הקבוצה חובה (רק כשהמוסד מחולק לקבוצות). */
+export function validateStudent(values, hasGroups = false) {
   const errors = {};
 
   if (!values.firstName.trim()) {
@@ -13,6 +15,9 @@ export function validateStudent(values) {
   }
   if (!values.lastName.trim()) {
     errors.lastName = "שם משפחה הוא שדה חובה";
+  }
+  if (hasGroups && !values.className.trim()) {
+    errors.className = "יש לבחור קבוצה";
   }
 
   const phone = values.parentPhoneNumber.trim();
@@ -27,10 +32,13 @@ export function validateStudent(values) {
 
 /*
   StudentForm — טופס תלמיד אחד לשני מצבים: הוספה (initialStudent ריק)
-  ועריכה (initialStudent עם נתונים). כפתור השמירה נעול בזמן שליחה,
+  ועריכה (initialStudent עם נתונים). שדה הקבוצה מוצג רק אם המוסד מחולק
+  לקבוצות (subgroups מההגדרה הראשונית). כפתור השמירה נעול בזמן שליחה,
   ושגיאת שרת מוצגת בתוך הטופס בלי לסגור אותו.
 */
-function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
+function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel }) {
+  const hasGroups = subgroups.length > 0;
+
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm(
       {
@@ -38,9 +46,10 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         lastName: initialStudent?.lastName ?? "",
         parentName: initialStudent?.parentName ?? "",
         birthDate: initialStudent?.birthDate ?? "",
+        className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
       },
-      validateStudent
+      (v) => validateStudent(v, hasGroups)
     );
 
   return (
@@ -78,6 +87,23 @@ function StudentForm({ initialStudent = null, onSubmit, onCancel }) {
         onChange={handleChange}
         error={errors.birthDate}
       />
+      {hasGroups && (
+        <Select
+          id="student-class-name"
+          name="className"
+          label="קבוצה"
+          value={values.className}
+          onChange={handleChange}
+          error={errors.className}
+        >
+          <option value="">בחרי קבוצה...</option>
+          {subgroups.map((group) => (
+            <option key={group} value={group}>
+              {group}
+            </option>
+          ))}
+        </Select>
+      )}
       <Input
         id="student-parent-phone"
         name="parentPhoneNumber"

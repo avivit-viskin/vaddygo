@@ -2,25 +2,47 @@
   sidemenu.css — תפריט הצד ומחליף המוסדות (UI_SPEC ס' 3.5), על בסיס theme.css.
 */
 
+/* מתחיל מתחת לכותרת כדי שהלוגו יישאר בהיר ולא מעומעם */
 .sidemenu-overlay {
   position: fixed;
-  inset: 0;
+  top: 60px;
+  right: 0;
+  bottom: 0;
+  left: 0;
   background: rgba(0, 0, 0, 0.35);
   z-index: 50;
 }
 
+/* התפריט נשלף מצד ימין ומתחיל מתחת לכותרת — כדי לא לכסות את הלוגו */
 .sidemenu {
   position: fixed;
-  inset-block: 0;
-  inset-inline-start: 0;
+  right: 0;
+  top: 60px;
+  bottom: 0;
   width: min(300px, 82vw);
   background: var(--color-surface);
-  box-shadow: var(--shadow-sm);
+  box-shadow: var(--shadow-md);
   padding: 16px;
   display: flex;
   flex-direction: column;
   gap: 12px;
   overflow-y: auto;
+  animation: sidemenu-slide-in 0.2s ease;
+}
+
+@keyframes sidemenu-slide-in {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sidemenu {
+    animation: none;
+  }
 }
 
 .sidemenu__header {
@@ -97,14 +119,30 @@
   padding-top: 12px;
 }
 
+/* פעולה בתפריט (צור קשר) — קישור בעיצוב פריט תפריט */
+.sidemenu__action {
+  display: block;
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: var(--font-size-base);
+  min-height: 44px;
+  padding: 10px 0;
+}
+
 .sidemenu__logout {
+  display: block;
+  width: 100%;
+  text-align: start;
   border: none;
   background: none;
   color: var(--color-error);
   cursor: pointer;
   font-family: var(--font-family);
   font-size: var(--font-size-base);
+  font-weight: 600;
   min-height: 44px;
+  padding: 10px 0;
 }
 
 /* כפתור התפריט בכותרת + שם המוסד הפעיל */

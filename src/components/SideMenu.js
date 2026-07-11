@@ -1,12 +1,19 @@
 import BrandName from "./BrandName";
 import InstitutionSwitcher from "./InstitutionSwitcher";
 import { logout } from "../services/authService";
+import { whatsappUrl } from "../services/whatsapp";
 import "../styles/sidemenu.css";
 
 /*
-  SideMenu — תפריט צד נשלף (UI_SPEC ס' 3.5): מכיל את מחליף המוסדות ויציאה.
-  קטגוריות נוספות יתווספו כאן בהמשך. נפתח מכפתור ☰ שבכותרת.
+  SideMenu — תפריט צד נשלף (UI_SPEC ס' 3.5): מחליף המוסדות, צור קשר והתנתקות.
+  נפתח מכפתור ☰ שבכותרת, נשלף מצד ימין מתחת לכותרת (לא מכסה את הלוגו).
 */
+// מספר הוואטסאפ של התמיכה (מספר ציבורי — לא סוד)
+const SUPPORT_PHONE = "054-4579179";
+const SUPPORT_URL = `${whatsappUrl(SUPPORT_PHONE)}?text=${encodeURIComponent(
+  "שלום, אשמח לעזרה עם VaddyGo 🙂"
+)}`;
+
 function SideMenu({ isOpen, onClose }) {
   if (!isOpen) {
     return null;
@@ -14,7 +21,7 @@ function SideMenu({ isOpen, onClose }) {
 
   function handleLogout() {
     logout();
-    window.location.href = "/welcome";
+    window.location.href = "/login";
   }
 
   return (
@@ -40,8 +47,17 @@ function SideMenu({ isOpen, onClose }) {
         <InstitutionSwitcher onClose={onClose} />
 
         <div className="sidemenu__footer">
+          <a
+            className="sidemenu__action"
+            href={SUPPORT_URL}
+            target="_blank"
+            rel="noreferrer"
+            onClick={onClose}
+          >
+            💬 צור קשר
+          </a>
           <button type="button" className="sidemenu__logout" onClick={handleLogout}>
-            יציאה
+            🚪 התנתק
           </button>
         </div>
       </aside>

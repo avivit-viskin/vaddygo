@@ -219,24 +219,11 @@
   gap: 2px;
 }
 
-/* כפתור התקציב המומלץ למתנה, מתחת לשם */
+/* התקציב שהמערכת ממליצה למתנה (3% מהתקציב), מתחת לשם */
 .staff__gift {
-  align-self: flex-start;
-  border: none;
-  background: none;
-  padding: 2px 0;
-  cursor: pointer;
   color: var(--color-primary-dark);
-  font: inherit;
   font-size: var(--font-size-sm);
   font-weight: 600;
-  text-align: right;
-}
-
-.staff-gift__hint {
-  margin: 0 0 12px;
-  color: var(--color-text-muted);
-  font-size: var(--font-size-sm);
 }
 
 .staff__side {

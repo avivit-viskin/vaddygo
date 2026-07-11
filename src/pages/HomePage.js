@@ -58,7 +58,7 @@ function HomePage() {
       <AlertsList alerts={dashboard.alerts} />
       <CollectionCard dashboard={dashboard} />
       <CategoryList categories={dashboard.byCategory} />
-      <StaffBirthdays onChanged={reload} />
+      <StaffBirthdays onChanged={reload} totalBudget={dashboard.collectionTarget} />
     </div>
   );
 }

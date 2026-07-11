@@ -19,8 +19,15 @@ function renderWithRouter(ui) {
   );
 }
 
+beforeEach(() => {
+  // אין רשת אמיתית בטסטים — כל fetch נכשל מיד: השלמת הגנים מ-data.gov.il
+  // וקריאות השרת נופלות חיננית ל-fallback המקומי. מונע flakiness מקריאה חיצונית איטית.
+  global.fetch = jest.fn(() => Promise.reject(new TypeError("no network in tests")));
+});
+
 afterEach(() => {
   localStorage.clear();
+  delete global.fetch;
 });
 
 test("מסך הפתיחה מציג את נוסח האפיון ושני כפתורים", () => {

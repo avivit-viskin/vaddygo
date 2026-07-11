@@ -6,6 +6,14 @@
 
 ---
 
+## 10.07.2026 — ימי הולדת הצוות: תקציב מומלץ למתנה לכל איש צוות [Claude Code]
+
+- **מה נעשה:** במסך הבית, ברשימת ימי ההולדת של הצוות, נוסף לכל איש/אשת צוות **תקציב מומלץ למתנה** — כפתור מתחת לשם ("🎁 הוסיפי תקציב מתנה" / "🎁 תקציב מתנה: 150 ₪") שפותח חלון קטן להזנת סכום. הסכום נשמר ומוצג ליד יום ההולדת.
+- **למה:** בקשת בעלת המוצר — לעזור לוועד לתכנן כמה להשקיע על מתנת יום הולדת לכל אחד מהצוות.
+- **קבצים:** `src/services/staffGiftBudgetsService.js` (חדש), `src/pages/home/StaffGiftBudgetForm.js` (חדש), `src/pages/home/StaffBirthdays.js`, `src/styles/home.css`, `src/pages/home/StaffBirthdays.test.js` (חדש). **פרונט בלבד — לא נגעתי ב-backend** (ה-BACKEND_LOCK היה תפוס ע"י סוכן אחר, ולא נדרש).
+- **החלטות:** (1) התקציב **מוזן ע"י המשתמשת** (לא מומצא ולא מחושב) ונשמר ב-localStorage — **בדיוק כתקדים `holidayBudgetsService`** (תקציבי חגים בלוח השנה). הפונקציות אסינכרוניות כדי שהחלפה עתידית ל-API בשרת תהיה בגוף השירות בלבד. (2) שימוש חוזר ב-`Modal`/`Input`/`Button`/`formatShekels`.
+- **הצעד הבא:** כשייבנה API לתקציבים בשרת (מודל `Budget` קיים) — להעביר גם את תקציבי החגים וגם את תקציבי המתנות של הצוות לשרת, בגוף השירותים בלבד.
+
 ## 10.07.2026 — קישורי התשלום של הוועד עברו לשרת (משותפים לכל החברות) [Claude Code B]
 
 - **מה נעשה:** קישורי הביט/פייבוקס של הוועד (ששימשו את "בקשת תשלום") הועברו מ-localStorage מקומי ל**שרת**, כדי שכל 2-3 חברות הוועד יראו את אותם קישורים. **שרת** (תחת BACKEND_LOCK): נוספו `BitLink`/`PayboxLink` למודל `Group` + Migration‏ `AddGroupPaymentLinks` (עמודות additive), מופו ב-`GroupResponseDto`, ונוסף `PUT /api/groups/{id}/payment-links` (‏`GroupsController` → `IGroupService.UpdatePaymentLinksAsync`) עם ולידציה שהקישור מתחיל ב-http/https. אומת מקצה-לקצה מול שרת רץ (הרשמה→token→יצירת גן→PUT→GET מחזיר את הקישורים→400 על קישור לא תקין). **לקוח:** `paymentSettingsService` הפך לאסינכרוני — קורא/כותב לשרת לפי `groupId` (מ-onboarding) עם **נפילה חיננית ל-localStorage** כשאין גן/שרת; `PaymentRequestButton` טוען את הקישורים ב-`useEffect`. 3 טסטי לקוח עוברים + build ירוק.

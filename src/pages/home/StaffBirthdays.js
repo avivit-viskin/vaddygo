@@ -1,18 +1,23 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
 import EmptyState from "../../components/EmptyState";
 import Modal from "../../components/Modal";
 import Spinner from "../../components/Spinner";
 import useApi from "../../hooks/useApi";
-import { formatDayMonth } from "../../services/format";
+import { formatDayMonth, formatShekels } from "../../services/format";
 import {
   getStaff,
   addStaffMember,
   updateStaffMember,
   nextBirthday,
 } from "../../services/staffService";
+import {
+  getStaffGiftBudgets,
+  setStaffGiftBudget,
+} from "../../services/staffGiftBudgetsService";
 import StaffForm from "./StaffForm";
+import StaffGiftBudgetForm from "./StaffGiftBudgetForm";
 
 /*
   StaffBirthdays — צוות הגן וימי ההולדת הקרובים (UI_SPEC ס' 8):
@@ -22,6 +27,12 @@ import StaffForm from "./StaffForm";
 function StaffBirthdays({ onChanged }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
+  const [budgets, setBudgets] = useState({}); // תקציב מתנה לפי מזהה איש צוות
+  const [budgetFor, setBudgetFor] = useState(null); // איש הצוות שעורכים לו תקציב
+
+  useEffect(() => {
+    getStaffGiftBudgets().then(setBudgets);
+  }, []);
 
   async function handleSave(values) {
     if (editing?.id) {
@@ -32,6 +43,11 @@ function StaffBirthdays({ onChanged }) {
     setEditing(null);
     reload();
     onChanged?.();
+  }
+
+  async function handleSaveBudget(amount) {
+    setBudgets(await setStaffGiftBudget(budgetFor.id, amount));
+    setBudgetFor(null);
   }
 
   const sorted = (staff || [])
@@ -51,9 +67,20 @@ function StaffBirthdays({ onChanged }) {
         <ul className="staff">
           {sorted.map((member) => (
             <li key={member.id} className="staff__item">
-              <div>
-                <span className="staff__name">{member.fullName}</span>
-                <span className="staff__role"> · {member.role}</span>
+              <div className="staff__info">
+                <div>
+                  <span className="staff__name">{member.fullName}</span>
+                  <span className="staff__role"> · {member.role}</span>
+                </div>
+                <button
+                  type="button"
+                  className="staff__gift"
+                  onClick={() => setBudgetFor(member)}
+                >
+                  {budgets[member.id] != null
+                    ? `🎁 תקציב מתנה: ${formatShekels(budgets[member.id])}`
+                    : "🎁 הוסיפי תקציב מתנה"}
+                </button>
               </div>
               <div className="staff__side">
                 <span className="staff__date">
@@ -87,6 +114,20 @@ function StaffBirthdays({ onChanged }) {
             member={editing?.id ? editing : null}
             onSave={handleSave}
             onCancel={() => setEditing(null)}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={budgetFor !== null}
+        onClose={() => setBudgetFor(null)}
+        title={budgetFor ? `תקציב מתנה — ${budgetFor.fullName}` : ""}
+      >
+        {budgetFor !== null && (
+          <StaffGiftBudgetForm
+            current={budgets[budgetFor.id]}
+            onSave={handleSaveBudget}
+            onCancel={() => setBudgetFor(null)}
           />
         )}
       </Modal>

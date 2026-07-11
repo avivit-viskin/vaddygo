@@ -1,8 +1,9 @@
 import { render, screen, waitFor, fireEvent } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { MemoryRouter } from "react-router-dom";
+import { MemoryRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
+import SubscriptionExpiredPage from "./SubscriptionExpiredPage";
 
 /*
   טסטים לזרם ההזדהות (UI_SPEC ס' 2): כניסה והרשמה שומרות את ה-token
@@ -74,6 +75,34 @@ test("הרשמה מוצלחת שומרת את ה-token וממשיכה לאשף",
     expect.stringContaining("/api/auth/register"),
     expect.objectContaining({ method: "POST" })
   );
+});
+
+test("כניסה עם מנוי שפג מפנה למסך 'תוקף המנוי הסתיים'", async () => {
+  global.fetch = jest.fn(() =>
+    Promise.resolve({
+      ok: false,
+      status: 401,
+      json: () =>
+        Promise.resolve({ message: "תוקף המנוי פג. יש לחדש כדי להמשיך." }),
+    })
+  );
+  render(
+    <MemoryRouter initialEntries={["/login"]}>
+      <Routes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route
+          path="/subscription-expired"
+          element={<SubscriptionExpiredPage />}
+        />
+      </Routes>
+    </MemoryRouter>
+  );
+
+  userEvent.type(screen.getByLabelText("שם משתמש או מייל"), "avivit");
+  userEvent.type(screen.getByLabelText("סיסמה"), "secret123");
+  userEvent.click(screen.getByRole("button", { name: "כניסה" }));
+
+  expect(await screen.findByText(/תוקף המנוי הסתיים/)).toBeInTheDocument();
 });
 
 test("ולידציה בהרשמה חוסמת סיסמה קצרה", () => {

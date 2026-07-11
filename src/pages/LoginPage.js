@@ -38,7 +38,12 @@ function LoginPage() {
       await login({ usernameOrEmail: usernameOrEmail.trim(), password });
       navigate("/");
     } catch (err) {
-      setSubmitError(err.message);
+      // מנוי שפג — מסך ייעודי במקום הודעת שגיאה מבלבלת
+      if (err.message && err.message.includes("המנוי פג")) {
+        navigate("/subscription-expired");
+      } else {
+        setSubmitError(err.message);
+      }
     } finally {
       setIsSubmitting(false);
     }

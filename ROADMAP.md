@@ -100,7 +100,7 @@
 
 **מודל מנוי (החלטת בעלת המוצר):** בעת הרכישה הלקוח בוחר שם משתמש + סיסמה; מתחבר אחר כך בשם-משתמש/סיסמה **או** ב-Google (אותו חשבון). **תוקף המנוי גורף עד 30.8 של השנה שאחרי הרכישה** (רכישה 07.2026 → תוקף עד 30.8.2027).
 **צד שרת:** ✅ JWT + משתמשות (סיסמאות עם PBKDF2‏ — `PasswordHasher`) + `SubscriptionPolicy` (תוקף עד 30.8 של השנה שאחרי) + Migration‏ `AddUsers`. `AuthController` (`register`/`login`, ‏`[AllowAnonymous]`) → `IAuthService`; `JwtTokenService` (תוקף ה-token = תוקף המנוי, מפתח מ-`Jwt:Key` env בלבד). `FallbackPolicy` דורש token בכל endpoint. תפקיד `SuperAdmin` במודל (לניהול ספקים). אומת מקצה-לקצה (הרשמה→תוקף 30.8.2027, ‏401 בלי token, ‏200 איתו). ☐ נותר: **כניסת Google (OAuth)** + אכיפת `SuperAdmin` על ניהול ספקים.
-**צד לקוח:** ✅ `authService` (login/register/logout/token) + `api.js` מצרף `Authorization: Bearer` לכל בקשה + `LoginPage`/`RegisterPage` אמיתיים + הגנת ניתוב (מסך לא-ציבורי בלי token → מסך פתיחה). 5 טסטים חדשים. ☐ נותר: כפתור "כניסה עם Google" (מושבת עד שייבנה OAuth) + הודעת "המנוי פג" ייעודית.
+**צד לקוח:** ✅ `authService` (login/register/logout/token) + `api.js` מצרף `Authorization: Bearer` לכל בקשה + `LoginPage`/`RegisterPage` אמיתיים + הגנת ניתוב (מסך לא-ציבורי בלי token → מסך פתיחה) + **מסך "תוקף המנוי הסתיים"** ייעודי (`SubscriptionExpiredPage`, נתיב `/subscription-expired`): כניסה שנכשלת בגלל מנוי שפג מנתבת אליו במקום הודעת שגיאה מבלבלת — מסביר שהנתונים שמורים ומזמין לחדש. הרשמה: **הצעת סיסמה חזקה + מד חוזק** (`PasswordField`). 8 טסטים. ☐ נותר: כפתור "כניסה עם Google" (מושבת עד שייבנה OAuth).
 
 **⚠️ לפני פריסת הבקאנד:** ‏main כולל אכיפת אבטחה גורפת בשרת. הפרונט כבר שולח token, אז זרם הרשמה→כניסה→שימוש עובד; אבל חובה להגדיר `Jwt__Key` (מחרוזת אקראית ארוכה) ב-Railway Variables — אחרת נעשה שימוש במפתח פיתוח חלש.
 

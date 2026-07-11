@@ -14,9 +14,11 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
+import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
+import CollectionSettingsPage from "./pages/CollectionSettingsPage";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -26,9 +28,15 @@ import { getActiveInstitution } from "./services/institutionsService";
   מסכי הפתיחה/כניסה/הרשמה מוצגים במסך מלא — בלי כותרת וניווט תחתון.
   משתמשת שאינה מחוברת מופנית למסך הפתיחה; מחוברת בלי הגדרת גן — לאשף.
 */
-const FULL_SCREEN_ROUTES = ["/welcome", "/login", "/register", "/onboarding"];
+const FULL_SCREEN_ROUTES = [
+  "/welcome",
+  "/login",
+  "/register",
+  "/onboarding",
+  "/subscription-expired",
+];
 // נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token)
-const PUBLIC_ROUTES = ["/welcome", "/login", "/register"];
+const PUBLIC_ROUTES = ["/welcome", "/login", "/register", "/subscription-expired"];
 
 function App() {
   const location = useLocation();
@@ -91,6 +99,10 @@ function App() {
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route
+            path="/subscription-expired"
+            element={<SubscriptionExpiredPage />}
+          />
           <Route path="/onboarding" element={<OnboardingWizard />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route
@@ -100,6 +112,7 @@ function App() {
           <Route path="/calendar" element={<CalendarPage />} />
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />
+          <Route path="/collection-settings" element={<CollectionSettingsPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route

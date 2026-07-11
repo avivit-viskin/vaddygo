@@ -55,6 +55,10 @@ function mockServer(initialStudents, paymentsByStudent = {}) {
       const studentId = Number(url.split("/").slice(-2)[0]);
       return jsonResponse(paymentsByStudent[studentId] ?? []);
     }
+    // רשימת הקבוצות/כיתות של המוסד — מזינה את מסנן הקבוצה
+    if (method === "GET" && url.includes("/groups")) {
+      return jsonResponse([{ id: 1, name: "כללי", subgroups: ["פרפרים", "חובה"] }]);
+    }
     if (method === "POST") {
       const created = { id: 99, ...JSON.parse(options.body) };
       students = [...students, created];
@@ -128,15 +132,14 @@ test("מציג תג סטטוס תשלום ומסנן למי שטרם שילם", 
   expect(screen.getByText(/נועם לוי/)).toBeInTheDocument();
 });
 
-test("סינון לפי כיתה מציג רק את תלמידי הכיתה שנבחרה", async () => {
+test("סינון לפי קבוצה מציג רק את תלמידי הקבוצה שנבחרה", async () => {
   mockServer([dana, noam]);
   renderPage();
   await screen.findByText(/דנה כהן/);
 
-  await userEvent.selectOptions(
-    screen.getByLabelText("סינון לפי כיתה"),
-    "חובה"
-  );
+  // המסנן מופיע רק כשלמוסד יש קבוצות — מחכים שייטען מהשרת המדומה
+  const filter = await screen.findByLabelText("סינון לפי קבוצה");
+  await userEvent.selectOptions(filter, "חובה");
   expect(screen.queryByText(/דנה כהן/)).not.toBeInTheDocument();
   expect(screen.getByText(/נועם לוי/)).toBeInTheDocument();
 });
@@ -169,6 +172,8 @@ test("הוספת תלמיד: שולח POST לשרת ומציג את התלמיד
   await userEvent.type(screen.getByLabelText("שם פרטי"), "הילי");
   await userEvent.type(screen.getByLabelText("שם משפחה"), "לוי");
   await userEvent.type(screen.getByLabelText("טלפון הורה"), "050-1112223");
+  // המוסד מחולק לקבוצות → שדה הקבוצה חובה
+  await userEvent.selectOptions(await screen.findByLabelText("קבוצה"), "פרפרים");
   await userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 
   expect(await screen.findByText(/הילי לוי/)).toBeInTheDocument();

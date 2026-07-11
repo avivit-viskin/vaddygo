@@ -43,5 +43,16 @@ namespace ParentCommitteeAPI.Controllers
             var created = await _groupService.CreateAsync(dto);
             return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created);
         }
+
+        // PUT: api/groups/1/payment-links — עדכון קישורי הביט/פייבוקס של הוועד
+        [HttpPut("{id}/payment-links")]
+        public async Task<ActionResult<GroupResponseDto>> UpdatePaymentLinks(
+            int id, [FromBody] GroupPaymentLinksDto dto)
+        {
+            var updated = await _groupService.UpdatePaymentLinksAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
     }
 }

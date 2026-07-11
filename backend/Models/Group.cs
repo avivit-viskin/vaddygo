@@ -19,6 +19,11 @@ namespace ParentCommitteeAPI.Models
         public int StaffCount { get; set; }
         public string Subgroups { get; set; } = string.Empty;
 
+        // קישורי התשלום של הוועד (ביט + קבוצת פייבוקס) — משותפים לכל חברות הוועד.
+        // נשמרים ברמת הגן כדי שכולן יראו את אותם קישורים; משמשים את "בקשת תשלום".
+        public string? BitLink { get; set; }
+        public string? PayboxLink { get; set; }
+
         // קטגוריות הגבייה של הגן (הזנה, דמי ועד...) — יעד הגבייה נגזר מהן
         public List<CollectionCategory> Categories { get; set; } = new();
     }

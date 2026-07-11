@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import useApi from "../hooks/useApi";
 import {
   getStudentPayments,
@@ -48,8 +48,19 @@ function PaymentRequestContent({ student, fullName }) {
     [student.id]
   );
   const { data: payments, isLoading, error, reload } = useApi(fetcher);
-  const [links, setLinks] = useState(getPaymentLinks());
+  const [links, setLinks] = useState({ bit: "", paybox: "" });
   const [showLinks, setShowLinks] = useState(false);
+
+  // קישורי הוועד נטענים מהשרת (עם נפילה מקומית) בפתיחת החלון
+  useEffect(() => {
+    let alive = true;
+    getPaymentLinks().then((loaded) => {
+      if (alive) setLinks(loaded);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   if (isLoading) {
     return <Spinner text="טוען את מצב התשלומים..." />;
@@ -71,8 +82,9 @@ function PaymentRequestContent({ student, fullName }) {
       buildPaymentRequestMessage(fullName, unpaid, method, links)
     );
 
-  function handleSaveLinks() {
-    setLinks(savePaymentLinks(links));
+  async function handleSaveLinks() {
+    const saved = await savePaymentLinks(links);
+    setLinks(saved);
     setShowLinks(false);
   }
 

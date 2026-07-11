@@ -16,6 +16,27 @@ namespace ParentCommitteeAPI.DTOs
         public List<CollectionCategoryResponseDto> Categories { get; set; } = new();
         public decimal TotalPerChild { get; set; }
         public decimal CollectionGoal { get; set; }
+
+        // קישורי התשלום של הוועד (לבקשת תשלום); ריקים עד שהמשתמשת מגדירה אותם
+        public string? BitLink { get; set; }
+        public string? PayboxLink { get; set; }
+    }
+
+    /*
+      GroupPaymentLinksDto — עדכון קישורי התשלום של הוועד (ביט/פייבוקס) בלבד.
+      URL חייב להתחיל ב-http/https אם הוזן (ולידציה קלה — לא ממציאים פורמט).
+    */
+    public class GroupPaymentLinksDto
+    {
+        [System.ComponentModel.DataAnnotations.RegularExpression(
+            @"^$|^https?://.+",
+            ErrorMessage = "קישור ביט חייב להתחיל ב-http:// או https://")]
+        public string? BitLink { get; set; }
+
+        [System.ComponentModel.DataAnnotations.RegularExpression(
+            @"^$|^https?://.+",
+            ErrorMessage = "קישור פייבוקס חייב להתחיל ב-http:// או https://")]
+        public string? PayboxLink { get; set; }
     }
 
     public class CollectionCategoryResponseDto

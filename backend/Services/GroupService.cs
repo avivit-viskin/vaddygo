@@ -60,6 +60,24 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+
+            // מחרוזת ריקה נשמרת כ-null (== "לא הוגדר")
+            group.BitLink = string.IsNullOrWhiteSpace(dto.BitLink) ? null : dto.BitLink.Trim();
+            group.PayboxLink = string.IsNullOrWhiteSpace(dto.PayboxLink) ? null : dto.PayboxLink.Trim();
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group payment links updated (Id: {GroupId})", id);
+            return ToResponse(group);
+        }
+
         private static GroupResponseDto ToResponse(Group group)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
@@ -83,6 +101,8 @@ namespace ParentCommitteeAPI.Services
                 }).ToList(),
                 TotalPerChild = totalPerChild,
                 CollectionGoal = totalPerChild * group.ChildrenCount,
+                BitLink = group.BitLink,
+                PayboxLink = group.PayboxLink,
             };
         }
     }

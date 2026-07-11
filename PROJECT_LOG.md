@@ -6,6 +6,14 @@
 
 ---
 
+## 10.07.2026 — קישורי התשלום של הוועד עברו לשרת (משותפים לכל החברות) [Claude Code B]
+
+- **מה נעשה:** קישורי הביט/פייבוקס של הוועד (ששימשו את "בקשת תשלום") הועברו מ-localStorage מקומי ל**שרת**, כדי שכל 2-3 חברות הוועד יראו את אותם קישורים. **שרת** (תחת BACKEND_LOCK): נוספו `BitLink`/`PayboxLink` למודל `Group` + Migration‏ `AddGroupPaymentLinks` (עמודות additive), מופו ב-`GroupResponseDto`, ונוסף `PUT /api/groups/{id}/payment-links` (‏`GroupsController` → `IGroupService.UpdatePaymentLinksAsync`) עם ולידציה שהקישור מתחיל ב-http/https. אומת מקצה-לקצה מול שרת רץ (הרשמה→token→יצירת גן→PUT→GET מחזיר את הקישורים→400 על קישור לא תקין). **לקוח:** `paymentSettingsService` הפך לאסינכרוני — קורא/כותב לשרת לפי `groupId` (מ-onboarding) עם **נפילה חיננית ל-localStorage** כשאין גן/שרת; `PaymentRequestButton` טוען את הקישורים ב-`useEffect`. 3 טסטי לקוח עוברים + build ירוק.
+- **למה:** לפי ה-README יש 2-3 חברות ועד לגן — קישור שנשמר רק בדפדפן של אחת לא נראה לאחרות. שמירה ברמת הגן פותרת זאת, ותואמת-קדימה לריבוי-מוסדות (כל מוסד — קישורים משלו).
+- **קבצים:** שרת: `Models/Group.cs`, `DTOs/GroupResponseDto.cs` (+`GroupPaymentLinksDto`), `Services/{IGroupService,GroupService}.cs`, `Controllers/GroupsController.cs`, `Migrations/*AddGroupPaymentLinks*` + snapshot. לקוח: `src/services/paymentSettingsService.js`, `src/components/PaymentRequestButton.js`.
+- **החלטות:** (1) עבודת השרת בוצעה תחת **BACKEND_LOCK** (נתפס ב-ee435c4, ישוחרר אחרי CI ירוק) — אף סוכן אחר לא נגע ב-backend במקביל. (2) endpoint ייעודי `/payment-links` (ולא PUT גורף לגן) — עדכון ממוקד שלא נוגע בקטגוריות/יעד. (3) נפילה מקומית נשמרת כמטמון — התכונה עובדת גם בלי גן מסונכרן. (4) לא נגעתי בעבודת ה-frontend הזרה (תקציבי מתנות לצוות) שהייתה לא-שמורה בעץ.
+- **הצעד המומלץ הבא:** בריבוי-מוסדות — לוודא ש-`groupId` הוא של המוסד הנבחר; אפשר גם לחבר את תקציבי החגים (לוח שנה) לשרת באותה דרך.
+
 ## 09.07.2026 — מסך תשלום (דמו) — placeholder עד לחיבור סליקה [Claude Code]
 
 - **מה נעשה:** נבנה `CheckoutPage` בנתיב `/pay` — מסך תשלום שנראה אמיתי (פס "מסך הדגמה", סיכום סכום+תיאור מפרמטרים בכתובת `?amount=&for=`, טופס כרטיס אשראי עם ולידציה בעברית, כפתור "שלם X ₪") שמדמה תשלום מוצלח ועובר למסך "התשלום התקבל בהצלחה". **פרונט בלבד — לא נגעתי ב-backend.**

@@ -151,7 +151,6 @@ test("טופס ההוספה מציג שגיאות ולידציה בעברית ל
 
   expect(await screen.findByText("שם פרטי הוא שדה חובה")).toBeInTheDocument();
   expect(screen.getByText("שם משפחה הוא שדה חובה")).toBeInTheDocument();
-  expect(screen.getByText("כיתה/קבוצה היא שדה חובה")).toBeInTheDocument();
   expect(screen.getByText("טלפון הורה הוא שדה חובה")).toBeInTheDocument();
 
   await userEvent.type(screen.getByLabelText("טלפון הורה"), "123");
@@ -169,7 +168,6 @@ test("הוספת תלמיד: שולח POST לשרת ומציג את התלמיד
   await userEvent.click(screen.getByRole("button", { name: /הוספת תלמיד/ }));
   await userEvent.type(screen.getByLabelText("שם פרטי"), "הילי");
   await userEvent.type(screen.getByLabelText("שם משפחה"), "לוי");
-  await userEvent.type(screen.getByLabelText("כיתה/קבוצה"), "בוגרים");
   await userEvent.type(screen.getByLabelText("טלפון הורה"), "050-1112223");
   await userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 

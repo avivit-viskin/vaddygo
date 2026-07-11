@@ -29,12 +29,14 @@ namespace ParentCommitteeAPI.Services
         public async Task<List<StudentResponseDto>> GetAllAsync(int? groupId = null)
         {
             var students = await _students.GetAllAsync();
-            // סינון לפי המוסד הפעיל. תלמידים ישנים ללא שיוך (GroupId==null) תמיד
-            // מוצגים, כדי שנתונים קיימים לא ייעלמו בעת המעבר לריבוי מוסדות.
+            // סינון קפדני: כל מוסד רואה אך ורק את התלמידים שלו — אין דליפה בין
+            // מוסדות. תלמידים "יתומים" מהתקופה שלפני ריבוי-המוסדות (GroupId==null)
+            // שויכו למוסד הראשי במיגרציה BackfillStudentGroup, כך שהם עדיין
+            // מופיעים אך ורק תחת המוסד הראשי.
             if (groupId.HasValue)
             {
                 students = students
-                    .Where(s => s.GroupId == null || s.GroupId == groupId.Value)
+                    .Where(s => s.GroupId == groupId.Value)
                     .ToList();
             }
             var paidByStudent = await GetPaidByStudentAsync();

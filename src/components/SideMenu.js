@@ -1,3 +1,4 @@
+import { useNavigate } from "react-router-dom";
 import BrandName from "./BrandName";
 import InstitutionSwitcher from "./InstitutionSwitcher";
 import { logout } from "../services/authService";
@@ -15,8 +16,15 @@ const SUPPORT_URL = `${whatsappUrl(SUPPORT_PHONE)}?text=${encodeURIComponent(
 )}`;
 
 function SideMenu({ isOpen, onClose }) {
+  const navigate = useNavigate();
+
   if (!isOpen) {
     return null;
+  }
+
+  function go(path) {
+    onClose();
+    navigate(path);
   }
 
   function handleLogout() {
@@ -45,6 +53,15 @@ function SideMenu({ isOpen, onClose }) {
 
         <h3 className="sidemenu__title">המוסדות שלי</h3>
         <InstitutionSwitcher onClose={onClose} />
+
+        <h3 className="sidemenu__title">הגדרות</h3>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/collection-settings")}
+        >
+          💰 עריכת גבייה
+        </button>
 
         <div className="sidemenu__footer">
           <a

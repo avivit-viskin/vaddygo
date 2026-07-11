@@ -53,6 +53,13 @@ export async function login({ usernameOrEmail, password }) {
   return auth;
 }
 
+/* כניסה/הרשמה עם Google — שולח לשרת את ה-credential שהתקבל מכפתור גוגל */
+export async function loginWithGoogle(credential) {
+  const auth = await api.post("/api/auth/google", { credential });
+  store(auth);
+  return auth;
+}
+
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);

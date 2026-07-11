@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
-import { login } from "../services/authService";
+import GoogleSignInButton from "../components/GoogleSignInButton";
+import { login, loginWithGoogle } from "../services/authService";
 import "../styles/onboarding.css";
 
 /*
@@ -21,6 +22,28 @@ function LoginPage() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // כניסה עם Google — יציב (useCallback) כדי לא לאתחל את כפתור גוגל שוב ושוב
+  const handleGoogle = useCallback(
+    async (credential) => {
+      setSubmitError("");
+      try {
+        await loginWithGoogle(credential);
+        navigate("/");
+      } catch (err) {
+        if (err.message && err.message.includes("המנוי פג")) {
+          navigate("/subscription-expired");
+        } else {
+          setSubmitError(err.message);
+        }
+      }
+    },
+    [navigate]
+  );
+
+  const handleGoogleError = useCallback(() => {
+    setSubmitError("לא הצלחנו לטעון את כניסת Google. נסי שוב או השתמשי בשם משתמש וסיסמה.");
+  }, []);
 
   async function handleSubmit(e) {
     e.preventDefault();
@@ -86,13 +109,14 @@ function LoginPage() {
             <Button type="submit" isLoading={isSubmitting}>
               כניסה
             </Button>
-            <Button variant="secondary" disabled>
-              כניסה עם Google
-            </Button>
           </div>
-          <p className="auth-page__hint">
-            שכחתי סיסמה · כניסה עם Google — יופעלו בהמשך
-          </p>
+          <div className="auth-divider">או</div>
+          <div className="google-signin-wrap">
+            <GoogleSignInButton
+              onCredential={handleGoogle}
+              onError={handleGoogleError}
+            />
+          </div>
           <p className="auth-page__hint">
             עדיין אין לך חשבון? <Link to="/register">להרשמה מהירה</Link>
           </p>

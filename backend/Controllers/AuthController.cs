@@ -40,5 +40,15 @@ namespace ParentCommitteeAPI.Controllers
                 return Unauthorized(new { message = result.Error });
             return Ok(result.Response);
         }
+
+        // POST: api/auth/google — כניסה/הרשמה עם Google (מאמת את ה-credential מול גוגל)
+        [HttpPost("google")]
+        public async Task<ActionResult<AuthResponseDto>> Google([FromBody] GoogleLoginDto dto)
+        {
+            var result = await _authService.LoginWithGoogleAsync(dto);
+            if (result.Error != null)
+                return Unauthorized(new { message = result.Error });
+            return Ok(result.Response);
+        }
     }
 }

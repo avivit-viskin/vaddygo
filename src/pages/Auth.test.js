@@ -4,6 +4,7 @@ import { MemoryRouter, Routes, Route } from "react-router-dom";
 import LoginPage from "./LoginPage";
 import RegisterPage from "./RegisterPage";
 import SubscriptionExpiredPage from "./SubscriptionExpiredPage";
+import { loginWithGoogle } from "../services/authService";
 
 /*
   טסטים לזרם ההזדהות (UI_SPEC ס' 2): כניסה והרשמה שומרות את ה-token
@@ -73,6 +74,16 @@ test("הרשמה מוצלחת שומרת את ה-token וממשיכה לאשף",
   });
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining("/api/auth/register"),
+    expect.objectContaining({ method: "POST" })
+  );
+});
+
+test("כניסה עם Google שולחת את ה-credential ושומרת את ה-token", async () => {
+  mockAuthResponse();
+  await loginWithGoogle("google-id-token-xyz");
+  expect(localStorage.getItem("vaadygo.token")).toBe("jwt-123");
+  expect(global.fetch).toHaveBeenCalledWith(
+    expect.stringContaining("/api/auth/google"),
     expect.objectContaining({ method: "POST" })
   );
 });

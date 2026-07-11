@@ -9,5 +9,6 @@ namespace ParentCommitteeAPI.Services
     {
         Task<AuthResult> RegisterAsync(RegisterDto dto);
         Task<AuthResult> LoginAsync(LoginDto dto);
+        Task<AuthResult> LoginWithGoogleAsync(GoogleLoginDto dto);
     }
 }

@@ -1,3 +1,4 @@
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
@@ -5,8 +6,9 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import PasswordField from "../components/PasswordField";
 import ErrorMessage from "../components/ErrorMessage";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import useForm from "../hooks/useForm";
-import { register } from "../services/authService";
+import { register, loginWithGoogle } from "../services/authService";
 import "../styles/onboarding.css";
 
 /*
@@ -35,6 +37,8 @@ function RegisterPage() {
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm({ username: "", email: "", password: "" }, validate);
 
+  const [googleError, setGoogleError] = useState("");
+
   const onSubmit = handleSubmit(async (formValues) => {
     await register({
       username: formValues.username.trim(),
@@ -43,6 +47,20 @@ function RegisterPage() {
     });
     navigate("/onboarding");
   });
+
+  // הרשמה/כניסה עם Google — יוצר חשבון אם אין, וממשיך לאשף
+  const handleGoogle = useCallback(
+    async (credential) => {
+      setGoogleError("");
+      try {
+        await loginWithGoogle(credential);
+        navigate("/");
+      } catch (err) {
+        setGoogleError(err.message);
+      }
+    },
+    [navigate]
+  );
 
   return (
     <div className="auth-page">
@@ -82,6 +100,14 @@ function RegisterPage() {
               יצירת חשבון
             </Button>
           </div>
+          <div className="auth-divider">או</div>
+          <div className="google-signin-wrap">
+            <GoogleSignInButton
+              onCredential={handleGoogle}
+              onError={() => setGoogleError("לא הצלחנו לטעון את כניסת Google.")}
+            />
+          </div>
+          {googleError && <ErrorMessage message={googleError} />}
           <p className="auth-page__hint">
             כבר יש לך חשבון? <Link to="/login">לכניסה</Link>
           </p>

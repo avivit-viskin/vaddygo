@@ -24,7 +24,10 @@ namespace ParentCommitteeAPI.Services
         /*
           מחזיר את מזהה הגן שאליו יש לסנן רשימה:
           - אם הלקוח ביקש מוסד (X-Institution) והוא בבעלות המשתמש → אותו מזהה.
-          - אם ביקש מוסד שאינו שלו (זיוף) → null (הקורא יחזיר ריק, לעולם לא נתוני אחר).
+          - אם ביקש מוסד שאינו שלו (זיוף/מזהה ישן בדפדפן) → הגן הראשון *שלו*.
+            X-Institution הוא "העדפת תצוגה" בלבד; כשהיא שגויה נופלים חזרה לגן
+            של המשתמש עצמו — לעולם לא של אחר, ולכן בטוח. כך רשומה חדשה לא
+            נשמרת "יתומה" (GroupId=null) ונעלמת כשה-X-Institution לא תואם.
           - אם לא ביקש כלום → הגן הראשון של המשתמש (הנתונים שלו בלבד).
           - אם למשתמש אין גנים כלל → null (אין גישה).
           חשוב: null אף פעם לא אומר "בלי סינון = הכל".
@@ -84,9 +87,12 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            if (requestedGroupId.HasValue)
+            // מוסד שהתבקש ובבעלות המשתמש → אותו מוסד. אחרת (לא התבקש, או
+            // X-Institution ישן/שגוי שאינו שלו) → הגן הראשון *שלו*, לא null —
+            // כדי שרשומות חדשות לא ייווצרו יתומות ויעלמו. תמיד נתוני המשתמש עצמו.
+            if (requestedGroupId.HasValue && owned.Contains(requestedGroupId.Value))
             {
-                return owned.Contains(requestedGroupId.Value) ? requestedGroupId : (int?)null;
+                return requestedGroupId;
             }
             return owned[0];
         }

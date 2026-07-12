@@ -11,21 +11,27 @@ namespace ParentCommitteeAPI.Services
     public class EventService : IEventService
     {
         private readonly IRepository<Event> _events;
+        private readonly IAccessScope _access;
         private readonly ILogger<EventService> _logger;
 
-        public EventService(IRepository<Event> events, ILogger<EventService> logger)
+        public EventService(IRepository<Event> events, IAccessScope access, ILogger<EventService> logger)
         {
             _events = events;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<EventResponseDto>> GetAllAsync(int? groupId = null)
         {
-            var events = await _events.GetAllAsync();
-            if (groupId.HasValue)
+            // בעלות: מסננים לגן שבבעלות המשתמש בלבד; מזהה מוסד זר/חסר → ריק, לא "הכל".
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
             {
-                events = events.Where(e => e.GroupId == groupId.Value).ToList();
+                return new List<EventResponseDto>();
             }
+            var events = (await _events.GetAllAsync())
+                .Where(e => e.GroupId == scoped.Value)
+                .ToList();
             return events
                 .OrderBy(e => e.EventDate)
                 .Select(ToResponse)
@@ -35,14 +41,20 @@ namespace ParentCommitteeAPI.Services
         public async Task<EventResponseDto?> GetByIdAsync(int id)
         {
             var item = await _events.GetByIdAsync(id);
-            return item == null ? null : ToResponse(item);
+            // בעלות: אין גישה לאירוע שאינו בגן של המשתמש המחובר (IDOR)
+            if (item == null || !await _access.CanAccessGroupAsync(item.GroupId))
+            {
+                return null;
+            }
+            return ToResponse(item);
         }
 
         public async Task<EventResponseDto> CreateAsync(EventCreateDto dto, int? groupId = null)
         {
             var item = new Event();
             ApplyWrite(item, dto);
-            item.GroupId = groupId;
+            // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
+            item.GroupId = await _access.ScopeGroupIdAsync(groupId);
             await _events.AddAsync(item);
             _logger.LogInformation("Event created (Id: {EventId})", item.Id);
             return ToResponse(item);
@@ -51,7 +63,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<EventResponseDto?> UpdateAsync(int id, EventUpdateDto dto)
         {
             var item = await _events.GetByIdAsync(id);
-            if (item == null)
+            // בעלות: אין לערוך אירוע שאינו בגן של המשתמש המחובר (IDOR)
+            if (item == null || !await _access.CanAccessGroupAsync(item.GroupId))
             {
                 return null;
             }
@@ -65,7 +78,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var item = await _events.GetByIdAsync(id);
-            if (item == null)
+            // בעלות: אין למחוק אירוע שאינו בגן של המשתמש המחובר (IDOR)
+            if (item == null || !await _access.CanAccessGroupAsync(item.GroupId))
             {
                 return false;
             }

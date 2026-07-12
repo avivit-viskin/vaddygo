@@ -11,35 +11,47 @@ namespace ParentCommitteeAPI.Services
     public class GiftService : IGiftService
     {
         private readonly IRepository<Gift> _gifts;
+        private readonly IAccessScope _access;
         private readonly ILogger<GiftService> _logger;
 
-        public GiftService(IRepository<Gift> gifts, ILogger<GiftService> logger)
+        public GiftService(IRepository<Gift> gifts, IAccessScope access, ILogger<GiftService> logger)
         {
             _gifts = gifts;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<GiftResponseDto>> GetAllAsync(int? groupId = null)
         {
-            var gifts = await _gifts.GetAllAsync();
-            if (groupId.HasValue)
+            // בעלות: מסננים לגן שבבעלות המשתמש בלבד; מזהה מוסד זר/חסר → ריק, לא "הכל".
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
             {
-                gifts = gifts.Where(g => g.GroupId == groupId.Value).ToList();
+                return new List<GiftResponseDto>();
             }
+            var gifts = (await _gifts.GetAllAsync())
+                .Where(g => g.GroupId == scoped.Value)
+                .ToList();
             return gifts.Select(ToResponse).ToList();
         }
 
         public async Task<GiftResponseDto?> GetByIdAsync(int id)
         {
             var gift = await _gifts.GetByIdAsync(id);
-            return gift == null ? null : ToResponse(gift);
+            // בעלות: אין גישה למתנה שאינה בגן של המשתמש המחובר (IDOR)
+            if (gift == null || !await _access.CanAccessGroupAsync(gift.GroupId))
+            {
+                return null;
+            }
+            return ToResponse(gift);
         }
 
         public async Task<GiftResponseDto> CreateAsync(GiftCreateDto dto, int? groupId = null)
         {
             var gift = new Gift();
             ApplyWrite(gift, dto);
-            gift.GroupId = groupId;
+            // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
+            gift.GroupId = await _access.ScopeGroupIdAsync(groupId);
             await _gifts.AddAsync(gift);
             _logger.LogInformation("Gift created (Id: {GiftId})", gift.Id);
             return ToResponse(gift);
@@ -48,7 +60,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<GiftResponseDto?> UpdateAsync(int id, GiftUpdateDto dto)
         {
             var gift = await _gifts.GetByIdAsync(id);
-            if (gift == null)
+            // בעלות: אין לערוך מתנה שאינה בגן של המשתמש המחובר (IDOR)
+            if (gift == null || !await _access.CanAccessGroupAsync(gift.GroupId))
             {
                 return null;
             }
@@ -62,7 +75,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var gift = await _gifts.GetByIdAsync(id);
-            if (gift == null)
+            // בעלות: אין למחוק מתנה שאינה בגן של המשתמש המחובר (IDOR)
+            if (gift == null || !await _access.CanAccessGroupAsync(gift.GroupId))
             {
                 return false;
             }

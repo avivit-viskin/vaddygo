@@ -14,17 +14,28 @@ namespace ParentCommitteeAPI.Services
     public class GroupService : IGroupService
     {
         private readonly AppDbContext _db;
+        private readonly IAccessScope _access;
         private readonly ILogger<GroupService> _logger;
 
-        public GroupService(AppDbContext db, ILogger<GroupService> logger)
+        public GroupService(AppDbContext db, IAccessScope access, ILogger<GroupService> logger)
         {
             _db = db;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<GroupResponseDto>> GetAllAsync()
         {
-            var groups = await _db.Groups.Include(g => g.Categories).ToListAsync();
+            // בעלות: מחזירים אך ורק את הגנים של המשתמש המחובר — לעולם לא של אחרים.
+            var uid = _access.UserId;
+            if (uid == null)
+            {
+                return new List<GroupResponseDto>();
+            }
+            var groups = await _db.Groups
+                .Where(g => g.UserId == uid.Value)
+                .Include(g => g.Categories)
+                .ToListAsync();
             return groups.Select(ToResponse).ToList();
         }
 
@@ -33,13 +44,20 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            return group == null ? null : ToResponse(group);
+            // אם הגן לא קיים או אינו בבעלות המשתמש → מתייחסים כלא-נמצא (לא חושפים קיום)
+            if (group == null || group.UserId != _access.UserId)
+            {
+                return null;
+            }
+            return ToResponse(group);
         }
 
         public async Task<GroupResponseDto> CreateAsync(GroupCreateDto dto)
         {
             var group = new Group
             {
+                // בעלות: הגן החדש שייך למשתמש שיצר אותו (מה-JWT), לא לערך מהלקוח
+                UserId = _access.UserId ?? 0,
                 Name = dto.Name.Trim(),
                 City = dto.City.Trim(),
                 Year = dto.Year ?? SchoolYear.Current(),
@@ -66,7 +84,8 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            if (group == null)
+            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
+            if (group == null || group.UserId != _access.UserId)
             {
                 return null;
             }
@@ -95,7 +114,8 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            if (group == null)
+            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
+            if (group == null || group.UserId != _access.UserId)
             {
                 return null;
             }
@@ -148,7 +168,8 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            if (group == null)
+            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
+            if (group == null || group.UserId != _access.UserId)
             {
                 return null;
             }

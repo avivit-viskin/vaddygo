@@ -11,35 +11,47 @@ namespace ParentCommitteeAPI.Services
     public class DriveFolderService : IDriveFolderService
     {
         private readonly IRepository<DriveFolder> _folders;
+        private readonly IAccessScope _access;
         private readonly ILogger<DriveFolderService> _logger;
 
-        public DriveFolderService(IRepository<DriveFolder> folders, ILogger<DriveFolderService> logger)
+        public DriveFolderService(IRepository<DriveFolder> folders, IAccessScope access, ILogger<DriveFolderService> logger)
         {
             _folders = folders;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<DriveFolderResponseDto>> GetAllAsync(int? groupId = null)
         {
-            var folders = await _folders.GetAllAsync();
-            if (groupId.HasValue)
+            // בעלות: מסננים לגן שבבעלות המשתמש בלבד; מזהה מוסד זר/חסר → ריק, לא "הכל".
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
             {
-                folders = folders.Where(f => f.GroupId == groupId.Value).ToList();
+                return new List<DriveFolderResponseDto>();
             }
+            var folders = (await _folders.GetAllAsync())
+                .Where(f => f.GroupId == scoped.Value)
+                .ToList();
             return folders.Select(ToResponse).ToList();
         }
 
         public async Task<DriveFolderResponseDto?> GetByIdAsync(int id)
         {
             var folder = await _folders.GetByIdAsync(id);
-            return folder == null ? null : ToResponse(folder);
+            // בעלות: אין גישה לתיקייה שאינה בגן של המשתמש המחובר (IDOR)
+            if (folder == null || !await _access.CanAccessGroupAsync(folder.GroupId))
+            {
+                return null;
+            }
+            return ToResponse(folder);
         }
 
         public async Task<DriveFolderResponseDto> CreateAsync(DriveFolderCreateDto dto, int? groupId = null)
         {
             var folder = new DriveFolder();
             ApplyWrite(folder, dto);
-            folder.GroupId = groupId;
+            // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
+            folder.GroupId = await _access.ScopeGroupIdAsync(groupId);
             await _folders.AddAsync(folder);
             _logger.LogInformation("Drive folder created (Id: {FolderId})", folder.Id);
             return ToResponse(folder);
@@ -48,7 +60,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<DriveFolderResponseDto?> UpdateAsync(int id, DriveFolderUpdateDto dto)
         {
             var folder = await _folders.GetByIdAsync(id);
-            if (folder == null)
+            // בעלות: אין לערוך תיקייה שאינה בגן של המשתמש המחובר (IDOR)
+            if (folder == null || !await _access.CanAccessGroupAsync(folder.GroupId))
             {
                 return null;
             }
@@ -62,7 +75,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var folder = await _folders.GetByIdAsync(id);
-            if (folder == null)
+            // בעלות: אין למחוק תיקייה שאינה בגן של המשתמש המחובר (IDOR)
+            if (folder == null || !await _access.CanAccessGroupAsync(folder.GroupId))
             {
                 return false;
             }

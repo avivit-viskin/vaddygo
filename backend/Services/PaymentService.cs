@@ -13,23 +13,26 @@ namespace ParentCommitteeAPI.Services
     public class PaymentService : IPaymentService
     {
         private readonly AppDbContext _db;
+        private readonly IAccessScope _access;
         private readonly ILogger<PaymentService> _logger;
 
-        public PaymentService(AppDbContext db, ILogger<PaymentService> logger)
+        public PaymentService(AppDbContext db, IAccessScope access, ILogger<PaymentService> logger)
         {
             _db = db;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<PaymentResponseDto>?> GetForStudentAsync(int studentId)
         {
-            var studentExists = await _db.Students.AnyAsync(s => s.Id == studentId);
-            if (!studentExists)
+            // בעלות: התלמיד חייב להיות בגן של המשתמש המחובר (IDOR)
+            var student = await _db.Students.AsNoTracking().FirstOrDefaultAsync(s => s.Id == studentId);
+            if (student == null || !await _access.CanAccessGroupAsync(student.GroupId))
             {
                 return null;
             }
 
-            var categories = await GetGroupCategoriesAsync();
+            var categories = await GetGroupCategoriesAsync(student.GroupId);
             var existing = await _db.Payments
                 .AsNoTracking()
                 .Where(p => p.StudentId == studentId)
@@ -45,9 +48,16 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<PaymentResponseDto?> UpsertAsync(int studentId, int categoryId, PaymentUpsertDto dto)
         {
-            var studentExists = await _db.Students.AnyAsync(s => s.Id == studentId);
-            var category = await _db.CollectionCategories.FirstOrDefaultAsync(c => c.Id == categoryId);
-            if (!studentExists || category == null)
+            // בעלות: התלמיד חייב להיות בגן של המשתמש המחובר (IDOR)
+            var student = await _db.Students.FirstOrDefaultAsync(s => s.Id == studentId);
+            if (student == null || !await _access.CanAccessGroupAsync(student.GroupId))
+            {
+                return null;
+            }
+            // הקטגוריה חייבת להיות של הגן של התלמיד — לא של גן אחר
+            var category = await _db.CollectionCategories
+                .FirstOrDefaultAsync(c => c.Id == categoryId && c.GroupId == student.GroupId);
+            if (category == null)
             {
                 return null;
             }
@@ -76,13 +86,16 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(payment, category);
         }
 
-        /* קטגוריות הגבייה של הגן שהוגדר באשף (הגן הראשון — גן יחיד) */
-        private async Task<List<CollectionCategory>> GetGroupCategoriesAsync()
+        /* קטגוריות הגבייה של הגן של התלמיד (לא של גן אחר) */
+        private async Task<List<CollectionCategory>> GetGroupCategoriesAsync(int? groupId)
         {
+            if (groupId == null)
+            {
+                return new List<CollectionCategory>();
+            }
             var group = await _db.Groups
                 .Include(g => g.Categories)
-                .OrderBy(g => g.Id)
-                .FirstOrDefaultAsync();
+                .FirstOrDefaultAsync(g => g.Id == groupId.Value);
 
             return group?.Categories.OrderBy(c => c.Id).ToList() ?? new List<CollectionCategory>();
         }

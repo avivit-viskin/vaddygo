@@ -19,23 +19,26 @@ namespace ParentCommitteeAPI.Services
         private const int BirthdayAlertDays = 7;
 
         private readonly AppDbContext _db;
+        private readonly IAccessScope _access;
 
-        public DashboardService(AppDbContext db)
+        public DashboardService(AppDbContext db, IAccessScope access)
         {
             _db = db;
+            _access = access;
         }
 
         public async Task<DashboardResponseDto?> GetSummaryAsync(int? groupId = null)
         {
-            /* המוסד הפעיל (לפי X-Institution). בלי כותרת — המוסד הראשון (התאמה לאחור). */
-            var group = groupId.HasValue
-                ? await _db.Groups
-                    .Include(g => g.Categories)
-                    .FirstOrDefaultAsync(g => g.Id == groupId.Value)
-                : await _db.Groups
-                    .Include(g => g.Categories)
-                    .OrderBy(g => g.Id)
-                    .FirstOrDefaultAsync();
+            /* בעלות: הגן חייב להיות בבעלות המשתמש המחובר (מאומת מול ה-JWT). מזהה
+               מוסד זר או חסר → הגן של המשתמש בלבד, לעולם לא של חשבון אחר. */
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
+            {
+                return null;
+            }
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == scoped.Value);
 
             if (group == null)
             {

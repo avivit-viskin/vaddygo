@@ -14,31 +14,33 @@ namespace ParentCommitteeAPI.Services
     {
         private readonly IRepository<Student> _students;
         private readonly IRepository<Payment> _payments;
+        private readonly IAccessScope _access;
         private readonly ILogger<StudentService> _logger;
 
         public StudentService(
             IRepository<Student> students,
             IRepository<Payment> payments,
+            IAccessScope access,
             ILogger<StudentService> logger)
         {
             _students = students;
             _payments = payments;
+            _access = access;
             _logger = logger;
         }
 
         public async Task<List<StudentResponseDto>> GetAllAsync(int? groupId = null)
         {
-            var students = await _students.GetAllAsync();
-            // סינון קפדני: כל מוסד רואה אך ורק את התלמידים שלו — אין דליפה בין
-            // מוסדות. תלמידים "יתומים" מהתקופה שלפני ריבוי-המוסדות (GroupId==null)
-            // שויכו למוסד הראשי במיגרציה BackfillStudentGroup, כך שהם עדיין
-            // מופיעים אך ורק תחת המוסד הראשי.
-            if (groupId.HasValue)
+            // בעלות + הפרדת מוסדות: מסננים לגן שבבעלות המשתמש המחובר בלבד. מזהה
+            // מוסד זר (זיוף) או חוסר-בעלות → רשימה ריקה, לעולם לא "כל התלמידים".
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
             {
-                students = students
-                    .Where(s => s.GroupId == groupId.Value)
-                    .ToList();
+                return new List<StudentResponseDto>();
             }
+            var students = (await _students.GetAllAsync())
+                .Where(s => s.GroupId == scoped.Value)
+                .ToList();
             var paidByStudent = await GetPaidByStudentAsync();
             return students
                 .Select(s => ToResponse(s, paidByStudent.GetValueOrDefault(s.Id)))
@@ -48,7 +50,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<StudentResponseDto?> GetByIdAsync(int id)
         {
             var student = await _students.GetByIdAsync(id);
-            if (student == null)
+            // בעלות: אין גישה/עריכה לתלמיד שאינו בגן של המשתמש המחובר (IDOR)
+            if (student == null || !await _access.CanAccessGroupAsync(student.GroupId))
             {
                 return null;
             }
@@ -61,17 +64,19 @@ namespace ParentCommitteeAPI.Services
         {
             var student = new Student();
             ApplyWrite(student, dto);
-            student.GroupId = groupId; // שיוך למוסד הפעיל (אם נשלח)
+            // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
+            student.GroupId = await _access.ScopeGroupIdAsync(groupId);
             await _students.AddAsync(student);
             _logger.LogInformation("Student created (Id: {StudentId}, Group: {GroupId})",
-                student.Id, groupId);
+                student.Id, student.GroupId);
             return ToResponse(student, 0m);
         }
 
         public async Task<StudentResponseDto?> UpdateAsync(int id, StudentUpdateDto dto)
         {
             var student = await _students.GetByIdAsync(id);
-            if (student == null)
+            // בעלות: אין גישה/עריכה לתלמיד שאינו בגן של המשתמש המחובר (IDOR)
+            if (student == null || !await _access.CanAccessGroupAsync(student.GroupId))
             {
                 return null;
             }
@@ -87,7 +92,8 @@ namespace ParentCommitteeAPI.Services
         public async Task<bool> DeleteAsync(int id)
         {
             var student = await _students.GetByIdAsync(id);
-            if (student == null)
+            // בעלות: אין למחוק תלמיד שאינו בגן של המשתמש המחובר (IDOR)
+            if (student == null || !await _access.CanAccessGroupAsync(student.GroupId))
             {
                 return false;
             }

@@ -8,6 +8,11 @@ namespace ParentCommitteeAPI.Models
     public class Group
     {
         public int Id { get; set; }
+
+        // בעלות: המשתמש שרשם/מנהל את הגן. מקור האמת לבקרת גישה — כל חשבון רואה
+        // אך ורק את הגנים שבבעלותו (ואת הנתונים התלויים בהם). לעולם לא ערך מהלקוח.
+        public int UserId { get; set; }
+
         public string Name { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
 

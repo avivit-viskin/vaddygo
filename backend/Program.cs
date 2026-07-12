@@ -39,6 +39,9 @@ builder.Services.AddControllers();
 
 // רישום השכבות ב-DI: ‏Repository גנרי (DAL) ו-Services (BL)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
+// בקרת גישה לפי המשתמש המחובר (בעלות) — נדרש גישה ל-HttpContext כדי לקרוא את ה-JWT
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<IAccessScope, AccessScope>();
 builder.Services.AddScoped<IStudentService, StudentService>();
 builder.Services.AddScoped<IGroupService, GroupService>();
 builder.Services.AddScoped<IStaffService, StaffService>();

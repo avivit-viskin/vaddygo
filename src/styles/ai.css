@@ -85,6 +85,14 @@
   width: 100%;
 }
 
+/* הבהרה קטנה שהשיתוף לוקח רק את ההודעה עצמה */
+.ai-share-note {
+  margin-top: 6px;
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 /* כפתור AI צף מעל הניווט התחתון */
 .ai-fab {
   position: fixed;

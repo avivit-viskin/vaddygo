@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { askAssistant } from "../services/aiService";
-import { whatsappShareUrl } from "../services/whatsapp";
+import { whatsappShareUrl, extractShareMessage } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
@@ -103,12 +103,13 @@ function AiAssistantPage() {
           <p className="ai-answer">{answer}</p>
           <a
             className="ai-share"
-            href={whatsappShareUrl(answer)}
+            href={whatsappShareUrl(extractShareMessage(answer))}
             target="_blank"
             rel="noreferrer"
           >
             <Button>שתפי בוואטסאפ 💬</Button>
           </a>
+          <p className="ai-share-note">משתף רק את ההודעה עצמה — בלי הפתיח והסיום של העוזרת</p>
         </Card>
       )}
     </div>

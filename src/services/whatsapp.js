@@ -27,3 +27,44 @@ export function whatsappUrl(value) {
 export function whatsappShareUrl(text) {
   return `https://wa.me/?text=${encodeURIComponent(text || "")}`;
 }
+
+// ביטויים ש"מסגירים" פסקה פותחת/מסיימת של שיחה עם המשתמשת (לא חלק מההודעה עצמה)
+const CHATTY_MARKERS =
+  /(איך זה נשמע|רוצה ש|אם תרצי|אם רוצה|אם את רוצה|ספרי לי|תגידי לי|כתבי לי|מקווה שעזר|שאדייק|שאתאים|אשמח לעזור|אשמח לדייק|הנה הצעה|הנה נוסח|הנה טיוטה|בואי ננסח|אפשר גם|רוצה שאני)/;
+
+/*
+  extractShareMessage — מתוך תשובת העוזרת מחזיר רק את ההודעה המוכנה לשליחה
+  (ההזמנה/התזכורת עצמה), בלי הפתיח והסיום ה"משוחחים" של העוזרת. תשובה קצרה
+  של פסקה אחת מוחזרת כמו שהיא. תמיד נשארת נפילה בטוחה לטקסט המלא.
+*/
+export function extractShareMessage(answer) {
+  const text = (answer || "").trim();
+  if (!text) {
+    return "";
+  }
+  const paras = text
+    .split(/\n\s*\n+/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  if (paras.length <= 1) {
+    return text;
+  }
+
+  const isChatty = (p) =>
+    /[?？]$/.test(p) ||
+    CHATTY_MARKERS.test(p) ||
+    /^(היי+|בשמחה|כמובן|בטח+)\b/.test(p);
+
+  let start = 0;
+  let end = paras.length - 1;
+  // מסירים פסקה פותחת "משוחחת" (הצעה/שאלה למשתמשת) ופסקה מסיימת כזו
+  if (isChatty(paras[start]) && end > start) {
+    start += 1;
+  }
+  if (isChatty(paras[end]) && end > start) {
+    end -= 1;
+  }
+
+  const core = paras.slice(start, end + 1).join("\n\n").trim();
+  return core || text;
+}

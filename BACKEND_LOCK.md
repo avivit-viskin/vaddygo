@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: FREE
+STATUS: LOCKED by [Claude Fable 5, 2026-07-12 22:20 - restore Avivit's data ownership (temp admin diag/fix)]
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

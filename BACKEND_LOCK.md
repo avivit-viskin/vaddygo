@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: LOCKED by [Claude Opus 4.8, 2026-07-12 - fix null-student leak across institutions]
+STATUS: LOCKED by [Claude Fable 5, 2026-07-12 14:11 - taking stale lock (6h old); fix category-edit deleting payments]
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

@@ -186,6 +186,13 @@
   margin-bottom: 12px;
 }
 
+/* משפט פתיחה חם בצעד הראשון של האשף */
+.wizard__intro {
+  text-align: center;
+  font-size: var(--font-size-base);
+  margin: 4px 0 8px;
+}
+
 .wizard__question {
   font-size: var(--font-size-lg);
   font-weight: 500;

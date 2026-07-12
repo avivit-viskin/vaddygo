@@ -110,6 +110,9 @@ function OnboardingWizard() {
       <h1 className="wizard__logo">
         <BrandName withHeart />
       </h1>
+      {step === 1 && (
+        <p className="wizard__intro">מתחילים 🙂 כמה שאלות קצרות שנוכל להכיר</p>
+      )}
       <p className="wizard__progress">
         שלב {step} מתוך {totalSteps}
       </p>

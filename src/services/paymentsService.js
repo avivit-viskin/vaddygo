@@ -24,9 +24,12 @@ export async function getPaymentSummary(studentId) {
   const totalCount = payments.length;
   // קטגוריה נחשבת "שולמה" רק כששולם *כל* היעד (כל התשלומים) — תשלום חלקי
   // (למשל תשלום 1 מתוך 2) עדיין נחשב "טרם שולם", כי נותר לגבות.
-  const isFullyPaid = (p) =>
-    Number(p.bitAmount) + Number(p.payBoxAmount) + Number(p.cashAmount) >=
-    Number(p.amount);
+  // סכום חסר/לא-מספרי נספר כ-0 (עמידות מפני שדה שלא הוחזר).
+  const paidSoFar = (p) =>
+    (Number(p.bitAmount) || 0) +
+    (Number(p.payBoxAmount) || 0) +
+    (Number(p.cashAmount) || 0);
+  const isFullyPaid = (p) => paidSoFar(p) >= Number(p.amount);
   const paidCount = payments.filter(isFullyPaid).length;
   // התאריך האחרון שבו נרשם תשלום — כדי לדעת מתי לדרוש שוב (מיון ISO = כרונולוגי)
   const paidDates = payments.map((p) => p.paidDate).filter(Boolean).sort();

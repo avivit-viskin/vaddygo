@@ -110,21 +110,22 @@ test("חיפוש חופשי מסנן את הכרטיסים ומציג הודעה
 });
 
 test("מציג תג סטטוס תשלום ומסנן למי שטרם שילם", async () => {
+  // קטגוריה נספרת כ"שולמה" רק כשסכום האמצעים מגיע ליעד — לא רק דגל isPaid.
   mockServer([dana, noam], {
     1: [
-      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, isPaid: true },
-      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, isPaid: true },
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 1200, isPaid: true },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
     ],
     2: [
-      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, isPaid: false },
-      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, isPaid: true },
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 0, isPaid: false },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
     ],
   });
   renderPage();
 
   // התגים נטענים ברקע אחרי הכרטיסים
   expect(await screen.findByText("שולם 2/2")).toBeInTheDocument(); // דנה שילמה הכל
-  expect(screen.getByText("שולם 1/2")).toBeInTheDocument(); // נועם חלקי
+  expect(screen.getByText("שולם 1/2")).toBeInTheDocument(); // נועם חלקי (שילם ועד, לא הזנה)
 
   // סינון "רק מי שטרם שילם" מסתיר את מי ששילמה הכל
   await userEvent.click(screen.getByLabelText("הצג רק מי שטרם שילם"));

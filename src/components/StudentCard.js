@@ -29,8 +29,13 @@ function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
               🎂 יום הולדת: {formatBirthday(student.birthDate)}
             </small>
           )}
-          <span>כיתה/קבוצה: {student.className}</span>
+          {student.className && <span>קבוצה: {student.className}</span>}
           <span>שולם עד כה: <strong>{formatShekels(student.totalPaid)}</strong></span>
+          {summary?.lastPaymentDate && (
+            <small className="student-card__updated">
+              🕒 תשלום אחרון: {formatBirthday(summary.lastPaymentDate)}
+            </small>
+          )}
           <span>
             טלפון הורה:{" "}
             <a href={`tel:${student.parentPhoneNumber}`} dir="ltr">

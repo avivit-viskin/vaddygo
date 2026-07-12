@@ -23,12 +23,15 @@ export async function getPaymentSummary(studentId) {
   const payments = await getStudentPayments(studentId);
   const totalCount = payments.length;
   const paidCount = payments.filter((p) => p.isPaid).length;
+  // התאריך האחרון שבו נרשם תשלום — כדי לדעת מתי לדרוש שוב (מיון ISO = כרונולוגי)
+  const paidDates = payments.map((p) => p.paidDate).filter(Boolean).sort();
   return {
     studentId: Number(studentId),
     paidCount,
     totalCount,
     allPaid: totalCount > 0 && paidCount === totalCount,
     hasUnpaid: payments.some((p) => !p.isPaid),
+    lastPaymentDate: paidDates.length ? paidDates[paidDates.length - 1] : null,
   };
 }
 

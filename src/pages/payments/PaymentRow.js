@@ -19,6 +19,12 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
     0
   );
 
+  // כמה תשלומים "נסגרו" — נגזר מהסכום ששולם מול גובה תשלום בודד (יעד/מס' תשלומים).
+  // כך רואים אם התלמיד באמצע תוכנית תשלומים (למשל 1 מתוך 2) ואין מה לדרוש עדיין.
+  const installmentSize = installments > 0 ? payment.amount / installments : payment.amount;
+  const installmentsPaid =
+    installmentSize > 0 ? Math.min(installments, Math.floor(total / installmentSize)) : 0;
+
   return (
     <div className={`payment-row${total > 0 ? " payment-row--paid" : ""}`}>
       <div className="payment-row__head">
@@ -47,7 +53,10 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
       </div>
 
       <div className="payment-row__actions">
-        <span className="payment-row__total">סה"כ ששולם: {formatShekels(total)}</span>
+        <span className="payment-row__total">
+          שולם {formatShekels(total)} מתוך {formatShekels(payment.amount)}
+          {installments > 1 && ` · תשלום ${installmentsPaid} מתוך ${installments}`}
+        </span>
       </div>
     </div>
   );

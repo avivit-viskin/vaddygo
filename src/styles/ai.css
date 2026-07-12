@@ -115,3 +115,26 @@
   font-size: 26px;
   line-height: 1;
 }
+
+/* כפתור "צור קשר" צף בוואטסאפ — מעל כפתור ה-AI (ירוק כמו וואטסאפ) */
+.whatsapp-fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 16px + 68px);
+  left: 16px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #25d366;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  z-index: 40;
+}
+
+.whatsapp-fab__icon {
+  font-size: 26px;
+  line-height: 1;
+}

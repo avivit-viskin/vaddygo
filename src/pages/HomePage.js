@@ -14,6 +14,7 @@ import {
 } from "../services/notificationsService";
 import { hebrewSchoolYearName } from "../services/schoolYear";
 import NotificationsPanel from "./home/NotificationsPanel";
+import WelcomePopup from "../components/WelcomePopup";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
 import StaffBirthdays from "./home/StaffBirthdays";
@@ -78,6 +79,7 @@ function HomePage() {
 
   return (
     <div className="home">
+      <WelcomePopup />
       <div className="home__header">
         <h2 className="home__title">
           {dashboard.ganName}{" "}

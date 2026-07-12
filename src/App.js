@@ -4,6 +4,7 @@ import BrandName from "./components/BrandName";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
 import AiFab from "./components/AiFab";
+import WhatsAppFab from "./components/WhatsAppFab";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import StudentPaymentsPage from "./pages/StudentPaymentsPage";
@@ -122,7 +123,12 @@ function App() {
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>
-      {!isFullScreen && location.pathname !== "/assistant" && <AiFab />}
+      {!isFullScreen && location.pathname !== "/assistant" && (
+        <>
+          <WhatsAppFab />
+          <AiFab />
+        </>
+      )}
       {!isFullScreen && <BottomNav />}
     </div>
   );

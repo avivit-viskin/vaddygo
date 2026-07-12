@@ -351,3 +351,9 @@
   text-align: center;
   color: var(--color-text-muted);
 }
+
+/* טקסט פופאפ "ברוכים הבאים" */
+.welcome-popup__text {
+  margin: 10px 0;
+  line-height: 1.6;
+}

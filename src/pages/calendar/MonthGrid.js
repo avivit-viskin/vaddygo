@@ -1,10 +1,16 @@
 /*
-  MonthGrid — רשת חודש: כותרות ימי השבוע, מספרי ימים, תגי חגים ואירועים.
+  MonthGrid — רשת חודש: כותרות ימי השבוע, מספרי ימים (לועזי + עברי),
+  תגי חגים ואירועים. לחיצה על יום פותחת הוספת אירוע באותו תאריך (נוח בנייד).
   year/monthIndex — החודש המוצג; holidaysByDay/eventsByDay — Map: יום → שמות.
 */
 const WEEKDAY_LABELS = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "שבת"];
 
-function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay }) {
+// היום העברי (גימטריה) של כל תאריך — מחושב מהלוח העברי המובנה בדפדפן
+const hebrewDayFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
+  day: "numeric",
+});
+
+function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay, onDayClick }) {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const startOffset = new Date(year, monthIndex, 1).getDay(); // 0 = ראשון
   const today = new Date();
@@ -49,8 +55,20 @@ function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay }) {
                 }
               >
                 {day && (
-                  <>
-                    <span className="calendar-day__number">{day}</span>
+                  <button
+                    type="button"
+                    className="calendar-day__cell"
+                    onClick={() => onDayClick?.(day)}
+                    aria-label={`הוספת אירוע ב-${day} בחודש`}
+                  >
+                    <span className="calendar-day__nums">
+                      <span className="calendar-day__number">{day}</span>
+                      <span className="calendar-day__hebrew">
+                        {hebrewDayFormatter.format(
+                          new Date(year, monthIndex, day, 12)
+                        )}
+                      </span>
+                    </span>
                     {(holidaysByDay.get(day) || []).map((name) => (
                       <span
                         key={name}
@@ -69,7 +87,7 @@ function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay }) {
                         {event.name}
                       </span>
                     ))}
-                  </>
+                  </button>
                 )}
               </td>
             ))}

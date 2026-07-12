@@ -62,6 +62,33 @@
   padding: 2px;
 }
 
+/* כל תא-יום הוא כפתור: לחיצה עליו מוסיפה אירוע באותו תאריך (נוח בנייד) */
+.calendar-day__cell {
+  display: block;
+  width: 100%;
+  min-height: 58px;
+  border: none;
+  background: none;
+  padding: 2px;
+  font-family: inherit;
+  color: inherit;
+  text-align: start;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.calendar-day__cell:hover,
+.calendar-day__cell:focus-visible {
+  background-color: var(--color-primary-light);
+  outline: none;
+}
+
+.calendar-day__nums {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .calendar-day__number {
   display: inline-flex;
   align-items: center;
@@ -70,6 +97,12 @@
   height: 24px;
   border-radius: 50%;
   font-size: var(--font-size-sm);
+}
+
+/* התאריך העברי (גימטריה) לצד המספר הלועזי */
+.calendar-day__hebrew {
+  font-size: 10px;
+  color: var(--color-text-muted);
 }
 
 .calendar-day--today .calendar-day__number {
@@ -120,12 +153,29 @@
   color: var(--color-primary-dark);
   font-weight: 700;
   font-size: var(--font-size-sm);
-  min-width: 44px;
+  min-width: 52px;
   text-align: center;
+}
+
+/* התאריך העברי מתחת ללועזי ברשימת האירועים */
+.calendar-list__hebrew {
+  display: block;
+  font-weight: 400;
+  font-size: 11px;
+  color: var(--color-text-muted);
 }
 
 .calendar-list__name {
   flex: 1;
+}
+
+.calendar-list__edit {
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: var(--font-size-base);
 }
 
 .calendar-list__tag {

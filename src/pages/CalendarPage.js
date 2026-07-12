@@ -3,6 +3,7 @@ import useApi from "../hooks/useApi";
 import {
   getEvents,
   addEvent,
+  updateEvent,
   deleteEvent,
   parseEventDate,
 } from "../services/eventsService";
@@ -46,6 +47,10 @@ const listDateFormatter = new Intl.DateTimeFormat("he", {
   day: "numeric",
   month: "numeric",
 });
+const hebrewListFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
+  day: "numeric",
+  month: "long",
+});
 
 function toDateInputValue(date) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -58,6 +63,8 @@ function CalendarPage({ initialDate }) {
     return new Date(base.getFullYear(), base.getMonth(), 1, 12);
   });
   const [isFormOpen, setIsFormOpen] = useState(false);
+  const [addDate, setAddDate] = useState(null);
+  const [editTarget, setEditTarget] = useState(null);
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [budgetTarget, setBudgetTarget] = useState(null);
@@ -106,9 +113,20 @@ function CalendarPage({ initialDate }) {
     setViewDate(new Date(year, monthIndex + step, 1, 12));
   }
 
+  function openAddForm(dateValue) {
+    setAddDate(dateValue);
+    setIsFormOpen(true);
+  }
+
   async function handleSave(newEvent) {
     await addEvent(newEvent);
     setIsFormOpen(false);
+    await reload();
+  }
+
+  async function handleUpdate(fields) {
+    await updateEvent(editTarget.id, fields);
+    setEditTarget(null);
     await reload();
   }
 
@@ -158,7 +176,7 @@ function CalendarPage({ initialDate }) {
               aria-label="החודש הקודם"
               onClick={() => moveMonth(-1)}
             >
-              ›
+              →
             </button>
             <div className="calendar-header__titles">
               <h2 className="calendar-header__month">
@@ -174,7 +192,7 @@ function CalendarPage({ initialDate }) {
               aria-label="החודש הבא"
               onClick={() => moveMonth(1)}
             >
-              ‹
+              ←
             </button>
           </div>
 
@@ -183,12 +201,17 @@ function CalendarPage({ initialDate }) {
             monthIndex={monthIndex}
             holidaysByDay={holidaysByDay}
             eventsByDay={eventsByDay}
+            onDayClick={(day) =>
+              openAddForm(toDateInputValue(new Date(year, monthIndex, day, 12)))
+            }
           />
         </div>
 
         <aside className="calendar-side">
-          <Button onClick={() => setIsFormOpen(true)}>+ הוספת אירוע</Button>
-          <p>מסיבות, ישיבות ועד, ימי צילום — הכל במקום אחד.</p>
+          <Button onClick={() => openAddForm(defaultFormDate)}>
+            + הוספת אירוע
+          </Button>
+          <p>לחצי על יום בלוח, או על הכפתור, כדי להוסיף אירוע 🙂</p>
         </aside>
       </div>
 
@@ -211,11 +234,22 @@ function CalendarPage({ initialDate }) {
           <div className="calendar-list__item" key={event.id}>
             <span className="calendar-list__date">
               {listDateFormatter.format(event.date)}
+              <span className="calendar-list__hebrew">
+                {hebrewListFormatter.format(event.date)}
+              </span>
             </span>
             <span className="calendar-list__name">
               {event.name}
               {event.reminder && " 🔔"}
             </span>
+            <button
+              type="button"
+              className="calendar-list__edit"
+              aria-label={`עריכת האירוע ${event.name}`}
+              onClick={() => setEditTarget(event)}
+            >
+              ✏️
+            </button>
             <button
               type="button"
               className="calendar-list__delete"
@@ -233,7 +267,17 @@ function CalendarPage({ initialDate }) {
         onClose={() => setIsFormOpen(false)}
         title="אירוע חדש"
       >
-        <EventForm onSave={handleSave} defaultDate={defaultFormDate} />
+        <EventForm onSave={handleSave} defaultDate={addDate || defaultFormDate} />
+      </Modal>
+
+      <Modal
+        isOpen={Boolean(editTarget)}
+        onClose={() => setEditTarget(null)}
+        title="עריכת אירוע"
+      >
+        {editTarget && (
+          <EventForm onSave={handleUpdate} initialEvent={editTarget} />
+        )}
       </Modal>
 
       <Modal

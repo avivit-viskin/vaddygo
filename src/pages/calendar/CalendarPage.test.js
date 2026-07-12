@@ -104,6 +104,36 @@ test("תקציב חג לא נשמר בלי סכום תקין", async () => {
   ).toBeInTheDocument();
 });
 
+test("לחיצה על יום בלוח פותחת הוספת אירוע עם התאריך שנבחר", async () => {
+  render(<CalendarPage initialDate={new Date(2026, 11, 15)} />);
+  await screen.findByText("דצמבר 2026");
+
+  fireEvent.click(screen.getByRole("button", { name: "הוספת אירוע ב-10 בחודש" }));
+  expect(screen.getByLabelText("תאריך *")).toHaveValue("2026-12-10");
+});
+
+test("עריכת אירוע קיים מעדכנת את שמו ברשימה ובלוח", async () => {
+  localStorage.setItem(
+    "vaadygo.events",
+    JSON.stringify([
+      { id: 1, name: "טיול גן", eventDate: "2026-12-08", reminder: false },
+    ])
+  );
+  render(<CalendarPage initialDate={new Date(2026, 11, 15)} />);
+  await screen.findAllByText("טיול גן");
+
+  fireEvent.click(screen.getByRole("button", { name: "עריכת האירוע טיול גן" }));
+  fireEvent.change(screen.getByLabelText("שם האירוע *"), {
+    target: { value: "טיול שנתי" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: "עדכון האירוע" }));
+
+  await waitFor(() =>
+    expect(screen.getAllByText("טיול שנתי").length).toBeGreaterThan(0)
+  );
+  expect(screen.queryAllByText("טיול גן")).toHaveLength(0);
+});
+
 test("מחיקת אירוע עם אישור מסירה אותו מהרשימה", async () => {
   localStorage.setItem(
     "vaadygo.events",

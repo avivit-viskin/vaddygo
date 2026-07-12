@@ -57,6 +57,25 @@ export async function addEvent({ name, eventDate, description, location, reminde
   }
 }
 
+export async function updateEvent(id, { name, eventDate, description, location, reminder }) {
+  const payload = {
+    name,
+    eventDate,
+    description: description || "",
+    location: location || "",
+    reminder: Boolean(reminder),
+  };
+  try {
+    return await api.put(`/api/events/${id}`, payload);
+  } catch {
+    const updated = readLocal().map((event) =>
+      event.id === id ? { ...event, ...payload } : event
+    );
+    writeLocal(updated);
+    return { id, ...payload };
+  }
+}
+
 export async function deleteEvent(id) {
   try {
     await api.del(`/api/events/${id}`);

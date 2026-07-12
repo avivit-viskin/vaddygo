@@ -4,15 +4,21 @@ import Checkbox from "../../components/Checkbox";
 import Button from "../../components/Button";
 
 /*
-  EventForm — טופס הוספת אירוע ללוח השנה (מוצג בתוך Modal).
+  EventForm — טופס הוספת/עריכת אירוע ללוח השנה (מוצג בתוך Modal).
+  במצב עריכה מקבל initialEvent וממלא את השדות מראש.
   ולידציה בלקוח: שם ותאריך חובה. הכפתור נעול בזמן שמירה.
 */
-function EventForm({ onSave, defaultDate }) {
-  const [name, setName] = useState("");
-  const [eventDate, setEventDate] = useState(defaultDate || "");
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [reminder, setReminder] = useState(false);
+function EventForm({ onSave, defaultDate, initialEvent }) {
+  const isEdit = Boolean(initialEvent);
+  const [name, setName] = useState(initialEvent?.name || "");
+  const [eventDate, setEventDate] = useState(
+    initialEvent?.eventDate
+      ? initialEvent.eventDate.slice(0, 10)
+      : defaultDate || ""
+  );
+  const [location, setLocation] = useState(initialEvent?.location || "");
+  const [description, setDescription] = useState(initialEvent?.description || "");
+  const [reminder, setReminder] = useState(Boolean(initialEvent?.reminder));
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
@@ -77,7 +83,7 @@ function EventForm({ onSave, defaultDate }) {
         onChange={(e) => setReminder(e.target.checked)}
       />
       <Button type="submit" isLoading={isSaving}>
-        שמירת האירוע
+        {isEdit ? "עדכון האירוע" : "שמירת האירוע"}
       </Button>
     </form>
   );

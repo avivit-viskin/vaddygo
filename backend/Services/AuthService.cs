@@ -32,10 +32,7 @@ namespace ParentCommitteeAPI.Services
             var username = dto.Username.Trim();
             var email = dto.Email.Trim().ToLowerInvariant();
 
-            if (await _db.Users.AnyAsync(u => u.Username == username))
-            {
-                return new AuthResult(null, "שם המשתמש כבר תפוס — נסי שם אחר");
-            }
+            // הזהות היא המייל בלבד — שם משתמש כפול מותר (החלטת בעלת המוצר).
             if (await _db.Users.AnyAsync(u => u.Email == email))
             {
                 return new AuthResult(null, "כתובת המייל כבר רשומה במערכת");
@@ -61,11 +58,16 @@ namespace ParentCommitteeAPI.Services
         {
             var identifier = dto.UsernameOrEmail.Trim();
             var lower = identifier.ToLowerInvariant();
-            var user = await _db.Users.FirstOrDefaultAsync(
-                u => u.Username == identifier || u.Email == lower);
+            // המייל ייחודי; שם המשתמש יכול לחזור על עצמו — לכן שולפים את כל המועמדים
+            // ומאמתים סיסמה מול כל אחד, כדי לזהות נכון את המשתמש הנכון.
+            var candidates = await _db.Users
+                .Where(u => u.Username == identifier || u.Email == lower)
+                .ToListAsync();
+            var user = candidates.FirstOrDefault(
+                u => PasswordHasher.Verify(dto.Password, u.PasswordHash));
 
             // הודעה אחידה לשם משתמש/סיסמה שגויים — לא חושפים מה מהם שגוי
-            if (user == null || !PasswordHasher.Verify(dto.Password, user.PasswordHash))
+            if (user == null)
             {
                 return new AuthResult(null, "שם משתמש או סיסמה שגויים");
             }

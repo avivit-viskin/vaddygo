@@ -27,8 +27,9 @@ namespace ParentCommitteeAPI
         {
             base.OnModelCreating(modelBuilder);
 
-            // שם משתמש ומייל ייחודיים — הגנה ברמת המסד, לא רק בבדיקה בקוד
-            modelBuilder.Entity<User>().HasIndex(u => u.Username).IsUnique();
+            // המייל הוא הזהות הייחודית (החלטת בעלת המוצר): שם משתמש יכול לחזור
+            // על עצמו בין לקוחות — לכן אינדקס רגיל בלבד; המייל חייב להיות ייחודי.
+            modelBuilder.Entity<User>().HasIndex(u => u.Username);
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
         }
     }

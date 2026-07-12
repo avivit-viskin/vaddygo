@@ -232,7 +232,8 @@
   font-weight: 500;
 }
 
-.staff__edit {
+.staff__edit,
+.staff__delete {
   border: none;
   background: none;
   cursor: pointer;

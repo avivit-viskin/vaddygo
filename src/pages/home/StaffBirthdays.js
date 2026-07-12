@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import EmptyState from "../../components/EmptyState";
 import Modal from "../../components/Modal";
 import Spinner from "../../components/Spinner";
@@ -10,6 +11,7 @@ import {
   getStaff,
   addStaffMember,
   updateStaffMember,
+  deleteStaffMember,
   nextBirthday,
 } from "../../services/staffService";
 import StaffForm from "./StaffForm";
@@ -25,6 +27,9 @@ const GIFT_BUDGET_RATE = 0.03; // חלק התקציב שמומלץ להקצות 
 function StaffBirthdays({ onChanged, totalBudget = 0 }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
+  const [deleting, setDeleting] = useState(null); // איש הצוות שממתין לאישור מחיקה
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState("");
 
   // סכום כללי אחד שהמערכת ממליצה להשקיע על מתנות לכל הצוות
   const totalGiftBudget = Math.round((totalBudget || 0) * GIFT_BUDGET_RATE);
@@ -38,6 +43,21 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
     setEditing(null);
     reload();
     onChanged?.();
+  }
+
+  async function confirmDelete() {
+    setIsDeleting(true);
+    setDeleteError("");
+    try {
+      await deleteStaffMember(deleting.id);
+      setDeleting(null);
+      reload();
+      onChanged?.();
+    } catch (err) {
+      setDeleteError(err.message);
+    } finally {
+      setIsDeleting(false);
+    }
   }
 
   const sorted = (staff || [])
@@ -79,6 +99,14 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
                 >
                   ✏️
                 </button>
+                <button
+                  type="button"
+                  className="staff__delete"
+                  aria-label={`מחיקת ${member.fullName}`}
+                  onClick={() => setDeleting(member)}
+                >
+                  🗑️
+                </button>
               </div>
             </li>
           ))}
@@ -102,6 +130,21 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
           />
         )}
       </Modal>
+
+      <ConfirmDialog
+        isOpen={deleting !== null}
+        title="מחיקת איש צוות"
+        message={
+          deleting ? `למחוק את ${deleting.fullName}? אי אפשר לבטל` : ""
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => {
+          setDeleting(null);
+          setDeleteError("");
+        }}
+        isLoading={isDeleting}
+        error={deleteError}
+      />
     </Card>
   );
 }

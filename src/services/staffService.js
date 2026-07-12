@@ -70,6 +70,19 @@ export async function updateStaffMember(id, member) {
 }
 
 /*
+  מחיקת איש צוות. רשומה שנשמרה מקומית (isLocal) נמחקת מ-localStorage בלבד;
+  רשומת שרת נמחקת בשרת — ושגיאה נזרקת הלאה כדי שתוצג למשתמשת בדיאלוג.
+*/
+export async function deleteStaffMember(id) {
+  const local = readLocal();
+  if (local.some((m) => m.id === id)) {
+    writeLocal(local.filter((m) => m.id !== id));
+    return;
+  }
+  await api.del(`/api/staff/${id}`);
+}
+
+/*
   מתי יחול יום ההולדת הבא (השנה או בשנה הבאה) — לחישוב מקומי כשאין שרת.
   מטפל גם ב-29.2 בשנה לא מעוברת (נופל ל-28.2), כמו בשרת.
 */

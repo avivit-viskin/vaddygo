@@ -24,7 +24,7 @@ namespace ParentCommitteeAPI.Services
             var folders = await _folders.GetAllAsync();
             if (groupId.HasValue)
             {
-                folders = folders.Where(f => f.GroupId == null || f.GroupId == groupId.Value).ToList();
+                folders = folders.Where(f => f.GroupId == groupId.Value).ToList();
             }
             return folders.Select(ToResponse).ToList();
         }

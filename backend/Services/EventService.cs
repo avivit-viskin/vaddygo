@@ -24,7 +24,7 @@ namespace ParentCommitteeAPI.Services
             var events = await _events.GetAllAsync();
             if (groupId.HasValue)
             {
-                events = events.Where(e => e.GroupId == null || e.GroupId == groupId.Value).ToList();
+                events = events.Where(e => e.GroupId == groupId.Value).ToList();
             }
             return events
                 .OrderBy(e => e.EventDate)

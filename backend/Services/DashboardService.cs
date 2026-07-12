@@ -42,14 +42,14 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            /* צוות ותשלומים מסוננים למוסד; null = רשומות ישנות בלי שיוך (מוצגות תמיד) */
+            /* סינון קפדני למוסד — כל מוסד רואה אך ורק את הצוות והתשלומים שלו.
+               רשומות "יתומות" (GroupId==null) שויכו למוסד הראשי במיגרציית ה-Backfill. */
             var staff = await _db.StaffMembers.AsNoTracking()
-                .Where(s => s.GroupId == null || s.GroupId == group.Id)
+                .Where(s => s.GroupId == group.Id)
                 .ToListAsync();
             var paidPayments = await _db.Payments.AsNoTracking()
                 .Include(p => p.Student)
-                .Where(p => p.IsPaid
-                    && (p.Student == null || p.Student.GroupId == null || p.Student.GroupId == group.Id))
+                .Where(p => p.IsPaid && p.Student != null && p.Student.GroupId == group.Id)
                 .ToListAsync();
             var today = DateTime.Today;
 

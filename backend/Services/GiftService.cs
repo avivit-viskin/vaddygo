@@ -24,7 +24,7 @@ namespace ParentCommitteeAPI.Services
             var gifts = await _gifts.GetAllAsync();
             if (groupId.HasValue)
             {
-                gifts = gifts.Where(g => g.GroupId == null || g.GroupId == groupId.Value).ToList();
+                gifts = gifts.Where(g => g.GroupId == groupId.Value).ToList();
             }
             return gifts.Select(ToResponse).ToList();
         }

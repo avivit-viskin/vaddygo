@@ -24,7 +24,7 @@ namespace ParentCommitteeAPI.Services
             var members = await _staff.GetAllAsync();
             if (groupId.HasValue)
             {
-                members = members.Where(m => m.GroupId == null || m.GroupId == groupId.Value).ToList();
+                members = members.Where(m => m.GroupId == groupId.Value).ToList();
             }
             return members.Select(ToResponse).ToList();
         }

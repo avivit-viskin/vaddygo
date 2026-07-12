@@ -80,8 +80,15 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
-          עדכון קטגוריות הגבייה של גן קיים — מחליף את כל הרשימה (מוחק את הישנות
-          ומוסיף את החדשות), כדי שאפשר להגדיר/לתקן את הסכומים אחרי ההרשמה.
+          עדכון קטגוריות הגבייה של גן קיים — כדי להגדיר/לתקן סכומים ומספר תשלומים
+          אחרי ההרשמה.
+
+          ‼️ קריטי: אסור למחוק את כל הקטגוריות וליצור חדשות. תשלומי התלמידים
+          מקושרים לקטגוריה ב-FK עם ON DELETE CASCADE — מחיקת קטגוריה מוחקת איתה
+          את כל התשלומים שנרשמו לה. לכן מעדכנים קטגוריות קיימות *במקומן* (ה-Id
+          נשמר → התשלומים נשמרים), מוסיפים חדשות, ומוחקים רק קטגוריות שהוסרו
+          בפועל מהרשימה (התשלומים שלהן נמחקים איתן — וזה מכוון, הקטגוריה בוטלה).
+          ההתאמה בין ישן לחדש היא לפי שם הקטגוריה.
         */
         public async Task<GroupResponseDto?> UpdateCategoriesAsync(int id, GroupCategoriesUpdateDto dto)
         {
@@ -93,18 +100,46 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            _db.CollectionCategories.RemoveRange(group.Categories);
-            group.Categories = dto.Categories.Select(c => new CollectionCategory
+            var incoming = dto.Categories
+                .Select(c => new { Name = c.Name.Trim(), c.AmountPerChild, c.Installments })
+                .Where(c => c.Name.Length > 0)
+                .ToList();
+            var incomingNames = incoming.Select(c => c.Name).ToHashSet();
+            var existingCategories = group.Categories.ToList();
+
+            // מוחקים רק קטגוריות שהוסרו מהרשימה (התשלומים שלהן נמחקים איתן ב-cascade)
+            var toRemove = existingCategories.Where(c => !incomingNames.Contains(c.Name)).ToList();
+            _db.CollectionCategories.RemoveRange(toRemove);
+
+            foreach (var inc in incoming)
             {
-                Name = c.Name.Trim(),
-                AmountPerChild = c.AmountPerChild,
-                Installments = c.Installments,
-            }).ToList();
+                var match = existingCategories.FirstOrDefault(c => c.Name == inc.Name);
+                if (match != null)
+                {
+                    // עדכון במקום — ה-Id נשמר, ולכן התשלומים המקושרים אליו נשמרים
+                    match.AmountPerChild = inc.AmountPerChild;
+                    match.Installments = inc.Installments;
+                }
+                else
+                {
+                    group.Categories.Add(new CollectionCategory
+                    {
+                        Name = inc.Name,
+                        AmountPerChild = inc.AmountPerChild,
+                        Installments = inc.Installments,
+                    });
+                }
+            }
 
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group categories updated (Id: {GroupId}, Categories: {CategoryCount})",
-                id, group.Categories.Count);
-            return ToResponse(group);
+                id, incoming.Count);
+
+            // טוענים מחדש כדי שה-Response ישקף בדיוק את שנשמר (בלי קטגוריות שנמחקו)
+            var refreshed = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstAsync(g => g.Id == id);
+            return ToResponse(refreshed);
         }
 
         /* עדכון תקציבי החגים של הוועד — הדיקשנרי כולו נשמר כ-JSON ברמת הגן. */

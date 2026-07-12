@@ -228,6 +228,18 @@
   font-weight: 500;
 }
 
+/* הוספת כיתה ידנית ("אחר") — שדה קלט + כפתור הוספה באותה שורה */
+.groups-other {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  margin: 8px 0;
+}
+
+.groups-other .field__input {
+  flex: 1;
+}
+
 /* שורת קטגוריית גבייה */
 .category-row {
   border-bottom: 1px solid var(--color-border);

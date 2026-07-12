@@ -1,10 +1,12 @@
+import { useState } from "react";
+
 /*
   GroupsStep — צעד 2 באשף: חלוקה לקבוצות (UI_SPEC סעיף 4).
-  רשימות הקבוצות מהאפיון של בעלת המוצר; קבוצות גן נוספות ממתינות
-  לתשובתה בקובץ השאלות (שאלה 2) — לא ממציאים.
+  בבית ספר יש כיתות קבועות א'–ו' ואופציית "אחר" — למי שמנהל ועד גם מעל כיתה ו'
+  (חטיבה/תיכון) אפשר להקליד ידנית שם כיתה נוסף.
 */
 const GAN_GROUPS = ["תינוקייה", "פעוטות", "בוגרים", "חובה"];
-const SCHOOL_GROUPS = ["א", "ב", "ג", "ד", "ה", "ו", "אחר"];
+const SCHOOL_GROUPS = ["א", "ב", "ג", "ד", "ה", "ו"];
 
 function Chip({ label, active, onClick }) {
   return (
@@ -20,13 +22,37 @@ function Chip({ label, active, onClick }) {
 }
 
 function GroupsStep({ data, onChange }) {
-  const options = data.institutionType === "school" ? SCHOOL_GROUPS : GAN_GROUPS;
+  const isSchool = data.institutionType === "school";
+  const predefined = isSchool ? SCHOOL_GROUPS : GAN_GROUPS;
+  // כיתות שהוקלדו ידנית ("אחר") — כל מה שנבחר ואינו ברשימה הקבועה
+  const customGroups = data.groups.filter((g) => !predefined.includes(g));
+
+  // מציגים את שדה "אחר" אם כבר יש כיתה מותאמת אישית, או שהמשתמשת פתחה אותו
+  const [showOther, setShowOther] = useState(customGroups.length > 0);
+  const [customName, setCustomName] = useState("");
 
   function toggleGroup(name) {
     const groups = data.groups.includes(name)
       ? data.groups.filter((g) => g !== name)
       : [...data.groups, name];
     onChange({ groups });
+  }
+
+  function addCustom() {
+    const name = customName.trim();
+    if (!name || data.groups.includes(name)) {
+      setCustomName("");
+      return;
+    }
+    onChange({ groups: [...data.groups, name] });
+    setCustomName("");
+  }
+
+  function handleCustomKeyDown(event) {
+    if (event.key === "Enter") {
+      event.preventDefault();
+      addCustom();
+    }
   }
 
   return (
@@ -62,12 +88,10 @@ function GroupsStep({ data, onChange }) {
           </div>
 
           <p className="wizard__question">
-            {data.institutionType === "school"
-              ? "סמני את הכיתות:"
-              : "סמני את הקבוצות הקיימות:"}
+            {isSchool ? "סמני את הכיתות:" : "סמני את הקבוצות הקיימות:"}
           </p>
           <div className="chips">
-            {options.map((name) => (
+            {predefined.map((name) => (
               <Chip
                 key={name}
                 label={name}
@@ -75,7 +99,40 @@ function GroupsStep({ data, onChange }) {
                 onClick={() => toggleGroup(name)}
               />
             ))}
+            {/* כיתות שהוקלדו ידנית — מוצגות כצ'יפים שאפשר להסיר בלחיצה */}
+            {customGroups.map((name) => (
+              <Chip
+                key={name}
+                label={name}
+                active
+                onClick={() => toggleGroup(name)}
+              />
+            ))}
+            {isSchool && (
+              <Chip
+                label="אחר"
+                active={showOther}
+                onClick={() => setShowOther((v) => !v)}
+              />
+            )}
           </div>
+
+          {isSchool && showOther && (
+            <div className="groups-other">
+              <input
+                className="field__input"
+                type="text"
+                placeholder="שם הכיתה (למשל: ז', מכינה)"
+                value={customName}
+                onChange={(event) => setCustomName(event.target.value)}
+                onKeyDown={handleCustomKeyDown}
+                aria-label="הוספת כיתה ידנית"
+              />
+              <button type="button" className="chip" onClick={addCustom}>
+                הוספה
+              </button>
+            </div>
+          )}
         </>
       )}
     </>

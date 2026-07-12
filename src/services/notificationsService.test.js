@@ -1,4 +1,9 @@
-import { buildNotifications } from "./notificationsService";
+import {
+  buildNotifications,
+  applyReadState,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "./notificationsService";
 import { upcomingHolidays } from "./upcomingHoliday";
 
 /*
@@ -9,6 +14,7 @@ jest.mock("./upcomingHoliday");
 
 afterEach(() => {
   jest.resetAllMocks();
+  localStorage.clear();
 });
 
 test("מאחד את כל סוגי ההתראות (שרת, חג, אירוע, מתנה, לא-שילמו)", () => {
@@ -60,4 +66,28 @@ test("אירוע בלי סימון תזכורת לא יוצר התראה", () =>
   ];
   const list = buildNotifications({ dashboard: null, events }, today);
   expect(list).toHaveLength(0);
+});
+
+test("סימון כנקרא נשמר ומשתקף ב-applyReadState", () => {
+  const notes = [
+    { id: "a", type: "holiday", message: "חג" },
+    { id: "b", type: "unpaid", message: "הורים" },
+  ];
+
+  // בהתחלה הכל לא-נקרא
+  expect(applyReadState(notes).every((n) => !n.read)).toBe(true);
+
+  markNotificationRead("a");
+  const after = applyReadState(notes);
+  expect(after.find((n) => n.id === "a").read).toBe(true);
+  expect(after.find((n) => n.id === "b").read).toBe(false);
+});
+
+test("markAllNotificationsRead מסמן את כל המזהים כנקראו", () => {
+  const notes = [
+    { id: "x", type: "event", message: "א" },
+    { id: "y", type: "gift", message: "ב" },
+  ];
+  markAllNotificationsRead(notes.map((n) => n.id));
+  expect(applyReadState(notes).every((n) => n.read)).toBe(true);
 });

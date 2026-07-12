@@ -39,9 +39,14 @@ export function buildNotifications(
 ) {
   const list = [];
 
-  // 1. התראות מהשרת/דשבורד (תשלומים, ימי הולדת)
-  (dashboard?.alerts || []).forEach((alert, i) =>
-    list.push({ id: `alert-${i}`, type: alert.type, message: alert.message })
+  // 1. התראות מהשרת/דשבורד (תשלומים, ימי הולדת).
+  // מזהה לפי תוכן (ולא לפי מיקום) כדי שסימון "נקרא" יישאר יציב.
+  (dashboard?.alerts || []).forEach((alert) =>
+    list.push({
+      id: `alert:${alert.type}:${alert.message}`,
+      type: alert.type,
+      message: alert.message,
+    })
   );
 
   // 2. חגים מתקרבים (עד שבוע)
@@ -80,16 +85,51 @@ export function buildNotifications(
       })
     );
 
-  // 5. הורים שעוד לא שילמו
+  // 5. הורים שעוד לא שילמו. המזהה כולל את המספר — כשהמספר משתנה זו התראה
+  // חדשה (מופיעה שוב), גם אם סימנת את הקודמת כנקראה.
   if (unpaidCount > 0) {
     list.push({
-      id: "unpaid",
+      id: `unpaid:${unpaidCount}`,
       type: "unpaid",
       message: `${unpaidCount} הורים עוד לא שילמו`,
     });
   }
 
   return list;
+}
+
+/* ── מצב "נקרא" (נשמר ב-localStorage) ─────────────────────── */
+
+const READ_KEY = "vaadygo.readNotifications";
+
+function getReadIds() {
+  try {
+    return new Set(JSON.parse(localStorage.getItem(READ_KEY)) || []);
+  } catch {
+    return new Set();
+  }
+}
+
+function saveReadIds(ids) {
+  localStorage.setItem(READ_KEY, JSON.stringify([...ids]));
+}
+
+/* מוסיף לכל התראה דגל read לפי מה שסומן כנקרא. */
+export function applyReadState(notifications) {
+  const readIds = getReadIds();
+  return notifications.map((n) => ({ ...n, read: readIds.has(n.id) }));
+}
+
+export function markNotificationRead(id) {
+  const ids = getReadIds();
+  ids.add(id);
+  saveReadIds(ids);
+}
+
+export function markAllNotificationsRead(idList) {
+  const ids = getReadIds();
+  idList.forEach((id) => ids.add(id));
+  saveReadIds(ids);
 }
 
 /* סופר כמה תלמידים עדיין עם תשלום פתוח (לפי סיכום התשלומים לכל תלמיד). */
@@ -114,5 +154,7 @@ export async function loadNotifications(dashboard, today = new Date()) {
     getGifts().catch(() => []),
     countUnpaidParents().catch(() => 0),
   ]);
-  return buildNotifications({ dashboard, events, gifts, unpaidCount }, today);
+  return applyReadState(
+    buildNotifications({ dashboard, events, gifts, unpaidCount }, today)
+  );
 }

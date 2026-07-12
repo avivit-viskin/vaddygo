@@ -8,6 +8,9 @@ import { loadDashboard } from "../services/dashboardService";
 import {
   buildNotifications,
   loadNotifications,
+  applyReadState,
+  markNotificationRead,
+  markAllNotificationsRead,
 } from "../services/notificationsService";
 import { hebrewSchoolYearName } from "../services/schoolYear";
 import NotificationsPanel from "./home/NotificationsPanel";
@@ -33,7 +36,7 @@ function HomePage() {
     if (!dashboard) {
       return undefined;
     }
-    setNotifications(buildNotifications({ dashboard }, new Date()));
+    setNotifications(applyReadState(buildNotifications({ dashboard }, new Date())));
     let cancelled = false;
     loadNotifications(dashboard).then((list) => {
       if (!cancelled) {
@@ -44,6 +47,18 @@ function HomePage() {
       cancelled = true;
     };
   }, [dashboard]);
+
+  function handleMarkRead(id) {
+    markNotificationRead(id);
+    setNotifications((prev) =>
+      prev.map((n) => (n.id === id ? { ...n, read: true } : n))
+    );
+  }
+
+  function handleMarkAllRead() {
+    markAllNotificationsRead(notifications.map((n) => n.id));
+    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
+  }
 
   if (isLoading) {
     return <Spinner text="טוען את מסך הבית..." />;
@@ -59,7 +74,7 @@ function HomePage() {
     );
   }
 
-  const count = notifications.length;
+  const count = notifications.filter((n) => !n.read).length; // לא-נקראו
 
   return (
     <div className="home">
@@ -94,6 +109,8 @@ function HomePage() {
         isOpen={panelOpen}
         notifications={notifications}
         onClose={() => setPanelOpen(false)}
+        onMarkRead={handleMarkRead}
+        onMarkAllRead={handleMarkAllRead}
       />
     </div>
   );

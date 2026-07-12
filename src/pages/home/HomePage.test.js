@@ -59,6 +59,20 @@ test("מסך הבית מציג את שם הגן, יעד הגבייה, והתרא
   expect(await screen.findByText(/22 ילדים טרם שילמו/)).toBeInTheDocument();
 });
 
+test("אפשר לסמן התראה כנקראה, והיא מסומנת ✓ נקרא", async () => {
+  seedOnboarding();
+  renderHome();
+  await screen.findByText(/גן הפרחים/);
+
+  userEvent.click(screen.getByRole("button", { name: /התראות/ }));
+  const markBtn = await screen.findByRole("button", {
+    name: /סמן כנקרא: .*22 ילדים/,
+  });
+  userEvent.click(markBtn);
+
+  expect(await screen.findByText("✓ נקרא")).toBeInTheDocument();
+});
+
 test("החלפה בין יעד הגבייה ליתרת הקופה והחוב הפתוח", async () => {
   seedOnboarding();
   renderHome();

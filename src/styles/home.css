@@ -305,6 +305,47 @@
   font-size: 1.2rem;
 }
 
+.notifications__message {
+  flex: 1;
+}
+
+/* התראה שסומנה כנקראה — מעומעמת אבל עדיין נראית */
+.notifications__item--read {
+  opacity: 0.55;
+}
+
+.notifications__mark {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primary-dark);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  white-space: nowrap;
+  padding: 4px;
+}
+
+.notifications__read-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.notifications__mark-all {
+  align-self: flex-end;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-primary-dark);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  margin: 0 0 8px auto;
+  padding: 4px;
+  display: block;
+}
+
 .notifications__empty {
   margin: 0;
   text-align: center;

@@ -1,23 +1,49 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
 import useApi from "../hooks/useApi";
 import { loadDashboard } from "../services/dashboardService";
+import {
+  buildNotifications,
+  loadNotifications,
+} from "../services/notificationsService";
 import { hebrewSchoolYearName } from "../services/schoolYear";
-import AlertsList from "./home/AlertsList";
+import NotificationsPanel from "./home/NotificationsPanel";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
 import StaffBirthdays from "./home/StaffBirthdays";
 import "../styles/home.css";
 
 /*
-  HomePage — מסך הבית (UI_SPEC ס' 8): שם הגן והשנה, התראות, כרטיס גבייה
+  HomePage — מסך הבית (UI_SPEC ס' 8): שם הגן והשנה, פעמון התראות, כרטיס גבייה
   עם החלפה בין יעד ליתרה, פירוקים, תשלומים לפי קטגוריות וימי הולדת של הצוות.
   הנתונים מהשרת; כשאינו זמין — סיכום מקומי מנתוני האשף (dashboardService).
+  הפעמון פותח פאנל עם כל ההתראות (notificationsService); כשיש התראות הוא קופץ.
 */
 function HomePage() {
   const { data: dashboard, isLoading, error, reload } = useApi(loadDashboard);
+  const [panelOpen, setPanelOpen] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  // ההתראות: קודם מה שאפשר לחשב מיד (שרת + חגים), ואז השאר נטען ברקע
+  // (אירועים, מתנות, מי לא שילם) — בלי לעכב את הצגת מסך הבית.
+  useEffect(() => {
+    if (!dashboard) {
+      return undefined;
+    }
+    setNotifications(buildNotifications({ dashboard }, new Date()));
+    let cancelled = false;
+    loadNotifications(dashboard).then((list) => {
+      if (!cancelled) {
+        setNotifications(list);
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [dashboard]);
 
   if (isLoading) {
     return <Spinner text="טוען את מסך הבית..." />;
@@ -33,7 +59,7 @@ function HomePage() {
     );
   }
 
-  const alertCount = dashboard.alerts.length;
+  const count = notifications.length;
 
   return (
     <div className="home">
@@ -42,10 +68,15 @@ function HomePage() {
           {dashboard.ganName}{" "}
           <span className="home__year">{hebrewSchoolYearName(dashboard.year)}</span>
         </h2>
-        <span className="home__bell" aria-label={`${alertCount} התראות`}>
+        <button
+          type="button"
+          className={`home__bell${count > 0 ? " home__bell--ring" : ""}`}
+          aria-label={`התראות (${count})`}
+          onClick={() => setPanelOpen(true)}
+        >
           🔔
-          {alertCount > 0 && <span className="home__badge">{alertCount}</span>}
-        </span>
+          {count > 0 && <span className="home__badge">{count}</span>}
+        </button>
       </div>
 
       {!dashboard.fromServer && (
@@ -55,10 +86,15 @@ function HomePage() {
       )}
       {error && <p className="home__offline">{error}</p>}
 
-      <AlertsList alerts={dashboard.alerts} />
       <CollectionCard dashboard={dashboard} />
       <CategoryList categories={dashboard.byCategory} />
       <StaffBirthdays onChanged={reload} totalBudget={dashboard.collectionTarget} />
+
+      <NotificationsPanel
+        isOpen={panelOpen}
+        notifications={notifications}
+        onClose={() => setPanelOpen(false)}
+      />
     </div>
   );
 }

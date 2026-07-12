@@ -29,6 +29,34 @@
 .home__bell {
   position: relative;
   font-size: 1.4rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 4px;
+  line-height: 1;
+}
+
+/* כשיש התראות — הפעמון "מצלצל" כל כמה שניות כדי למשוך תשומת לב */
+.home__bell--ring {
+  transform-origin: top center;
+  animation: bell-ring 2.5s ease-in-out infinite;
+}
+
+@keyframes bell-ring {
+  0%, 40%, 100% { transform: rotate(0); }
+  5% { transform: rotate(14deg); }
+  10% { transform: rotate(-12deg); }
+  15% { transform: rotate(10deg); }
+  20% { transform: rotate(-8deg); }
+  25% { transform: rotate(6deg); }
+  30% { transform: rotate(-4deg); }
+  35% { transform: rotate(2deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .home__bell--ring {
+    animation: none;
+  }
 }
 
 .home__badge {
@@ -251,4 +279,34 @@
   display: flex;
   gap: 8px;
   margin-top: 16px;
+}
+
+/* ── פאנל ההתראות (נפתח מהפעמון) ─────────────────────────── */
+
+.notifications {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.notifications__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-bg);
+  border-radius: var(--radius-md);
+}
+
+.notifications__icon {
+  font-size: 1.2rem;
+}
+
+.notifications__empty {
+  margin: 0;
+  text-align: center;
+  color: var(--color-text-muted);
 }

@@ -34,20 +34,29 @@ function renderHome() {
 
 beforeEach(() => {
   localStorage.clear();
+  // אין שרת בטסטים — כל קריאת רשת נכשלת מיד ונופלת לגיבוי המקומי (מהיר ויציב).
+  global.fetch = jest.fn(() => Promise.reject(new Error("no network in tests")));
 });
 
-test("מסך הבית מציג את שם הגן, יעד הגבייה וההתראות", async () => {
+afterEach(() => {
+  delete global.fetch;
+});
+
+test("מסך הבית מציג את שם הגן, יעד הגבייה, והתראה בפעמון", async () => {
   seedOnboarding();
   renderHome();
 
   expect(await screen.findByText(/גן הפרחים/)).toBeInTheDocument();
   // יעד הגבייה: (1,200 + 500) × 22 ילדים = 37,400
   expect(screen.getByText(/37,400/)).toBeInTheDocument();
-  expect(screen.getByText(/22 ילדים טרם שילמו/)).toBeInTheDocument();
   // פירוק לפי אמצעי תשלום
   expect(screen.getByText("ביט")).toBeInTheDocument();
   expect(screen.getByText("פייבוקס")).toBeInTheDocument();
   expect(screen.getByText("מזומן")).toBeInTheDocument();
+
+  // ההתראה על התשלומים מופיעה בפאנל שנפתח מהפעמון
+  userEvent.click(screen.getByRole("button", { name: /התראות/ }));
+  expect(await screen.findByText(/22 ילדים טרם שילמו/)).toBeInTheDocument();
 });
 
 test("החלפה בין יעד הגבייה ליתרת הקופה והחוב הפתוח", async () => {

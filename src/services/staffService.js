@@ -20,9 +20,30 @@ function writeLocal(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
+/* מפתח זהות לאיש צוות (שם + תאריך לידה) — למניעת כפילויות במיזוג. */
+function staffKey(m) {
+  return `${(m.fullName || "").trim()}|${String(m.birthDate || "").slice(0, 10)}`;
+}
+
 export async function getStaff() {
+  const local = readLocal().filter((m) => m.isLocal);
   try {
-    return await api.get("/api/staff");
+    const server = await api.get("/api/staff");
+    if (local.length === 0) {
+      return server;
+    }
+    // אנשי צוות שנשמרו מקומית (כשההוספה לשרת נכשלה) ועדיין לא קיימים בשרת —
+    // מציגים גם אותם, כדי שהוספה לא "תיעלם" כשהשרת מחזיר רשימה בלעדיהם.
+    const seen = new Set(server.map(staffKey));
+    const stillLocal = [];
+    for (const m of local) {
+      const key = staffKey(m);
+      if (!seen.has(key)) {
+        seen.add(key);
+        stillLocal.push(m);
+      }
+    }
+    return [...server, ...stillLocal];
   } catch {
     return readLocal();
   }

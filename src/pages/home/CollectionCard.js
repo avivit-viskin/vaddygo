@@ -18,7 +18,13 @@ function CollectionCard({ dashboard, onExpenseChanged }) {
         <div className="collection__balance">
           <div>
             <p className="collection__label">יתרת הקופה</p>
-            <p className="collection__amount">{formatShekels(dashboard.boxBalance)}</p>
+            <p
+              className={`collection__amount collection__amount--${
+                dashboard.boxBalance < 0 ? "negative" : "positive"
+              }`}
+            >
+              {formatShekels(dashboard.boxBalance)}
+            </p>
           </div>
           <div>
             <p className="collection__label">חוב פתוח</p>
@@ -53,7 +59,7 @@ function CollectionCard({ dashboard, onExpenseChanged }) {
 
       <ul className="methods">
         {dashboard.byPaymentMethod.map((m) => (
-          <li key={m.method} className="methods__item">
+          <li key={m.method} className={`methods__item methods__item--${m.method}`}>
             <span className="methods__icon" aria-hidden="true">
               {paymentMethodIcon(m.method)}
             </span>

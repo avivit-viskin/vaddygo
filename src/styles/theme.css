@@ -30,12 +30,16 @@
   --color-bit-bg: #063e45;
   --color-bit: #55def7;
   --color-bit-highlight: #8ef0ff;
+  --color-bit-tint: #eafbfe; /* רקע בהיר לתג ביט */
   /* ===== אמצעי תשלום — פייבוקס (כחול) ===== */
   --color-paybox: #4799e4;
   --color-paybox-light: #67b5f1;
   --color-paybox-dark: #1f6fbc;
+  --color-paybox-tint: #eaf3fd; /* רקע בהיר לתג פייבוקס */
   /* ===== כסף / מזומן ===== */
   --color-money: #6ea6ca;
+  --color-money-dark: #3f7191; /* גוון כהה לטקסט מזומן */
+  --color-money-tint: #edf3f8; /* רקע בהיר לתג מזומן */
   /* ===== אקסנט ורוד ===== */
   --color-accent-pink: #f9dae9;
 

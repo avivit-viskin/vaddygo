@@ -3,6 +3,7 @@ import { getGifts } from "./giftsService";
 import { getStudents } from "./studentsService";
 import { getPaymentSummary } from "./paymentsService";
 import { upcomingHolidays } from "./upcomingHoliday";
+import { getNotificationPrefs } from "./notificationPrefs";
 
 /*
   notificationsService — מרכז ההתראות של מסך הבית (הפעמון 🔔).
@@ -87,15 +88,37 @@ export function buildNotifications(
 
   // 5. הורים שעוד לא שילמו. המזהה כולל את המספר — כשהמספר משתנה זו התראה
   // חדשה (מופיעה שוב), גם אם סימנת את הקודמת כנקראה.
+  // ב-1 בכל חודש ההתראה מודגשת וחוזרת מחדש (המזהה כולל את החודש) — תזכורת
+  // חודשית לגבייה (משימה 9). את התזכורת הגנרית שולחים בכפתור "תזכורת לחייבים".
   if (unpaidCount > 0) {
+    const isFirstOfMonth = today.getDate() === 1;
+    const monthTag = isFirstOfMonth ? `:${today.getFullYear()}-${today.getMonth()}` : "";
     list.push({
-      id: `unpaid:${unpaidCount}`,
+      id: `unpaid:${unpaidCount}${monthTag}`,
       type: "unpaid",
-      message: `${unpaidCount} הורים עוד לא שילמו`,
+      message: isFirstOfMonth
+        ? `📅 ה-1 בחודש — ${unpaidCount} הורים עוד לא שילמו. אפשר לשלוח תזכורת בכפתור "תזכורת לחייבים"`
+        : `${unpaidCount} הורים עוד לא שילמו`,
     });
   }
 
-  return list;
+  return filterByPrefs(list);
+}
+
+/*
+  filterByPrefs — מסתיר סוגי התראות שהמשתמשת כיבתה בהגדרות (משימה 12):
+  תזכורות תשלום (unpaid/payments) והתראות ימי הולדת (birthday).
+*/
+export function filterByPrefs(list, prefs = getNotificationPrefs()) {
+  return list.filter((n) => {
+    if (!prefs.payments && (n.type === "unpaid" || n.type === "payments")) {
+      return false;
+    }
+    if (!prefs.birthdays && n.type === "birthday") {
+      return false;
+    }
+    return true;
+  });
 }
 
 /* ── מצב "נקרא" (נשמר ב-localStorage) ─────────────────────── */
@@ -132,16 +155,24 @@ export function markAllNotificationsRead(idList) {
   saveReadIds(ids);
 }
 
-/* סופר כמה תלמידים עדיין עם תשלום פתוח (לפי סיכום התשלומים לכל תלמיד). */
-async function countUnpaidParents() {
-  const students = await getStudents();
+/* מחזיר את התלמידים שעדיין עם תשלום פתוח (לתזכורת הגורפת ולספירה). */
+export async function loadUnpaidStudents() {
+  const students = await getStudents().catch(() => []);
   if (!students || students.length === 0) {
-    return 0;
+    return [];
   }
   const summaries = await Promise.all(
     students.map((s) => getPaymentSummary(s.id).catch(() => null))
   );
-  return summaries.filter((s) => s && s.hasUnpaid).length;
+  const unpaidIds = new Set(
+    summaries.filter((s) => s && s.hasUnpaid).map((s) => s.studentId)
+  );
+  return students.filter((s) => unpaidIds.has(s.id));
+}
+
+/* סופר כמה תלמידים עדיין עם תשלום פתוח (לפי סיכום התשלומים לכל תלמיד). */
+async function countUnpaidParents() {
+  return (await loadUnpaidStudents()).length;
 }
 
 /*

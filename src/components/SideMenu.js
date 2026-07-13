@@ -95,6 +95,13 @@ function SideMenu({ isOpen, onClose }) {
         >
           💰 עריכת גבייה
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/settings")}
+        >
+          🔔 הגדרות התראות
+        </button>
 
         <div className="sidemenu__footer">
           <a

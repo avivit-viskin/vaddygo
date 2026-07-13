@@ -21,6 +21,7 @@ import AiAssistantPage from "./pages/AiAssistantPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CollectionSettingsPage from "./pages/CollectionSettingsPage";
+import SettingsPage from "./pages/SettingsPage";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -117,6 +118,7 @@ function App() {
           <Route path="/gifts" element={<GiftsPage />} />
           <Route path="/files" element={<FilesPage />} />
           <Route path="/collection-settings" element={<CollectionSettingsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route

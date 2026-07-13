@@ -420,3 +420,8 @@
   margin: 10px 0;
   line-height: 1.6;
 }
+
+/* כפתור "תזכורת לחייבים" במסך הבית (מוצג כשיש חייבים) */
+.home__reminder {
+  margin-bottom: 12px;
+}

@@ -16,6 +16,7 @@ import {
   getHolidaysForMonth,
   getHolidayOccurrencesForMonth,
 } from "../data/holidays";
+import { hebrewDateLabel } from "../services/hebrewDate";
 import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
 import HolidaysSection from "./calendar/HolidaysSection";
@@ -46,10 +47,6 @@ const hebrewFullFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
 const listDateFormatter = new Intl.DateTimeFormat("he", {
   day: "numeric",
   month: "numeric",
-});
-const hebrewListFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
-  day: "numeric",
-  month: "long",
 });
 
 function toDateInputValue(date) {
@@ -235,7 +232,7 @@ function CalendarPage({ initialDate }) {
             <span className="calendar-list__date">
               {listDateFormatter.format(event.date)}
               <span className="calendar-list__hebrew">
-                {hebrewListFormatter.format(event.date)}
+                {hebrewDateLabel(event.date)}
               </span>
             </span>
             <span className="calendar-list__name">

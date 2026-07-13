@@ -21,3 +21,13 @@ export function hebrewDayGematria(day) {
   }
   return letters.slice(0, -1) + "״" + letters.slice(-1); // גרשיים לפני האות האחרונה
 }
+
+const hebrewDayFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", { day: "numeric" });
+const hebrewMonthFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", { month: "long" });
+
+/* תאריך עברי מלא באותיות: "ט״ו בתשרי" (יום בגימטריה + שם החודש). */
+export function hebrewDateLabel(date) {
+  const day = hebrewDayGematria(hebrewDayFormatter.format(date));
+  const month = hebrewMonthFormatter.format(date);
+  return `${day} ב${month}`;
+}

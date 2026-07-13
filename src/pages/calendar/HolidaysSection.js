@@ -1,7 +1,8 @@
 import { holidayBudgetKey } from "../../services/holidayBudgetsService";
+import { hebrewDateLabel } from "../../services/hebrewDate";
 
 /*
-  HolidaysSection — מדור "חגים": שם ותאריך של כל חג בחודש המוצג,
+  HolidaysSection — מדור "חגים": שם ותאריך (לועזי + עברי) של כל חג בחודש המוצג,
   עם כפתור להגדרת/עריכת התקציב שייצא בחג (נשמר לכל מופע חג).
 */
 const dateFormatter = new Intl.DateTimeFormat("he", {
@@ -33,6 +34,9 @@ function HolidaysSection({ year, monthIndex, occurrences, budgets, onEditBudget 
           >
             <span className="calendar-list__date">
               {formatOccurrenceDates(year, monthIndex, occurrence.days)}
+              <span className="calendar-list__hebrew">
+                {hebrewDateLabel(new Date(year, monthIndex, occurrence.days[0]))}
+              </span>
             </span>
             <span className="calendar-list__name">{occurrence.name}</span>
             {budget != null ? (

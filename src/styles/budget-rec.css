@@ -1,0 +1,68 @@
+/* budget-rec.css — עוזרת התקציב במסך המתנות (משימה 22) */
+.budget-rec__hint {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.budget-rec {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.budget-rec__row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 4px 10px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.budget-rec__name {
+  font-weight: 500;
+}
+
+.budget-rec__note {
+  grid-column: 1 / -1;
+  order: 3;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.budget-rec__amount {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}
+
+.budget-rec__row--total {
+  border-bottom: none;
+  border-top: 2px solid var(--color-border);
+  padding-top: 8px;
+  font-size: var(--font-size-lg);
+}
+
+.budget-rec__toggle {
+  margin-top: 12px;
+  border: none;
+  background: none;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  min-height: var(--touch-target);
+}
+
+.budget-rec__rates {
+  margin-top: 8px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}

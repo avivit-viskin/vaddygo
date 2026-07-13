@@ -15,6 +15,7 @@ import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { upcomingHolidays } from "../services/upcomingHoliday";
 import CountdownBanner from "./gifts/CountdownBanner";
 import UpcomingMonth from "./gifts/UpcomingMonth";
+import BudgetRecommendation from "./gifts/BudgetRecommendation";
 import GiftCard from "./gifts/GiftCard";
 import GiftForm from "./gifts/GiftForm";
 import BudgetAssistant from "./gifts/BudgetAssistant";
@@ -120,6 +121,8 @@ function GiftsPage() {
       </Card>
 
       <BudgetAssistant gifts={gifts} holidayBudgets={budgets} />
+
+      <BudgetRecommendation holidayBudgets={budgets} />
 
       <Card title="ספקים 🏷️">
         {vendors.length === 0 ? (

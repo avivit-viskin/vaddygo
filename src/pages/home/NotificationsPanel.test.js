@@ -2,7 +2,7 @@ import { render, fireEvent, act } from "@testing-library/react";
 import NotificationsPanel from "./NotificationsPanel";
 
 /*
-  NotificationsPanel — סגירה אוטומטית אחרי 5 שניות בלי פעילות.
+  NotificationsPanel — סגירה אוטומטית אחרי 2 שניות בלי פעילות.
   משתמשים בטיימרים מדומים כדי לא לחכות בפועל.
 */
 const noop = () => {};
@@ -27,12 +27,12 @@ function renderPanel(onClose) {
   );
 }
 
-test("נסגר לבד אחרי 5 שניות בלי פעילות", () => {
+test("נסגר לבד אחרי 2 שניות בלי פעילות", () => {
   const onClose = jest.fn();
   renderPanel(onClose);
 
   act(() => {
-    jest.advanceTimersByTime(5000);
+    jest.advanceTimersByTime(2000);
   });
 
   expect(onClose).toHaveBeenCalledTimes(1);
@@ -43,13 +43,13 @@ test("פעילות מאפסת את השעון — לא נסגר כל עוד נו
   renderPanel(onClose);
 
   act(() => {
-    jest.advanceTimersByTime(3000);
+    jest.advanceTimersByTime(1500);
   });
   act(() => {
     fireEvent.keyDown(window, { key: "a" }); // פעילות → איפוס השעון
   });
   act(() => {
-    jest.advanceTimersByTime(3000); // עברו 6ש סה"כ, אך רק 3ש מאז האיפוס
+    jest.advanceTimersByTime(1500); // עברו 3ש סה"כ, אך רק 1.5ש מאז האיפוס
   });
 
   expect(onClose).not.toHaveBeenCalled();

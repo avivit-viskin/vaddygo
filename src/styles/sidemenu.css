@@ -95,7 +95,7 @@
 }
 
 .institutions__item--active {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-dark);
   background: var(--color-primary-light);
 }
 

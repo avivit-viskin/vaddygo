@@ -128,7 +128,7 @@
 
 /* כפתור "עדכון יתרה" (פתיחת רישום הוצאה) */
 .collection__edit {
-  border: 1px solid var(--color-primary);
+  border: 1px solid var(--color-primary-dark);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
   border-radius: 999px;
@@ -199,7 +199,7 @@
 
 .progress__fill {
   height: 100%;
-  background: var(--color-primary);
+  background: var(--color-primary-dark);
   border-radius: 999px;
   transition: width 0.4s ease;
 }

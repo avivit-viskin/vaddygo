@@ -23,7 +23,7 @@
 .welcome__logo {
   font-size: 40px;
   margin: 0 0 24px;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
 }
 
 .welcome__text {
@@ -55,7 +55,7 @@
 .wizard__logo {
   text-align: center;
   font-size: 28px;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   margin: 8px 0 16px;
 }
 
@@ -167,7 +167,7 @@
   display: inline-block;
   background: none;
   border: none;
-  color: var(--color-primary);
+  color: var(--color-primary-dark);
   cursor: pointer;
   font-family: inherit;
   font-size: var(--font-size-sm);
@@ -230,8 +230,8 @@
 
 .chip--active {
   background: var(--color-primary);
-  border-color: var(--color-primary);
-  color: #fff;
+  border-color: var(--color-primary-dark);
+  color: var(--color-text);
   font-weight: 500;
 }
 

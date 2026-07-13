@@ -29,7 +29,13 @@ export async function getPaymentSummary(studentId) {
     (Number(p.bitAmount) || 0) +
     (Number(p.payBoxAmount) || 0) +
     (Number(p.cashAmount) || 0);
-  const isFullyPaid = (p) => paidSoFar(p) >= Number(p.amount);
+  // קטגוריה עם יעד סכום (amount>0) "שולמה" רק כשסכום האמצעים מכסה את היעד.
+  // לקטגוריה בלי יעד סכום (0) אי אפשר לחשב "כמה נשאר", ולכן נשענים על דגל
+  // התשלום (isPaid) — אחרת כל התלמידים היו נספרים כ"שילמו" והתזכורת "תיתקע"
+  // על "כל ההורים שילמו" גם כשיש חייבים.
+  const target = (p) => Number(p.amount) || 0;
+  const isFullyPaid = (p) =>
+    target(p) > 0 ? paidSoFar(p) >= target(p) : Boolean(p.isPaid);
   const paidCount = payments.filter(isFullyPaid).length;
   // התאריך האחרון שבו נרשם תשלום — כדי לדעת מתי לדרוש שוב (מיון ISO = כרונולוגי)
   const paidDates = payments.map((p) => p.paidDate).filter(Boolean).sort();

@@ -22,6 +22,15 @@ namespace ParentCommitteeAPI.DTOs
         public string Location { get; set; } = string.Empty;
 
         public bool Reminder { get; set; }
+
+        // שיתוף הורה ("אמא/אבא של שבת") + מה להביא + טלפון ההורה
+        public bool ShareWithParent { get; set; }
+
+        [StringLength(300, ErrorMessage = "הפירוט יכול להכיל עד 300 תווים")]
+        public string WhatToBring { get; set; } = string.Empty;
+
+        [StringLength(20, ErrorMessage = "מספר טלפון אינו תקין")]
+        public string ParentPhone { get; set; } = string.Empty;
     }
 
     public class EventCreateDto : EventWriteDto
@@ -40,5 +49,8 @@ namespace ParentCommitteeAPI.DTOs
         public string Description { get; set; } = string.Empty;
         public string Location { get; set; } = string.Empty;
         public bool Reminder { get; set; }
+        public bool ShareWithParent { get; set; }
+        public string WhatToBring { get; set; } = string.Empty;
+        public string ParentPhone { get; set; } = string.Empty;
     }
 }

@@ -97,6 +97,9 @@ namespace ParentCommitteeAPI.Services
             item.Description = dto.Description.Trim();
             item.Location = dto.Location.Trim();
             item.Reminder = dto.Reminder;
+            item.ShareWithParent = dto.ShareWithParent;
+            item.WhatToBring = dto.WhatToBring.Trim();
+            item.ParentPhone = dto.ParentPhone.Trim();
         }
 
         private static EventResponseDto ToResponse(Event item) => new()
@@ -107,6 +110,9 @@ namespace ParentCommitteeAPI.Services
             Description = item.Description,
             Location = item.Location,
             Reminder = item.Reminder,
+            ShareWithParent = item.ShareWithParent,
+            WhatToBring = item.WhatToBring,
+            ParentPhone = item.ParentPhone,
         };
     }
 }

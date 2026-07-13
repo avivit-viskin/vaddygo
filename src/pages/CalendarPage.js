@@ -17,6 +17,7 @@ import {
   getHolidayOccurrencesForMonth,
 } from "../data/holidays";
 import { hebrewDateLabel } from "../services/hebrewDate";
+import { whatsappUrl } from "../services/whatsapp";
 import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
 import HolidaysSection from "./calendar/HolidaysSection";
@@ -52,6 +53,13 @@ const listDateFormatter = new Intl.DateTimeFormat("he", {
 function toDateInputValue(date) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+/* וואטסאפ להורה עם מה להביא לאירוע (אמא/אבא של שבת) */
+function parentWhatsappUrl(event) {
+  const message =
+    `שלום 🙂 לקראת "${event.name}", נשמח אם תביאו: ${event.whatToBring}. תודה רבה! 💜`;
+  return `${whatsappUrl(event.parentPhone)}?text=${encodeURIComponent(message)}`;
 }
 
 function CalendarPage({ initialDate }) {
@@ -238,7 +246,19 @@ function CalendarPage({ initialDate }) {
             <span className="calendar-list__name">
               {event.name}
               {event.reminder && " 🔔"}
+              {event.shareWithParent && " 👪"}
             </span>
+            {event.shareWithParent && event.parentPhone && (
+              <a
+                className="calendar-list__whatsapp"
+                href={parentWhatsappUrl(event)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`שליחת וואטסאפ להורה על ${event.name}`}
+              >
+                💬
+              </a>
+            )}
             <button
               type="button"
               className="calendar-list__edit"

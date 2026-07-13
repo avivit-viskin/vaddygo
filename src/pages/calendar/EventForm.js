@@ -19,6 +19,11 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
   const [location, setLocation] = useState(initialEvent?.location || "");
   const [description, setDescription] = useState(initialEvent?.description || "");
   const [reminder, setReminder] = useState(Boolean(initialEvent?.reminder));
+  const [shareWithParent, setShareWithParent] = useState(
+    Boolean(initialEvent?.shareWithParent)
+  );
+  const [whatToBring, setWhatToBring] = useState(initialEvent?.whatToBring || "");
+  const [parentPhone, setParentPhone] = useState(initialEvent?.parentPhone || "");
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
 
@@ -39,6 +44,9 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
         location: location.trim(),
         description: description.trim(),
         reminder,
+        shareWithParent,
+        whatToBring: shareWithParent ? whatToBring.trim() : "",
+        parentPhone: shareWithParent ? parentPhone.trim() : "",
       });
     } finally {
       setIsSaving(false);
@@ -82,6 +90,32 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
         checked={reminder}
         onChange={(e) => setReminder(e.target.checked)}
       />
+      <Checkbox
+        id="event-share-parent"
+        label="👪 אירוע שמשתף הורה (למשל אמא/אבא של שבת)"
+        checked={shareWithParent}
+        onChange={(e) => setShareWithParent(e.target.checked)}
+      />
+      {shareWithParent && (
+        <>
+          <Input
+            id="event-what-to-bring"
+            label="מה להביא?"
+            value={whatToBring}
+            onChange={(e) => setWhatToBring(e.target.value)}
+            placeholder="למשל: חלה, מיץ ענבים ונרות"
+          />
+          <Input
+            id="event-parent-phone"
+            label="טלפון ההורה"
+            type="tel"
+            dir="ltr"
+            value={parentPhone}
+            onChange={(e) => setParentPhone(e.target.value)}
+            placeholder="050-1234567"
+          />
+        </>
+      )}
       <Button type="submit" isLoading={isSaving}>
         {isEdit ? "עדכון האירוע" : "שמירת האירוע"}
       </Button>

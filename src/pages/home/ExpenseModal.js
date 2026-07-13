@@ -8,6 +8,7 @@ import { formatShekels, formatDayMonth } from "../../services/format";
 import {
   getExpenses,
   createExpense,
+  updateExpense,
   deleteExpense,
 } from "../../services/expensesService";
 
@@ -23,6 +24,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState([]);
+  const [editingId, setEditingId] = useState(null);
 
   useEffect(() => {
     if (!isOpen) {
@@ -33,10 +35,28 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     setMethod("bit");
     setDescription("");
     setError("");
+    setEditingId(null);
     getExpenses()
       .then(setHistory)
       .catch(() => setHistory([]));
   }, [isOpen]);
+
+  function resetForm() {
+    setEditingId(null);
+    setAmount("");
+    setMethod("bit");
+    setDescription("");
+    setError("");
+  }
+
+  // טעינת הוצאה קיימת לטופס לצורך עריכה
+  function startEdit(expense) {
+    setEditingId(expense.id);
+    setAmount(String(expense.amount));
+    setMethod(expense.method);
+    setDescription(expense.description || "");
+    setError("");
+  }
 
   async function reloadHistory() {
     try {
@@ -56,10 +76,14 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     setIsSaving(true);
     setError("");
     try {
-      await createExpense({ amount: value, method, description: description.trim() });
+      const payload = { amount: value, method, description: description.trim() };
+      if (editingId != null) {
+        await updateExpense(editingId, payload);
+      } else {
+        await createExpense(payload);
+      }
       await reloadHistory();
-      setAmount("");
-      setDescription("");
+      resetForm();
       if (onSaved) {
         onSaved();
       }
@@ -118,10 +142,15 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
-        <div style={{ marginTop: 10 }}>
+        <div style={{ marginTop: 10, display: "flex", gap: 8 }}>
           <Button type="submit" isLoading={isSaving}>
-            הוספת הוצאה
+            {editingId != null ? "עדכון הוצאה" : "הוספת הוצאה"}
           </Button>
+          {editingId != null && (
+            <Button type="button" variant="secondary" onClick={resetForm}>
+              ביטול
+            </Button>
+          )}
         </div>
       </form>
 
@@ -130,7 +159,12 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
           <h3 className="expenses-history__title">הוצאות אחרונות</h3>
           <ul className="expenses-history__list">
             {history.map((e) => (
-              <li key={e.id} className="expenses-history__item">
+              <li
+                key={e.id}
+                className={`expenses-history__item${
+                  e.id === editingId ? " expenses-history__item--editing" : ""
+                }`}
+              >
                 <span className="expenses-history__main">
                   {formatShekels(e.amount)} · {paymentMethodLabel(e.method)}
                   {e.description ? ` · ${e.description}` : ""}
@@ -138,6 +172,14 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
                 <span className="expenses-history__date">
                   {formatDayMonth(e.date)}
                 </span>
+                <button
+                  type="button"
+                  className="expenses-history__edit"
+                  aria-label="עריכת הוצאה"
+                  onClick={() => startEdit(e)}
+                >
+                  ✏️
+                </button>
                 <button
                   type="button"
                   className="expenses-history__delete"

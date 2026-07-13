@@ -187,14 +187,24 @@
   white-space: nowrap;
 }
 
+.expenses-history__edit,
 .expenses-history__delete {
   border: none;
   background: none;
-  color: var(--color-error);
   cursor: pointer;
   font-size: 1rem;
   min-width: 32px;
   min-height: 32px;
+}
+
+.expenses-history__delete {
+  color: var(--color-error);
+}
+
+/* ההוצאה שנמצאת כרגע בעריכה — מודגשת עדינות */
+.expenses-history__item--editing {
+  background: var(--color-primary-light);
+  border-radius: var(--radius-sm);
 }
 
 .progress {

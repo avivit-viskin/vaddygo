@@ -15,3 +15,13 @@ export function createExpense(expense) {
 export function deleteExpense(id) {
   return api.del(`/api/expenses/${id}`);
 }
+
+/*
+  עדכון הוצאה קיימת. השרת עדיין לא חושף עדכון ישיר (רק POST/DELETE), ולכן
+  מממשים כאן "מחיקה + יצירה מחדש" עם הערכים החדשים. הקומפוננטה עוברת דרך
+  הפונקציה הזו בלבד — כשייחשף PUT בשרת, נחליף רק את הגוף כאן.
+*/
+export async function updateExpense(id, expense) {
+  await deleteExpense(id);
+  return createExpense(expense);
+}

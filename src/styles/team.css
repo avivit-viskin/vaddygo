@@ -1,0 +1,119 @@
+/*
+  team.css — מסך ניהול המשתמשים וההרשאות (משימה 6), על בסיס theme.css.
+*/
+.team-page {
+  max-width: 480px;
+  margin: 0 auto;
+  padding: 24px 16px calc(var(--bottom-nav-height) + 24px);
+}
+
+.team-page__logo {
+  text-align: center;
+  font-size: var(--font-size-xl);
+  margin: 0 0 16px;
+}
+
+.team-page__title {
+  margin: 0 0 6px;
+  font-size: var(--font-size-lg);
+}
+
+.team-page__subtitle {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}
+
+/* מקרא ההרשאות */
+.roles-legend {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.roles-legend__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.roles-legend__icon {
+  font-size: 1.1rem;
+}
+
+.team-invite {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+/* רשימת המשתמשים שהוזמנו */
+.team-list {
+  list-style: none;
+  margin: 0 0 24px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.team-list__item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  background: var(--color-surface);
+}
+
+.team-list__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.team-list__name {
+  font-weight: 600;
+}
+
+.team-list__role {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
+}
+
+.team-list__contact {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.team-list__invite {
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.team-list__remove {
+  border: none;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: 1rem;
+  min-width: 32px;
+  min-height: 32px;
+}
+
+.team-page__actions {
+  margin-top: 8px;
+}

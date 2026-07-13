@@ -85,7 +85,8 @@ function OnboardingWizard() {
     // רושם את המוסד ברשימת המוסדות (בהרשמת מוסד נוסף רק מפעיל את הנוכחי),
     // עם מזהה ה-Group מהשרת כדי לסנן את הנתונים לפי מוסד
     saveActiveOnboarding(data, result?.groupId ?? null);
-    navigate("/");
+    // אחרי הגדרת הגן — מסך ניהול המשתמשים וההרשאות (משימה 6), ואז לאפליקציה
+    navigate("/team-setup");
   }
 
   function renderStep(key) {

@@ -15,6 +15,7 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
+import TeamSetupPage from "./pages/TeamSetupPage";
 import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import PurchasePage from "./pages/PurchasePage";
@@ -34,6 +35,7 @@ const FULL_SCREEN_ROUTES = [
   "/login",
   "/register",
   "/onboarding",
+  "/team-setup",
   "/subscription-expired",
 ];
 // נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token)
@@ -105,6 +107,7 @@ function App() {
             element={<SubscriptionExpiredPage />}
           />
           <Route path="/onboarding" element={<OnboardingWizard />} />
+          <Route path="/team-setup" element={<TeamSetupPage />} />
           <Route path="/students" element={<StudentsPage />} />
           <Route
             path="/students/:studentId/payments"

@@ -2,10 +2,20 @@
   students.css — עיצוב ייעודי למסך התלמידים (כפתורי הכותרת + ייבוא מקובץ).
 */
 
+/* שלושת כפתורי הכותרת (תזכורת / ייבוא / הוספה) בשורה אחת ומיושרת.
+   הכפתורים חולקים את הרוחב שווה בשווה; בטלפון צר הם נשברים יפה 2+1. */
 .page-header__actions {
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  width: 100%;
+}
+
+.page-header__actions .btn {
+  flex: 1 1 auto;
+  padding: 10px 10px;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
 }
 
 .students-import {

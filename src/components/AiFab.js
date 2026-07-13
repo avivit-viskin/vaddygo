@@ -7,7 +7,7 @@ function AiFab() {
   return (
     <Link to="/assistant" className="ai-fab" aria-label="עוזרת AI">
       <span className="ai-fab__icon" aria-hidden="true">
-        💬
+        AI
       </span>
     </Link>
   );

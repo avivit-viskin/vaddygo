@@ -420,6 +420,7 @@ h3 {
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 16px;
+  flex-wrap: wrap;
 }
 
 .page-header h2 {
@@ -474,6 +475,8 @@ h3 {
 .student-card__actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 /* תג סטטוס תשלום ליד שם התלמיד: אפור=חלקי/אין, ירוק=שולם הכל */

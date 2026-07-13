@@ -229,6 +229,11 @@
   gap: 2px;
 }
 
+.methods__icon {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+
 .methods__name {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);

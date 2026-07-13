@@ -50,7 +50,7 @@ test("מסך הבית מציג את שם הגן, יעד הגבייה, והתרא
   // יעד הגבייה: (1,200 + 500) × 22 ילדים = 37,400
   expect(screen.getByText(/37,400/)).toBeInTheDocument();
   // פירוק לפי אמצעי תשלום
-  expect(screen.getByText("ביט")).toBeInTheDocument();
+  expect(screen.getByText("BIT")).toBeInTheDocument();
   expect(screen.getByText("פייבוקס")).toBeInTheDocument();
   expect(screen.getByText("מזומן")).toBeInTheDocument();
 

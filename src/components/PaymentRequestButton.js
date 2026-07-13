@@ -110,11 +110,11 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button>ביט</Button>
+            <Button>BIT</Button>
           </a>
         ) : (
           <Button variant="secondary" onClick={() => setShowLinks(true)}>
-            ביט — הוסיפי קישור
+            BIT — הוסיפי קישור
           </Button>
         )}
 
@@ -154,10 +154,10 @@ function PaymentRequestContent({ student, fullName }) {
         <div className="pay-request__links">
           <Input
             id="pay-link-bit"
-            label="קישור ביט של הוועד"
+            label="קישור BIT של הוועד"
             value={links.bit}
             onChange={(e) => setLinks({ ...links, bit: e.target.value })}
-            placeholder="הדביקי כאן את קישור הביט"
+            placeholder="הדביקי כאן את קישור ה-BIT"
           />
           <Input
             id="pay-link-paybox"

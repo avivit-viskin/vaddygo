@@ -41,10 +41,6 @@ const monthTitleFormatter = new Intl.DateTimeFormat("he", {
 const hebrewMonthFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
   month: "long",
 });
-const hebrewFullFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
-  month: "long",
-  year: "numeric",
-});
 const listDateFormatter = new Intl.DateTimeFormat("he", {
   day: "numeric",
   month: "numeric",
@@ -112,7 +108,10 @@ function CalendarPage({ initialDate }) {
 
   const lastOfMonth = new Date(year, monthIndex + 1, 0, 12);
   const hebrewFirst = hebrewMonthFormatter.format(viewDate);
-  const hebrewLast = hebrewFullFormatter.format(lastOfMonth);
+  const hebrewLast = hebrewMonthFormatter.format(lastOfMonth);
+  // טווח החודשים העבריים בלי מספר השנה (5784) — לפי בקשת בעלת המוצר
+  const hebrewRange =
+    hebrewFirst === hebrewLast ? hebrewFirst : `${hebrewFirst}–${hebrewLast}`;
 
   function moveMonth(step) {
     setViewDate(new Date(year, monthIndex + step, 1, 12));
@@ -187,9 +186,7 @@ function CalendarPage({ initialDate }) {
               <h2 className="calendar-header__month">
                 {monthTitleFormatter.format(viewDate)}
               </h2>
-              <p className="calendar-header__hebrew">
-                {hebrewFirst}–{hebrewLast}
-              </p>
+              <p className="calendar-header__hebrew">{hebrewRange}</p>
             </div>
             <button
               type="button"

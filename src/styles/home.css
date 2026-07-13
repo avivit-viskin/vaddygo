@@ -294,39 +294,39 @@
 
 /* ── קטגוריות ───────────────────────────────────────────── */
 
-/* קטגוריות כריבועים — כמו ריבועי אמצעי התשלום */
+/* קטגוריות כריבועים עדינים — מסגרת דקה, בלי בולד כבד, תופס מעט מקום */
 .categories {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 8px;
+  gap: 6px;
 }
 
 .categories__item {
-  background: var(--color-bg);
-  border-radius: var(--radius-md);
-  padding: 10px 8px;
+  background: transparent;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
   text-align: center;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 2px;
 }
 
 .categories__name {
-  font-weight: 600;
+  font-weight: 500;
+  font-size: var(--font-size-sm);
 }
 
 .categories__amounts {
   font-size: var(--font-size-sm);
-  font-weight: bold;
   color: var(--color-primary-dark);
 }
 
 .categories__of {
   color: var(--color-text-muted);
-  font-weight: normal;
   font-size: var(--font-size-sm);
 }
 

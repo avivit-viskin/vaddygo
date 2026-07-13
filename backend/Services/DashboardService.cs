@@ -54,6 +54,10 @@ namespace ParentCommitteeAPI.Services
                 .Include(p => p.Student)
                 .Where(p => p.IsPaid && p.Student != null && p.Student.GroupId == group.Id)
                 .ToListAsync();
+            /* הוצאות הקופה של המוסד — מקטינות את היתרה ואת קוביות האמצעים */
+            var expenses = await _db.Expenses.AsNoTracking()
+                .Where(e => e.GroupId == group.Id)
+                .ToListAsync();
             var today = DateTime.Today;
 
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
@@ -61,8 +65,11 @@ namespace ParentCommitteeAPI.Services
 
             /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (סכום כל האמצעים) */
             var collected = paidPayments.Sum(PaidTotal);
+            /* חוב פתוח = כמה עוד צריך להיגבות מההורים (לא מושפע מהוצאות) */
             var openDebt = target - collected;
-            var boxBalance = collected;
+            /* יתרת הקופה = מה שיש בקופה בפועל = נגבה − הוצאות */
+            var totalExpenses = expenses.Sum(e => e.Amount);
+            var boxBalance = collected - totalExpenses;
 
             var birthdays = staff
                 .Select(s => ToBirthday(s, today))
@@ -81,11 +88,12 @@ namespace ParentCommitteeAPI.Services
                 OpenDebt = openDebt,
                 BoxBalance = boxBalance,
                 ProgressPercent = target == 0 ? 0 : (int)Math.Round(collected / target * 100),
+                /* קוביות האמצעים = מה שנגבה בכל אמצעי פחות מה שיצא ממנו בהוצאות */
                 ByPaymentMethod = new List<DashboardAmountDto>
                 {
-                    new() { Method = "bit", Amount = paidPayments.Sum(p => p.BitAmount) },
-                    new() { Method = "paybox", Amount = paidPayments.Sum(p => p.PayBoxAmount) },
-                    new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) },
+                    new() { Method = "bit", Amount = paidPayments.Sum(p => p.BitAmount) - MethodExpenses(expenses, "bit") },
+                    new() { Method = "paybox", Amount = paidPayments.Sum(p => p.PayBoxAmount) - MethodExpenses(expenses, "paybox") },
+                    new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) - MethodExpenses(expenses, "cash") },
                 },
                 ByCategory = group.Categories.Select(c => new DashboardCategoryDto
                 {
@@ -102,6 +110,10 @@ namespace ParentCommitteeAPI.Services
 
         /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים */
         private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount;
+
+        /* סך ההוצאות שיצאו מאמצעי מסוים (ביט/פייבוקס/מזומן) */
+        private static decimal MethodExpenses(List<Expense> expenses, string method) =>
+            expenses.Where(e => e.Method == method).Sum(e => e.Amount);
 
         private static List<DashboardAlertDto> BuildAlerts(
             Group group, decimal collected, List<DashboardBirthdayDto> birthdays, DateTime today)

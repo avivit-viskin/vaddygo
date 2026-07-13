@@ -22,6 +22,7 @@ namespace ParentCommitteeAPI
         public DbSet<Gift> Gifts { get; set; }
         public DbSet<User> Users { get; set; }
         public DbSet<DriveFolder> DriveFolders { get; set; }
+        public DbSet<Expense> Expenses { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

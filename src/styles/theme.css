@@ -5,16 +5,18 @@
 */
 
 :root {
-  /* ===== צבעי בסיס — ערכת חום/שמנת חמה (הפלטה של בעלת המוצר) ===== */
-  --color-primary: #5a4030;
-  --color-primary-dark: #47301f;
-  --color-primary-light: #efe7de; /* גוון חם-בהיר לרקעי משנה, תגים וכותרות */
-  --color-primary-muted: #8a6855; /* "Primary Light" מהפלטה — חום בהיר לאקסנטים */
-  --color-bg: #f8f4ef;
+  /* ===== צבעי בסיס — ורוד חי ונעים =====
+     ⚠️ החלטת בעלת המוצר (13.07.2026): הפלטה היא ורוד — לא חום ולא סגול.
+     אין להחזיר לחום/סגול בלי אישור מפורש של בעלת המוצר. */
+  --color-primary: #e05088;
+  --color-primary-dark: #c43f72;
+  --color-primary-light: #f9dae9; /* הגוון של בעלת המוצר — ורוד בהיר לרקעים, תגים, כותרת */
+  --color-primary-muted: #ee9bbb;
+  --color-bg: #fff6fa;
   --color-surface: #ffffff;
-  --color-text: #3a2a21;
-  --color-text-muted: #8a6855;
-  --color-border: #ddd2c7;
+  --color-text: #3b2b33;
+  --color-text-muted: #9a6e80;
+  --color-border: #f0d4e1;
 
   /* ===== סטטוסים ===== */
   --color-success: #3cb371;
@@ -47,8 +49,8 @@
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  --shadow-sm: 0 1px 3px rgba(90, 64, 48, 0.08);
-  --shadow-md: 0 4px 14px rgba(90, 64, 48, 0.12);
+  --shadow-sm: 0 1px 3px rgba(201, 58, 114, 0.09);
+  --shadow-md: 0 4px 14px rgba(201, 58, 114, 0.13);
 
   /* נגישות: אזור מגע מינימלי */
   --touch-target: 44px;

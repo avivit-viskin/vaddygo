@@ -132,6 +132,13 @@
   padding: 10px 0;
 }
 
+/* "צור קשר" עם אייקון וואטסאפ — אייקון וטקסט באותה שורה */
+.sidemenu__contact {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .sidemenu__logout {
   display: block;
   width: 100%;

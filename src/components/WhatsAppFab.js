@@ -1,4 +1,5 @@
 import { whatsappUrl } from "../services/whatsapp";
+import WhatsAppIcon from "./WhatsAppIcon";
 
 /*
   WhatsAppFab — כפתור צף ל"צור קשר" בוואטסאפ עם התמיכה, מוצג ליד עוזרת ה-AI
@@ -20,7 +21,7 @@ function WhatsAppFab() {
       aria-label="צור קשר בוואטסאפ"
     >
       <span className="whatsapp-fab__icon" aria-hidden="true">
-        📞
+        <WhatsAppIcon color="#ffffff" size={30} />
       </span>
     </a>
   );

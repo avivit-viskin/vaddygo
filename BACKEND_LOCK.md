@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: LOCKED by [Claude Fable 5, 2026-07-13 00:10 - migration: restore Avivit's gan ownership to her account]
+STATUS: LOCKED by [Claude Opus 4.8, 2026-07-13 - taking stale lock: deploy ownership fix + task 24]
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

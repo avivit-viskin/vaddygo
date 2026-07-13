@@ -1,3 +1,5 @@
+import { hebrewDayGematria } from "../../services/hebrewDate";
+
 /*
   MonthGrid — רשת חודש: כותרות ימי השבוע, מספרי ימים (לועזי + עברי),
   תגי חגים ואירועים. לחיצה על יום פותחת הוספת אירוע באותו תאריך (נוח בנייד).
@@ -5,10 +7,13 @@
 */
 const WEEKDAY_LABELS = ["א'", "ב'", "ג'", "ד'", "ה'", "ו'", "שבת"];
 
-// היום העברי (גימטריה) של כל תאריך — מחושב מהלוח העברי המובנה בדפדפן
+// היום העברי של כל תאריך — מהלוח העברי המובנה בדפדפן, מומר לאותיות (גימטריה)
 const hebrewDayFormatter = new Intl.DateTimeFormat("he-u-ca-hebrew", {
   day: "numeric",
 });
+function hebrewDayLetters(date) {
+  return hebrewDayGematria(hebrewDayFormatter.format(date));
+}
 
 function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay, onDayClick }) {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
@@ -64,9 +69,7 @@ function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay, onDayClick })
                     <span className="calendar-day__nums">
                       <span className="calendar-day__number">{day}</span>
                       <span className="calendar-day__hebrew">
-                        {hebrewDayFormatter.format(
-                          new Date(year, monthIndex, day, 12)
-                        )}
+                        {hebrewDayLetters(new Date(year, monthIndex, day, 12))}
                       </span>
                     </span>
                     {(holidaysByDay.get(day) || []).map((name) => (

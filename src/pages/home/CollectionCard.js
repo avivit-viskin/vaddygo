@@ -2,44 +2,37 @@ import { useState } from "react";
 import Card from "../../components/Card";
 import { formatShekels } from "../../services/format";
 import { paymentMethodLabel } from "../../services/paymentMethods";
+import ExpenseModal from "./ExpenseModal";
 
 /*
   CollectionCard — כרטיס הגבייה הראשי (UI_SPEC ס' 8):
-  החלפה בין סכום הגבייה הכולל ליתרת הקופה מול החוב הפתוח,
-  בר התקדמות באחוזים, ופירוק לפי אמצעי תשלום (ביט/פייבוקס/מזומן).
+  מציג את יתרת הקופה (נגבה − הוצאות) לצד החוב הפתוח, כפתור לעדכון היתרה
+  (רישום הוצאה), בר התקדמות מול היעד, ופירוק לפי אמצעי תשלום (נטו מהוצאות).
 */
-function CollectionCard({ dashboard }) {
-  const [showBalance, setShowBalance] = useState(false);
+function CollectionCard({ dashboard, onExpenseChanged }) {
+  const [editOpen, setEditOpen] = useState(false);
 
   return (
     <Card>
       <div className="collection__top">
-        {showBalance ? (
-          <div className="collection__balance">
-            <div>
-              <p className="collection__label">יתרת קופה</p>
-              <p className="collection__amount">{formatShekels(dashboard.boxBalance)}</p>
-            </div>
-            <div>
-              <p className="collection__label">חוב פתוח</p>
-              <p className="collection__amount collection__amount--debt">
-                {formatShekels(dashboard.openDebt)}
-              </p>
-            </div>
-          </div>
-        ) : (
+        <div className="collection__balance">
           <div>
-            <p className="collection__label">סכום הגבייה הכולל</p>
-            <p className="collection__amount">{formatShekels(dashboard.collectionTarget)}</p>
+            <p className="collection__label">יתרת הקופה</p>
+            <p className="collection__amount">{formatShekels(dashboard.boxBalance)}</p>
           </div>
-        )}
+          <div>
+            <p className="collection__label">חוב פתוח</p>
+            <p className="collection__amount collection__amount--debt">
+              {formatShekels(dashboard.openDebt)}
+            </p>
+          </div>
+        </div>
         <button
           type="button"
-          className="collection__toggle"
-          aria-pressed={showBalance}
-          onClick={() => setShowBalance((prev) => !prev)}
+          className="collection__edit"
+          onClick={() => setEditOpen(true)}
         >
-          {showBalance ? "ליעד הגבייה" : "ליתרת הקופה"}
+          ✏️ עדכון יתרה
         </button>
       </div>
 
@@ -66,6 +59,12 @@ function CollectionCard({ dashboard }) {
           </li>
         ))}
       </ul>
+
+      <ExpenseModal
+        isOpen={editOpen}
+        onClose={() => setEditOpen(false)}
+        onSaved={onExpenseChanged}
+      />
     </Card>
   );
 }

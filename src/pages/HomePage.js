@@ -103,7 +103,7 @@ function HomePage() {
       )}
       {error && <p className="home__offline">{error}</p>}
 
-      <CollectionCard dashboard={dashboard} />
+      <CollectionCard dashboard={dashboard} onExpenseChanged={reload} />
       <CategoryList categories={dashboard.byCategory} />
       <StaffBirthdays onChanged={reload} totalBudget={dashboard.collectionTarget} />
 

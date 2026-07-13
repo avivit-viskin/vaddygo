@@ -26,6 +26,16 @@ function inviteText(member) {
   );
 }
 
+/* קישור מייל עם הזמנה מוכנה; אם ה"פרטי קשר" הוא מייל — הוא ממולא כנמען. */
+function mailtoInvite(member) {
+  const to = member.contact.includes("@") ? member.contact : "";
+  const subject = "הזמנה לניהול ועד ההורים ב-VaddyGo";
+  return (
+    `mailto:${to}?subject=${encodeURIComponent(subject)}` +
+    `&body=${encodeURIComponent(inviteText(member))}`
+  );
+}
+
 function TeamSetupPage() {
   const navigate = useNavigate();
   const [team, setTeam] = useState(getTeam);
@@ -127,7 +137,14 @@ function TeamSetupPage() {
                 rel="noreferrer"
                 aria-label={`שליחת הזמנה ל${m.name} בוואטסאפ`}
               >
-                שליחת הזמנה 💬
+                וואטסאפ 💬
+              </a>
+              <a
+                className="team-list__invite"
+                href={mailtoInvite(m)}
+                aria-label={`שליחת הזמנה ל${m.name} במייל`}
+              >
+                מייל 📧
               </a>
               <button
                 type="button"

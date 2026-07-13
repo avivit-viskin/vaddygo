@@ -13,7 +13,7 @@ function WelcomePage() {
   return (
     <div className="welcome">
       <h1 className="welcome__logo">
-        <BrandName withHeart />
+        <BrandName />
       </h1>
       <p className="welcome__text">
         ברוכים הבאים למשפחת <BrandName />! אנחנו יודעים כמה שעות אתם משקיעים —

@@ -430,3 +430,10 @@
 .home__reminder {
   margin-bottom: 12px;
 }
+
+/* פופאפ "כמה כסף יצא" אחרי אירוע/חג (משימה 25) */
+.expense-prompt__hint {
+  margin: 0 0 12px;
+  line-height: 1.5;
+  color: var(--color-text);
+}

@@ -17,6 +17,7 @@ import { hebrewSchoolYearName } from "../services/schoolYear";
 import NotificationsPanel from "./home/NotificationsPanel";
 import BulkReminderButton from "../components/BulkReminderButton";
 import WelcomePopup from "../components/WelcomePopup";
+import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
 import StaffBirthdays from "./home/StaffBirthdays";
@@ -95,6 +96,7 @@ function HomePage() {
   return (
     <div className="home">
       <WelcomePopup />
+      <ExpenseAfterEventPrompt onRecorded={reload} />
       <div className="home__header">
         <h2 className="home__title">
           {dashboard.ganName}{" "}

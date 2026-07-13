@@ -5,7 +5,6 @@ import InstitutionSwitcher from "./InstitutionSwitcher";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
-import WhatsAppIcon from "./WhatsAppIcon";
 import { logout } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
@@ -106,13 +105,13 @@ function SideMenu({ isOpen, onClose }) {
 
         <div className="sidemenu__footer">
           <a
-            className="sidemenu__action sidemenu__contact"
+            className="sidemenu__action"
             href={SUPPORT_URL}
             target="_blank"
             rel="noreferrer"
             onClick={onClose}
           >
-            <WhatsAppIcon size={18} /> צור קשר
+            צור קשר
           </a>
           <button type="button" className="sidemenu__logout" onClick={handleLogout}>
             🚪 התנתק

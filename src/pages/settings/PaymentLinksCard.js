@@ -16,6 +16,7 @@ function PaymentLinksCard() {
   const [links, setLinks] = useState({ bit: "", paybox: "" });
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [error, setError] = useState("");
 
   useEffect(() => {
     getPaymentLinks()
@@ -27,15 +28,19 @@ function PaymentLinksCard() {
     return (event) => {
       setLinks((prev) => ({ ...prev, [field]: event.target.value }));
       setSaved(false);
+      setError("");
     };
   }
 
   async function handleSave() {
     setIsSaving(true);
     setSaved(false);
+    setError("");
     try {
       setLinks(await savePaymentLinks(links));
       setSaved(true);
+    } catch (err) {
+      setError(err.message || "השמירה נכשלה, נסי שוב");
     } finally {
       setIsSaving(false);
     }
@@ -44,15 +49,15 @@ function PaymentLinksCard() {
   return (
     <Card title="💳 קישורי תשלום של הוועד">
       <p className="settings__hint">
-        הדביקי כאן את קישור התשלום בביט ובקבוצת הפייבוקס. הם ייכנסו אוטומטית
-        להודעות בקשת התשלום שנשלחות להורים בוואטסאפ.
+        בביט — מספר הטלפון שאליו משלמים; בפייבוקס — קישור קבוצת התשלום. הם ייכנסו
+        אוטומטית להודעות בקשת התשלום שנשלחות להורים בוואטסאפ.
       </p>
       <Input
         id="settings-bit-link"
-        label="קישור תשלום בביט"
+        label="מספר טלפון לתשלום בביט"
         value={links.bit}
         onChange={change("bit")}
-        placeholder="הדביקי כאן את קישור הביט"
+        placeholder="למשל: 050-1234567"
       />
       <Input
         id="settings-paybox-link"
@@ -67,6 +72,11 @@ function PaymentLinksCard() {
         </Button>
         {saved && <span className="settings__saved">נשמר! ✅</span>}
       </div>
+      {error && (
+        <p className="field__error" role="alert">
+          {error}
+        </p>
+      )}
     </Card>
   );
 }

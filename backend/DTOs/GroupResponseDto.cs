@@ -26,14 +26,16 @@ namespace ParentCommitteeAPI.DTOs
     }
 
     /*
-      GroupPaymentLinksDto — עדכון קישורי התשלום של הוועד (ביט/פייבוקס) בלבד.
-      URL חייב להתחיל ב-http/https אם הוזן (ולידציה קלה — לא ממציאים פורמט).
+      GroupPaymentLinksDto — עדכון קישורי התשלום של הוועד.
+      ביט = מספר טלפון (כך משלמים בביט) או קישור; פייבוקס = קישור קבוצה.
+      ולידציה קלה — לא ממציאים פורמט.
     */
     public class GroupPaymentLinksDto
     {
+        // ביט: מספר טלפון (למשל 050-1234567) או קישור; ריק מותר.
         [System.ComponentModel.DataAnnotations.RegularExpression(
-            @"^$|^https?://.+",
-            ErrorMessage = "קישור ביט חייב להתחיל ב-http:// או https://")]
+            @"^$|^https?://.+|^[+\d][\d\s()-]{5,19}$",
+            ErrorMessage = "בביט אפשר להזין מספר טלפון (למשל 050-1234567) או קישור")]
         public string? BitLink { get; set; }
 
         [System.ComponentModel.DataAnnotations.RegularExpression(

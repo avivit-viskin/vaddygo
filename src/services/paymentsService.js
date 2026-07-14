@@ -93,7 +93,7 @@ export function buildBulkPaymentRequestMessage(ganName, links = {}) {
       : `דרישת תשלום של ____ ש"ח מהוועד.`
   );
   if (links.bit) {
-    lines.push(`לתשלום בביט: ${links.bit}`);
+    lines.push(`לתשלום בביט למספר: ${links.bit}`);
   }
   if (links.paybox) {
     lines.push(`לתשלום בפייבוקס: ${links.paybox}`);
@@ -110,7 +110,7 @@ export function buildPaymentRequestMessage(studentFullName, unpaidPayments, meth
   const head = reminderHead(studentFullName, unpaidPayments);
   let tail;
   if (method === "bit" && links?.bit) {
-    tail = [`לתשלום מהיר בביט: ${links.bit}`, "תודה רבה! 💜"];
+    tail = [`לתשלום מהיר בביט למספר: ${links.bit}`, "תודה רבה! 💜"];
   } else if (method === "paybox" && links?.paybox) {
     tail = [`לתשלום דרך פייבוקס: ${links.paybox}`, "תודה רבה! 💜"];
   } else {

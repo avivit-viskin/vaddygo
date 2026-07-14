@@ -47,17 +47,28 @@ export async function getPaymentLinks() {
 
 export async function savePaymentLinks({ bit, paybox }) {
   const links = { bit: (bit || "").trim(), paybox: (paybox || "").trim() };
-  writeLocal(links);
   const groupId = currentGroupId();
-  if (groupId) {
-    try {
-      await api.put(`/api/groups/${groupId}/payment-links`, {
-        bitLink: links.bit,
-        payboxLink: links.paybox,
-      });
-    } catch {
-      // נשמר מקומית; יסונכרן לשרת בפעם הבאה שיהיה זמין
-    }
+  if (!groupId) {
+    // אין גן מסונכרן — נשמר מקומית בלבד
+    writeLocal(links);
+    return links;
   }
-  return links;
+  try {
+    const group = await api.put(`/api/groups/${groupId}/payment-links`, {
+      bitLink: links.bit,
+      payboxLink: links.paybox,
+    });
+    // מקור האמת הוא השרת — שומרים במטמון את מה שנשמר בפועל
+    const saved = { bit: group.bitLink || "", paybox: group.payboxLink || "" };
+    writeLocal(saved);
+    return saved;
+  } catch (err) {
+    // שגיאת ולידציה (קלט לא תקין) — זורקים הלאה כדי שהמשתמשת תראה ותתקן
+    if (err.status === 400) {
+      throw err;
+    }
+    // השרת לא זמין — נשמר מקומית ויסונכרן בפעם הבאה
+    writeLocal(links);
+    return links;
+  }
 }

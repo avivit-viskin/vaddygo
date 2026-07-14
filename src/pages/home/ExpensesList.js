@@ -40,6 +40,15 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
 
   const total = expenses.reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
+  // סיכום ההוצאות לפי קטגוריה (על מה ירד הכסף) — מסונכרן עם "עדכון יתרה"
+  const byCategory = {};
+  for (const e of expenses) {
+    const key = e.category?.trim() || "ללא קטגוריה";
+    byCategory[key] = (byCategory[key] || 0) + (Number(e.amount) || 0);
+  }
+  const categoryRows = Object.entries(byCategory).sort((a, b) => b[1] - a[1]);
+  const hasCategories = expenses.some((e) => e.category && e.category.trim());
+
   return (
     <Card title="ההוצאות שלי 🧾">
       {isLoading ? (
@@ -55,7 +64,9 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
             {expenses.map((e) => (
               <li key={e.id} className="expenses-list__item">
                 <span className="expenses-list__main">
-                  {formatShekels(e.amount)} · {paymentMethodLabel(e.method)}
+                  {formatShekels(e.amount)}
+                  {e.category ? ` · ${e.category}` : ""} ·{" "}
+                  {paymentMethodLabel(e.method)}
                   {e.description ? ` · ${e.description}` : ""}
                 </span>
                 <span className="expenses-list__date">
@@ -72,6 +83,19 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
               </li>
             ))}
           </ul>
+          {hasCategories && (
+            <div className="expenses-list__by-category">
+              <h4 className="expenses-list__by-category-title">לפי קטגוריה</h4>
+              <ul className="expenses-list__cat-list">
+                {categoryRows.map(([name, sum]) => (
+                  <li key={name} className="expenses-list__cat-row">
+                    <span>{name}</span>
+                    <strong>{formatShekels(sum)}</strong>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
           <p className="expenses-list__total">
             סה"כ יצא: <strong>{formatShekels(total)}</strong>
           </p>

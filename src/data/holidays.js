@@ -79,13 +79,14 @@ const SPAN_HOLIDAYS = [
 ];
 
 // ערבי חג (ערב יום טוב) — תאריך עברי קבוע, היום שלפני תחילת החג.
-// מוצגים בלוח בלבד (לא ברשימת החגים/התקציבים).
+// הערב מתמזג לתוך מופע החג כיום הראשון שלו: כך התאריך בלוח וברשימת החגים
+// מתחיל מהערב חג. holiday = שם החג שאליו שייך הערב (לצורך המיזוג).
 const EVE_HOLIDAYS = [
-  { month: "Elul", day: 29, name: "ערב ראש השנה" },
-  { month: "Tishri", day: 9, name: "ערב יום כיפור" },
-  { month: "Tishri", day: 14, name: "ערב סוכות" },
-  { month: "Nisan", day: 14, name: "ערב פסח" },
-  { month: "Sivan", day: 5, name: "ערב שבועות" },
+  { month: "Elul", day: 29, holiday: "ראש השנה" },
+  { month: "Tishri", day: 9, holiday: "יום כיפור" },
+  { month: "Tishri", day: 14, holiday: "סוכות" },
+  { month: "Nisan", day: 14, holiday: "פסח" },
+  { month: "Sivan", day: 5, holiday: "שבועות" },
 ];
 
 const hebrewFormatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
@@ -141,13 +142,15 @@ export function getHolidayOccurrencesForMonth(year, monthIndex) {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const occurrences = new Map(); // "שם|שנה עברית" → מופע
 
-  const addDay = (date, name, hebrewYear) => {
+  const addDay = (date, name, hebrewYear, isEve = false) => {
     if (date.getFullYear() !== year || date.getMonth() !== monthIndex) return;
     const key = `${name}|${hebrewYear}`;
     const occurrence =
-      occurrences.get(key) || { name, hebrewYear, days: [] };
-    if (!occurrence.days.includes(date.getDate())) {
-      occurrence.days.push(date.getDate());
+      occurrences.get(key) || { name, hebrewYear, days: [], eveDays: [] };
+    const dayNum = date.getDate();
+    if (!occurrence.days.includes(dayNum)) occurrence.days.push(dayNum);
+    if (isEve && !occurrence.eveDays.includes(dayNum)) {
+      occurrence.eveDays.push(dayNum);
     }
     occurrences.set(key, occurrence);
   };
@@ -176,6 +179,16 @@ export function getHolidayOccurrencesForMonth(year, monthIndex) {
       addDay(independence, "יום העצמאות", hebrew.year);
       addDay(addDays(independence, -1), "יום הזיכרון", hebrew.year);
     }
+
+    // ערב חג — מתמזג לתוך מופע החג כיום הראשון שלו. שנת המופע נלקחת מיום
+    // החג עצמו (יום אחרי הערב), כדי שערב ראש השנה (כ"ט אלול, בשנה הקודמת)
+    // יתמזג עם ראש השנה של השנה הבאה.
+    for (const eve of EVE_HOLIDAYS) {
+      if (hebrew.month === eve.month && hebrew.day === eve.day) {
+        const holidayYear = toHebrewDate(addDays(date, 1)).year;
+        addDay(date, eve.holiday, holidayYear, true);
+      }
+    }
   }
 
   return [...occurrences.values()]
@@ -188,8 +201,7 @@ export function getHolidayOccurrencesForMonth(year, monthIndex) {
 
 /*
   מחזיר Map: יום-בחודש (מספר) → מערך שמות חגים — לסימון תגים ברשת הלוח.
-  כולל גם "ערב חג" (היום שלפני החג) לפי התאריך העברי הקבוע — לתצוגה בלוח בלבד;
-  ערבי החג *אינם* נכנסים ל-getHolidayOccurrencesForMonth (רשימת החגים/התקציבים).
+  יום שהוא "ערב חג" (היום הראשון של מופע החג) מסומן "ערב <שם החג>".
 */
 export function getHolidaysForMonth(year, monthIndex) {
   const holidaysByDay = new Map();
@@ -200,15 +212,9 @@ export function getHolidaysForMonth(year, monthIndex) {
   };
 
   for (const occurrence of getHolidayOccurrencesForMonth(year, monthIndex)) {
-    for (const day of occurrence.days) add(day, occurrence.name);
-  }
-
-  // ערבי חג — לפי התאריך העברי הקבוע שלהם
-  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
-  for (let day = 1; day <= daysInMonth; day++) {
-    const hebrew = toHebrewDate(atNoon(year, monthIndex, day));
-    for (const eve of EVE_HOLIDAYS) {
-      if (hebrew.month === eve.month && hebrew.day === eve.day) add(day, eve.name);
+    const eveDays = occurrence.eveDays || [];
+    for (const day of occurrence.days) {
+      add(day, eveDays.includes(day) ? `ערב ${occurrence.name}` : occurrence.name);
     }
   }
 

@@ -40,11 +40,32 @@ describe("ערבי חג", () => {
     expect(found).toBe(true); // ודא שאכן נבדק (י"ד בניסן קיים ב-2026)
   });
 
-  test("ערבי החג לא נכנסים לרשימת החגים/התקציבים", () => {
+  test("אין מופע נפרד בשם 'ערב ...' — הערב מתמזג לתוך מופע החג", () => {
     for (let m = 0; m < 12; m++) {
       const occ = getHolidayOccurrencesForMonth(YEAR, m);
       expect(occ.every((o) => !o.name.startsWith("ערב "))).toBe(true);
     }
+  });
+
+  test("הערב חג הוא היום הראשון של מופע החג (התאריך מתחיל ממנו)", () => {
+    let checked = false;
+    for (let m = 0; m < 12; m++) {
+      const pesach = getHolidayOccurrencesForMonth(YEAR, m).find(
+        (o) => o.name === "פסח"
+      );
+      if (!pesach) continue;
+      const daysInMonth = new Date(YEAR, m + 1, 0).getDate();
+      for (let day = 1; day <= daysInMonth; day++) {
+        const h = hebrew(YEAR, m, day);
+        if (h.month === "Nisan" && h.day === 14) {
+          expect(pesach.days).toContain(day); // הערב נכלל במופע
+          expect(pesach.days[0]).toBe(day); // והוא היום הראשון
+          expect(pesach.eveDays).toContain(day); // ומסומן כערב
+          checked = true;
+        }
+      }
+    }
+    expect(checked).toBe(true);
   });
 });
 

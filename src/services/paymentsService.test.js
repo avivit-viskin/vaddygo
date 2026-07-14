@@ -39,27 +39,24 @@ describe("buildReminderMessage", () => {
 describe("buildBulkPaymentRequestMessage", () => {
   const links = { bit: "https://bit.example/pay", paybox: "https://paybox.example/g" };
 
-  test("ביט — כולל את קישור הביט של הוועד", () => {
-    const msg = buildBulkPaymentRequestMessage("bit", links);
-    expect(msg).toContain("בביט");
+  test("כולל את שם הוועד, מקום לסכום, ואת שני קישורי התשלום", () => {
+    const msg = buildBulkPaymentRequestMessage("גן כוכב", links);
+    expect(msg).toContain("ועד גן כוכב");
+    expect(msg).toContain('ש"ח'); // מקום למילוי הסכום
     expect(msg).toContain(links.bit);
-  });
-
-  test("פייבוקס — כולל את קישור הפייבוקס", () => {
-    const msg = buildBulkPaymentRequestMessage("paybox", links);
-    expect(msg).toContain("פייבוקס");
     expect(msg).toContain(links.paybox);
   });
 
-  test("מזומן — תזכורת בלי קישור", () => {
-    const msg = buildBulkPaymentRequestMessage("cash", links);
-    expect(msg).toContain("להסדיר את התשלום");
-    expect(msg).not.toContain("http");
+  test("רק ביט מוגדר — רק קישור הביט נכנס", () => {
+    const msg = buildBulkPaymentRequestMessage("גני", { bit: links.bit, paybox: "" });
+    expect(msg).toContain(links.bit);
+    expect(msg).not.toContain(links.paybox);
   });
 
-  test("ביט בלי קישור מוגדר — נופל לתזכורת גנרית בלי קישור", () => {
-    const msg = buildBulkPaymentRequestMessage("bit", { bit: "", paybox: "" });
+  test("בלי קישורים מוגדרים — הודעה בלי קישורים (בלי http)", () => {
+    const msg = buildBulkPaymentRequestMessage("גן כוכב", { bit: "", paybox: "" });
     expect(msg).not.toContain("http");
+    expect(msg).toContain("ועד גן כוכב");
   });
 });
 

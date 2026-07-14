@@ -6,6 +6,7 @@ import {
   setNotificationPref,
 } from "../services/notificationPrefs";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
+import PaymentLinksCard from "./settings/PaymentLinksCard";
 import "../styles/settings.css";
 
 /*
@@ -42,6 +43,8 @@ function SettingsPage() {
           onChange={toggle("birthdays")}
         />
       </Card>
+
+      <PaymentLinksCard />
 
       <ChangePasswordCard />
     </div>

@@ -11,13 +11,22 @@
   width: 100%;
 }
 
-/* בחירת תלמידים לבקשת תשלום גורפת */
+/* בחירת תלמידים לבקשת תשלום גורפת: הצ'קבוקס והפרטים מקובצים יחד בצד ימין,
+   כך שהוספת הצ'קבוקס לא מזיזה את פריסת הכרטיס. */
+.student-card__main {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
 .student-card__select {
   width: 20px;
   height: 20px;
   flex-shrink: 0;
   cursor: pointer;
-  align-self: flex-start;
+  margin-top: 2px;
   accent-color: var(--color-primary-dark);
 }
 

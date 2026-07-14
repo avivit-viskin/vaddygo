@@ -6,6 +6,19 @@
   line-height: 1.5;
 }
 
+.settings__save-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+.settings__saved {
+  color: var(--color-success);
+  font-weight: 600;
+}
+
 /* הודעות בשינוי סיסמה */
 .settings__error {
   color: var(--color-error);

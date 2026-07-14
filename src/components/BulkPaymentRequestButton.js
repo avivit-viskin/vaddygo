@@ -4,30 +4,27 @@ import {
   buildBulkPaymentRequestMessage,
 } from "../services/paymentsService";
 import { getPaymentLinks } from "../services/paymentSettingsService";
+import { getOnboarding } from "../services/onboardingService";
 import Modal from "./Modal";
 import Button from "./Button";
 import "../styles/payments.css";
 
 /*
   BulkPaymentRequestButton — בקשת תשלום גורפת לתלמידים שנבחרו.
-  וואטסאפ לא שולח לכמה נמענים בקישור אחד, לכן נפתחת שיחה נפרדת לכל הורה
-  (לוחצים "שליחה" ליד כל שם). בוחרים אמצעי (ביט/פייבוקס/מזומן), ההודעה מוכנה
-  עם קישור התשלום של הוועד וניתנת לעריכה. סימון "נשלח" מונע שליחה כפולה.
+  ההודעה אוטומטית וניתנת לעריכה: שם הוועד, מקום למילוי הסכום, ושני קישורי
+  התשלום של הוועד (ביט + פייבוקס) שמוגדרים בהגדרות. וואטסאפ לא שולח לכמה
+  נמענים בקישור אחד, לכן נפתחת שיחה נפרדת לכל הורה ("שליחה" ליד כל שם).
 */
-const METHODS = [
-  { value: "bit", label: "BIT" },
-  { value: "paybox", label: "פייבוקס" },
-  { value: "cash", label: "מזומן" },
-];
-
 function BulkPaymentRequestButton({ students }) {
   const [isOpen, setIsOpen] = useState(false);
-  const [method, setMethod] = useState("bit");
   const [links, setLinks] = useState({ bit: "", paybox: "" });
   const [message, setMessage] = useState("");
   const [edited, setEdited] = useState(false);
   const [sentIds, setSentIds] = useState(() => new Set());
 
+  const ganName = getOnboarding()?.ganName || "";
+
+  // קישורי התשלום של הוועד נטענים בפתיחת החלון
   useEffect(() => {
     if (isOpen) {
       getPaymentLinks()
@@ -36,23 +33,17 @@ function BulkPaymentRequestButton({ students }) {
     }
   }, [isOpen]);
 
-  // ההודעה מתעדכנת לפי האמצעי/הקישורים — אלא אם המשתמשת ערכה אותה ידנית
+  // ההודעה מתעדכנת אוטומטית (עם הקישורים) — אלא אם המשתמשת ערכה אותה ידנית
   useEffect(() => {
     if (!edited) {
-      setMessage(buildBulkPaymentRequestMessage(method, links));
+      setMessage(buildBulkPaymentRequestMessage(ganName, links));
     }
-  }, [method, links, edited]);
+  }, [ganName, links, edited]);
 
   function open() {
     setSentIds(new Set());
-    setMethod("bit");
     setEdited(false);
     setIsOpen(true);
-  }
-
-  function chooseMethod(value) {
-    setMethod(value);
-    setEdited(false); // אמצעי חדש → הודעה חדשה עם הקישור המתאים
   }
 
   function markSent(id) {
@@ -60,14 +51,11 @@ function BulkPaymentRequestButton({ students }) {
   }
 
   const sentCount = students.filter((s) => sentIds.has(s.id)).length;
+  const hasLinks = Boolean(links.bit || links.paybox);
 
   return (
     <>
-      <Button
-        variant="brand"
-        onClick={open}
-        disabled={students.length === 0}
-      >
+      <Button variant="brand" onClick={open} disabled={students.length === 0}>
         💸 בקשת תשלום לנבחרים
       </Button>
       <Modal
@@ -76,29 +64,19 @@ function BulkPaymentRequestButton({ students }) {
         title={`בקשת תשלום ל-${students.length} הורים`}
       >
         <div className="bulk-reminder">
-          <p className="bulk-reminder__note">באיזה אמצעי לבקש מההורים לשלם?</p>
-          <div className="bulk-pay__methods">
-            {METHODS.map((m) => (
-              <button
-                key={m.value}
-                type="button"
-                className={`bulk-pay__method${
-                  method === m.value ? " bulk-pay__method--active" : ""
-                }`}
-                onClick={() => chooseMethod(m.value)}
-              >
-                {m.label}
-              </button>
-            ))}
-          </div>
-
+          {!hasLinks && (
+            <p className="bulk-reminder__note">
+              💡 אפשר להוסיף קישורי תשלום (ביט/פייבוקס) ב<strong>הגדרות</strong>,
+              והם ייכנסו אוטומטית להודעה.
+            </p>
+          )}
           <label className="field__label" htmlFor="bulk-pay-message">
-            ההודעה שתישלח (אפשר לערוך)
+            ההודעה שתישלח (אפשר לערוך — מלאי את הסכום)
           </label>
           <textarea
             id="bulk-pay-message"
             className="bulk-reminder__textarea"
-            rows={5}
+            rows={7}
             value={message}
             onChange={(event) => {
               setMessage(event.target.value);

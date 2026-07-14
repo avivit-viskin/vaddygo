@@ -21,16 +21,17 @@ function StudentCard({
   return (
     <Card>
       <div className="student-card">
-        {onToggleSelect && (
-          <input
-            type="checkbox"
-            className="student-card__select"
-            checked={Boolean(selected)}
-            onChange={() => onToggleSelect(student.id)}
-            aria-label={`בחירת ${student.firstName} ${student.lastName}`}
-          />
-        )}
-        <div className="student-card__details">
+        <div className="student-card__main">
+          {onToggleSelect && (
+            <input
+              type="checkbox"
+              className="student-card__select"
+              checked={Boolean(selected)}
+              onChange={() => onToggleSelect(student.id)}
+              aria-label={`בחירת ${student.firstName} ${student.lastName}`}
+            />
+          )}
+          <div className="student-card__details">
           <strong>
             {student.firstName} {student.lastName}
             {summary && summary.totalCount > 0 && (
@@ -59,6 +60,7 @@ function StudentCard({
               {student.parentPhoneNumber}
             </a>
           </span>
+          </div>
         </div>
         <div className="student-card__actions">
           <Button variant="brand" onClick={() => onPayments(student)}>

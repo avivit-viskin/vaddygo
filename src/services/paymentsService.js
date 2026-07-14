@@ -81,20 +81,25 @@ export function buildReminderMessage(studentFullName, unpaidPayments) {
 }
 
 /*
-  הודעת בקשת תשלום *גורפת* (לכמה הורים) — בלי פירוט חוב אישי, כי לא טוענים את
-  התשלומים של כל תלמיד. לפי אמצעי: ביט/פייבוקס עם קישור הוועד, מזומן = תזכורת.
+  הודעת בקשת תשלום *גורפת* (לכמה הורים) — הודעה אוטומטית לעריכה, עם שם הוועד,
+  מקום למילוי הסכום, ושני קישורי התשלום של הוועד (ביט + פייבוקס) אם הוגדרו.
+  המשתמשת עורכת ומכניסה את הסכום/פרטים לפני השליחה.
 */
-export function buildBulkPaymentRequestMessage(method, links) {
-  const head = ["שלום 🙂", "תזכורת מהוועד להסדרת התשלום לגן."];
-  let tail;
-  if (method === "bit" && links?.bit) {
-    tail = [`לתשלום מהיר בביט: ${links.bit}`, "תודה רבה! 💜"];
-  } else if (method === "paybox" && links?.paybox) {
-    tail = [`לתשלום דרך פייבוקס: ${links.paybox}`, "תודה רבה! 💜"];
-  } else {
-    tail = ["נא להסדיר את התשלום בהקדם, תודה! 💜"];
+export function buildBulkPaymentRequestMessage(ganName, links = {}) {
+  const lines = ["שלום 🙂"];
+  lines.push(
+    ganName
+      ? `דרישת תשלום של ____ ש"ח לטובת ועד ${ganName}.`
+      : `דרישת תשלום של ____ ש"ח מהוועד.`
+  );
+  if (links.bit) {
+    lines.push(`לתשלום בביט: ${links.bit}`);
   }
-  return [...head, "", ...tail].join("\n");
+  if (links.paybox) {
+    lines.push(`לתשלום בפייבוקס: ${links.paybox}`);
+  }
+  lines.push("תודה רבה! 💜");
+  return lines.join("\n");
 }
 
 /*

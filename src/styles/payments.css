@@ -114,6 +114,12 @@
   font-weight: 600;
 }
 
+.pay-request__hint {
+  margin: 12px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 .pay-request__methods {
   display: flex;
   flex-wrap: wrap;

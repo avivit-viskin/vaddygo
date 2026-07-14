@@ -5,14 +5,10 @@ import {
   buildWhatsappReminderUrl,
   buildPaymentRequestMessage,
 } from "../services/paymentsService";
-import {
-  getPaymentLinks,
-  savePaymentLinks,
-} from "../services/paymentSettingsService";
+import { getPaymentLinks } from "../services/paymentSettingsService";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
-import Input from "./Input";
 import Spinner from "./Spinner";
 import ErrorMessage from "./ErrorMessage";
 
@@ -49,7 +45,6 @@ function PaymentRequestContent({ student, fullName }) {
   );
   const { data: payments, isLoading, error, reload } = useApi(fetcher);
   const [links, setLinks] = useState({ bit: "", paybox: "" });
-  const [showLinks, setShowLinks] = useState(false);
 
   // קישורי הוועד נטענים מהשרת (עם נפילה מקומית) בפתיחת החלון
   useEffect(() => {
@@ -82,12 +77,6 @@ function PaymentRequestContent({ student, fullName }) {
       buildPaymentRequestMessage(fullName, unpaid, method, links)
     );
 
-  async function handleSaveLinks() {
-    const saved = await savePaymentLinks(links);
-    setLinks(saved);
-    setShowLinks(false);
-  }
-
   return (
     <div className="pay-request">
       <p className="pay-request__total">
@@ -103,7 +92,7 @@ function PaymentRequestContent({ student, fullName }) {
 
       <p className="pay-request__prompt">באיזה אמצעי לבקש מההורה לשלם?</p>
       <div className="pay-request__methods">
-        {links.bit ? (
+        {links.bit && (
           <a
             className="pay-request__method"
             href={methodUrl("bit")}
@@ -112,13 +101,8 @@ function PaymentRequestContent({ student, fullName }) {
           >
             <Button>BIT</Button>
           </a>
-        ) : (
-          <Button variant="secondary" onClick={() => setShowLinks(true)}>
-            BIT — הוסיפי קישור
-          </Button>
         )}
-
-        {links.paybox ? (
+        {links.paybox && (
           <a
             className="pay-request__method"
             href={methodUrl("paybox")}
@@ -127,12 +111,7 @@ function PaymentRequestContent({ student, fullName }) {
           >
             <Button>פייבוקס</Button>
           </a>
-        ) : (
-          <Button variant="secondary" onClick={() => setShowLinks(true)}>
-            פייבוקס — הוסיפי קישור
-          </Button>
         )}
-
         <a
           className="pay-request__method"
           href={methodUrl("cash")}
@@ -143,31 +122,10 @@ function PaymentRequestContent({ student, fullName }) {
         </a>
       </div>
 
-      <button
-        type="button"
-        className="pay-request__toggle"
-        onClick={() => setShowLinks((v) => !v)}
-      >
-        ⚙️ קישורי התשלום של הוועד
-      </button>
-      {showLinks && (
-        <div className="pay-request__links">
-          <Input
-            id="pay-link-bit"
-            label="קישור BIT של הוועד"
-            value={links.bit}
-            onChange={(e) => setLinks({ ...links, bit: e.target.value })}
-            placeholder="הדביקי כאן את קישור ה-BIT"
-          />
-          <Input
-            id="pay-link-paybox"
-            label="קישור קבוצת פייבוקס"
-            value={links.paybox}
-            onChange={(e) => setLinks({ ...links, paybox: e.target.value })}
-            placeholder="הדביקי כאן את קישור קבוצת הפייבוקס"
-          />
-          <Button onClick={handleSaveLinks}>שמירת הקישורים</Button>
-        </div>
+      {!links.bit && !links.paybox && (
+        <p className="pay-request__hint">
+          💡 להוספת קישור תשלום בביט/פייבוקס — היכנסי ל<strong>הגדרות</strong>.
+        </p>
       )}
     </div>
   );

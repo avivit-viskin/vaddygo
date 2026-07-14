@@ -3,6 +3,7 @@ import { buildWhatsappReminderUrl } from "../services/paymentsService";
 import Modal from "./Modal";
 import Button from "./Button";
 import Select from "./Select";
+import CopyMessageButton from "./CopyMessageButton";
 import "../styles/payments.css";
 
 /*
@@ -93,9 +94,19 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
                 ))}
               </Select>
             )}
+            {/* דרך 1 — הודעה אחת לכולם: מעתיקים ומדביקים בקבוצת ההורים */}
+            <div className="bulk-reminder__group-send">
+              <p className="bulk-reminder__note">
+                📣 <strong>לשלוח לכולם בבת אחת:</strong> להעתיק את ההודעה ולהדביק
+                בקבוצת הוואטסאפ של ההורים.
+              </p>
+              <CopyMessageButton text={message} />
+            </div>
+
+            {/* דרך 2 — לכל הורה בנפרד */}
             <p className="bulk-reminder__note">
-              וואטסאפ נפתח לכל הורה בנפרד — לוחצים "שליחה" ליד כל שם. נשלחו{" "}
-              <strong>{sentShown}</strong> מתוך{" "}
+              💬 <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם.
+              נשלחו <strong>{sentShown}</strong> מתוך{" "}
               <strong>{shownStudents.length}</strong>.
             </p>
             <ul className="bulk-reminder__list">

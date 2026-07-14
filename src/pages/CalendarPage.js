@@ -107,6 +107,17 @@ function CalendarPage({ initialDate }) {
     [birthdays, monthIndex]
   );
 
+  // רשימה שטוחה וממוינת של ימי-ההולדת בחודש המוצג (לתצוגת המדור מתחת ללוח)
+  const monthBirthdays = useMemo(() => {
+    const list = [];
+    for (const [day, items] of birthdaysByDay.entries()) {
+      for (const b of items) {
+        list.push({ day, ...b });
+      }
+    }
+    return list.sort((a, b) => a.day - b.day);
+  }, [birthdaysByDay]);
+
   const monthEvents = useMemo(() => {
     return (events || [])
       .map((event) => ({ ...event, date: parseEventDate(event.eventDate) }))
@@ -325,6 +336,32 @@ function CalendarPage({ initialDate }) {
             </button>
           </div>
         ))}
+      </section>
+
+      {/* מדור 4: ימי הולדת החודש — צוות ותלמידים (מסונכרן אוטומטית) */}
+      <section className="calendar-list" aria-label="ימי הולדת החודש">
+        <h3>ימי הולדת החודש 🎂</h3>
+        {monthBirthdays.length === 0 ? (
+          <p>
+            אין ימי הולדת בחודש זה. ימי ההולדת מופיעים בלוח בתאריך שלהם — גללי
+            לחודש של יום ההולדת כדי לראות אותו 🙂
+          </p>
+        ) : (
+          monthBirthdays.map((b) => (
+            <div
+              className="calendar-list__item"
+              key={`bday-${b.type}-${b.name}-${b.day}`}
+            >
+              <span className="calendar-list__date">
+                {b.day}.{monthIndex + 1}
+              </span>
+              <span className="calendar-list__name">
+                🎂 {b.name}
+                {b.type === "staff" && " · צוות"}
+              </span>
+            </div>
+          ))
+        )}
       </section>
 
       <Modal

@@ -214,6 +214,23 @@
   margin: 10px 0 12px;
 }
 
+/* "לשלוח לכולם בבת אחת" — מודגש כדי שהאפשרות תהיה ברורה */
+.bulk-reminder__group-send {
+  background-color: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+  margin: 12px 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+
+.bulk-reminder__group-send .bulk-reminder__note {
+  margin: 0;
+  color: var(--color-text);
+}
+
 .bulk-reminder__list {
   list-style: none;
   margin: 0;

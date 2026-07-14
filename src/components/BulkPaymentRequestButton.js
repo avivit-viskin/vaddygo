@@ -7,6 +7,7 @@ import { getPaymentLinks } from "../services/paymentSettingsService";
 import { getOnboarding } from "../services/onboardingService";
 import Modal from "./Modal";
 import Button from "./Button";
+import CopyMessageButton from "./CopyMessageButton";
 import "../styles/payments.css";
 
 /*
@@ -71,7 +72,7 @@ function BulkPaymentRequestButton({ students }) {
             </p>
           )}
           <label className="field__label" htmlFor="bulk-pay-message">
-            ההודעה שתישלח (אפשר לערוך — מלאי את הסכום)
+            ההודעה שתישלח (אפשר לערוך)
           </label>
           <textarea
             id="bulk-pay-message"
@@ -84,9 +85,20 @@ function BulkPaymentRequestButton({ students }) {
             }}
           />
 
+          {/* דרך 1 — הודעה אחת לכולם: מעתיקים ומדביקים בקבוצת ההורים */}
+          <div className="bulk-reminder__group-send">
+            <p className="bulk-reminder__note">
+              📣 <strong>לשלוח לכולם בבת אחת:</strong> להעתיק את ההודעה ולהדביק
+              אותה בקבוצת הוואטסאפ של ההורים — כך כולם מקבלים אותה בהודעה אחת.
+            </p>
+            <CopyMessageButton text={message} />
+          </div>
+
+          {/* דרך 2 — לכל הורה בנפרד (וואטסאפ חוסם שליחה לכמה מספרים בקישור אחד) */}
           <p className="bulk-reminder__note">
-            וואטסאפ נפתח לכל הורה בנפרד — לוחצים "שליחה" ליד כל שם. נשלחו{" "}
-            <strong>{sentCount}</strong> מתוך <strong>{students.length}</strong>.
+            💬 <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם
+            (וואטסאפ נפתח עם ההודעה מוכנה). נשלחו <strong>{sentCount}</strong> מתוך{" "}
+            <strong>{students.length}</strong>.
           </p>
           <ul className="bulk-reminder__list">
             {students.map((student) => {

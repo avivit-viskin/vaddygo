@@ -63,21 +63,30 @@ function toInternationalPhone(phone) {
   return digits.startsWith("0") ? `972${digits.slice(1)}` : digits;
 }
 
-/* הראש המשותף של הודעת תשלום: ברכה, פירוט הקטגוריות שטרם שולמו, וסכום כולל. */
+/*
+  הראש המשותף של הודעת תשלום: נוסח אישי ידידותי עם שם הילד, ואז "תזכורת
+  תשלומים" עם פירוט הקטגוריות שטרם שולמו והסכום הכולל.
+*/
 function reminderHead(studentFullName, unpaidPayments) {
-  const lines = unpaidPayments.map((p) => `• ${p.categoryName}: ${formatShekels(p.amount)}`);
+  const lines = unpaidPayments.map(
+    (p) => `• ${p.categoryName}: ${formatShekels(p.amount)}`
+  );
   const total = unpaidPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
   return [
-    "שלום 🙂",
-    `תזכורת ידידותית מהוועד לתשלומים עבור ${studentFullName}:`,
+    "היי 😊",
+    `אנחנו עושים מעבר על יתרות כספי הוועד, ולפי הרישומים שלנו נותר תשלום עבור ${studentFullName}.`,
+    "נשמח אם תוכלי להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
+    "תודה רבה על שיתוף הפעולה! 🌸",
+    "",
+    "תזכורת תשלומים:",
     ...lines,
     `סה"כ לתשלום: ${formatShekels(total)}`,
   ];
 }
 
-/* הודעת תזכורת ידידותית עם פירוט הקטגוריות שטרם שולמו והסכום הכולל. */
+/* הודעת תזכורת ידידותית עם הנוסח האישי ופירוט התשלומים. */
 export function buildReminderMessage(studentFullName, unpaidPayments) {
-  return [...reminderHead(studentFullName, unpaidPayments), "תודה רבה! 💜"].join("\n");
+  return reminderHead(studentFullName, unpaidPayments).join("\n");
 }
 
 /*
@@ -108,13 +117,12 @@ export function buildBulkPaymentRequestMessage(ganName, links = {}) {
 */
 export function buildPaymentRequestMessage(studentFullName, unpaidPayments, method, links) {
   const head = reminderHead(studentFullName, unpaidPayments);
-  let tail;
   if (method === "bit" && links?.bit) {
-    tail = [`לתשלום מהיר בביט למספר: ${links.bit}`, "תודה רבה! 💜"];
-  } else if (method === "paybox" && links?.paybox) {
-    tail = [`לתשלום דרך פייבוקס: ${links.paybox}`, "תודה רבה! 💜"];
-  } else {
-    tail = ["נא להסדיר את התשלום בהקדם, תודה! 💜"];
+    return [...head, "", `לתשלום בביט למספר: ${links.bit}`].join("\n");
   }
-  return [...head, "", ...tail].join("\n");
+  if (method === "paybox" && links?.paybox) {
+    return [...head, "", `לתשלום בפייבוקס: ${links.paybox}`].join("\n");
+  }
+  // מזומן או ללא קישור — הנוסח כבר מבקש להסדיר, בלי שורת קישור נוספת
+  return head.join("\n");
 }

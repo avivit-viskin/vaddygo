@@ -9,6 +9,7 @@ import { getOnboarding } from "../services/onboardingService";
 import Modal from "./Modal";
 import Button from "./Button";
 import CopyMessageButton from "./CopyMessageButton";
+import WhatsAppIcon from "./WhatsAppIcon";
 import "../styles/payments.css";
 
 /*
@@ -85,7 +86,7 @@ function BulkPaymentRequestButton({ students = [] }) {
         onClick={open}
         disabled={students.length === 0}
       >
-        📲 בקשת תשלום בוואטסאפ
+        <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ
       </Button>
       <Modal
         isOpen={isOpen}

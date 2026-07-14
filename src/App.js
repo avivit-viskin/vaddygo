@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import Logo from "./components/Logo";
+import InstitutionAvatar from "./components/InstitutionAvatar";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
 import AiFab from "./components/AiFab";
@@ -94,7 +95,7 @@ function App() {
             </Link>
           </h1>
           {activeInstitution && (
-            <span className="app-header__institution">{activeInstitution.name}</span>
+            <InstitutionAvatar name={activeInstitution.name} />
           )}
         </header>
       )}

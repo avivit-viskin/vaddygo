@@ -1,12 +1,15 @@
-import { getEvents, parseEventDate } from "./eventsService";
 import { getStaff, nextBirthday } from "./staffService";
+import { getStudents } from "./studentsService";
 import { upcomingHolidays } from "./upcomingHoliday";
 
 /*
-  upcomingMonth — כל מה שמתקרב בחודש הקרוב (משימה 14), למסך המתנות:
-  חגים, אירועים מלוח השנה וימי הולדת של הצוות — עד 30 יום קדימה, ממוין לפי קרבה.
+  upcomingMonth — התזכורות במסך המתנות. לפי בקשת בעלת המוצר מוצגים *רק*:
+  • חגים — עד שבועיים לפני החג.
+  • ימי הולדת של הצוות ושל הילדים — עד שבוע לפני.
+  ממוין לפי קרבה. (אירועים כלליים מלוח השנה אינם מוצגים כאן — זה מסך מתנות.)
 */
-const WINDOW_DAYS = 30;
+const HOLIDAY_WINDOW_DAYS = 14; // שבועיים לפני החג
+const BIRTHDAY_WINDOW_DAYS = 7; // שבוע לפני יום הולדת
 
 function daysUntil(date, today) {
   const start = new Date(today.getFullYear(), today.getMonth(), today.getDate());
@@ -19,15 +22,24 @@ export function whenText(days) {
   return `בעוד ${days} ימים`;
 }
 
+/* יום הולדת בתוך חלון השבוע → פריט תזכורת, אחרת null */
+function birthdayItem(id, fullName, birthDate, today) {
+  if (!birthDate || !fullName) return null;
+  const d = daysUntil(nextBirthday(birthDate, today), today);
+  if (d < 0 || d > BIRTHDAY_WINDOW_DAYS) return null;
+  return { id, icon: "🎂", label: `יום הולדת ל${fullName}`, daysUntil: d };
+}
+
 export async function loadUpcomingMonth(today = new Date()) {
-  const [events, staff] = await Promise.all([
-    getEvents().catch(() => []),
+  const [staff, students] = await Promise.all([
     getStaff().catch(() => []),
+    getStudents().catch(() => []),
   ]);
   const items = [];
 
+  // חגים — עד שבועיים לפני
   upcomingHolidays(today)
-    .filter((h) => h.daysUntil >= 0 && h.daysUntil <= WINDOW_DAYS)
+    .filter((h) => h.daysUntil >= 0 && h.daysUntil <= HOLIDAY_WINDOW_DAYS)
     .forEach((h) =>
       items.push({
         id: `holiday-${h.key}`,
@@ -37,23 +49,15 @@ export async function loadUpcomingMonth(today = new Date()) {
       })
     );
 
-  (events || []).forEach((e) => {
-    const d = daysUntil(parseEventDate(e.eventDate), today);
-    if (d >= 0 && d <= WINDOW_DAYS) {
-      items.push({ id: `event-${e.id}`, icon: "📅", label: e.name, daysUntil: d });
-    }
-  });
-
+  // ימי הולדת של הצוות ושל הילדים — עד שבוע לפני
   (staff || []).forEach((m) => {
-    const d = daysUntil(nextBirthday(m.birthDate, today), today);
-    if (d >= 0 && d <= WINDOW_DAYS) {
-      items.push({
-        id: `bday-${m.id}`,
-        icon: "🎂",
-        label: `יום הולדת ל${m.fullName}`,
-        daysUntil: d,
-      });
-    }
+    const item = birthdayItem(`bday-staff-${m.id}`, m.fullName, m.birthDate, today);
+    if (item) items.push(item);
+  });
+  (students || []).forEach((s) => {
+    const fullName = `${s.firstName || ""} ${s.lastName || ""}`.trim();
+    const item = birthdayItem(`bday-student-${s.id}`, fullName, s.birthDate, today);
+    if (item) items.push(item);
   });
 
   return items.sort((a, b) => a.daysUntil - b.daysUntil);

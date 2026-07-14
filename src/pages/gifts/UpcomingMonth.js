@@ -4,8 +4,8 @@ import { loadUpcomingMonth, whenText } from "../../services/upcomingMonth";
 import "../../styles/upcoming.css";
 
 /*
-  UpcomingMonth — "מה מתקרב החודש" במסך המתנות (משימה 14): חגים, אירועים
-  וימי הולדת עד חודש קדימה. אם אין כלום — לא מוצג.
+  UpcomingMonth — התזכורות במסך המתנות: חגים (עד שבועיים לפני) וימי הולדת
+  של הצוות והילדים (עד שבוע לפני). אם אין כלום — לא מוצג.
 */
 function UpcomingMonth() {
   const [items, setItems] = useState(null);
@@ -27,7 +27,7 @@ function UpcomingMonth() {
   }
 
   return (
-    <Card title="מה מתקרב החודש 🗓️">
+    <Card title="מה מתקרב 🗓️">
       <ul className="upcoming">
         {items.map((it) => (
           <li key={it.id} className="upcoming__item">

@@ -64,29 +64,33 @@ namespace ParentCommitteeAPI.Services
             var encVerValue = Convert.FromBase64String(ek.Attribute("encryptedVerifierHashValue")!.Value);
             var encKeyValue = Convert.FromBase64String(ek.Attribute("encryptedKeyValue")!.Value);
             int keyBytes = keyBits / 8;
+            // אלגוריתם הגיבוב האמיתי מהקובץ (SHA512/SHA384/SHA256/SHA1) — לא מקובע!
+            // זו הסיבה ש"סיסמה נכונה" נדחתה: קבצים מסוימים מוצפנים ב-SHA1, לא SHA512.
+            string ekHash = ek.Attribute("hashAlgorithm")?.Value ?? "SHA512";
+            string kdHash = keyData.Attribute("hashAlgorithm")?.Value ?? ekHash;
 
-            // גזירת גיבוב הסיסמה: SHA512(salt + UTF16LE(password)), ואז spinCount איטרציות
-            byte[] h = Sha512(Concat(salt, Encoding.Unicode.GetBytes(password)));
+            // גזירת גיבוב הסיסמה: Hash(salt + UTF16LE(password)), ואז spinCount איטרציות
+            byte[] h = Hash(ekHash, Concat(salt, Encoding.Unicode.GetBytes(password)));
             for (int i = 0; i < spinCount; i++)
-                h = Sha512(Concat(BitConverter.GetBytes(i), h));
+                h = Hash(ekHash, Concat(BitConverter.GetBytes(i), h));
 
             // אימות סיסמה
-            var kIn = DeriveKey(h, BlkVerifierInput, keyBytes);
+            var kIn = DeriveKey(ekHash, h, BlkVerifierInput, keyBytes);
             var verifier = AesCbc(kIn, salt, encVerInput);
-            var kVal = DeriveKey(h, BlkVerifierValue, keyBytes);
+            var kVal = DeriveKey(ekHash, h, BlkVerifierValue, keyBytes);
             var verifierHash = AesCbc(kVal, salt, encVerValue);
-            if (!Sha512(verifier).Take(hashSize).SequenceEqual(verifierHash.Take(hashSize)))
+            if (!Hash(ekHash, verifier).Take(hashSize).SequenceEqual(verifierHash.Take(hashSize)))
                 return null; // סיסמה שגויה
 
             // חילוץ מפתח החבילה ופענוח החבילה בסגמנטים של 4096 בייט
-            var secretKey = AesCbc(DeriveKey(h, BlkKeyValue, keyBytes), salt, encKeyValue).Take(keyBytes).ToArray();
+            var secretKey = AesCbc(DeriveKey(ekHash, h, BlkKeyValue, keyBytes), salt, encKeyValue).Take(keyBytes).ToArray();
             long totalSize = BitConverter.ToInt64(encPackage, 0);
             using var outMs = new MemoryStream();
             int offset = 8, segment = 0;
             while (offset < encPackage.Length)
             {
                 int chunk = Math.Min(4096, encPackage.Length - offset);
-                var iv = Sha512(Concat(kdSalt, BitConverter.GetBytes(segment))).Take(kdBlockSize).ToArray();
+                var iv = Hash(kdHash, Concat(kdSalt, BitConverter.GetBytes(segment))).Take(kdBlockSize).ToArray();
                 var slice = new byte[chunk];
                 Array.Copy(encPackage, offset, slice, 0, chunk);
                 var dec = AesCbc(secretKey, iv, slice);
@@ -98,11 +102,19 @@ namespace ParentCommitteeAPI.Services
             return all.Take((int)totalSize).ToArray();
         }
 
-        private static byte[] DeriveKey(byte[] pwHash, byte[] blockKey, int keyBytes)
+        private static byte[] DeriveKey(string alg, byte[] pwHash, byte[] blockKey, int keyBytes)
         {
-            var hash = Sha512(Concat(pwHash, blockKey));
+            var hash = Hash(alg, Concat(pwHash, blockKey));
             var key = new byte[keyBytes];
-            Array.Copy(hash, key, Math.Min(hash.Length, keyBytes));
+            if (hash.Length >= keyBytes)
+            {
+                Array.Copy(hash, key, keyBytes);
+            }
+            else
+            {
+                Array.Copy(hash, key, hash.Length);
+                for (int i = hash.Length; i < keyBytes; i++) key[i] = 0x36; // מילוי לפי המפרט
+            }
             return key;
         }
 
@@ -126,11 +138,21 @@ namespace ParentCommitteeAPI.Services
             return dec.TransformFinalBlock(data, 0, data.Length);
         }
 
-        private static byte[] Sha512(byte[] data)
+        /* גיבוב לפי האלגוריתם שצוין בקובץ (ברירת מחדל SHA512). */
+        private static byte[] Hash(string alg, byte[] data)
         {
-            using var s = SHA512.Create();
-            return s.ComputeHash(data);
+            using HashAlgorithm h = Normalize(alg) switch
+            {
+                "SHA1" => SHA1.Create(),
+                "SHA256" => SHA256.Create(),
+                "SHA384" => SHA384.Create(),
+                _ => SHA512.Create(),
+            };
+            return h.ComputeHash(data);
         }
+
+        private static string Normalize(string alg) =>
+            (alg ?? string.Empty).Replace("-", string.Empty).Replace("_", string.Empty).ToUpperInvariant();
 
         private static byte[] Concat(params byte[][] arr)
         {

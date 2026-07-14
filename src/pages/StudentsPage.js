@@ -23,6 +23,7 @@ import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
 import BulkReminderButton from "../components/BulkReminderButton";
+import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
 import "../styles/students.css";
 
 /*
@@ -54,6 +55,21 @@ function StudentsPage() {
 
   // ייבוא תלמידים מקובץ
   const [isImportOpen, setIsImportOpen] = useState(false);
+
+  // בחירת תלמידים לבקשת תשלום גורפת (סט של מזהים)
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+
+  function toggleSelect(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
 
   // טעינת סיכומי התשלום במקביל לכל התלמידים (ברקע, אחרי הרשימה)
   useEffect(() => {
@@ -169,6 +185,22 @@ function StudentsPage() {
   }
 
   const totalCount = students?.length ?? 0;
+  const selectedStudents = (students ?? []).filter((s) => selectedIds.has(s.id));
+  const allVisibleSelected =
+    visibleStudents.length > 0 &&
+    visibleStudents.every((s) => selectedIds.has(s.id));
+
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        visibleStudents.forEach((s) => next.delete(s.id));
+      } else {
+        visibleStudents.forEach((s) => next.add(s.id));
+      }
+      return next;
+    });
+  }
 
   return (
     <div>
@@ -223,7 +255,28 @@ function StudentsPage() {
               checked={onlyUnpaid}
               onChange={(event) => setOnlyUnpaid(event.target.checked)}
             />
+            <Checkbox
+              id="students-select-all"
+              label="סמן הכל"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAll}
+            />
           </div>
+
+          {selectedIds.size > 0 && (
+            <div className="students-selection">
+              <span className="students-selection__count">
+                {selectedIds.size} נבחרו
+              </span>
+              <BulkPaymentRequestButton students={selectedStudents} />
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedIds(new Set())}
+              >
+                ביטול בחירה
+              </Button>
+            </div>
+          )}
 
           {visibleStudents.length === 0 ? (
             <EmptyState icon="🔍" message="לא נמצאו תלמידים שמתאימים לחיפוש" />
@@ -233,6 +286,8 @@ function StudentsPage() {
                 key={student.id}
                 student={student}
                 summary={summaries[student.id]}
+                selected={selectedIds.has(student.id)}
+                onToggleSelect={toggleSelect}
                 onPayments={(s) => navigate(`/students/${s.id}/payments`)}
                 onEdit={openEditForm}
                 onDelete={setStudentToDelete}

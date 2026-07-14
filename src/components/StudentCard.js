@@ -9,10 +9,27 @@ import { formatShekels, formatBirthday } from "../services/format";
   ופעולות תשלומים/עריכה/מחיקה. תצוגה בלבד — הלוגיקה אצל ההורה (StudentsPage).
   summary אופציונלי: { paidCount, totalCount, allPaid } — נטען אחרי הכרטיסים.
 */
-function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
+function StudentCard({
+  student,
+  summary,
+  selected,
+  onToggleSelect,
+  onPayments,
+  onEdit,
+  onDelete,
+}) {
   return (
     <Card>
       <div className="student-card">
+        {onToggleSelect && (
+          <input
+            type="checkbox"
+            className="student-card__select"
+            checked={Boolean(selected)}
+            onChange={() => onToggleSelect(student.id)}
+            aria-label={`בחירת ${student.firstName} ${student.lastName}`}
+          />
+        )}
         <div className="student-card__details">
           <strong>
             {student.firstName} {student.lastName}

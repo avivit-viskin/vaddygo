@@ -81,6 +81,23 @@ export function buildReminderMessage(studentFullName, unpaidPayments) {
 }
 
 /*
+  הודעת בקשת תשלום *גורפת* (לכמה הורים) — בלי פירוט חוב אישי, כי לא טוענים את
+  התשלומים של כל תלמיד. לפי אמצעי: ביט/פייבוקס עם קישור הוועד, מזומן = תזכורת.
+*/
+export function buildBulkPaymentRequestMessage(method, links) {
+  const head = ["שלום 🙂", "תזכורת מהוועד להסדרת התשלום לגן."];
+  let tail;
+  if (method === "bit" && links?.bit) {
+    tail = [`לתשלום מהיר בביט: ${links.bit}`, "תודה רבה! 💜"];
+  } else if (method === "paybox" && links?.paybox) {
+    tail = [`לתשלום דרך פייבוקס: ${links.paybox}`, "תודה רבה! 💜"];
+  } else {
+    tail = ["נא להסדיר את התשלום בהקדם, תודה! 💜"];
+  }
+  return [...head, "", ...tail].join("\n");
+}
+
+/*
   הודעת בקשת תשלום לפי אמצעי: לביט/פייבוקס מצורף קישור התשלום של הוועד;
   למזומן (או כשאין קישור) — תזכורת להסדרת התשלום בלבד. ההודעה נשלחת להורה בוואטסאפ.
 */

@@ -11,6 +11,32 @@
   width: 100%;
 }
 
+/* בחירת תלמידים לבקשת תשלום גורפת */
+.student-card__select {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-self: flex-start;
+  accent-color: var(--color-primary-dark);
+}
+
+.students-selection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 12px 0;
+  padding: 10px 12px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.students-selection__count {
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}
+
 .page-header__actions .btn {
   flex: 1 1 auto;
   padding: 10px 10px;

@@ -1,6 +1,7 @@
 import {
   buildWhatsappReminderUrl,
   buildReminderMessage,
+  buildBulkPaymentRequestMessage,
   getPaymentSummary,
 } from "./paymentsService";
 import { api } from "./api";
@@ -32,6 +33,33 @@ describe("buildReminderMessage", () => {
     expect(message).toContain("הזנה");
     expect(message).toContain("דמי ועד");
     expect(message).toContain("1,700 ₪"); // 1200 + 500
+  });
+});
+
+describe("buildBulkPaymentRequestMessage", () => {
+  const links = { bit: "https://bit.example/pay", paybox: "https://paybox.example/g" };
+
+  test("ביט — כולל את קישור הביט של הוועד", () => {
+    const msg = buildBulkPaymentRequestMessage("bit", links);
+    expect(msg).toContain("בביט");
+    expect(msg).toContain(links.bit);
+  });
+
+  test("פייבוקס — כולל את קישור הפייבוקס", () => {
+    const msg = buildBulkPaymentRequestMessage("paybox", links);
+    expect(msg).toContain("פייבוקס");
+    expect(msg).toContain(links.paybox);
+  });
+
+  test("מזומן — תזכורת בלי קישור", () => {
+    const msg = buildBulkPaymentRequestMessage("cash", links);
+    expect(msg).toContain("להסדיר את התשלום");
+    expect(msg).not.toContain("http");
+  });
+
+  test("ביט בלי קישור מוגדר — נופל לתזכורת גנרית בלי קישור", () => {
+    const msg = buildBulkPaymentRequestMessage("bit", { bit: "", paybox: "" });
+    expect(msg).not.toContain("http");
   });
 });
 

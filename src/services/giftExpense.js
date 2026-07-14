@@ -23,24 +23,29 @@ export async function syncGiftExpense({ prevName, gift, method }) {
     ].filter(Boolean)
   );
 
+  // 1) ניקוי הוצאה קודמת של המתנה (ביטול "בוצע", שינוי סכום/אמצעי/שם).
+  //    כישלון כאן (למשל אין הוצאות) לא חוסם את רישום ההוצאה החדשה.
   try {
-    // מסירים כל הוצאה קודמת של המתנה (ביטול "בוצע", שינוי סכום/אמצעי/שם)
     const expenses = await getExpenses();
     await Promise.all(
       expenses
         .filter((e) => descriptions.has(e.description))
         .map((e) => deleteExpense(e.id))
     );
+  } catch {
+    // אין שרת/הוצאות זמינות — ממשיכים לרישום
+  }
 
-    // רושמים הוצאה חדשה רק אם המתנה בוצעה ויש לה סכום
-    if (isDone && Number(gift.totalAmount) > 0) {
+  // 2) רישום ההוצאה — רק אם המתנה בוצעה ויש לה סכום
+  if (isDone && Number(gift.totalAmount) > 0) {
+    try {
       await createExpense({
         amount: Number(gift.totalAmount),
         method: method || "cash",
         description: giftExpenseDescription(gift.name),
       });
+    } catch {
+      // אין שרת — לא חוסמים את שמירת המתנה
     }
-  } catch {
-    // אין שרת/הוצאות זמינות — לא חוסמים את שמירת המתנה
   }
 }

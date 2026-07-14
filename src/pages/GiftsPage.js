@@ -88,13 +88,17 @@ function GiftsPage() {
 
   async function handleSaveGift(values) {
     const prev = editingGift?.id ? editingGift : null;
-    const saved = prev
-      ? await updateGift(prev.id, values)
-      : await addGift(values);
-    // "בוצע" → רושם הוצאה שמקטינה את היתרה ואת האמצעי; כל סטטוס אחר → מוחק אותה
+    if (prev) {
+      await updateGift(prev.id, values);
+    } else {
+      await addGift(values);
+    }
+    // הסנכרון מבוסס על מה שהוקלד בטופס (values) ולא על מה שהשרת החזיר, כדי
+    // שהסטטוס/הסכום שנבחרו יחייבו את ההוצאה. "בוצע" → רושם הוצאה שמקטינה את
+    // היתרה ואת האמצעי; כל סטטוס אחר → מוחק אותה.
     await syncGiftExpense({
       prevName: prev?.name,
-      gift: saved || { ...values },
+      gift: values,
       method: values.method,
     });
     setEditingGift(null);

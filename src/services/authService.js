@@ -7,6 +7,8 @@ import { api } from "./api";
 */
 export const TOKEN_KEY = "vaadygo.token";
 const USER_KEY = "vaadygo.user";
+// מי הבעלים של הנתונים המקומיים במכשיר — לזיהוי החלפת משתמש
+const DATA_OWNER_KEY = "vaadygo.dataOwner";
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -29,7 +31,25 @@ export function isSuperAdmin() {
   return getUser()?.role === "SuperAdmin";
 }
 
+/*
+  מנקה את כל הנתונים המקומיים שקשורים למשתמש/מוסד (מוסדות, אשף, צוות, אירועים,
+  מתנות, תקציבים, התראות שנקראו, הגדרות) — כל מפתחות vaadygo.* חוץ מפרטי ההזדהות.
+*/
+function clearCachedAppData() {
+  const keep = new Set([TOKEN_KEY, USER_KEY, DATA_OWNER_KEY]);
+  Object.keys(localStorage)
+    .filter((key) => key.startsWith("vaadygo.") && !keep.has(key))
+    .forEach((key) => localStorage.removeItem(key));
+}
+
 function store(auth) {
+  // אבטחה: אם מתחבר משתמש *אחר* מזה שהנתונים המקומיים שייכים לו (אותו מכשיר) —
+  // מנקים את כל המטמון המקומי כדי שלא יראה מוסדות/צוות של משתמש קודם.
+  // כניסה חוזרת של אותו משתמש שומרת את הנתונים שלו.
+  if (localStorage.getItem(DATA_OWNER_KEY) !== auth.username) {
+    clearCachedAppData();
+  }
+  localStorage.setItem(DATA_OWNER_KEY, auth.username);
   localStorage.setItem(TOKEN_KEY, auth.token);
   localStorage.setItem(
     USER_KEY,

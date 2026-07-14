@@ -10,5 +10,8 @@ namespace ParentCommitteeAPI.Services
         Task<AuthResult> RegisterAsync(RegisterDto dto);
         Task<AuthResult> LoginAsync(LoginDto dto);
         Task<AuthResult> LoginWithGoogleAsync(GoogleLoginDto dto);
+
+        /* שינוי סיסמה למשתמש המחובר (userId מה-JWT). מחזיר הודעת שגיאה או null בהצלחה. */
+        Task<string?> ChangePasswordAsync(ChangePasswordDto dto);
     }
 }

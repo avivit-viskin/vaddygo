@@ -16,14 +16,16 @@ namespace ParentCommitteeAPI.Services
         private readonly AppDbContext _db;
         private readonly IJwtTokenService _jwt;
         private readonly IConfiguration _config;
+        private readonly IAccessScope _access;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(AppDbContext db, IJwtTokenService jwt, IConfiguration config,
-            ILogger<AuthService> logger)
+            IAccessScope access, ILogger<AuthService> logger)
         {
             _db = db;
             _jwt = jwt;
             _config = config;
+            _access = access;
             _logger = logger;
         }
 
@@ -128,10 +130,34 @@ namespace ParentCommitteeAPI.Services
             return new AuthResult(BuildResponse(user), null);
         }
 
+        public async Task<string?> ChangePasswordAsync(ChangePasswordDto dto)
+        {
+            var userId = _access.UserId;
+            if (userId == null)
+            {
+                return "יש להתחבר כדי לשנות סיסמה";
+            }
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId.Value);
+            if (user == null)
+            {
+                return "המשתמש לא נמצא";
+            }
+            if (!PasswordHasher.Verify(dto.CurrentPassword, user.PasswordHash))
+            {
+                return "הסיסמה הנוכחית שגויה";
+            }
+
+            user.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Password changed (User: {UserId})", user.Id);
+            return null;
+        }
+
         private AuthResponseDto BuildResponse(User user) => new()
         {
             Token = _jwt.CreateToken(user),
             Username = user.Username,
+            Email = user.Email,
             Role = user.Role,
             SubscriptionValidUntil = user.SubscriptionValidUntil,
         };

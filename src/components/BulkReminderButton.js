@@ -18,7 +18,7 @@ const DEFAULT_MESSAGE = [
   "תודה !",
 ].join("\n");
 
-function BulkReminderButton({ unpaidStudents }) {
+function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState(DEFAULT_MESSAGE);
   const [sentIds, setSentIds] = useState(() => new Set());
@@ -61,7 +61,11 @@ function BulkReminderButton({ unpaidStudents }) {
         title="תזכורת לכל מי שטרם שילם"
       >
         {unpaidStudents.length === 0 ? (
-          <p className="bulk-reminder__done">כל ההורים שילמו! 🎉</p>
+          <p className="bulk-reminder__done">
+            {totalStudents === 0
+              ? "עדיין אין תלמידים ברשימה 🙂"
+              : "כל ההורים שילמו! 🎉"}
+          </p>
         ) : (
           <div className="bulk-reminder">
             <label className="field__label" htmlFor="bulk-message">

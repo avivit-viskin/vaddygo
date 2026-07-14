@@ -25,8 +25,13 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
   const installmentsPaid =
     installmentSize > 0 ? Math.min(installments, Math.floor(total / installmentSize)) : 0;
 
+  // רקע "שולם" (ירוק) רק כשכוסה כל היעד. תשלום *חלקי* (פחות מהיעד) נשאר ברקע
+  // הרגיל — כדי שלא ייראה כאילו שולם הכל.
+  const target = Number(payment.amount) || 0;
+  const isFullyPaid = target > 0 ? total >= target : total > 0;
+
   return (
-    <div className={`payment-row${total > 0 ? " payment-row--paid" : ""}`}>
+    <div className={`payment-row${isFullyPaid ? " payment-row--paid" : ""}`}>
       <div className="payment-row__head">
         <span className="payment-row__category">{payment.categoryName}</span>
         <span className="payment-row__amount">

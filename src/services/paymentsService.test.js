@@ -37,13 +37,12 @@ describe("buildReminderMessage", () => {
 });
 
 describe("buildBulkPaymentRequestMessage", () => {
-  const links = { bit: "https://bit.example/pay", paybox: "https://paybox.example/g" };
+  const links = { bit: "050-1234567", paybox: "https://paybox.example/g" };
 
-  test("כולל את שם הוועד, מקום לסכום, ואת שני קישורי התשלום", () => {
+  test("כולל את הנוסח הידידותי ואת שני קישורי התשלום מההגדרות", () => {
     const msg = buildBulkPaymentRequestMessage("גן כוכב", links);
-    expect(msg).toContain("ועד גן כוכב");
-    expect(msg).toContain('ש"ח'); // מקום למילוי הסכום
-    expect(msg).toContain(links.bit);
+    expect(msg).toContain("נותר תשלום");
+    expect(msg).toContain("לתשלום בביט למספר: 050-1234567");
     expect(msg).toContain(links.paybox);
   });
 
@@ -53,10 +52,11 @@ describe("buildBulkPaymentRequestMessage", () => {
     expect(msg).not.toContain(links.paybox);
   });
 
-  test("בלי קישורים מוגדרים — הודעה בלי קישורים (בלי http)", () => {
+  test("בלי קישורים מוגדרים — נוסח ההודעה בלבד (בלי שורות קישור)", () => {
     const msg = buildBulkPaymentRequestMessage("גן כוכב", { bit: "", paybox: "" });
-    expect(msg).not.toContain("http");
-    expect(msg).toContain("ועד גן כוכב");
+    expect(msg).not.toContain("לתשלום בביט");
+    expect(msg).not.toContain("פייבוקס");
+    expect(msg).toContain("נותר תשלום");
   });
 });
 

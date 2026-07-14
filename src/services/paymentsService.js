@@ -15,6 +15,36 @@ export function saveStudentPayment(studentId, categoryId, payment) {
 }
 
 /*
+  כמה שולם בפועל בקטגוריה — סכום כל אמצעי התשלום (ביט + פייבוקס + מזומן).
+  סכום חסר/לא-מספרי נספר כ-0 (עמידות מפני שדה שלא הוחזר מהשרת).
+*/
+export function amountPaidSoFar(payment) {
+  return (
+    (Number(payment.bitAmount) || 0) +
+    (Number(payment.payBoxAmount) || 0) +
+    (Number(payment.cashAmount) || 0)
+  );
+}
+
+/*
+  האם הקטגוריה שולמה *במלואה*. קטגוריה עם יעד סכום (amount>0) "שולמה" רק
+  כשסכום האמצעים מכסה את היעד — תשלום *חלקי* (למשל 200 מתוך 300) עדיין נחשב
+  "טרם שולם". לקטגוריה בלי יעד סכום (0) אי אפשר לחשב "כמה נשאר", ולכן נשענים
+  על דגל התשלום (isPaid). ⚠️ לא נשענים על isPaid כשיש יעד — הוא נדלק גם על
+  תשלום חלקי, ואז היה נראה בטעות "כל התשלומים שולמו".
+*/
+export function isCategoryFullyPaid(payment) {
+  const target = Number(payment.amount) || 0;
+  return target > 0 ? amountPaidSoFar(payment) >= target : Boolean(payment.isPaid);
+}
+
+/* כמה עוד נותר לגבות בקטגוריה (יעד פחות מה ששולם, לא פחות מ-0). */
+export function amountRemaining(payment) {
+  const target = Number(payment.amount) || 0;
+  return target > 0 ? Math.max(0, target - amountPaidSoFar(payment)) : target;
+}
+
+/*
   סיכום מצב התשלומים של תלמיד (כמה קטגוריות שולמו מתוך הכל), לתצוגת תג
   ברשימת התלמידים. ⏳ כרגע קריאה אחת לתלמיד; אם מספר התלמידים יגדל מאוד
   כדאי endpoint סיכום מרוכז בשרת (`GET /api/students/payments-summary`).
@@ -22,21 +52,7 @@ export function saveStudentPayment(studentId, categoryId, payment) {
 export async function getPaymentSummary(studentId) {
   const payments = await getStudentPayments(studentId);
   const totalCount = payments.length;
-  // קטגוריה נחשבת "שולמה" רק כששולם *כל* היעד (כל התשלומים) — תשלום חלקי
-  // (למשל תשלום 1 מתוך 2) עדיין נחשב "טרם שולם", כי נותר לגבות.
-  // סכום חסר/לא-מספרי נספר כ-0 (עמידות מפני שדה שלא הוחזר).
-  const paidSoFar = (p) =>
-    (Number(p.bitAmount) || 0) +
-    (Number(p.payBoxAmount) || 0) +
-    (Number(p.cashAmount) || 0);
-  // קטגוריה עם יעד סכום (amount>0) "שולמה" רק כשסכום האמצעים מכסה את היעד.
-  // לקטגוריה בלי יעד סכום (0) אי אפשר לחשב "כמה נשאר", ולכן נשענים על דגל
-  // התשלום (isPaid) — אחרת כל התלמידים היו נספרים כ"שילמו" והתזכורת "תיתקע"
-  // על "כל ההורים שילמו" גם כשיש חייבים.
-  const target = (p) => Number(p.amount) || 0;
-  const isFullyPaid = (p) =>
-    target(p) > 0 ? paidSoFar(p) >= target(p) : Boolean(p.isPaid);
-  const paidCount = payments.filter(isFullyPaid).length;
+  const paidCount = payments.filter(isCategoryFullyPaid).length;
   // התאריך האחרון שבו נרשם תשלום — כדי לדעת מתי לדרוש שוב (מיון ISO = כרונולוגי)
   const paidDates = payments.map((p) => p.paidDate).filter(Boolean).sort();
   return {
@@ -44,7 +60,7 @@ export async function getPaymentSummary(studentId) {
     paidCount,
     totalCount,
     allPaid: totalCount > 0 && paidCount === totalCount,
-    hasUnpaid: payments.some((p) => !isFullyPaid(p)),
+    hasUnpaid: payments.some((p) => !isCategoryFullyPaid(p)),
     lastPaymentDate: paidDates.length ? paidDates[paidDates.length - 1] : null,
   };
 }
@@ -68,10 +84,12 @@ function toInternationalPhone(phone) {
   תשלומים" עם פירוט הקטגוריות שטרם שולמו והסכום הכולל.
 */
 function reminderHead(studentFullName, unpaidPayments) {
+  // מציגים את מה ש*נותר* לגבות בכל קטגוריה (יעד פחות מה ששולם) — כך תשלום
+  // חלקי לא מוצג כאילו נותר הסכום המלא.
   const lines = unpaidPayments.map(
-    (p) => `• ${p.categoryName}: ${formatShekels(p.amount)}`
+    (p) => `• ${p.categoryName}: ${formatShekels(amountRemaining(p))}`
   );
-  const total = unpaidPayments.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const total = unpaidPayments.reduce((sum, p) => sum + amountRemaining(p), 0);
   return [
     "היי 😊",
     `אנחנו עושים מעבר על יתרות כספי הוועד, ולפי הרישומים שלנו נותר תשלום עבור ${studentFullName}.`,
@@ -90,24 +108,26 @@ export function buildReminderMessage(studentFullName, unpaidPayments) {
 }
 
 /*
-  הודעת בקשת תשלום *גורפת* (לכמה הורים) — הודעה אוטומטית לעריכה, עם שם הוועד,
-  מקום למילוי הסכום, ושני קישורי התשלום של הוועד (ביט + פייבוקס) אם הוגדרו.
-  המשתמשת עורכת ומכניסה את הסכום/פרטים לפני השליחה.
+  הודעת בקשת תשלום *גורפת* (לכמה הורים) — נוסח אחיד וידידותי (לפי בקשת בעלת
+  המוצר) עם שני קישורי התשלום של הוועד (מספר ביט + קישור פייבוקס) כפי שהוגדרו
+  ב"הגדרות". ההודעה ניתנת לעריכה לפני השליחה.
 */
-export function buildBulkPaymentRequestMessage(ganName, links = {}) {
-  const lines = ["שלום 🙂"];
-  lines.push(
-    ganName
-      ? `דרישת תשלום של ____ ש"ח לטובת ועד ${ganName}.`
-      : `דרישת תשלום של ____ ש"ח מהוועד.`
-  );
+export function buildBulkPaymentRequestMessage(_ganName, links = {}) {
+  const lines = [
+    "היי 😊",
+    "אנחנו עושים מעבר על יתרות כספי הוועד, ולפי הרישומים שלנו נותר תשלום.",
+    "נשמח אם תוכלי להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
+    "תודה רבה על שיתוף הפעולה! 🌸",
+  ];
+  if (links.bit || links.paybox) {
+    lines.push("");
+  }
   if (links.bit) {
     lines.push(`לתשלום בביט למספר: ${links.bit}`);
   }
   if (links.paybox) {
-    lines.push(`לתשלום בפייבוקס: ${links.paybox}`);
+    lines.push(`וקישור לפייבוקס: ${links.paybox}`);
   }
-  lines.push("תודה רבה! 💜");
   return lines.join("\n");
 }
 

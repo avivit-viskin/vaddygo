@@ -4,6 +4,8 @@ import {
   getStudentPayments,
   buildWhatsappReminderUrl,
   buildPaymentRequestMessage,
+  isCategoryFullyPaid,
+  amountRemaining,
 } from "../services/paymentsService";
 import { getPaymentLinks } from "../services/paymentSettingsService";
 import { formatShekels } from "../services/format";
@@ -64,12 +66,14 @@ function PaymentRequestContent({ student, fullName }) {
     return <ErrorMessage message={error} onRetry={reload} />;
   }
 
-  const unpaid = (payments || []).filter((p) => !p.isPaid);
+  // "טרם שולם" = הקטגוריה לא כוסתה במלואה. תשלום חלקי עדיין נחשב חוב פתוח,
+  // כדי שלא ייכתב בטעות "כל התשלומים שולמו" למי ששילם רק חלק.
+  const unpaid = (payments || []).filter((p) => !isCategoryFullyPaid(p));
   if (unpaid.length === 0) {
     return <p className="pay-request__done">כל התשלומים של {fullName} שולמו ✅</p>;
   }
 
-  const total = unpaid.reduce((sum, p) => sum + Number(p.amount || 0), 0);
+  const total = unpaid.reduce((sum, p) => sum + amountRemaining(p), 0);
 
   const methodUrl = (method) =>
     buildWhatsappReminderUrl(
@@ -85,7 +89,7 @@ function PaymentRequestContent({ student, fullName }) {
       <ul className="pay-request__list">
         {unpaid.map((p) => (
           <li key={p.collectionCategoryId}>
-            {p.categoryName}: {formatShekels(p.amount)}
+            {p.categoryName}: {formatShekels(amountRemaining(p))}
           </li>
         ))}
       </ul>

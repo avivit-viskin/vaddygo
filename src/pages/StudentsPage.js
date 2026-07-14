@@ -9,6 +9,7 @@ import {
 } from "../services/studentsService";
 import { getPaymentSummary } from "../services/paymentsService";
 import { getGroups } from "../services/groupsService";
+import { getOnboarding } from "../services/onboardingService";
 import { getActiveServerGroupId } from "../services/institutionsService";
 import Button from "../components/Button";
 import Input from "../components/Input";
@@ -185,6 +186,8 @@ function StudentsPage() {
   }
 
   const totalCount = students?.length ?? 0;
+  // מספר הילדים שהוגדר בהקמת הגן — "כמה מתוך כמה" נמצאים כבר ברשימה
+  const configuredCount = Number(getOnboarding()?.childrenCount) || 0;
   const selectedStudents = (students ?? []).filter((s) => selectedIds.has(s.id));
   const allVisibleSelected =
     visibleStudents.length > 0 &&
@@ -205,7 +208,11 @@ function StudentsPage() {
   return (
     <div>
       <div className="page-header">
-        <h2>{totalCount} תלמידים</h2>
+        <h2>
+          {configuredCount > 0
+            ? `${totalCount} מתוך ${configuredCount} תלמידים`
+            : `${totalCount} תלמידים`}
+        </h2>
         <div className="page-header__actions">
           <Button variant="brand" onClick={openAddForm}>
             + הוספת תלמיד
@@ -214,6 +221,7 @@ function StudentsPage() {
             📄 ייבוא מקובץ
           </Button>
           <BulkReminderButton
+            totalStudents={totalCount}
             unpaidStudents={(students ?? []).filter(
               (s) => summaries[s.id]?.hasUnpaid
             )}

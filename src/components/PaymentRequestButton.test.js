@@ -37,7 +37,8 @@ test("פותח חלון בקשת תשלום, מציג חוב פתוח וקישו
 
 test("כשכל התשלומים שולמו — מוצגת הודעה שאין חוב", async () => {
   mockPayments([
-    { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, isPaid: true },
+    // כוסה כל היעד (1200 מתוך 1200) — נחשב שולם
+    { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 1200, isPaid: true },
   ]);
   render(<PaymentRequestButton student={student} />);
 

@@ -62,8 +62,15 @@ test("סינון לפי כיתה מציג רק את הורי הכיתה שנבח
   expect(screen.queryByText(/יעל לוי/)).not.toBeInTheDocument();
 });
 
-test("כשאין חייבים — מוצגת הודעה שכולם שילמו", () => {
-  render(<BulkReminderButton unpaidStudents={[]} />);
+test("כשאין חייבים אך יש תלמידים — מוצגת הודעה שכולם שילמו", () => {
+  render(<BulkReminderButton unpaidStudents={[]} totalStudents={3} />);
   fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));
   expect(screen.getByText(/כל ההורים שילמו/)).toBeInTheDocument();
+});
+
+test("כשאין תלמידים בכלל — מוצגת הודעה שאין עדיין תלמידים (לא 'כולם שילמו')", () => {
+  render(<BulkReminderButton unpaidStudents={[]} totalStudents={0} />);
+  fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));
+  expect(screen.getByText(/עדיין אין תלמידים ברשימה/)).toBeInTheDocument();
+  expect(screen.queryByText(/כל ההורים שילמו/)).not.toBeInTheDocument();
 });

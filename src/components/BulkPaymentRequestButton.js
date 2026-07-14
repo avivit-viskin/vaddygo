@@ -79,6 +79,12 @@ function BulkPaymentRequestButton({ students = [] }) {
   const sentCount = selectedStudents.filter((s) => sentIds.has(s.id)).length;
   const hasLinks = Boolean(links.bit || links.paybox);
 
+  // מספרי הטלפון של ההורים שנבחרו — להעתקה מהירה ליצירת רשימת תפוצה בוואטסאפ
+  const selectedPhones = selectedStudents
+    .map((s) => s.parentPhoneNumber)
+    .filter(Boolean)
+    .join("\n");
+
   return (
     <>
       <Button
@@ -173,27 +179,42 @@ function BulkPaymentRequestButton({ students = [] }) {
 
           {selectedStudents.length > 0 && (
             <>
-              <p className="bulk-reminder__note">
-                💬 וואטסאפ נפתח לכל הורה מסומן — לוחצים "שליחה" ליד השם. נשלחו{" "}
-                <strong>{sentCount}</strong> מתוך{" "}
-                <strong>{selectedStudents.length}</strong>.
-              </p>
+              {/* רשימת תפוצה — שליחה אחת לכל ההורים שנבחרו */}
               <div className="bulk-reminder__group-send">
                 <p className="bulk-reminder__note">
-                  📣 <strong>או לשלוח לכולם ביחד:</strong> וואטסאפ נפתח עם ההודעה
-                  מוכנה — בוחרים את קבוצת ההורים.
+                  📢 <strong>רשימת תפוצה — שליחה לכולם ביחד:</strong>
                 </p>
+                <ol className="bulk-reminder__steps">
+                  <li>מעתיקים את המספרים ואת ההודעה (הכפתורים למטה).</li>
+                  <li>בוואטסאפ: תפריט (⋮) ➜ "רשימת תפוצה חדשה".</li>
+                  <li>מוסיפים את ההורים, מדביקים את ההודעה, ושולחים — כולם מקבלים ביחד 🎉</li>
+                </ol>
                 <div className="bulk-reminder__group-actions">
+                  <CopyMessageButton
+                    text={selectedPhones}
+                    label="📋 העתקת המספרים"
+                  />
+                  <CopyMessageButton text={message} label="📋 העתקת ההודעה" />
                   <a
                     href={buildWhatsappShareUrl(message)}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <Button variant="secondary">📲 שליחה לכולם ביחד</Button>
+                    <Button variant="secondary">📲 פתיחת וואטסאפ</Button>
                   </a>
-                  <CopyMessageButton text={message} />
                 </div>
+                <p className="bulk-reminder__hint">
+                  💡 יש לכם קבוצת וואטסאפ של ההורים? אפשר פשוט להעתיק את ההודעה
+                  ולהדביק בקבוצה.
+                </p>
               </div>
+
+              {/* לחלופין — שליחה אישית לכל הורה */}
+              <p className="bulk-reminder__note">
+                💬 <strong>או שליחה אישית:</strong> וואטסאפ נפתח לכל הורה מסומן —
+                לוחצים "שליחה" ליד השם. נשלחו <strong>{sentCount}</strong> מתוך{" "}
+                <strong>{selectedStudents.length}</strong>.
+              </p>
             </>
           )}
         </div>

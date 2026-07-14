@@ -237,6 +237,23 @@
   gap: 8px;
 }
 
+/* שלבי יצירת רשימת תפוצה בוואטסאפ */
+.bulk-reminder__steps {
+  margin: 4px 0 10px;
+  padding-inline-start: 20px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.bulk-reminder__hint {
+  margin: 10px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
 /* בחירת התלמידים בתוך חלון בקשת התשלום בוואטסאפ */
 .wa-picker__head {
   display: flex;

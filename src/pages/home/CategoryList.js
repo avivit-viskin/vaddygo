@@ -16,7 +16,8 @@ function CategoryList({ categories }) {
       <ul className="categories">
         {categories.map((category) => {
           const spent = Number(category.spentAmount) || 0;
-          const remaining = (Number(category.collectedAmount) || 0) - spent;
+          // ההוצאה יורדת מהסכום הכולל של הקטגוריה (היעד), כמו שביקשה בעלת המוצר
+          const remaining = (Number(category.targetAmount) || 0) - spent;
           return (
             <li key={category.name} className="categories__item">
               <span className="categories__name">{category.name}</span>
@@ -28,7 +29,9 @@ function CategoryList({ categories }) {
                 </span>
                 {spent > 0 && (
                   <small className="categories__spent">
-                    יצא {formatShekels(spent)} · נשאר {formatShekels(remaining)}
+                    יצא {formatShekels(spent)} מתוך{" "}
+                    {formatShekels(category.targetAmount)} · נשאר{" "}
+                    {formatShekels(remaining)}
                   </small>
                 )}
               </span>

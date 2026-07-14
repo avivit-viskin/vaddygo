@@ -1,4 +1,5 @@
 import { createStudent } from "./studentsService";
+import { getActiveServerGroupId } from "./institutionsService";
 
 /*
   studentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11). תומך בשני מבנים:
@@ -336,7 +337,50 @@ export function looksEncrypted(buffer) {
   return false;
 }
 
-export async function parseStudentFile(file) {
+/*
+  שולח קובץ נעול + סיסמה לשרת, שמפענח אותו ומחזיר xlsx פתוח. הפענוח בשרת בכוונה —
+  ניסיון לפענח בדפדפן הפיל את האפליקציה. סיסמה שגויה → code=WRONG_PASSWORD.
+*/
+async function decryptViaServer(file, password) {
+  const base = process.env.REACT_APP_API_URL;
+  if (!base) {
+    throw Object.assign(new Error("כתובת השרת לא מוגדרת"), { code: "DECRYPT_FAILED" });
+  }
+  const form = new FormData();
+  form.append("file", file);
+  form.append("password", password);
+
+  const headers = {};
+  const token = localStorage.getItem("vaadygo.token");
+  if (token) headers.Authorization = `Bearer ${token}`;
+  const institutionId = getActiveServerGroupId();
+  if (institutionId != null) headers["X-Institution"] = String(institutionId);
+
+  let res;
+  try {
+    res = await fetch(`${base}/api/students/decrypt`, {
+      method: "POST",
+      headers,
+      body: form,
+    });
+  } catch {
+    throw Object.assign(new Error("לא הצלחנו להתחבר לשרת"), { code: "DECRYPT_FAILED" });
+  }
+
+  if (!res.ok) {
+    let code = "DECRYPT_FAILED";
+    try {
+      const body = await res.json();
+      code = body.code || code;
+    } catch {
+      // התשובה אינה JSON — נשארים עם DECRYPT_FAILED
+    }
+    throw Object.assign(new Error("פענוח נכשל"), { code });
+  }
+  return res.arrayBuffer();
+}
+
+export async function parseStudentFile(file, password) {
   const name = (file?.name || "").toLowerCase();
   if (name.endsWith(".csv") || name.endsWith(".txt")) {
     const text = await file.text();
@@ -344,13 +388,19 @@ export async function parseStudentFile(file) {
   }
 
   const raw = await file.arrayBuffer();
+  let data = new Uint8Array(raw);
   if (looksEncrypted(raw)) {
-    throw Object.assign(new Error("הקובץ נעול בסיסמה"), { code: "ENCRYPTED" });
+    if (!password) {
+      // בלי סיסמה — מסמנים למסך לבקש אותה
+      throw Object.assign(new Error("הקובץ נעול בסיסמה"), { code: "ENCRYPTED" });
+    }
+    // מפענחים בשרת ומקבלים xlsx פתוח
+    data = new Uint8Array(await decryptViaServer(file, password));
   }
 
   const mod = await import("xlsx");
   const XLSX = mod.default || mod;
-  const workbook = XLSX.read(new Uint8Array(raw), { type: "array", cellDates: true });
+  const workbook = XLSX.read(data, { type: "array", cellDates: true });
   let grid = [];
   for (const sheetName of workbook.SheetNames) {
     const sheet = workbook.Sheets[sheetName];

@@ -8,14 +8,12 @@ import { loadDashboard } from "../services/dashboardService";
 import {
   buildNotifications,
   loadNotifications,
-  loadUnpaidStudents,
   applyReadState,
   markNotificationRead,
   markAllNotificationsRead,
 } from "../services/notificationsService";
 import { hebrewSchoolYearName } from "../services/schoolYear";
 import NotificationsPanel from "./home/NotificationsPanel";
-import BulkReminderButton from "../components/BulkReminderButton";
 import WelcomePopup from "../components/WelcomePopup";
 import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
 import CollectionCard from "./home/CollectionCard";
@@ -37,7 +35,6 @@ function HomePage() {
   const [panelOpen, setPanelOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
-  const [unpaidStudents, setUnpaidStudents] = useState([]);
   // מונה שמזנק אחרי כל שינוי בהוצאות — כדי שרשימת ההוצאות למטה תתרענן מיד
   const [expensesVersion, setExpensesVersion] = useState(0);
 
@@ -60,18 +57,6 @@ function HomePage() {
         setNotifications(list);
       }
     });
-    // התלמידים שטרם שילמו — לכפתור "תזכורת לחייבים" (משימה 9)
-    loadUnpaidStudents()
-      .then((list) => {
-        if (!cancelled) {
-          setUnpaidStudents(list);
-        }
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setUnpaidStudents([]);
-        }
-      });
     return () => {
       cancelled = true;
     };
@@ -138,12 +123,6 @@ function HomePage() {
         </p>
       )}
       {error && <p className="home__offline">{error}</p>}
-
-      {unpaidStudents.length > 0 && (
-        <div className="home__reminder">
-          <BulkReminderButton unpaidStudents={unpaidStudents} />
-        </div>
-      )}
 
       <CollectionCard dashboard={dashboard} onExpenseChanged={refreshAll} />
       <CategoryList categories={dashboard.byCategory} />

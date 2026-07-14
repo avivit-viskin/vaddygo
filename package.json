@@ -7,6 +7,8 @@
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^13.5.0",
+    "buffer": "^6.0.3",
+    "officecrypto-tool": "^0.0.19",
     "react": "^19.2.7",
     "react-dom": "^19.2.7",
     "react-router-dom": "^6.30.4",
@@ -17,8 +19,8 @@
     "xlsx": "^0.18.5"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
+    "start": "craco start",
+    "build": "craco build",
     "test": "react-scripts test",
     "eject": "react-scripts eject"
   },
@@ -41,6 +43,12 @@
     ]
   },
   "devDependencies": {
+    "@craco/craco": "^7.1.0",
+    "crypto-browserify": "^3.12.1",
+    "process": "^0.11.10",
+    "stream-browserify": "^3.0.0",
+    "timers-browserify": "^2.0.12",
+    "vm-browserify": "^1.1.2",
     "yaml": "^2.9.0"
   }
 }

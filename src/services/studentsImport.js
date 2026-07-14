@@ -336,21 +336,46 @@ export function looksEncrypted(buffer) {
   return false;
 }
 
-export async function parseStudentFile(file) {
+/*
+  מפענח קובץ Office נעול בסיסמה ומחזיר את הבייטים המפוענחים. הספרייה (וה-Buffer
+  שהיא צריכה) נטענות רק כאן, בטעינה עצלה, כדי לא להכביד על שאר האפליקציה. סיסמה
+  שגויה → שגיאה עם code=WRONG_PASSWORD, כדי שהמסך יבקש להקליד שוב.
+*/
+async function decryptOfficeBuffer(arrayBuffer, password) {
+  // Buffer מסופק לספרייה אוטומטית ע"י ה-ProvidePlugin (ראה craco.config.js)
+  const bufferMod = await import("buffer");
+  const NodeBuffer = bufferMod.Buffer;
+  const ocMod = await import("officecrypto-tool");
+  const officeCrypto = ocMod.default || ocMod;
+  const input = NodeBuffer.from(new Uint8Array(arrayBuffer));
+  try {
+    const decrypted = await officeCrypto.decrypt(input, { password });
+    return new Uint8Array(decrypted);
+  } catch (err) {
+    throw Object.assign(new Error("סיסמה שגויה"), { code: "WRONG_PASSWORD" });
+  }
+}
+
+export async function parseStudentFile(file, password) {
   const name = (file?.name || "").toLowerCase();
   if (name.endsWith(".csv") || name.endsWith(".txt")) {
     const text = await file.text();
     return parseStudentRows(text);
   }
 
-  const buffer = await file.arrayBuffer();
-  if (looksEncrypted(buffer)) {
-    throw Object.assign(new Error("הקובץ נעול בסיסמה"), { code: "ENCRYPTED" });
+  const raw = await file.arrayBuffer();
+  let data = new Uint8Array(raw);
+  if (looksEncrypted(raw)) {
+    if (!password) {
+      // בלי סיסמה — מסמנים למסך לבקש אותה
+      throw Object.assign(new Error("הקובץ נעול בסיסמה"), { code: "ENCRYPTED" });
+    }
+    data = await decryptOfficeBuffer(raw, password);
   }
 
   const mod = await import("xlsx");
   const XLSX = mod.default || mod;
-  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
+  const workbook = XLSX.read(data, { type: "array", cellDates: true });
   let grid = [];
   for (const sheetName of workbook.SheetNames) {
     const sheet = workbook.Sheets[sheetName];

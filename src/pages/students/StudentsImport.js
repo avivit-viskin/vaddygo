@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../../components/Button";
+import Input from "../../components/Input";
 import {
   parseStudentFile,
   importStudents,
@@ -18,8 +19,11 @@ const ALLOWED_EXTENSIONS = [".csv", ".xlsx", ".xls"];
 function StudentsImport({ onDone, onCancel }) {
   const [rows, setRows] = useState(null); // null=טרם נבחר קובץ
   const [fileName, setFileName] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null); // הקובץ שנבחר (לפענוח חוזר עם סיסמה)
   const [isReading, setIsReading] = useState(false);
   const [readError, setReadError] = useState("");
+  const [needsPassword, setNeedsPassword] = useState(false); // הקובץ נעול — מבקשים סיסמה
+  const [password, setPassword] = useState("");
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -37,8 +41,12 @@ function StudentsImport({ onDone, onCancel }) {
     const file = event.target.files?.[0];
     if (!file) return;
     setFileName(file.name);
+    setSelectedFile(file);
     setResult(null);
     setRows(null);
+    setNeedsPassword(false);
+    setPassword("");
+    setReadError("");
 
     // בדיקת פורמט לפני הכל: רק CSV/Excel — אחרת לא קוראים את הקובץ בכלל
     const isAllowed = ALLOWED_EXTENSIONS.some((ext) =>
@@ -52,25 +60,38 @@ function StudentsImport({ onDone, onCancel }) {
       return;
     }
 
+    await readFile(file);
+  }
+
+  /* קורא (ומפענח, אם צריך) את הקובץ. pwd מגיע כשהמשתמשת הקלידה סיסמה לקובץ נעול. */
+  async function readFile(file, pwd) {
     setReadError("");
     setIsReading(true);
     try {
-      setRows(await parseStudentFile(file));
+      const parsed = await parseStudentFile(file, pwd);
+      setRows(parsed);
+      setNeedsPassword(false);
     } catch (err) {
       if (err?.code === "ENCRYPTED") {
-        setReadError(
-          "הקובץ נעול בסיסמה 🔒 צריך להסיר את הסיסמה כדי שנוכל לקרוא אותו: פותחים " +
-            "אותו באקסל → קובץ → מידע → הגן על חוברת עבודה → הצפן בסיסמה → מוחקים " +
-            "את הסיסמה ולוחצים אישור → שומרים. ואז מעלים כאן שוב."
-        );
+        setNeedsPassword(true); // הקובץ נעול — נבקש סיסמה
+      } else if (err?.code === "WRONG_PASSWORD") {
+        setNeedsPassword(true);
+        setReadError("הסיסמה שגויה — נסי שוב 🔑");
       } else {
         setReadError(
-          "לא הצלחנו לקרוא את הקובץ 😕 אם הוא נעול בסיסמה — כדאי להסיר אותה ולשמור מחדש. " +
-            "אפשר גם קובץ פשוט עם: שם תלמיד, טלפון, תאריך לידה."
+          "לא הצלחנו לקרוא את הקובץ 😕 אם הוא נעול בסיסמה — הקלידי אותה, או הסירי " +
+            "אותה ושמרי מחדש. אפשר גם קובץ פשוט עם: שם תלמיד, טלפון, תאריך לידה."
         );
       }
     } finally {
       setIsReading(false);
+    }
+  }
+
+  function submitPassword(event) {
+    event.preventDefault();
+    if (selectedFile && password) {
+      readFile(selectedFile, password);
     }
   }
 
@@ -120,7 +141,29 @@ function StudentsImport({ onDone, onCancel }) {
         />
       </label>
 
-      {isReading && <p className="students-import__count">קוראים את הקובץ...</p>}
+      {needsPassword && (
+        <form onSubmit={submitPassword} className="students-import__password">
+          <p className="students-import__count">
+            🔒 הקובץ נעול בסיסמה. הקלידי את הסיסמה שקיבלת כדי לפתוח אותו:
+          </p>
+          <Input
+            id="import-password"
+            label="סיסמת הקובץ"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
+          <Button type="submit" isLoading={isReading} disabled={!password}>
+            פתיחת הקובץ 🔓
+          </Button>
+        </form>
+      )}
+
+      {isReading && (
+        <p className="students-import__count">
+          {needsPassword ? "מפענחים את הקובץ..." : "קוראים את הקובץ..."}
+        </p>
+      )}
 
       {readError && (
         <p className="students-import__error" role="alert">

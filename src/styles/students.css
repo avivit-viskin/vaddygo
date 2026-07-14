@@ -110,6 +110,21 @@
   margin-top: 4px;
 }
 
+/* טופס הקלדת סיסמה לקובץ נעול */
+.students-import__password {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.students-import__password .students-import__count {
+  background: none;
+  padding: 0;
+}
+
 .students-import__intro {
   margin: 0;
   font-size: var(--font-size-sm);

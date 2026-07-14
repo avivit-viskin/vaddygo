@@ -26,12 +26,34 @@ test("הוספת תיקייה מציגה אותה כקישור שנפתח בדר
   );
   userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 
-  const link = await screen.findByRole("link", { name: /יום המשפחה/ });
+  const link = await screen.findByRole("link", { name: /📂.*יום המשפחה/ });
   expect(link).toHaveAttribute(
     "href",
     "https://drive.google.com/drive/folders/abc123"
   );
   expect(link).toHaveAttribute("target", "_blank");
+});
+
+test("ליד כל תיקייה יש כפתור שליחה בוואטסאפ עם הקישור", async () => {
+  render(<FilesPage />);
+  await screen.findByText(/עדיין אין תיקיות/);
+
+  userEvent.click(screen.getByRole("button", { name: "+ הוספת תיקייה" }));
+  userEvent.type(screen.getByLabelText("שם התיקייה"), "יום המשפחה");
+  userEvent.type(
+    screen.getByLabelText("קישור התיקייה מ-Google Drive"),
+    "https://drive.google.com/drive/folders/abc123"
+  );
+  userEvent.click(screen.getByRole("button", { name: "שמירה" }));
+
+  const share = await screen.findByRole("link", {
+    name: /שליחת התיקייה יום המשפחה בוואטסאפ/,
+  });
+  const href = share.getAttribute("href");
+  expect(href).toContain("wa.me/?text=");
+  expect(href).toContain(
+    encodeURIComponent("https://drive.google.com/drive/folders/abc123")
+  );
 });
 
 test("ולידציה חוסמת קישור שאינו מתחיל ב-http", async () => {

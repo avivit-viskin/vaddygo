@@ -56,6 +56,14 @@
   min-height: 44px;
 }
 
+/* קישור שיתוף התיקייה בוואטסאפ — אייקון ממורכז כמו שאר הפעולות */
+.folders__action--whatsapp {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+
 .folder-form__actions {
   display: flex;
   gap: 8px;

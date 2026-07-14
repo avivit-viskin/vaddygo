@@ -14,6 +14,8 @@ import {
   deleteFolder,
 } from "../services/filesService";
 import FolderForm from "./files/FolderForm";
+import WhatsAppIcon from "../components/WhatsAppIcon";
+import { whatsappShareUrl } from "../services/whatsapp";
 import "../styles/files.css";
 
 /*
@@ -70,6 +72,17 @@ function FilesPage() {
                   📂 {folder.name}
                 </a>
                 <div className="folders__actions">
+                  <a
+                    className="folders__action folders__action--whatsapp"
+                    href={whatsappShareUrl(
+                      `שלום 🙂 הנה הקישור לתיקייה "${folder.name}":\n${folder.url}`
+                    )}
+                    target="_blank"
+                    rel="noreferrer"
+                    aria-label={`שליחת התיקייה ${folder.name} בוואטסאפ`}
+                  >
+                    <WhatsAppIcon size={20} />
+                  </a>
                   <button
                     type="button"
                     className="folders__action"

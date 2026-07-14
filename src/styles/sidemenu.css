@@ -155,6 +155,7 @@
   font-size: 1.4rem;
   min-width: 44px;
   min-height: 44px;
+  color: #000000; /* הקווים של התפריט (☰) בשחור */
 }
 
 .app-header__institution {

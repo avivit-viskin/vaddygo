@@ -24,6 +24,7 @@ function StudentsImport({ onDone, onCancel }) {
   const [readError, setReadError] = useState("");
   const [needsPassword, setNeedsPassword] = useState(false); // הקובץ נעול — מבקשים סיסמה
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false); // הצגה/הסתרה של הסיסמה
   const [isImporting, setIsImporting] = useState(false);
   const [result, setResult] = useState(null);
 
@@ -150,13 +151,23 @@ function StudentsImport({ onDone, onCancel }) {
           <p className="students-import__count">
             🔒 הקובץ נעול בסיסמה. הקלידי את הסיסמה שקיבלת כדי לפתוח אותו:
           </p>
-          <Input
-            id="import-password"
-            label="סיסמת הקובץ"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+          <div className="students-import__pw-wrap">
+            <Input
+              id="import-password"
+              label="סיסמת הקובץ"
+              type={showPassword ? "text" : "password"}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+            />
+            <button
+              type="button"
+              className="students-import__eye"
+              aria-label={showPassword ? "הסתרת הסיסמה" : "הצגת הסיסמה"}
+              onClick={() => setShowPassword((s) => !s)}
+            >
+              {showPassword ? "🙈" : "👁"}
+            </button>
+          </div>
           <Button type="submit" isLoading={isReading} disabled={!password}>
             פתיחת הקובץ 🔓
           </Button>

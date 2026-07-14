@@ -125,6 +125,23 @@
   padding: 0;
 }
 
+/* שדה הסיסמה + כפתור עין (הצג/הסתר) */
+.students-import__pw-wrap {
+  position: relative;
+}
+
+.students-import__eye {
+  position: absolute;
+  top: 34px;
+  left: 8px;
+  min-width: var(--touch-target, 44px);
+  min-height: var(--touch-target, 44px);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  font-size: 18px;
+}
+
 .students-import__intro {
   margin: 0;
   font-size: var(--font-size-sm);

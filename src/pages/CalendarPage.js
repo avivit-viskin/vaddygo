@@ -15,6 +15,7 @@ import {
 import {
   getHolidaysForMonth,
   getHolidayOccurrencesForMonth,
+  getRoshChodeshForMonth,
 } from "../data/holidays";
 import { hebrewDateLabel } from "../services/hebrewDate";
 import { whatsappUrl } from "../services/whatsapp";
@@ -83,6 +84,11 @@ function CalendarPage({ initialDate }) {
 
   const holidaysByDay = useMemo(
     () => getHolidaysForMonth(year, monthIndex),
+    [year, monthIndex]
+  );
+
+  const roshChodeshDays = useMemo(
+    () => getRoshChodeshForMonth(year, monthIndex),
     [year, monthIndex]
   );
 
@@ -203,6 +209,7 @@ function CalendarPage({ initialDate }) {
             monthIndex={monthIndex}
             holidaysByDay={holidaysByDay}
             eventsByDay={eventsByDay}
+            roshChodeshDays={roshChodeshDays}
             onDayClick={(day) =>
               openAddForm(toDateInputValue(new Date(year, monthIndex, day, 12)))
             }

@@ -1,4 +1,5 @@
 import { hebrewDayGematria } from "../../services/hebrewDate";
+import WhiteShirtIcon from "../../components/WhiteShirtIcon";
 
 /*
   MonthGrid — רשת חודש: כותרות ימי השבוע, מספרי ימים (לועזי + עברי),
@@ -15,7 +16,14 @@ function hebrewDayLetters(date) {
   return hebrewDayGematria(hebrewDayFormatter.format(date));
 }
 
-function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay, onDayClick }) {
+function MonthGrid({
+  year,
+  monthIndex,
+  holidaysByDay,
+  eventsByDay,
+  roshChodeshDays,
+  onDayClick,
+}) {
   const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
   const startOffset = new Date(year, monthIndex, 1).getDay(); // 0 = ראשון
   const today = new Date();
@@ -72,15 +80,30 @@ function MonthGrid({ year, monthIndex, holidaysByDay, eventsByDay, onDayClick })
                         {hebrewDayLetters(new Date(year, monthIndex, day, 12))}
                       </span>
                     </span>
-                    {(holidaysByDay.get(day) || []).map((name) => (
+                    {roshChodeshDays?.has(day) && (
                       <span
-                        key={name}
-                        className="calendar-day__badge calendar-day__badge--holiday"
-                        title={name}
+                        className="calendar-day__badge calendar-day__badge--rosh-chodesh"
+                        title='ראש חודש — חולצה לבנה'
                       >
-                        {name}
+                        <WhiteShirtIcon size={11} /> ר"ח
                       </span>
-                    ))}
+                    )}
+                    {(holidaysByDay.get(day) || []).map((name) => {
+                      const isEve = name.startsWith("ערב ");
+                      return (
+                        <span
+                          key={name}
+                          className={`calendar-day__badge ${
+                            isEve
+                              ? "calendar-day__badge--eve"
+                              : "calendar-day__badge--holiday"
+                          }`}
+                          title={name}
+                        >
+                          {name}
+                        </span>
+                      );
+                    })}
                     {(eventsByDay.get(day) || []).map((event) => (
                       <span
                         key={event.id}

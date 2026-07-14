@@ -27,6 +27,16 @@ const SPAN_HOLIDAYS = [
   { month: "Nisan", day: 15, length: 7, name: "פסח" },
 ];
 
+// ערבי חג (ערב יום טוב) — תאריך עברי קבוע, היום שלפני תחילת החג.
+// מוצגים בלוח בלבד (לא ברשימת החגים/התקציבים).
+const EVE_HOLIDAYS = [
+  { month: "Elul", day: 29, name: "ערב ראש השנה" },
+  { month: "Tishri", day: 9, name: "ערב יום כיפור" },
+  { month: "Tishri", day: 14, name: "ערב סוכות" },
+  { month: "Nisan", day: 14, name: "ערב פסח" },
+  { month: "Sivan", day: 5, name: "ערב שבועות" },
+];
+
 const hebrewFormatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
   day: "numeric",
   month: "long",
@@ -127,15 +137,50 @@ export function getHolidayOccurrencesForMonth(year, monthIndex) {
 
 /*
   מחזיר Map: יום-בחודש (מספר) → מערך שמות חגים — לסימון תגים ברשת הלוח.
+  כולל גם "ערב חג" (היום שלפני החג) לפי התאריך העברי הקבוע — לתצוגה בלוח בלבד;
+  ערבי החג *אינם* נכנסים ל-getHolidayOccurrencesForMonth (רשימת החגים/התקציבים).
 */
 export function getHolidaysForMonth(year, monthIndex) {
   const holidaysByDay = new Map();
+  const add = (day, name) => {
+    const names = holidaysByDay.get(day) || [];
+    if (!names.includes(name)) names.push(name);
+    holidaysByDay.set(day, names);
+  };
+
   for (const occurrence of getHolidayOccurrencesForMonth(year, monthIndex)) {
-    for (const day of occurrence.days) {
-      const names = holidaysByDay.get(day) || [];
-      if (!names.includes(occurrence.name)) names.push(occurrence.name);
-      holidaysByDay.set(day, names);
+    for (const day of occurrence.days) add(day, occurrence.name);
+  }
+
+  // ערבי חג — לפי התאריך העברי הקבוע שלהם
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const hebrew = toHebrewDate(atNoon(year, monthIndex, day));
+    for (const eve of EVE_HOLIDAYS) {
+      if (hebrew.month === eve.month && hebrew.day === eve.day) add(day, eve.name);
     }
   }
+
   return holidaysByDay;
+}
+
+/*
+  ראש חודש — כל יום שהוא א' לחודש העברי. מוחזר Set של ימי-החודש הלועזי,
+  לסימון "חולצה לבנה + ר"ח" בלוח. ימים שהם גם חג (כמו א' בתשרי = ראש השנה,
+  או ר"ח שנופל בחנוכה) לא נספרים — בחג/חופשה אין גן וטקס חולצה לבנה,
+  וכדי לא להעמיס את התא.
+*/
+export function getRoshChodeshForMonth(year, monthIndex) {
+  const holidayDays = new Set();
+  for (const occurrence of getHolidayOccurrencesForMonth(year, monthIndex)) {
+    for (const day of occurrence.days) holidayDays.add(day);
+  }
+
+  const roshChodeshDays = new Set();
+  const daysInMonth = new Date(year, monthIndex + 1, 0).getDate();
+  for (let day = 1; day <= daysInMonth; day++) {
+    const hebrew = toHebrewDate(atNoon(year, monthIndex, day));
+    if (hebrew.day === 1 && !holidayDays.has(day)) roshChodeshDays.add(day);
+  }
+  return roshChodeshDays;
 }

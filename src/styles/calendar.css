@@ -133,6 +133,20 @@
   color: var(--color-text);
 }
 
+/* ערב חג — עדין יותר מהחג עצמו */
+.calendar-day__badge--eve {
+  background-color: var(--color-bg);
+  color: var(--color-text-muted);
+}
+
+/* ראש חודש (חולצה לבנה) — רקע לבן עם מסגרת דקה, ואייקון חולצה */
+.calendar-day__badge--rosh-chodesh {
+  background-color: #ffffff;
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-border);
+  font-weight: 600;
+}
+
 /* רשימת האירועים והחגים של החודש, מתחת ללוח */
 .calendar-list {
   margin-top: 16px;

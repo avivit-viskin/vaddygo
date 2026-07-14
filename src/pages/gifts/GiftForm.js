@@ -4,6 +4,7 @@ import Select from "../../components/Select";
 import ErrorMessage from "../../components/ErrorMessage";
 import useForm from "../../hooks/useForm";
 import { GIFT_STATUSES } from "../../services/giftStatus";
+import { PAYMENT_METHODS } from "../../services/paymentMethods";
 
 /*
   GiftForm — הוספה/עריכה של מתנה (UI_SPEC ס' 12): שם, אירוע (חג קרוב),
@@ -32,7 +33,7 @@ function validate(values) {
   return errors;
 }
 
-function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
+function GiftForm({ gift, holidays, vendors, defaultMethod, onSave, onCancel }) {
   // מתנה שנשמרה עם אירוע חופשי — פותחים אותה במצב "אחר" עם השם המוקלד
   const isCustom = Boolean(gift?.holidayKey?.startsWith(CUSTOM_PREFIX));
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
@@ -43,6 +44,7 @@ function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
         customHoliday: isCustom ? gift.holidayName || "" : "",
         totalAmount: gift?.totalAmount != null ? String(gift.totalAmount) : "",
         status: gift?.status || "planned",
+        method: gift?.method || defaultMethod || "cash",
         vendorId: gift?.vendorId != null ? String(gift.vendorId) : "",
       },
       validate
@@ -53,6 +55,7 @@ function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
       name: formValues.name.trim(),
       totalAmount: Number(formValues.totalAmount),
       status: formValues.status,
+      method: formValues.method,
       vendorId: formValues.vendorId ? Number(formValues.vendorId) : null,
     };
     if (formValues.holidayKey === OTHER_KEY) {
@@ -132,6 +135,24 @@ function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
           </option>
         ))}
       </Select>
+      <Select
+        id="gift-method"
+        name="method"
+        label="שולם באמצעות"
+        value={values.method}
+        onChange={handleChange}
+      >
+        {PAYMENT_METHODS.map((m) => (
+          <option key={m.value} value={m.value}>
+            {m.label}
+          </option>
+        ))}
+      </Select>
+      {values.status === "done" && (
+        <p className="gift-form__note">
+          המתנה סומנה "בוצע" — הסכום יירד מיתרת הקופה ומאמצעי התשלום שנבחר.
+        </p>
+      )}
       <Select
         id="gift-vendor"
         name="vendorId"

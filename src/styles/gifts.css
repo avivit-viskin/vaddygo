@@ -141,6 +141,16 @@
   margin-top: 16px;
 }
 
+/* הערה בטופס המתנה כשהיא מסומנת "בוצע" (יורדת מהיתרה) */
+.gift-form__note {
+  margin: -8px 0 16px;
+  padding: 8px 12px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-sm);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+}
+
 /* ── עוזרת תקציבית ───────────────────────────────────────── */
 
 .budget-assistant {

@@ -14,11 +14,12 @@ import "../../styles/budget-rec.css";
   חלוקת תקציב מומלצת ל-5 קטגוריות לפי מספר הילדים והצוות ותקציבי החגים.
   אפשר להתאים את הסכומים ליחידה — וההמלצה מתעדכנת מיד.
 */
-function BudgetRecommendation({ holidayBudgets }) {
+function BudgetRecommendation({ holidayBudgets, spent = 0 }) {
   const [rates, setRates] = useState(getBudgetRates);
   const [showRates, setShowRates] = useState(false);
 
   const { rows, total } = computeBudgetRecommendation(holidayBudgets, rates);
+  const remaining = total - spent;
 
   function changeRate(key) {
     return (event) => setRates(setBudgetRate(key, event.target.value));
@@ -41,6 +42,23 @@ function BudgetRecommendation({ holidayBudgets }) {
         <li className="budget-rec__row budget-rec__row--total">
           <span className="budget-rec__name">סה"כ מומלץ</span>
           <span className="budget-rec__amount">{formatShekels(total)}</span>
+        </li>
+        <li className="budget-rec__row budget-rec__row--spent">
+          <span className="budget-rec__name">כבר הוצאתם</span>
+          <span className="budget-rec__note">ממתנות שסומנו "בוצע"</span>
+          <span className="budget-rec__amount">{formatShekels(spent)}</span>
+        </li>
+        <li className="budget-rec__row budget-rec__row--remaining">
+          <span className="budget-rec__name">נשאר מהמומלץ</span>
+          <span
+            className={`budget-rec__amount${
+              remaining < 0 ? " budget-rec__amount--over" : ""
+            }`}
+          >
+            {remaining < 0
+              ? `חריגה של ${formatShekels(-remaining)}`
+              : formatShekels(remaining)}
+          </span>
         </li>
       </ul>
 

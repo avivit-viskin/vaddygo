@@ -12,6 +12,8 @@ import {
   updateVendor,
 } from "../services/vendorsService";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
+import { getExpenses } from "../services/expensesService";
+import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
 import { upcomingHolidays } from "../services/upcomingHoliday";
 import CountdownBanner from "./gifts/CountdownBanner";
 import UpcomingMonth from "./gifts/UpcomingMonth";
@@ -32,6 +34,7 @@ function GiftsPage() {
   const [gifts, setGifts] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [budgets, setBudgets] = useState({});
+  const [expenses, setExpenses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [editingGift, setEditingGift] = useState(null); // null=סגור, {}=חדש, gift=עריכה
   const [deletingGift, setDeletingGift] = useState(null);
@@ -40,14 +43,16 @@ function GiftsPage() {
 
   const load = useCallback(async () => {
     setIsLoading(true);
-    const [giftsData, vendorsData, budgetsData] = await Promise.all([
+    const [giftsData, vendorsData, budgetsData, expensesData] = await Promise.all([
       getGifts(),
       getVendors(),
       getHolidayBudgets(),
+      getExpenses().catch(() => []),
     ]);
     setGifts(giftsData);
     setVendors(vendorsData);
     setBudgets(budgetsData);
+    setExpenses(expensesData);
     setIsLoading(false);
   }, []);
 
@@ -61,17 +66,48 @@ function GiftsPage() {
     [vendors]
   );
 
+  // סך המתנות שכבר בוצעו — כמה כבר הוצא בפועל (לעוזרת התקציב)
+  const spentOnGifts = useMemo(
+    () =>
+      (gifts || [])
+        .filter((gift) => gift.status === "done")
+        .reduce((sum, gift) => sum + (Number(gift.totalAmount) || 0), 0),
+    [gifts]
+  );
+
+  // אמצעי התשלום של מתנה שנערכת — מההוצאה המשויכת (אם כבר בוצעה), אחרת מזומן
+  const editingGiftMethod = useMemo(() => {
+    if (!editingGift?.id) return "cash";
+    const description = giftExpenseDescription(editingGift.name);
+    return (
+      expenses.find((expense) => expense.description === description)?.method ||
+      editingGift.method ||
+      "cash"
+    );
+  }, [editingGift, expenses]);
+
   async function handleSaveGift(values) {
-    if (editingGift?.id) {
-      await updateGift(editingGift.id, values);
-    } else {
-      await addGift(values);
-    }
+    const prev = editingGift?.id ? editingGift : null;
+    const saved = prev
+      ? await updateGift(prev.id, values)
+      : await addGift(values);
+    // "בוצע" → רושם הוצאה שמקטינה את היתרה ואת האמצעי; כל סטטוס אחר → מוחק אותה
+    await syncGiftExpense({
+      prevName: prev?.name,
+      gift: saved || { ...values },
+      method: values.method,
+    });
     setEditingGift(null);
     load();
   }
 
   async function handleDeleteGift() {
+    // מתנה שבוצעה — מסירים גם את ההוצאה המשויכת מהקופה
+    await syncGiftExpense({
+      prevName: deletingGift.name,
+      gift: { ...deletingGift, status: "deleted" },
+      method: deletingGift.method,
+    });
     await deleteGift(deletingGift.id);
     setDeletingGift(null);
     load();
@@ -122,7 +158,7 @@ function GiftsPage() {
 
       <BudgetAssistant gifts={gifts} holidayBudgets={budgets} />
 
-      <BudgetRecommendation holidayBudgets={budgets} />
+      <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
 
       <Card title="ספקים 🏷️">
         {vendors.length === 0 ? (
@@ -163,6 +199,7 @@ function GiftsPage() {
             gift={editingGift?.id ? editingGift : null}
             holidays={holidays}
             vendors={vendors}
+            defaultMethod={editingGiftMethod}
             onSave={handleSaveGift}
             onCancel={() => setEditingGift(null)}
           />

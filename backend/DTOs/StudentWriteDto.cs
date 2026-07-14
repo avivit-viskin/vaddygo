@@ -29,5 +29,33 @@ namespace ParentCommitteeAPI.DTOs
 
         /* תאריך לידה (אופציונלי) — יום/חודש/שנה, להצגת יום ההולדת ברשימה */
         public DateOnly? BirthDate { get; set; }
+
+        /* ── שדות נוספים מקובץ משרד החינוך (כולם אופציונליים) ──────────── */
+        [StringLength(20, ErrorMessage = "תעודת הזהות ארוכה מדי")]
+        public string IdNumber { get; set; } = string.Empty;
+
+        [StringLength(20, ErrorMessage = "שדה המין ארוך מדי")]
+        public string Gender { get; set; } = string.Empty;
+
+        [StringLength(200, ErrorMessage = "שדה האלרגיות ארוך מדי")]
+        public string Allergies { get; set; } = string.Empty;
+
+        [StringLength(150, ErrorMessage = "הכתובת ארוכה מדי")]
+        public string Address { get; set; } = string.Empty;
+
+        [StringLength(100, ErrorMessage = "כתובת המייל ארוכה מדי")]
+        public string ParentEmail { get; set; } = string.Empty;
+
+        [StringLength(80, ErrorMessage = "שם הורה ב' ארוך מדי")]
+        public string ParentBName { get; set; } = string.Empty;
+
+        [StringLength(20, ErrorMessage = "מספר הטלפון ארוך מדי")]
+        public string ParentBPhone { get; set; } = string.Empty;
+
+        [StringLength(100, ErrorMessage = "כתובת המייל ארוכה מדי")]
+        public string ParentBEmail { get; set; } = string.Empty;
+
+        [StringLength(20, ErrorMessage = "שדה סטטוס הנישואין ארוך מדי")]
+        public string ParentsMarried { get; set; } = string.Empty;
     }
 }

@@ -16,6 +16,17 @@ namespace ParentCommitteeAPI.DTOs
         /* תאריך לידה (אופציונלי) — להצגת יום ההולדת ברשימה */
         public DateOnly? BirthDate { get; set; }
 
+        /* ── שדות נוספים מקובץ משרד החינוך ──────────────────────────── */
+        public string IdNumber { get; set; } = string.Empty;
+        public string Gender { get; set; } = string.Empty;
+        public string Allergies { get; set; } = string.Empty;
+        public string Address { get; set; } = string.Empty;
+        public string ParentEmail { get; set; } = string.Empty;
+        public string ParentBName { get; set; } = string.Empty;
+        public string ParentBPhone { get; set; } = string.Empty;
+        public string ParentBEmail { get; set; } = string.Empty;
+        public string ParentsMarried { get; set; } = string.Empty;
+
         /* סך התשלומים ששולמו עד כה — מחושב בשרת מהתשלומים, לא נשמר במסד */
         public decimal TotalPaid { get; set; }
     }

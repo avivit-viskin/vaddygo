@@ -113,7 +113,7 @@ namespace ParentCommitteeAPI.Services
                 .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount));
         }
 
-        /* מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפון בלי מקף. */
+        /* מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפונים בלי מקף. */
         private static void ApplyWrite(Student student, StudentWriteDto dto)
         {
             student.FirstName = dto.FirstName.Trim();
@@ -122,6 +122,16 @@ namespace ParentCommitteeAPI.Services
             student.ClassName = dto.ClassName.Trim();
             student.ParentPhoneNumber = dto.ParentPhoneNumber.Trim().Replace("-", "");
             student.BirthDate = dto.BirthDate;
+            // שדות משרד החינוך
+            student.IdNumber = dto.IdNumber.Trim();
+            student.Gender = dto.Gender.Trim();
+            student.Allergies = dto.Allergies.Trim();
+            student.Address = dto.Address.Trim();
+            student.ParentEmail = dto.ParentEmail.Trim();
+            student.ParentBName = dto.ParentBName.Trim();
+            student.ParentBPhone = dto.ParentBPhone.Trim().Replace("-", "");
+            student.ParentBEmail = dto.ParentBEmail.Trim();
+            student.ParentsMarried = dto.ParentsMarried.Trim();
         }
 
         private static StudentResponseDto ToResponse(Student student, decimal totalPaid) => new()
@@ -133,6 +143,15 @@ namespace ParentCommitteeAPI.Services
             ClassName = student.ClassName,
             ParentPhoneNumber = student.ParentPhoneNumber,
             BirthDate = student.BirthDate,
+            IdNumber = student.IdNumber,
+            Gender = student.Gender,
+            Allergies = student.Allergies,
+            Address = student.Address,
+            ParentEmail = student.ParentEmail,
+            ParentBName = student.ParentBName,
+            ParentBPhone = student.ParentBPhone,
+            ParentBEmail = student.ParentBEmail,
+            ParentsMarried = student.ParentsMarried,
             TotalPaid = totalPaid,
         };
     }

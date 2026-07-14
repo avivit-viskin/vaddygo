@@ -217,7 +217,7 @@ function CalendarPage({ initialDate }) {
         </div>
 
         <aside className="calendar-side">
-          <Button onClick={() => openAddForm(defaultFormDate)}>
+          <Button variant="brand" onClick={() => openAddForm(defaultFormDate)}>
             + הוספת אירוע
           </Button>
           <p>לחצי על יום בלוח, או על הכפתור, כדי להוסיף אירוע 🙂</p>

@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { askAssistant } from "../services/aiService";
+import { buildFinanceSummary } from "../services/financeContext";
 import { whatsappShareUrl, extractShareMessage } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -15,23 +16,32 @@ import "../styles/ai.css";
   פרטיות: נשלח רק הטקסט של השיחה — לא שמות/טלפונים.
 */
 const QUICK_PROMPTS = [
+  "כמה נשאר בקופה ומה מצב הגבייה?",
   "תעזור לי לחשוב על מתנות לחג הקרוב",
-  "תתן לי המלצה על ספק באזור מגוריי",
   "כמה תקציב אתה חושב שכדאי לי להשקיע על מתנות סוף שנה",
   "תעזור לי לנסח הודעה להורים על תזכורת תשלום",
 ];
 
-/* תמצית השיחה עד כה, כרקע לשאלה הבאה (מוגבל באורך — השרת מגביל ל-2000 תווים) */
-function buildContext(history) {
-  if (history.length === 0) {
-    return "";
+/*
+  רקע לשאלה הבאה: קודם המצב הכספי האמיתי (יתרה/גבייה/הוצאות), ואז תמצית השיחה.
+  מוגבל באורך — השרת חוסם מעל 2000 תווים, אז משאירים מקום לתמצית הכספית ומקצצים
+  את שאר השיחה לפי מה שנשאר.
+*/
+function buildContext(history, finance = "") {
+  const parts = [];
+  if (finance) {
+    parts.push(finance);
   }
-  const transcript = history
-    .map((m) => `${m.role === "user" ? "המשתמשת" : "העוזרת"}: ${m.text}`)
-    .join("\n");
-  const capped =
-    transcript.length > 1800 ? transcript.slice(-1800) : transcript;
-  return `השיחה עד כה:\n${capped}`;
+  if (history.length > 0) {
+    const transcript = history
+      .map((m) => `${m.role === "user" ? "המשתמשת" : "העוזרת"}: ${m.text}`)
+      .join("\n");
+    const budget = Math.max(400, 1900 - finance.length);
+    const capped =
+      transcript.length > budget ? transcript.slice(-budget) : transcript;
+    parts.push(`השיחה עד כה:\n${capped}`);
+  }
+  return parts.join("\n\n");
 }
 
 function AiAssistantPage() {
@@ -39,7 +49,19 @@ function AiAssistantPage() {
   const [draft, setDraft] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const [finance, setFinance] = useState(""); // תמצית כספית לרקע (נטענת פעם אחת)
   const threadEndRef = useRef(null);
+
+  // טוענים את המצב הכספי פעם אחת בכניסה, כדי שהעוזרת תדע לענות לפי המספרים
+  useEffect(() => {
+    let alive = true;
+    buildFinanceSummary().then((summary) => {
+      if (alive) setFinance(summary);
+    });
+    return () => {
+      alive = false;
+    };
+  }, []);
 
   // גלילה אוטומטית לתחתית השיחה כשמתווספת הודעה (scrollIntoView לא קיים בכל סביבה)
   useEffect(() => {
@@ -57,7 +79,7 @@ function AiAssistantPage() {
     setIsLoading(true);
     setError("");
     try {
-      const result = await askAssistant(trimmed, buildContext(history));
+      const result = await askAssistant(trimmed, buildContext(history, finance));
       setMessages((prev) => [...prev, { role: "assistant", text: result.answer }]);
     } catch (err) {
       setError(err.message);

@@ -416,6 +416,15 @@
 .categories__amounts {
   font-size: var(--font-size-sm);
   color: var(--color-primary-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+/* כמה יצא מהקטגוריה וכמה נשאר (מוצג רק כשיצאה הוצאה שסווגה לקטגוריה) */
+.categories__spent {
+  color: var(--color-text-muted);
+  font-size: 12px;
 }
 
 .categories__of {

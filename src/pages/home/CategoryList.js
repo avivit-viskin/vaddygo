@@ -3,7 +3,8 @@ import { formatShekels } from "../../services/format";
 
 /*
   CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): הזנה, ועד, חוגים, קלמר.
-  לכל קטגוריה: כמה נגבה מתוך היעד שלה.
+  לכל קטגוריה: כמה נגבה מתוך היעד שלה, וכשיצא כסף מהקטגוריה (הוצאה שסווגה לשמה)
+  גם כמה יצא וכמה נשאר בפועל — כך הוצאה בקטגוריית "ועד" מפחיתה את הקטגוריה.
 */
 function CategoryList({ categories }) {
   if (!categories || categories.length === 0) {
@@ -13,16 +14,27 @@ function CategoryList({ categories }) {
   return (
     <Card title="תשלומים לפי קטגוריות">
       <ul className="categories">
-        {categories.map((category) => (
-          <li key={category.name} className="categories__item">
-            <span className="categories__name">{category.name}</span>
-            <span className="categories__amounts">
-              {formatShekels(category.collectedAmount)}
-              <span className="categories__of"> מתוך </span>
-              {formatShekels(category.targetAmount)}
-            </span>
-          </li>
-        ))}
+        {categories.map((category) => {
+          const spent = Number(category.spentAmount) || 0;
+          const remaining = (Number(category.collectedAmount) || 0) - spent;
+          return (
+            <li key={category.name} className="categories__item">
+              <span className="categories__name">{category.name}</span>
+              <span className="categories__amounts">
+                <span>
+                  {formatShekels(category.collectedAmount)}
+                  <span className="categories__of"> מתוך </span>
+                  {formatShekels(category.targetAmount)}
+                </span>
+                {spent > 0 && (
+                  <small className="categories__spent">
+                    יצא {formatShekels(spent)} · נשאר {formatShekels(remaining)}
+                  </small>
+                )}
+              </span>
+            </li>
+          );
+        })}
       </ul>
     </Card>
   );

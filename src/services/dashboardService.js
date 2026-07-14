@@ -38,6 +38,7 @@ async function buildLocalDashboard() {
       name: c.name.replace(" (אופציונלי)", ""),
       targetAmount: Number(c.amount) * children,
       collectedAmount: 0,
+      spentAmount: 0,
     }));
   const target = byCategory.reduce((sum, c) => sum + c.targetAmount, 0);
 

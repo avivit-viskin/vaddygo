@@ -14,6 +14,11 @@ namespace ParentCommitteeAPI.Models
         public string Method { get; set; } = "cash";
 
         public string Description { get; set; } = string.Empty;
+
+        // על מה יורד הכסף: שם קטגוריית גבייה (הזנה/ועד/חוגים...) או סוג הוצאה
+        // (חגים / ימי הולדת צוות / ימי הולדת ילדים / מתנות סוף שנה / בלת"מ). ריק = לא סווג.
+        public string Category { get; set; } = string.Empty;
+
         public DateTime Date { get; set; }
 
         // המוסד שאליו שייכת ההוצאה (ריבוי מוסדות) — null = ישן ללא שיוך

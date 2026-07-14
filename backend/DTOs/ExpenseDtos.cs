@@ -16,6 +16,10 @@ namespace ParentCommitteeAPI.DTOs
 
         [StringLength(200, ErrorMessage = "התיאור יכול להכיל עד 200 תווים")]
         public string? Description { get; set; }
+
+        // על מה יורד הכסף (קטגוריית גבייה או סוג הוצאה) — אופציונלי
+        [StringLength(60, ErrorMessage = "שם הקטגוריה יכול להכיל עד 60 תווים")]
+        public string? Category { get; set; }
     }
 
     public class ExpenseResponseDto
@@ -24,6 +28,7 @@ namespace ParentCommitteeAPI.DTOs
         public decimal Amount { get; set; }
         public string Method { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
         public DateTime Date { get; set; }
     }
 }

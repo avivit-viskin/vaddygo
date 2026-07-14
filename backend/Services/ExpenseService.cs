@@ -46,6 +46,7 @@ namespace ParentCommitteeAPI.Services
                 Amount = dto.Amount,
                 Method = Normalize(dto.Method),
                 Description = (dto.Description ?? string.Empty).Trim(),
+                Category = (dto.Category ?? string.Empty).Trim(),
                 Date = DateTime.UtcNow,
                 // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT)
                 GroupId = await _access.ScopeGroupIdAsync(groupId),
@@ -82,6 +83,7 @@ namespace ParentCommitteeAPI.Services
             Amount = e.Amount,
             Method = e.Method,
             Description = e.Description,
+            Category = e.Category,
             Date = e.Date,
         };
     }

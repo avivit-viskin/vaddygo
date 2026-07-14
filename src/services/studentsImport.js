@@ -305,6 +305,37 @@ export function parseStudentGrid(grid) {
   ב-SheetJS שקורא כמעט כל פורמט טבלאי; הספרייה נטענת רק כשצריך (טעינה עצלה).
   לוקחים את הגיליון עם הכי הרבה שורות. זורק שגיאה אם הקובץ לא ניתן לקריאה.
 */
+/*
+  מזהה קובץ נעול בסיסמה (מוצפן): קובץ OLE (חתימת D0CF11E0) שמכיל stream בשם
+  "EncryptedPackage" — כך בנוי xlsx/xls מוצפן. אי אפשר לקרוא אותו בלי הסיסמה, אז
+  עדיף לזהות מראש ולהסביר למשתמשת, במקום להיכשל בשגיאה סתומה.
+*/
+export function looksEncrypted(buffer) {
+  const bytes = new Uint8Array(buffer);
+  const isCfb =
+    bytes.length > 8 &&
+    bytes[0] === 0xd0 &&
+    bytes[1] === 0xcf &&
+    bytes[2] === 0x11 &&
+    bytes[3] === 0xe0;
+  if (!isCfb) return false;
+  const marker = "EncryptedPackage"; // שם ה-stream (מאוחסן כ-UTF-16LE)
+  for (let i = 0; i + marker.length * 2 <= bytes.length; i += 2) {
+    let match = true;
+    for (let j = 0; j < marker.length; j += 1) {
+      if (
+        bytes[i + j * 2] !== marker.charCodeAt(j) ||
+        bytes[i + j * 2 + 1] !== 0
+      ) {
+        match = false;
+        break;
+      }
+    }
+    if (match) return true;
+  }
+  return false;
+}
+
 export async function parseStudentFile(file) {
   const name = (file?.name || "").toLowerCase();
   if (name.endsWith(".csv") || name.endsWith(".txt")) {
@@ -312,12 +343,14 @@ export async function parseStudentFile(file) {
     return parseStudentRows(text);
   }
 
+  const buffer = await file.arrayBuffer();
+  if (looksEncrypted(buffer)) {
+    throw Object.assign(new Error("הקובץ נעול בסיסמה"), { code: "ENCRYPTED" });
+  }
+
   const mod = await import("xlsx");
   const XLSX = mod.default || mod;
-  const workbook = XLSX.read(await file.arrayBuffer(), {
-    type: "array",
-    cellDates: true,
-  });
+  const workbook = XLSX.read(buffer, { type: "array", cellDates: true });
   let grid = [];
   for (const sheetName of workbook.SheetNames) {
     const sheet = workbook.Sheets[sheetName];

@@ -3,6 +3,7 @@ import {
   parseStudentGrid,
   sheetToGrid,
   buildColumnMap,
+  looksEncrypted,
   importStudents,
 } from "./studentsImport";
 
@@ -262,6 +263,18 @@ test("מזהה את שורת הכותרת גם כשמעליה שורות כות�
     parentPhoneNumber: "050-0000000",
     birthDate: "2019-11-03",
   });
+});
+
+test("looksEncrypted מזהה קובץ נעול בסיסמה (ולא קובץ רגיל)", () => {
+  // חתימת OLE + שם ה-stream EncryptedPackage כ-UTF-16LE
+  const bytes = [0xd0, 0xcf, 0x11, 0xe0, 0xa1, 0xb1, 0x1a, 0xe1, 0, 0];
+  for (const ch of "EncryptedPackage") bytes.push(ch.charCodeAt(0), 0);
+  expect(looksEncrypted(new Uint8Array(bytes).buffer)).toBe(true);
+
+  // קובץ xlsx רגיל מתחיל ב-PK (zip) — לא מוצפן
+  expect(looksEncrypted(new Uint8Array([0x50, 0x4b, 3, 4, 0, 0]).buffer)).toBe(
+    false
+  );
 });
 
 test("importStudents מסכם כמה נוספו וכמה נכשלו", async () => {

@@ -126,7 +126,7 @@
   padding-top: 12px;
 }
 
-/* פעולה בתפריט (צור קשר) — קישור בעיצוב פריט תפריט */
+/* פעולה בתפריט — קישור/כפתור בעיצוב פריט תפריט */
 .sidemenu__action {
   display: block;
   color: #000000;
@@ -135,6 +135,11 @@
   font-size: var(--font-size-base);
   min-height: 44px;
   padding: 10px 0;
+}
+
+/* "צור קשר" — ירוק (פנייה לתמיכה בוואטסאפ), עם אייקון טלפון 📞 */
+.sidemenu__contact {
+  color: var(--color-success);
 }
 
 .sidemenu__logout {

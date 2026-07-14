@@ -105,13 +105,13 @@ function SideMenu({ isOpen, onClose }) {
 
         <div className="sidemenu__footer">
           <a
-            className="sidemenu__action"
+            className="sidemenu__action sidemenu__contact"
             href={SUPPORT_URL}
             target="_blank"
             rel="noreferrer"
             onClick={onClose}
           >
-            צור קשר
+            📞 צור קשר
           </a>
           <button type="button" className="sidemenu__logout" onClick={handleLogout}>
             🚪 התנתק

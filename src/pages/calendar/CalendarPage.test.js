@@ -108,12 +108,26 @@ test("לחיצה על יום ריק פותחת חלון יום שממנו מוס
   render(<CalendarPage initialDate={new Date(2026, 11, 15)} />);
   await screen.findByText("דצמבר 2026");
 
-  fireEvent.click(screen.getByRole("button", { name: "אירועי יום 10 בחודש" }));
-  // חלון היום נפתח — אין אירועים, ואפשר להוסיף
+  // 22 בדצמבר 2026 — יום בלי חג ובלי אירוע
+  fireEvent.click(screen.getByRole("button", { name: "אירועי יום 22 בחודש" }));
   expect(screen.getByText("אין אירועים ביום זה 🙂")).toBeInTheDocument();
 
   fireEvent.click(screen.getByRole("button", { name: "+ הוספת אירוע ליום זה" }));
-  expect(screen.getByLabelText("תאריך *")).toHaveValue("2026-12-10");
+  expect(screen.getByLabelText("תאריך *")).toHaveValue("2026-12-22");
+});
+
+test("לחיצה על יום עם חג מציגה את החג כאירוע (לא 'אין אירועים')", async () => {
+  const { container } = render(<CalendarPage initialDate={new Date(2026, 11, 1)} />);
+  await screen.findByText("דצמבר 2026");
+
+  // מוצאים יום עם חג בלוח (חנוכה בדצמבר) ולוחצים עליו
+  const holidayBadge = container.querySelector(
+    ".calendar-grid .calendar-day__badge--holiday"
+  );
+  fireEvent.click(holidayBadge.closest("button"));
+
+  // החג נחשב אירוע — אין הודעת "אין אירועים ביום זה"
+  expect(screen.queryByText("אין אירועים ביום זה 🙂")).not.toBeInTheDocument();
 });
 
 test("לחיצה על יום עם אירוע מציגה אותו בחלון היום עם כפתור עריכה", async () => {

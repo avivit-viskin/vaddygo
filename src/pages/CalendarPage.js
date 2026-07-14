@@ -16,6 +16,7 @@ import {
   getHolidaysForMonth,
   getHolidayOccurrencesForMonth,
   getRoshChodeshForMonth,
+  holidayEmoji,
 } from "../data/holidays";
 import { hebrewDateLabel } from "../services/hebrewDate";
 import { whatsappUrl } from "../services/whatsapp";
@@ -356,18 +357,27 @@ function CalendarPage({ initialDate }) {
       >
         {dayView && (
           <div className="calendar-day-view">
-            {dayView.holidays.length > 0 && (
-              <p className="calendar-day-view__holidays">
-                🕎 {dayView.holidays.join(" · ")}
-              </p>
-            )}
-
-            {dayView.events.length === 0 ? (
+            {dayView.holidays.length === 0 && dayView.events.length === 0 ? (
               <p className="calendar-day-view__empty">
                 אין אירועים ביום זה 🙂
               </p>
             ) : (
               <ul className="calendar-day-view__list">
+                {/* חגים נחשבים אירועים גם הם — מוצגים אוטומטית, בלי עריכה/מחיקה */}
+                {dayView.holidays.map((name) => (
+                  <li
+                    key={`holiday-${name}`}
+                    className="calendar-day-view__item calendar-day-view__item--holiday"
+                  >
+                    <span className="calendar-day-view__name">
+                      {holidayEmoji(name) ? `${holidayEmoji(name)} ` : ""}
+                      {name}
+                    </span>
+                    <span className="calendar-day-view__tag">חג</span>
+                  </li>
+                ))}
+
+                {/* האירועים שהוזנו — עם עריכה ומחיקה */}
                 {dayView.events.map((event) => (
                   <li key={event.id} className="calendar-day-view__item">
                     <span className="calendar-day-view__name">

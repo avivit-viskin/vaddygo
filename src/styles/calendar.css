@@ -223,12 +223,6 @@
 }
 
 /* חלון היום: אירועי היום שנבחר (צפייה, עריכה, מחיקה, והוספה) */
-.calendar-day-view__holidays {
-  margin: 0 0 12px;
-  color: var(--color-primary-dark);
-  font-weight: 600;
-}
-
 .calendar-day-view__empty {
   margin: 0 0 16px;
   color: var(--color-text-muted);
@@ -263,6 +257,21 @@
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
+}
+
+/* פריט חג בחלון היום — רקע עדין ותג "חג" (אין עריכה/מחיקה) */
+.calendar-day-view__item--holiday {
+  background-color: var(--color-primary-light);
+}
+
+.calendar-day-view__tag {
+  flex-shrink: 0;
+  background-color: var(--color-primary-dark);
+  color: #ffffff;
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .calendar-actions {

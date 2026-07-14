@@ -1,6 +1,7 @@
 import { getStaff, nextBirthday } from "./staffService";
 import { getStudents } from "./studentsService";
 import { upcomingHolidays } from "./upcomingHoliday";
+import { holidayEmoji } from "../data/holidays";
 
 /*
   upcomingMonth — התזכורות במסך המתנות. לפי בקשת בעלת המוצר מוצגים *רק*:
@@ -37,13 +38,13 @@ export async function loadUpcomingMonth(today = new Date()) {
   ]);
   const items = [];
 
-  // חגים — עד שבועיים לפני
+  // חגים — עד שבועיים לפני. האייקון זהה לזה שבלוח השנה (🕎 לחנוכה, 🎭 לפורים…)
   upcomingHolidays(today)
     .filter((h) => h.daysUntil >= 0 && h.daysUntil <= HOLIDAY_WINDOW_DAYS)
     .forEach((h) =>
       items.push({
         id: `holiday-${h.key}`,
-        icon: "🎉",
+        icon: holidayEmoji(h.name) || "🎉",
         label: h.name,
         daysUntil: h.daysUntil,
       })

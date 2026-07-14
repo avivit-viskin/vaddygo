@@ -1,6 +1,7 @@
 import Card from "../../components/Card";
 import { nextHoliday } from "../../services/upcomingHoliday";
 import { formatDayMonth } from "../../services/format";
+import { holidayEmoji } from "../../data/holidays";
 
 /* כמה ימים לפני האירוע מתחילים להזכיר לסדר את המתנות (שבוע). */
 const GIFT_REMINDER_DAYS = 7;
@@ -29,7 +30,7 @@ function CountdownBanner({ today }) {
     <Card>
       <div className={`countdown${isSoon ? " countdown--soon" : ""}`}>
         <span className="countdown__icon" aria-hidden="true">
-          {isSoon ? "🎁" : "🎉"}
+          {isSoon ? "🎁" : holidayEmoji(holiday.name) || "🎉"}
         </span>
         <div>
           <p className="countdown__title">

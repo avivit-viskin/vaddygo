@@ -93,6 +93,59 @@
   font-size: var(--font-size-sm);
 }
 
+/* שרשור השיחה עם העוזרת (שאלה ← תשובה, עם אפשרות להגיב) */
+.ai-thread {
+  list-style: none;
+  margin: 16px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ai-bubble {
+  max-width: 85%;
+  padding: 10px 14px;
+  border-radius: var(--radius-md);
+  line-height: 1.6;
+}
+
+.ai-bubble--user {
+  align-self: flex-start;
+  background-color: var(--color-primary);
+  color: var(--color-text);
+  border-bottom-right-radius: 4px;
+}
+
+.ai-bubble--assistant {
+  align-self: flex-end;
+  background-color: var(--color-primary-light);
+  color: var(--color-text);
+  border-bottom-left-radius: 4px;
+}
+
+.ai-bubble__text {
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.ai-bubble__text--typing {
+  color: var(--color-text-muted);
+}
+
+.ai-bubble__share {
+  display: inline-block;
+  margin-top: 8px;
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.ai-bubble__share:hover {
+  text-decoration: underline;
+}
+
 /* כפתור AI צף מעל הניווט התחתון */
 .ai-fab {
   position: fixed;

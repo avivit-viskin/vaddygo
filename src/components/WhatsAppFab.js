@@ -21,7 +21,7 @@ function WhatsAppFab() {
       aria-label="צור קשר בוואטסאפ"
     >
       <span className="whatsapp-fab__icon" aria-hidden="true">
-        <WhatsAppIcon color="#ffffff" size={30} />
+        <WhatsAppIcon color="#ffffff" size={22} />
       </span>
     </a>
   );

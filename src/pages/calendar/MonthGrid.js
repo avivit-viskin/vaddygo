@@ -73,7 +73,7 @@ function MonthGrid({
                     type="button"
                     className="calendar-day__cell"
                     onClick={() => onDayClick?.(day)}
-                    aria-label={`הוספת אירוע ב-${day} בחודש`}
+                    aria-label={`אירועי יום ${day} בחודש`}
                   >
                     <span className="calendar-day__nums">
                       <span className="calendar-day__number">{day}</span>

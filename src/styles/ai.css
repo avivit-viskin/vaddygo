@@ -146,13 +146,13 @@
   text-decoration: underline;
 }
 
-/* כפתור AI צף מעל הניווט התחתון */
+/* כפתור AI צף מעל הניווט התחתון — קטן וקומפקטי כדי לא להסתיר תוכן/כפתורים */
 .ai-fab {
   position: fixed;
-  bottom: calc(var(--bottom-nav-height) + 16px);
-  left: 16px;
-  width: 56px;
-  height: 56px;
+  bottom: calc(var(--bottom-nav-height) + 12px);
+  left: 12px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: var(--color-primary-dark);
   color: #ffffff;
@@ -161,11 +161,12 @@
   justify-content: center;
   box-shadow: var(--shadow-md);
   text-decoration: none;
+  opacity: 0.9;
   z-index: 40;
 }
 
 .ai-fab__icon {
-  font-size: 20px;
+  font-size: 13px;
   font-weight: 700;
   letter-spacing: 0.5px;
   line-height: 1;
@@ -174,10 +175,10 @@
 /* כפתור "צור קשר" צף בוואטסאפ — מעל כפתור ה-AI (ירוק כמו וואטסאפ) */
 .whatsapp-fab {
   position: fixed;
-  bottom: calc(var(--bottom-nav-height) + 16px + 68px);
-  left: 16px;
-  width: 56px;
-  height: 56px;
+  bottom: calc(var(--bottom-nav-height) + 12px + 48px);
+  left: 12px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background-color: #25d366;
   color: #ffffff;
@@ -186,10 +187,11 @@
   justify-content: center;
   box-shadow: var(--shadow-md);
   text-decoration: none;
+  opacity: 0.9;
   z-index: 40;
 }
 
 .whatsapp-fab__icon {
-  font-size: 26px;
+  font-size: 20px;
   line-height: 1;
 }

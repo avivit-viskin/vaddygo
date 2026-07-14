@@ -222,6 +222,49 @@
   font-size: var(--font-size-base);
 }
 
+/* חלון היום: אירועי היום שנבחר (צפייה, עריכה, מחיקה, והוספה) */
+.calendar-day-view__holidays {
+  margin: 0 0 12px;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.calendar-day-view__empty {
+  margin: 0 0 16px;
+  color: var(--color-text-muted);
+}
+
+.calendar-day-view__list {
+  list-style: none;
+  margin: 0 0 16px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.calendar-day-view__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 8px 12px;
+}
+
+.calendar-day-view__name {
+  font-weight: 600;
+}
+
+.calendar-day-view__actions {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
 .calendar-actions {
   display: flex;
   justify-content: center;

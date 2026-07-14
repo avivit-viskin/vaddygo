@@ -70,6 +70,8 @@ function CalendarPage({ initialDate }) {
   const [deleteTarget, setDeleteTarget] = useState(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [budgetTarget, setBudgetTarget] = useState(null);
+  // לחיצה על יום בלוח פותחת חלון עם אירועי אותו יום (צפייה, עריכה, והוספה)
+  const [dayView, setDayView] = useState(null);
 
   const { data: events, isLoading, error, reload } = useApi(getEvents);
   const { data: budgets, reload: reloadBudgets } = useApi(getHolidayBudgets);
@@ -126,6 +128,35 @@ function CalendarPage({ initialDate }) {
   function openAddForm(dateValue) {
     setAddDate(dateValue);
     setIsFormOpen(true);
+  }
+
+  /* פותח את חלון היום: מציג את האירועים של אותו יום (וחגים אם יש) */
+  function openDayView(day) {
+    const date = new Date(year, monthIndex, day, 12);
+    setDayView({
+      dateValue: toDateInputValue(date),
+      dateLabel: listDateFormatter.format(date),
+      hebrewLabel: hebrewDateLabel(date),
+      events: eventsByDay.get(day) || [],
+      holidays: holidaysByDay.get(day) || [],
+    });
+  }
+
+  /* עריכה/מחיקה/הוספה מתוך חלון היום — סוגר אותו ופותח את הפעולה */
+  function editFromDayView(event) {
+    setDayView(null);
+    setEditTarget(event);
+  }
+
+  function deleteFromDayView(event) {
+    setDayView(null);
+    setDeleteTarget(event);
+  }
+
+  function addFromDayView() {
+    const dateValue = dayView?.dateValue;
+    setDayView(null);
+    openAddForm(dateValue);
   }
 
   async function handleSave(newEvent) {
@@ -210,9 +241,7 @@ function CalendarPage({ initialDate }) {
             holidaysByDay={holidaysByDay}
             eventsByDay={eventsByDay}
             roshChodeshDays={roshChodeshDays}
-            onDayClick={(day) =>
-              openAddForm(toDateInputValue(new Date(year, monthIndex, day, 12)))
-            }
+            onDayClick={openDayView}
           />
         </div>
 
@@ -220,7 +249,7 @@ function CalendarPage({ initialDate }) {
           <Button variant="brand" onClick={() => openAddForm(defaultFormDate)}>
             + הוספת אירוע
           </Button>
-          <p>לחצי על יום בלוח, או על הכפתור, כדי להוסיף אירוע 🙂</p>
+          <p>לחצי על יום בלוח כדי לראות את האירועים שלו ולהוסיף/לערוך, או על הכפתור להוספה מהירה 🙂</p>
         </aside>
       </div>
 
@@ -317,6 +346,63 @@ function CalendarPage({ initialDate }) {
             ביטול
           </Button>
         </div>
+      </Modal>
+
+      {/* חלון היום: אירועי היום שנבחר, עם עריכה/מחיקה והוספה */}
+      <Modal
+        isOpen={Boolean(dayView)}
+        onClose={() => setDayView(null)}
+        title={dayView ? `${dayView.dateLabel} · ${dayView.hebrewLabel}` : ""}
+      >
+        {dayView && (
+          <div className="calendar-day-view">
+            {dayView.holidays.length > 0 && (
+              <p className="calendar-day-view__holidays">
+                🕎 {dayView.holidays.join(" · ")}
+              </p>
+            )}
+
+            {dayView.events.length === 0 ? (
+              <p className="calendar-day-view__empty">
+                אין אירועים ביום זה 🙂
+              </p>
+            ) : (
+              <ul className="calendar-day-view__list">
+                {dayView.events.map((event) => (
+                  <li key={event.id} className="calendar-day-view__item">
+                    <span className="calendar-day-view__name">
+                      {event.name}
+                      {event.reminder && " 🔔"}
+                      {event.shareWithParent && " 👪"}
+                    </span>
+                    <span className="calendar-day-view__actions">
+                      <button
+                        type="button"
+                        className="calendar-list__edit"
+                        aria-label={`עריכת ${event.name}`}
+                        onClick={() => editFromDayView(event)}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        type="button"
+                        className="calendar-list__delete"
+                        aria-label={`מחיקת ${event.name}`}
+                        onClick={() => deleteFromDayView(event)}
+                      >
+                        🗑️
+                      </button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            <Button variant="brand" onClick={addFromDayView}>
+              + הוספת אירוע ליום זה
+            </Button>
+          </div>
+        )}
       </Modal>
 
       {budgetTarget && (

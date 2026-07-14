@@ -104,12 +104,33 @@ test("תקציב חג לא נשמר בלי סכום תקין", async () => {
   ).toBeInTheDocument();
 });
 
-test("לחיצה על יום בלוח פותחת הוספת אירוע עם התאריך שנבחר", async () => {
+test("לחיצה על יום ריק פותחת חלון יום שממנו מוסיפים אירוע עם התאריך שנבחר", async () => {
   render(<CalendarPage initialDate={new Date(2026, 11, 15)} />);
   await screen.findByText("דצמבר 2026");
 
-  fireEvent.click(screen.getByRole("button", { name: "הוספת אירוע ב-10 בחודש" }));
+  fireEvent.click(screen.getByRole("button", { name: "אירועי יום 10 בחודש" }));
+  // חלון היום נפתח — אין אירועים, ואפשר להוסיף
+  expect(screen.getByText("אין אירועים ביום זה 🙂")).toBeInTheDocument();
+
+  fireEvent.click(screen.getByRole("button", { name: "+ הוספת אירוע ליום זה" }));
   expect(screen.getByLabelText("תאריך *")).toHaveValue("2026-12-10");
+});
+
+test("לחיצה על יום עם אירוע מציגה אותו בחלון היום עם כפתור עריכה", async () => {
+  localStorage.setItem(
+    "vaadygo.events",
+    JSON.stringify([
+      { id: 1, name: "טיול גן", eventDate: "2026-12-10", reminder: false },
+    ])
+  );
+  render(<CalendarPage initialDate={new Date(2026, 11, 15)} />);
+  await screen.findAllByText("טיול גן");
+
+  fireEvent.click(screen.getByRole("button", { name: "אירועי יום 10 בחודש" }));
+  // האירוע וכפתור העריכה הייעודי של חלון היום מופיעים
+  expect(
+    screen.getByRole("button", { name: "עריכת טיול גן" })
+  ).toBeInTheDocument();
 });
 
 test("עריכת אירוע קיים מעדכנת את שמו ברשימה ובלוח", async () => {

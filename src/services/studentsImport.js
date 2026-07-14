@@ -11,9 +11,10 @@ import { createStudent } from "./studentsService";
   והניסוח מעט אחר. מה שלא זוהה — ניתן להשלים בעריכת כל תלמיד. תומך ב-Excel וב-CSV.
 */
 
-/* תבנית פשוטה להורדה: כותרת + שורת דוגמה. BOM בהתחלה כדי שאקסל יציג עברית נכון. */
+/* תבנית פשוטה להורדה: כותרת + שורת דוגמה. BOM בהתחלה כדי שאקסל יציג עברית נכון.
+   הפורמט המינימלי — שם תלמיד, טלפון ותאריך לידה בלבד (שם ההורה לא חובה). */
 export const IMPORT_TEMPLATE =
-  "﻿שם הילד,שם ההורה,טלפון\nהילי לוי,דנה לוי,050-1234567\n";
+  "﻿שם תלמיד,טלפון,תאריך לידה\nהילי לוי,050-1234567,12/05/2020\n";
 
 /* השדות הנוספים (מעבר לשם/הורה/טלפון) — ריקים כברירת מחדל בכל שורה. */
 function emptyExtras() {
@@ -75,7 +76,7 @@ function classifyHeader(raw) {
   if (/נשוא/.test(h)) return "married";
   if (/שם פרטי/.test(h)) return "firstName";
   if (/שם משפחה|משפחה/.test(h)) return "lastName";
-  if (/שם ה?ילד|שם התלמיד|שם הילדה|שם מלא|^שם$/.test(h)) return "childFullName";
+  if (/שם ה?ילד|שם ה?תלמיד|שם הילדה|שם מלא|^שם$/.test(h)) return "childFullName";
   if (/טלפון|נייד|פלאפון|סלולר/.test(h)) return "parentAPhone";
   return null;
 }
@@ -90,12 +91,26 @@ export function buildColumnMap(headerCells) {
   return map;
 }
 
-/* האם השורה הראשונה היא כותרת מוכרת (לפחות שני שדות, ואחד מהם שם הילד/ה). */
-function isHeaderMap(map) {
-  const recognized = Object.keys(map).length;
-  const hasName =
-    map.firstName != null || map.childFullName != null || map.lastName != null;
-  return recognized >= 2 && hasName;
+/*
+  מאתר את שורת הכותרת — גם אם מעליה יש שורות כותרת/שם-מוסד (נפוץ מאוד בקבצי משרד
+  החינוך). בוחר מבין השורות הראשונות את זו עם הכי הרבה עמודות מזוהות, ובלבד שיש בה
+  שם תלמיד/ה. מחזיר -1 אם לא נמצאה שורת כותרת מוכרת.
+*/
+function findHeaderRowIndex(rows) {
+  const limit = Math.min(rows.length, 15);
+  let bestIndex = -1;
+  let bestScore = 1; // דורשים לפחות 2 עמודות מזוהות
+  for (let i = 0; i < limit; i += 1) {
+    const map = buildColumnMap(rows[i]);
+    const score = Object.keys(map).length;
+    const hasName =
+      map.firstName != null || map.childFullName != null || map.lastName != null;
+    if (hasName && score > bestScore) {
+      bestScore = score;
+      bestIndex = i;
+    }
+  }
+  return bestIndex;
 }
 
 /* ── פירוק תאריך לידה (Excel Date או טקסט) ל-YYYY-MM-DD ──────── */
@@ -106,6 +121,13 @@ function parseBirthDate(value) {
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
     return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(
       value.getDate()
+    )}`;
+  }
+  // מספר סידורי של אקסל (למשל 43535) — ממירים לתאריך (רשת ביטחון אם לא הומר ל-Date)
+  if (typeof value === "number" && value > 20000 && value < 80000) {
+    const d = new Date(Math.round((value - 25569) * 86400000));
+    return `${d.getUTCFullYear()}-${pad(d.getUTCMonth() + 1)}-${pad(
+      d.getUTCDate()
     )}`;
   }
   const s = String(value).trim();
@@ -191,13 +213,14 @@ function isHeaderRow(index, phone) {
 
 /* מנתח טבלה (מערך שורות של תאים) לרשומות תלמיד — בוחר מבנה לפי הכותרות. */
 function parseGrid(grid) {
-  const rows = grid || [];
+  const rows = (grid || []).filter((r) => Array.isArray(r));
   if (rows.length === 0) return [];
 
-  const map = buildColumnMap(rows[0]);
-  if (isHeaderMap(map)) {
+  const headerIdx = findHeaderRowIndex(rows);
+  if (headerIdx >= 0) {
+    const map = buildColumnMap(rows[headerIdx]);
     return rows
-      .slice(1)
+      .slice(headerIdx + 1)
       .map((cells) => rowFromCells(cells, map))
       .filter(Boolean);
   }
@@ -277,19 +300,37 @@ export function parseStudentGrid(grid) {
 }
 
 /*
-  קורא קובץ שהמשתמשת בחרה ומחזיר רשומות תלמיד. תומך ב-Excel (‏.xlsx/.xls) וב-CSV/טקסט.
-  ספריית ה-Excel נטענת רק כשצריך (טעינה עצלה) כדי לא להכביד על שאר המערכת ולא לטעון
-  אותה בטסטים. זורק שגיאה אם הקובץ לא ניתן לקריאה — הקורא מציג הודעה ידידותית.
+  קורא קובץ שהמשתמשת בחרה ומחזיר רשומות תלמיד. תומך ב-CSV וב-Excel — כולל הפורמט
+  הישן ‎.xls ואפילו קבצי HTML שמתחזים ל-xls (נפוץ בייצוא ממשרד החינוך). משתמשים
+  ב-SheetJS שקורא כמעט כל פורמט טבלאי; הספרייה נטענת רק כשצריך (טעינה עצלה).
+  לוקחים את הגיליון עם הכי הרבה שורות. זורק שגיאה אם הקובץ לא ניתן לקריאה.
 */
 export async function parseStudentFile(file) {
   const name = (file?.name || "").toLowerCase();
-  if (name.endsWith(".xlsx") || name.endsWith(".xls")) {
-    const { default: readXlsxFile } = await import("read-excel-file/browser");
-    const sheets = await readXlsxFile(file);
-    return parseStudentGrid(sheetToGrid(sheets));
+  if (name.endsWith(".csv") || name.endsWith(".txt")) {
+    const text = await file.text();
+    return parseStudentRows(text);
   }
-  const text = await file.text();
-  return parseStudentRows(text);
+
+  const mod = await import("xlsx");
+  const XLSX = mod.default || mod;
+  const workbook = XLSX.read(await file.arrayBuffer(), {
+    type: "array",
+    cellDates: true,
+  });
+  let grid = [];
+  for (const sheetName of workbook.SheetNames) {
+    const sheet = workbook.Sheets[sheetName];
+    // raw:true → תאי תאריך אמיתיים מגיעים כאובייקט Date (חד-משמעי), טקסט נשאר טקסט
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+      header: 1,
+      blankrows: false,
+      defval: "",
+      raw: true,
+    });
+    if (rows.length > grid.length) grid = rows;
+  }
+  return parseStudentGrid(grid);
 }
 
 /*

@@ -222,6 +222,48 @@ test("סדר עמודות שונה — הזיהוי לפי שם ולא לפי מ
   });
 });
 
+test("קובץ פשוט: שם תלמיד, טלפון ותאריך לידה בלבד (בלי שאר השדות)", () => {
+  const grid = [
+    ["שם תלמיד", "טלפון", "תאריך לידה"],
+    ["הילי לוי", "050-1234567", "12/05/2020"],
+  ];
+  const rows = parseStudentGrid(grid);
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).toMatchObject({
+    firstName: "הילי",
+    lastName: "לוי",
+    parentPhoneNumber: "050-1234567",
+    birthDate: "2020-05-12",
+  });
+});
+
+test("תאריך לידה כמספר סידורי של אקסל מומר נכון", () => {
+  const grid = [
+    ["שם פרטי", "תאריך לידה"],
+    ["נועה", 43535], // 11.3.2019 בלוח השנה של אקסל
+  ];
+  const rows = parseStudentGrid(grid);
+  expect(rows[0].birthDate).toBe("2019-03-11");
+});
+
+test("מזהה את שורת הכותרת גם כשמעליה שורות כותרת/שם מוסד (קובץ משרד החינוך)", () => {
+  const grid = [
+    ["גן הדס — רשימת תלמידים"],
+    ["הופק בתאריך 14/07/2026"],
+    [],
+    ["שם פרטי", "שם משפחה", "טלפון הורה א'", "תאריך לידה"],
+    ["נועה", "כהן", "050-0000000", "03/11/2019"],
+  ];
+  const rows = parseStudentGrid(grid);
+  expect(rows).toHaveLength(1);
+  expect(rows[0]).toMatchObject({
+    firstName: "נועה",
+    lastName: "כהן",
+    parentPhoneNumber: "050-0000000",
+    birthDate: "2019-11-03",
+  });
+});
+
 test("importStudents מסכם כמה נוספו וכמה נכשלו", async () => {
   const rows = [
     { firstName: "א", lastName: "", parentName: "", parentPhoneNumber: "0500000000" },

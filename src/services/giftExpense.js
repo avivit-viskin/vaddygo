@@ -36,12 +36,15 @@ export async function syncGiftExpense({ prevName, gift, method }) {
     // אין שרת/הוצאות זמינות — ממשיכים לרישום
   }
 
-  // 2) רישום ההוצאה — רק אם המתנה בוצעה ויש לה סכום
+  // 2) רישום ההוצאה — רק אם המתנה בוצעה ויש לה סכום.
+  //    מסווגים אוטומטית: מתנת חג → "חגים", אחרת → "מתנות סוף שנה", כדי
+  //    שההוצאה תופיע תחת קטגוריה בפירוט ההוצאות (ולא "ללא קטגוריה").
   if (isDone && Number(gift.totalAmount) > 0) {
     try {
       await createExpense({
         amount: Number(gift.totalAmount),
         method: method || "cash",
+        category: gift.holidayName ? "חגים" : "מתנות סוף שנה",
         description: giftExpenseDescription(gift.name),
       });
     } catch {

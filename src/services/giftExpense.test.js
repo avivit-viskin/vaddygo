@@ -22,7 +22,26 @@ test('מתנה שסומנה "בוצע" נרשמת כהוצאה בסכום ובא
   expect(createExpense).toHaveBeenCalledWith({
     amount: 200,
     method: "bit",
+    category: "מתנות סוף שנה",
     description: giftExpenseDescription("מתנה לגננת"),
+  });
+});
+
+test('מתנת חג שבוצעה נרשמת כהוצאה בקטגוריית "חגים"', async () => {
+  await syncGiftExpense({
+    gift: {
+      name: "מתנה לחנוכה",
+      totalAmount: 300,
+      status: "done",
+      holidayName: "חנוכה",
+    },
+    method: "cash",
+  });
+  expect(createExpense).toHaveBeenCalledWith({
+    amount: 300,
+    method: "cash",
+    category: "חגים",
+    description: giftExpenseDescription("מתנה לחנוכה"),
   });
 });
 
@@ -61,6 +80,7 @@ test("שינוי שם מתנה שבוצעה — מוחק את ההוצאה הי�
   expect(createExpense).toHaveBeenCalledWith({
     amount: 100,
     method: "paybox",
+    category: "מתנות סוף שנה",
     description: giftExpenseDescription("שם חדש"),
   });
 });

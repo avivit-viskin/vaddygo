@@ -1,108 +1,61 @@
 import { useEffect, useState } from "react";
-import Modal from "../../components/Modal";
-import Input from "../../components/Input";
-import Select from "../../components/Select";
-import Button from "../../components/Button";
-import { PAYMENT_METHODS } from "../../services/paymentMethods";
+import EventExpenseModal from "./EventExpenseModal";
 import {
   loadPassedForExpense,
   markExpensePrompted,
 } from "../../services/passedEvents";
-import { createExpense } from "../../services/expensesService";
 
 /*
-  ExpenseAfterEventPrompt — אחרי שאירוע/חג עבר, קופץ פעם אחת ושואל כמה כסף יצא
-  ומאיזה אמצעי (משימה 25). רישום ההוצאה מוריד אוטומטית מיתרת הקופה. "דלג"
-  מסמן שנשאלנו ולא ישאל שוב. עובר פריט-פריט על כל מה שעבר לאחרונה.
+  ExpenseAfterEventPrompt — אחרי שאירוע/חג עבר (יום ומעלה), קופץ ושואל כמה כסף
+  יצא (משימה 25). לא קופץ מיד בכניסה — רק אחרי כמה דקות שהמשתמשת באפליקציה, כדי
+  לא להציק. אם לא ראתה — התזכורת ממתינה גם במסך המתנות. "דלג" לא ישאל שוב.
 */
-function ExpenseAfterEventPrompt({ onRecorded }) {
+const POPUP_DELAY_MS = 2 * 60 * 1000; // כ-2 דקות אחרי הכניסה, לא מיד
+
+function ExpenseAfterEventPrompt({ onRecorded, delayMs = POPUP_DELAY_MS }) {
   const [queue, setQueue] = useState([]);
-  const [amount, setAmount] = useState("");
-  const [method, setMethod] = useState("bit");
-  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
-    loadPassedForExpense().then((list) => {
-      if (!cancelled) {
-        setQueue(list);
-      }
-    });
+    // מציגים רק אחרי השהיה — כדי לא לקפוץ מיד ברגע שנכנסים
+    const timer = setTimeout(() => {
+      loadPassedForExpense().then((list) => {
+        if (!cancelled) {
+          setQueue(list);
+        }
+      });
+    }, delayMs);
     return () => {
       cancelled = true;
+      clearTimeout(timer);
     };
-  }, []);
+  }, [delayMs]);
 
   const current = queue[0];
   if (!current) {
     return null;
   }
 
+  // "דלג"/סגירה — מסמנים שנשאלנו (לא נשאל שוב) ועוברים לפריט הבא
   function goNext() {
     markExpensePrompted(current.id);
     setQueue((q) => q.slice(1));
-    setAmount("");
-    setMethod("bit");
   }
 
-  async function handleRecord(event) {
-    event.preventDefault();
-    const value = Number(amount);
-    if (!value || value <= 0) {
-      goNext(); // בלי סכום = דילוג
-      return;
+  function handleRecorded() {
+    if (onRecorded) {
+      onRecorded();
     }
-    setIsSaving(true);
-    try {
-      await createExpense({ amount: value, method, description: current.name });
-      if (onRecorded) {
-        onRecorded();
-      }
-    } catch {
-      // אם לא נשמר — לא חוסמים; אפשר לרשום ידנית ב"עדכון יתרה"
-    } finally {
-      setIsSaving(false);
-      goNext();
-    }
+    goNext();
   }
 
   return (
-    <Modal isOpen onClose={goNext} title={`${current.name} מאחורינו! 🎉`}>
-      <p className="expense-prompt__hint">
-        כדי שנמשיך לנהל נכון — כמה כסף יצא על {current.name}? נעדכן את יתרת הקופה.
-      </p>
-      <form onSubmit={handleRecord} noValidate>
-        <Input
-          id="event-expense-amount"
-          label="סכום הוצאה"
-          type="number"
-          inputMode="numeric"
-          placeholder="למשל: 250 (או השאירי ריק לדילוג)"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-        />
-        <Select
-          id="event-expense-method"
-          label="מאיזה אמצעי יצא הכסף"
-          value={method}
-          onChange={(e) => setMethod(e.target.value)}
-        >
-          {PAYMENT_METHODS.map((m) => (
-            <option key={m.value} value={m.value}>
-              {m.label}
-            </option>
-          ))}
-        </Select>
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
-          <Button type="submit" isLoading={isSaving}>
-            רישום הוצאה
-          </Button>
-          <Button variant="secondary" onClick={goNext} disabled={isSaving}>
-            דלג
-          </Button>
-        </div>
-      </form>
-    </Modal>
+    <EventExpenseModal
+      key={current.id}
+      item={current}
+      onClose={goNext}
+      onRecorded={handleRecorded}
+    />
   );
 }
 

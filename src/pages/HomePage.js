@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
@@ -21,6 +21,7 @@ import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
 import StaffBirthdays from "./home/StaffBirthdays";
+import ExpensesList from "./home/ExpensesList";
 import Modal from "../components/Modal";
 import { getUser } from "../services/authService";
 import "../styles/home.css";
@@ -37,6 +38,14 @@ function HomePage() {
   const [accountOpen, setAccountOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unpaidStudents, setUnpaidStudents] = useState([]);
+  // מונה שמזנק אחרי כל שינוי בהוצאות — כדי שרשימת ההוצאות למטה תתרענן מיד
+  const [expensesVersion, setExpensesVersion] = useState(0);
+
+  // אחרי כל רישום/שינוי הוצאה: לרענן גם את מסך הבית (יתרה) וגם את רשימת ההוצאות
+  const refreshAll = useCallback(() => {
+    reload();
+    setExpensesVersion((v) => v + 1);
+  }, [reload]);
 
   // ההתראות: קודם מה שאפשר לחשב מיד (שרת + חגים), ואז השאר נטען ברקע
   // (אירועים, מתנות, מי לא שילם) — בלי לעכב את הצגת מסך הבית.
@@ -99,7 +108,7 @@ function HomePage() {
   return (
     <div className="home">
       <WelcomePopup />
-      <ExpenseAfterEventPrompt onRecorded={reload} />
+      <ExpenseAfterEventPrompt onRecorded={refreshAll} />
       <div className="home__header">
         <h2 className="home__title">
           <button
@@ -136,9 +145,10 @@ function HomePage() {
         </div>
       )}
 
-      <CollectionCard dashboard={dashboard} onExpenseChanged={reload} />
+      <CollectionCard dashboard={dashboard} onExpenseChanged={refreshAll} />
       <CategoryList categories={dashboard.byCategory} />
-      <StaffBirthdays onChanged={reload} totalBudget={dashboard.collectionTarget} />
+      <StaffBirthdays onChanged={refreshAll} totalBudget={dashboard.collectionTarget} />
+      <ExpensesList refreshSignal={expensesVersion} onChanged={reload} />
 
       <NotificationsPanel
         isOpen={panelOpen}

@@ -31,7 +31,7 @@ test("אירוע שעבר — קופץ, רושם הוצאה ושולח POST לש
   });
   const onRecorded = jest.fn();
 
-  render(<ExpenseAfterEventPrompt onRecorded={onRecorded} />);
+  render(<ExpenseAfterEventPrompt onRecorded={onRecorded} delayMs={0} />);
 
   expect(await screen.findByText(/טיול שנתי מאחורינו/)).toBeInTheDocument();
   await userEvent.type(screen.getByLabelText("סכום הוצאה"), "300");
@@ -50,7 +50,7 @@ test("בלי אירועים שעברו — לא קופץ כלום", async () => 
   global.fetch = jest.fn(() =>
     Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve([]) })
   );
-  render(<ExpenseAfterEventPrompt />);
+  render(<ExpenseAfterEventPrompt delayMs={0} />);
   // נותנים לטעינה האסינכרונית להסתיים
   await waitFor(() => expect(global.fetch).toHaveBeenCalled());
   expect(screen.queryByText(/מאחורינו/)).not.toBeInTheDocument();

@@ -17,6 +17,7 @@ import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense
 import { upcomingHolidays } from "../services/upcomingHoliday";
 import CountdownBanner from "./gifts/CountdownBanner";
 import UpcomingMonth from "./gifts/UpcomingMonth";
+import PendingEventExpenses from "./gifts/PendingEventExpenses";
 import BudgetRecommendation from "./gifts/BudgetRecommendation";
 import GiftCard from "./gifts/GiftCard";
 import GiftForm from "./gifts/GiftForm";
@@ -137,6 +138,7 @@ function GiftsPage() {
     <div className="gifts">
       <CountdownBanner />
       <UpcomingMonth />
+      <PendingEventExpenses onRecorded={load} />
 
       <Card title="מתנות">
         {gifts.length === 0 ? (

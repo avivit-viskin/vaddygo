@@ -349,3 +349,38 @@
   min-height: 44px;
   color: var(--color-text-muted);
 }
+
+/* תזכורת "לרשום הוצאה?" — אירועים שעברו וטרם נרשמה עליהם הוצאה (משימה 25) */
+.pending-expenses__hint {
+  margin: 0 0 10px;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
+.pending-expenses__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.pending-expenses__item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.pending-expenses__name {
+  display: flex;
+  flex-direction: column;
+  font-weight: 600;
+}
+
+.pending-expenses__date {
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

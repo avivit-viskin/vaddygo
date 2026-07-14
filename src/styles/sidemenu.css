@@ -99,6 +99,11 @@
   background: var(--color-primary-light);
 }
 
+/* שם המוסד בתפריט — שחור, לקריאוּת מרבית */
+.institutions__name {
+  color: #000000;
+}
+
 .institutions__badge {
   font-size: var(--font-size-sm);
   color: var(--color-primary-dark);
@@ -160,7 +165,7 @@
 
 .app-header__institution {
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  color: #000000;
 }
 
 .purchase__note {

@@ -7,6 +7,7 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { login, loginWithGoogle } from "../services/authService";
+import { restoreOnboardingFromServer } from "../services/onboardingService";
 import "../styles/onboarding.css";
 
 /*
@@ -29,6 +30,8 @@ function LoginPage() {
       setSubmitError("");
       try {
         await loginWithGoogle(credential);
+        // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
+        await restoreOnboardingFromServer();
         navigate("/");
       } catch (err) {
         if (err.message && err.message.includes("המנוי פג")) {
@@ -59,6 +62,8 @@ function LoginPage() {
     setIsSubmitting(true);
     try {
       await login({ usernameOrEmail: usernameOrEmail.trim(), password });
+      // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
+      await restoreOnboardingFromServer();
       navigate("/");
     } catch (err) {
       // מנוי שפג — מסך ייעודי במקום הודעת שגיאה מבלבלת

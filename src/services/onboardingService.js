@@ -1,4 +1,6 @@
 import { api } from "./api";
+import { getGroups } from "./groupsService";
+import { saveActiveOnboarding } from "./institutionsService";
 
 /*
   onboardingService — שמירת הגדרות הגן מאשף ההרשמה.
@@ -55,4 +57,47 @@ export function getOnboarding() {
 
 export function isOnboardingComplete() {
   return getOnboarding() !== null;
+}
+
+/* ממפה גן מהשרת (GroupResponseDto) בחזרה למבנה נתוני האשף. */
+function groupToOnboardingData(group) {
+  return {
+    ganName: group.name || "",
+    city: group.city || "",
+    childrenCount: String(group.childrenCount ?? ""),
+    staffCount: String(group.staffCount ?? ""),
+    hasGroups: Array.isArray(group.subgroups) && group.subgroups.length > 0,
+    groups: group.subgroups || [],
+    categories: (group.categories || []).map((c) => ({
+      name: c.name,
+      amount: String(c.amountPerChild ?? ""),
+      installments: c.installments ?? 1,
+    })),
+  };
+}
+
+/*
+  restoreOnboardingFromServer — משחזר את הגדרת הגן מהשרת כשאין עותק מקומי
+  (למשל אחרי החלפת משתמש שניקתה את ה-localStorage). השרת מחזיר אך ורק את
+  הגנים של המשתמש המחובר (מאובטח לפי JWT), ולכן זה בטוח ולא דולף.
+  מחזיר true אם שוחזר גן, false אם אין למשתמש גן בשרת (משתמש חדש → אשף).
+*/
+export async function restoreOnboardingFromServer() {
+  if (getOnboarding()) {
+    return true; // כבר יש הגדרה מקומית — אין צורך לשחזר
+  }
+  let groups;
+  try {
+    groups = await getGroups();
+  } catch {
+    return false;
+  }
+  if (!Array.isArray(groups) || groups.length === 0) {
+    return false;
+  }
+  const group = groups[0]; // הגן הראשי של המשתמש
+  const data = groupToOnboardingData(group);
+  persistLocally(data, { groupId: group.id, syncedWithServer: true });
+  saveActiveOnboarding(data, group.id); // משחזר גם את המוסד הפעיל (לכותרת ולסינון)
+  return true;
 }

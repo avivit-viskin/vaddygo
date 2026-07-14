@@ -73,6 +73,14 @@ export function buildWhatsappReminderUrl(parentPhone, message) {
   return `https://wa.me/${toInternationalPhone(parentPhone)}?text=${encodeURIComponent(message)}`;
 }
 
+/*
+  קישור "שיתוף בוואטסאפ" בלי נמען מוגדר מראש — וואטסאפ נפתח עם ההודעה מוכנה
+  ומאפשר לבחור למי לשלוח (למשל קבוצת ההורים), בלי לצאת ולהיכנס לכל הורה בנפרד.
+*/
+export function buildWhatsappShareUrl(message) {
+  return `https://wa.me/?text=${encodeURIComponent(message)}`;
+}
+
 /* 05X-XXXXXXX ← 9725XXXXXXXX (וואטסאפ דורש קידומת מדינה בלי אפס מוביל) */
 function toInternationalPhone(phone) {
   const digits = (phone || "").replace(/\D/g, "");

@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import {
   buildWhatsappReminderUrl,
+  buildWhatsappShareUrl,
   buildBulkPaymentRequestMessage,
 } from "../services/paymentsService";
 import { getPaymentLinks } from "../services/paymentSettingsService";
@@ -85,16 +86,26 @@ function BulkPaymentRequestButton({ students }) {
             }}
           />
 
-          {/* דרך 1 — הודעה אחת לכולם: מעתיקים ומדביקים בקבוצת ההורים */}
+          {/* דרך מומלצת — שליחה לכולם ביחד: וואטסאפ נפתח פעם אחת עם ההודעה מוכנה,
+              ובוחרים את קבוצת ההורים (בלי לצאת ולהיכנס לכל הורה בנפרד) */}
           <div className="bulk-reminder__group-send">
             <p className="bulk-reminder__note">
-              📣 <strong>לשלוח לכולם בבת אחת:</strong> להעתיק את ההודעה ולהדביק
-              אותה בקבוצת הוואטסאפ של ההורים — כך כולם מקבלים אותה בהודעה אחת.
+              📣 <strong>שליחה לכולם ביחד:</strong> וואטסאפ נפתח עם ההודעה מוכנה —
+              בוחרים את קבוצת ההורים ולוחצים שלח. בלי לצאת ולהיכנס לכל הורה בנפרד 🙂
             </p>
-            <CopyMessageButton text={message} />
+            <div className="bulk-reminder__group-actions">
+              <a
+                href={buildWhatsappShareUrl(message)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button variant="brand">📲 שליחה לכולם ביחד</Button>
+              </a>
+              <CopyMessageButton text={message} />
+            </div>
           </div>
 
-          {/* דרך 2 — לכל הורה בנפרד (וואטסאפ חוסם שליחה לכמה מספרים בקישור אחד) */}
+          {/* לחלופין — לכל הורה בנפרד (וואטסאפ חוסם שליחה לכמה מספרים בקישור אחד) */}
           <p className="bulk-reminder__note">
             💬 <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם
             (וואטסאפ נפתח עם ההודעה מוכנה). נשלחו <strong>{sentCount}</strong> מתוך{" "}

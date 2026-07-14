@@ -231,6 +231,12 @@
   color: var(--color-text);
 }
 
+.bulk-reminder__group-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
 .bulk-reminder__list {
   list-style: none;
   margin: 0;

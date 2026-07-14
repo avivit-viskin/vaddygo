@@ -1,5 +1,6 @@
 import {
   buildWhatsappReminderUrl,
+  buildWhatsappShareUrl,
   buildReminderMessage,
   buildBulkPaymentRequestMessage,
   getPaymentSummary,
@@ -19,6 +20,13 @@ describe("buildWhatsappReminderUrl", () => {
   test("מקודד את ההודעה בתוך ה-URL", () => {
     const url = buildWhatsappReminderUrl("0501112223", "שלום וברכה");
     expect(url).toContain(encodeURIComponent("שלום וברכה"));
+  });
+});
+
+describe("buildWhatsappShareUrl", () => {
+  test("פותח וואטסאפ בלי נמען מוגדר, עם ההודעה מוכנה לבחירת נמען", () => {
+    const url = buildWhatsappShareUrl("הודעה לכל ההורים");
+    expect(url).toBe(`https://wa.me/?text=${encodeURIComponent("הודעה לכל ההורים")}`);
   });
 });
 

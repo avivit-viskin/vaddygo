@@ -11,6 +11,10 @@ import {
   updateExpense,
   deleteExpense,
 } from "../../services/expensesService";
+import {
+  EXPENSE_TYPES,
+  getCollectionCategoryNames,
+} from "../../services/expenseCategories";
 
 /*
   ExpenseModal — "עדכון יתרת הקופה": רישום הוצאה (כמה יצא ומאיזה אמצעי),
@@ -20,31 +24,36 @@ import {
 function ExpenseModal({ isOpen, onClose, onSaved }) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("bit");
+  const [category, setCategory] = useState("");
   const [description, setDescription] = useState("");
   const [error, setError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [history, setHistory] = useState([]);
   const [editingId, setEditingId] = useState(null);
+  const [collectionCategories, setCollectionCategories] = useState([]);
 
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    // איפוס הטופס וטעינת ההיסטוריה בכל פתיחה
+    // איפוס הטופס וטעינת ההיסטוריה והקטגוריות בכל פתיחה
     setAmount("");
     setMethod("bit");
+    setCategory("");
     setDescription("");
     setError("");
     setEditingId(null);
     getExpenses()
       .then(setHistory)
       .catch(() => setHistory([]));
+    getCollectionCategoryNames().then(setCollectionCategories);
   }, [isOpen]);
 
   function resetForm() {
     setEditingId(null);
     setAmount("");
     setMethod("bit");
+    setCategory("");
     setDescription("");
     setError("");
   }
@@ -54,6 +63,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     setEditingId(expense.id);
     setAmount(String(expense.amount));
     setMethod(expense.method);
+    setCategory(expense.category || "");
     setDescription(expense.description || "");
     setError("");
   }
@@ -76,7 +86,12 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     setIsSaving(true);
     setError("");
     try {
-      const payload = { amount: value, method, description: description.trim() };
+      const payload = {
+        amount: value,
+        method,
+        category,
+        description: description.trim(),
+      };
       if (editingId != null) {
         await updateExpense(editingId, payload);
       } else {
@@ -124,6 +139,30 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
           error={error}
         />
         <Select
+          id="expense-category"
+          label="על מה יורד הכסף?"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">— בחרי (לא חובה) —</option>
+          {collectionCategories.length > 0 && (
+            <optgroup label="קטגוריות הגבייה שלך">
+              {collectionCategories.map((name) => (
+                <option key={`cat-${name}`} value={name}>
+                  {name}
+                </option>
+              ))}
+            </optgroup>
+          )}
+          <optgroup label="סוגי הוצאה">
+            {EXPENSE_TYPES.map((type) => (
+              <option key={`type-${type}`} value={type}>
+                {type}
+              </option>
+            ))}
+          </optgroup>
+        </Select>
+        <Select
           id="expense-method"
           label="מאיזה ממשק יצא הכסף"
           value={method}
@@ -137,7 +176,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
         </Select>
         <Input
           id="expense-description"
-          label="על מה? (לא חובה)"
+          label="פירוט (לא חובה)"
           placeholder="למשל: מתנה לגננת"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
@@ -166,7 +205,9 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
                 }`}
               >
                 <span className="expenses-history__main">
-                  {formatShekels(e.amount)} · {paymentMethodLabel(e.method)}
+                  {formatShekels(e.amount)}
+                  {e.category ? ` · ${e.category}` : ""} ·{" "}
+                  {paymentMethodLabel(e.method)}
                   {e.description ? ` · ${e.description}` : ""}
                 </span>
                 <span className="expenses-history__date">

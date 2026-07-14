@@ -188,7 +188,7 @@ function StudentsPage() {
           <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
             📄 ייבוא מקובץ
           </Button>
-          <BulkPaymentRequestButton students={students ?? []} />
+          <BulkPaymentRequestButton students={visibleStudents} />
         </div>
       </div>
 

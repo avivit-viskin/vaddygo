@@ -12,16 +12,18 @@ import CopyMessageButton from "./CopyMessageButton";
 import "../styles/payments.css";
 
 /*
-  BulkPaymentRequestButton — בקשת תשלום גורפת לתלמידים שנבחרו.
-  ההודעה אוטומטית וניתנת לעריכה: שם הוועד, מקום למילוי הסכום, ושני קישורי
-  התשלום של הוועד (ביט + פייבוקס) שמוגדרים בהגדרות. וואטסאפ לא שולח לכמה
-  נמענים בקישור אחד, לכן נפתחת שיחה נפרדת לכל הורה ("שליחה" ליד כל שם).
+  BulkPaymentRequestButton — בקשת תשלום בוואטסאפ: לוחצים על הכפתור, ובתוך החלון
+  מסמנים את התלמידים שרוצים לשלוח להם (אפשר "סמן הכל"), ושולחים. לכל הורה שמסומן
+  נפתחת שיחת וואטסאפ עם ההודעה מוכנה — לוחצים "שליחה" ליד השם. אפשר גם לשלוח
+  לכולם ביחד דרך קבוצת ההורים. ההודעה אוטומטית (עם קישורי התשלום מההגדרות) וניתנת
+  לעריכה.
 */
-function BulkPaymentRequestButton({ students }) {
+function BulkPaymentRequestButton({ students = [] }) {
   const [isOpen, setIsOpen] = useState(false);
   const [links, setLinks] = useState({ bit: "", paybox: "" });
   const [message, setMessage] = useState("");
   const [edited, setEdited] = useState(false);
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
   const [sentIds, setSentIds] = useState(() => new Set());
 
   const ganName = getOnboarding()?.ganName || "";
@@ -43,27 +45,52 @@ function BulkPaymentRequestButton({ students }) {
   }, [ganName, links, edited]);
 
   function open() {
+    setSelectedIds(new Set());
     setSentIds(new Set());
     setEdited(false);
     setIsOpen(true);
+  }
+
+  function toggle(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  const allSelected =
+    students.length > 0 && students.every((s) => selectedIds.has(s.id));
+
+  function toggleAll() {
+    setSelectedIds(allSelected ? new Set() : new Set(students.map((s) => s.id)));
   }
 
   function markSent(id) {
     setSentIds((prev) => new Set(prev).add(id));
   }
 
-  const sentCount = students.filter((s) => sentIds.has(s.id)).length;
+  const selectedStudents = students.filter((s) => selectedIds.has(s.id));
+  const sentCount = selectedStudents.filter((s) => sentIds.has(s.id)).length;
   const hasLinks = Boolean(links.bit || links.paybox);
 
   return (
     <>
-      <Button variant="brand" onClick={open} disabled={students.length === 0}>
-        💸 בקשת תשלום לנבחרים
+      <Button
+        variant="secondary"
+        onClick={open}
+        disabled={students.length === 0}
+      >
+        📲 בקשת תשלום בוואטסאפ
       </Button>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title={`בקשת תשלום ל-${students.length} הורים`}
+        title="בקשת תשלום בוואטסאפ"
       >
         <div className="bulk-reminder">
           {!hasLinks && (
@@ -86,33 +113,23 @@ function BulkPaymentRequestButton({ students }) {
             }}
           />
 
-          {/* דרך מומלצת — שליחה לכולם ביחד: וואטסאפ נפתח פעם אחת עם ההודעה מוכנה,
-              ובוחרים את קבוצת ההורים (בלי לצאת ולהיכנס לכל הורה בנפרד) */}
-          <div className="bulk-reminder__group-send">
-            <p className="bulk-reminder__note">
-              📣 <strong>שליחה לכולם ביחד:</strong> וואטסאפ נפתח עם ההודעה מוכנה —
-              בוחרים את קבוצת ההורים ולוחצים שלח. בלי לצאת ולהיכנס לכל הורה בנפרד 🙂
-            </p>
-            <div className="bulk-reminder__group-actions">
-              <a
-                href={buildWhatsappShareUrl(message)}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Button variant="brand">📲 שליחה לכולם ביחד</Button>
-              </a>
-              <CopyMessageButton text={message} />
-            </div>
+          <div className="wa-picker__head">
+            <span className="field__label">בחרי למי לשלוח:</span>
+            {students.length > 0 && (
+              <label className="wa-picker__all">
+                <input
+                  type="checkbox"
+                  checked={allSelected}
+                  onChange={toggleAll}
+                />
+                סמן הכל
+              </label>
+            )}
           </div>
 
-          {/* לחלופין — לכל הורה בנפרד (וואטסאפ חוסם שליחה לכמה מספרים בקישור אחד) */}
-          <p className="bulk-reminder__note">
-            💬 <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם
-            (וואטסאפ נפתח עם ההודעה מוכנה). נשלחו <strong>{sentCount}</strong> מתוך{" "}
-            <strong>{students.length}</strong>.
-          </p>
           <ul className="bulk-reminder__list">
             {students.map((student) => {
+              const checked = selectedIds.has(student.id);
               const isSent = sentIds.has(student.id);
               return (
                 <li
@@ -121,28 +138,63 @@ function BulkPaymentRequestButton({ students }) {
                     isSent ? " bulk-reminder__item--sent" : ""
                   }`}
                 >
-                  <span>
-                    {isSent && "✅ "}
-                    {student.firstName} {student.lastName}
-                  </span>
-                  <a
-                    className="bulk-reminder__send"
-                    href={buildWhatsappReminderUrl(
-                      student.parentPhoneNumber,
-                      message
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    onClick={() => markSent(student.id)}
-                  >
-                    <Button variant="secondary">
-                      {isSent ? "שליחה חוזרת" : "שליחה 💬"}
-                    </Button>
-                  </a>
+                  <label className="wa-picker__item">
+                    <input
+                      type="checkbox"
+                      checked={checked}
+                      onChange={() => toggle(student.id)}
+                    />
+                    <span>
+                      {isSent && "✅ "}
+                      {student.firstName} {student.lastName}
+                    </span>
+                  </label>
+                  {checked && (
+                    <a
+                      className="bulk-reminder__send"
+                      href={buildWhatsappReminderUrl(
+                        student.parentPhoneNumber,
+                        message
+                      )}
+                      target="_blank"
+                      rel="noreferrer"
+                      onClick={() => markSent(student.id)}
+                    >
+                      <Button variant="secondary">
+                        {isSent ? "שליחה חוזרת" : "שליחה 💬"}
+                      </Button>
+                    </a>
+                  )}
                 </li>
               );
             })}
           </ul>
+
+          {selectedStudents.length > 0 && (
+            <>
+              <p className="bulk-reminder__note">
+                💬 וואטסאפ נפתח לכל הורה מסומן — לוחצים "שליחה" ליד השם. נשלחו{" "}
+                <strong>{sentCount}</strong> מתוך{" "}
+                <strong>{selectedStudents.length}</strong>.
+              </p>
+              <div className="bulk-reminder__group-send">
+                <p className="bulk-reminder__note">
+                  📣 <strong>או לשלוח לכולם ביחד:</strong> וואטסאפ נפתח עם ההודעה
+                  מוכנה — בוחרים את קבוצת ההורים.
+                </p>
+                <div className="bulk-reminder__group-actions">
+                  <a
+                    href={buildWhatsappShareUrl(message)}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    <Button variant="secondary">📲 שליחה לכולם ביחד</Button>
+                  </a>
+                  <CopyMessageButton text={message} />
+                </div>
+              </div>
+            </>
+          )}
         </div>
       </Modal>
     </>

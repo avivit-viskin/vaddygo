@@ -6,6 +6,9 @@ import {
   IMPORT_TEMPLATE,
 } from "../../services/studentsImport";
 
+/* רק CSV או Excel מותרים לייבוא — כל פורמט אחר נדחה עם הודעה ברורה */
+const ALLOWED_EXTENSIONS = [".csv", ".xlsx", ".xls"];
+
 /*
   StudentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11): מורידים תבנית, ממלאים
   שם הילד / שם ההורה / טלפון, מעלים קובץ Excel (‏.xlsx) או CSV, והמערכת יוצרת
@@ -36,6 +39,19 @@ function StudentsImport({ onDone, onCancel }) {
     setFileName(file.name);
     setResult(null);
     setRows(null);
+
+    // בדיקת פורמט לפני הכל: רק CSV/Excel — אחרת לא קוראים את הקובץ בכלל
+    const isAllowed = ALLOWED_EXTENSIONS.some((ext) =>
+      file.name.toLowerCase().endsWith(ext)
+    );
+    if (!isAllowed) {
+      setReadError(
+        "הפורמט לא תקין 🚫 אפשר להעלות רק קובץ CSV או Excel (‏.xlsx)."
+      );
+      event.target.value = ""; // איפוס כדי שאפשר יהיה לבחור שוב קובץ
+      return;
+    }
+
     setReadError("");
     setIsReading(true);
     try {
@@ -84,7 +100,7 @@ function StudentsImport({ onDone, onCancel }) {
         <span>בחירת קובץ (Excel או CSV):</span>
         <input
           type="file"
-          accept=".xlsx,.xls,.csv,.txt"
+          accept=".csv,.xlsx,.xls"
           onChange={handleFile}
         />
       </label>

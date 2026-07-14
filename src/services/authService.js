@@ -9,6 +9,8 @@ export const TOKEN_KEY = "vaadygo.token";
 const USER_KEY = "vaadygo.user";
 // מי הבעלים של הנתונים המקומיים במכשיר — לזיהוי החלפת משתמש
 const DATA_OWNER_KEY = "vaadygo.dataOwner";
+// סימון "משתמש חדש" (נקבע בהרשמה בלבד) — מפעיל את פופאפ הברוכים-הבאים פעם אחת
+const NEW_USER_KEY = "vaadygo.isNewUser";
 
 export function getToken() {
   return localStorage.getItem(TOKEN_KEY);
@@ -24,6 +26,46 @@ export function getUser() {
 
 export function isAuthenticated() {
   return Boolean(getToken());
+}
+
+/*
+  האם כבר נכנסו לאפליקציה במכשיר הזה בעבר (משתמש חוזר). הסימן: קיים "בעל
+  נתונים" — מישהו כבר נרשם/התחבר כאן. משמש להחלטה בכניסה: משתמש חדש רואה קודם
+  את מסך הברוכים-הבאים, ומשתמש חוזר מגיע ישר למסך הכניסה.
+*/
+export function hasVisitedBefore() {
+  try {
+    return localStorage.getItem(DATA_OWNER_KEY) !== null;
+  } catch {
+    return false;
+  }
+}
+
+/* מסמן שהמשתמש נרשם עכשיו לראשונה — לפופאפ הברוכים-הבאים (פעם אחת) */
+export function markNewUser() {
+  try {
+    localStorage.setItem(NEW_USER_KEY, "1");
+  } catch {
+    // storage חסום — הפופאפ פשוט לא יוצג; לא קריטי
+  }
+}
+
+/* האם זהו משתמש חדש שטרם ראה את פופאפ הברוכים-הבאים */
+export function isNewUser() {
+  try {
+    return localStorage.getItem(NEW_USER_KEY) === "1";
+  } catch {
+    return false;
+  }
+}
+
+/* אחרי שפופאפ הברוכים-הבאים הוצג ונסגר — כבר לא "חדש" */
+export function clearNewUser() {
+  try {
+    localStorage.removeItem(NEW_USER_KEY);
+  } catch {
+    // ignore
+  }
 }
 
 /* האם המשתמשת היא מנהלת-על (לניהול ספקים — UI_SPEC ס' 12) */
@@ -65,6 +107,7 @@ function store(auth) {
 export async function register({ username, email, password }) {
   const auth = await api.post("/api/auth/register", { username, email, password });
   store(auth);
+  markNewUser(); // משתמש חדש — יראה פעם אחת את פופאפ הברוכים-הבאים
   return auth;
 }
 

@@ -1,28 +1,18 @@
 import { useState } from "react";
 import Modal from "./Modal";
 import Button from "./Button";
-
-const SEEN_KEY = "vaadygo.welcomeSeen";
+import { isNewUser, clearNewUser } from "../services/authService";
 
 /*
-  WelcomePopup — פופאפ "ברוכים הבאים" שקופץ בכניסה לאפליקציה, מסביר בקצרה
-  את הניווט בלשוניות ואת עוזרת ה-AI. אחרי "הבנתי" לא קופץ שוב (נשמר ב-localStorage).
+  WelcomePopup — פופאפ "ברוכים הבאים" שקופץ *רק למשתמש חדש* (בכניסה הראשונה
+  אחרי ההרשמה), מסביר בקצרה את הניווט בלשוניות ואת עוזרת ה-AI. אחרי "הבנתי"
+  לא קופץ שוב, ולמשתמש חוזר אינו מוצג כלל.
 */
 function WelcomePopup() {
-  const [open, setOpen] = useState(() => {
-    try {
-      return localStorage.getItem(SEEN_KEY) !== "1";
-    } catch {
-      return true;
-    }
-  });
+  const [open, setOpen] = useState(isNewUser);
 
   function close() {
-    try {
-      localStorage.setItem(SEEN_KEY, "1");
-    } catch {
-      // אם ה-storage חסום — פשוט סוגרים לפגישה הזו
-    }
+    clearNewUser();
     setOpen(false);
   }
 

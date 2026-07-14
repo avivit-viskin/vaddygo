@@ -23,7 +23,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import CollectionSettingsPage from "./pages/CollectionSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
 import { isOnboardingComplete } from "./services/onboardingService";
-import { isAuthenticated } from "./services/authService";
+import { isAuthenticated, hasVisitedBefore } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
 
 /*
@@ -54,13 +54,16 @@ function App() {
   const isPublic = PUBLIC_ROUTES.includes(location.pathname);
   const activeInstitution = getActiveInstitution();
 
-  // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות
+  // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות.
+  // משתמש חדש (מכשיר שטרם נכנסו אליו) → מסך הברוכים-הבאים.
+  // משתמש חוזר (כבר נרשם/התחבר כאן) → ישר למסך הכניסה.
   if (!isAuthenticated() && !isPublic) {
+    const entry = hasVisitedBefore() ? "/login" : "/welcome";
     return (
       <div dir="rtl">
         <main className="app-main">
           <Routes>
-            <Route path="*" element={<Navigate to="/welcome" replace />} />
+            <Route path="*" element={<Navigate to={entry} replace />} />
           </Routes>
         </main>
       </div>

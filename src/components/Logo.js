@@ -15,7 +15,7 @@ function Logo() {
 
   return (
     <img
-      src={`${process.env.PUBLIC_URL}/logo.jpg`}
+      src={`${process.env.PUBLIC_URL}/logo.png`}
       alt="VaddyGo"
       className="app-logo"
       onError={() => setFailed(true)}

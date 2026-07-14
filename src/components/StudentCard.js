@@ -44,7 +44,9 @@ function StudentCard({ student, summary, onPayments, onEdit, onDelete }) {
           </span>
         </div>
         <div className="student-card__actions">
-          <Button onClick={() => onPayments(student)}>תשלומים 💰</Button>
+          <Button variant="brand" onClick={() => onPayments(student)}>
+            תשלומים 💰
+          </Button>
           <PaymentRequestButton student={student} />
           <Button variant="secondary" onClick={() => onEdit(student)}>
             עריכה

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
@@ -67,6 +68,44 @@ namespace ParentCommitteeAPI.Controllers
             if (!deleted)
                 return NotFound(new { message = "תלמיד לא נמצא" });
             return NoContent();
+        }
+
+        /*
+          POST: api/students/decrypt — פענוח קובץ Excel נעול בסיסמה (משימת ייבוא
+          תלמידים). הלקוח שולח את הקובץ המוצפן ואת הסיסמה; אנחנו מפענחים בשרת עם
+          NPOI ומחזירים את ה-xlsx הפתוח, כדי שהלקוח יקרא אותו כרגיל. הפענוח נעשה
+          בשרת בכוונה — ספריית פענוח בצד הלקוח הפילה את האפליקציה. סיסמה שגויה →
+          400 עם code=WRONG_PASSWORD כדי שהמסך יבקש להקליד שוב.
+        */
+        [Authorize]
+        [HttpPost("decrypt")]
+        [RequestSizeLimit(20_000_000)] // עד ~20MB — קובץ תלמידים סביר
+        public async Task<IActionResult> DecryptFile(IFormFile? file, [FromForm] string? password)
+        {
+            if (file == null || file.Length == 0)
+                return BadRequest(new { message = "לא נבחר קובץ" });
+
+            using var input = new MemoryStream();
+            await file.CopyToAsync(input);
+
+            byte[]? decrypted;
+            try
+            {
+                decrypted = OfficeDecryptor.Decrypt(input.ToArray(), password ?? string.Empty);
+            }
+            catch
+            {
+                // הקובץ אינו מוצפן בפורמט Agile מוכר, או פגום — בלי חשיפת פרטים פנימיים
+                return BadRequest(new { code = "DECRYPT_FAILED", message = "לא הצלחנו לפענח את הקובץ" });
+            }
+
+            if (decrypted == null)
+                return BadRequest(new { code = "WRONG_PASSWORD", message = "הסיסמה שגויה" });
+
+            return File(
+                decrypted,
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                "decrypted.xlsx");
         }
     }
 }

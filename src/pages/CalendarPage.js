@@ -18,6 +18,10 @@ import {
   getRoshChodeshForMonth,
   holidayEmoji,
 } from "../data/holidays";
+import {
+  getBirthdays,
+  birthdaysByDayForMonth,
+} from "../services/birthdaysService";
 import { hebrewDateLabel } from "../services/hebrewDate";
 import { whatsappUrl } from "../services/whatsapp";
 import MonthGrid from "./calendar/MonthGrid";
@@ -76,6 +80,8 @@ function CalendarPage({ initialDate }) {
 
   const { data: events, isLoading, error, reload } = useApi(getEvents);
   const { data: budgets, reload: reloadBudgets } = useApi(getHolidayBudgets);
+  // ימי-הולדת של הצוות והתלמידים — נטענים אוטומטית ומסונכרנים ללוח
+  const { data: birthdays } = useApi(getBirthdays);
 
   const year = viewDate.getFullYear();
   const monthIndex = viewDate.getMonth();
@@ -93,6 +99,12 @@ function CalendarPage({ initialDate }) {
   const roshChodeshDays = useMemo(
     () => getRoshChodeshForMonth(year, monthIndex),
     [year, monthIndex]
+  );
+
+  // יום ההולדת חוזר כל שנה — הפילוח לפי חודש בלבד (בלי שנת הלידה)
+  const birthdaysByDay = useMemo(
+    () => birthdaysByDayForMonth(birthdays || [], monthIndex),
+    [birthdays, monthIndex]
   );
 
   const monthEvents = useMemo(() => {
@@ -140,6 +152,7 @@ function CalendarPage({ initialDate }) {
       hebrewLabel: hebrewDateLabel(date),
       events: eventsByDay.get(day) || [],
       holidays: holidaysByDay.get(day) || [],
+      birthdays: birthdaysByDay.get(day) || [],
     });
   }
 
@@ -241,6 +254,7 @@ function CalendarPage({ initialDate }) {
             monthIndex={monthIndex}
             holidaysByDay={holidaysByDay}
             eventsByDay={eventsByDay}
+            birthdaysByDay={birthdaysByDay}
             roshChodeshDays={roshChodeshDays}
             onDayClick={openDayView}
           />
@@ -357,7 +371,9 @@ function CalendarPage({ initialDate }) {
       >
         {dayView && (
           <div className="calendar-day-view">
-            {dayView.holidays.length === 0 && dayView.events.length === 0 ? (
+            {dayView.holidays.length === 0 &&
+            dayView.events.length === 0 &&
+            dayView.birthdays.length === 0 ? (
               <p className="calendar-day-view__empty">
                 אין אירועים ביום זה 🙂
               </p>
@@ -374,6 +390,19 @@ function CalendarPage({ initialDate }) {
                       {name}
                     </span>
                     <span className="calendar-day-view__tag">חג</span>
+                  </li>
+                ))}
+
+                {/* ימי-הולדת — מסונכרנים אוטומטית מהצוות/תלמידים, בלי עריכה/מחיקה */}
+                {dayView.birthdays.map((b) => (
+                  <li
+                    key={`bday-${b.type}-${b.name}`}
+                    className="calendar-day-view__item calendar-day-view__item--birthday"
+                  >
+                    <span className="calendar-day-view__name">🎂 {b.name}</span>
+                    <span className="calendar-day-view__tag">
+                      {b.type === "staff" ? "יום הולדת · צוות" : "יום הולדת"}
+                    </span>
                   </li>
                 ))}
 

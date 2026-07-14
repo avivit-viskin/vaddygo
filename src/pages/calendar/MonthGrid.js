@@ -22,6 +22,7 @@ function MonthGrid({
   monthIndex,
   holidaysByDay,
   eventsByDay,
+  birthdaysByDay,
   roshChodeshDays,
   onDayClick,
 }) {
@@ -114,6 +115,15 @@ function MonthGrid({
                         title={event.name}
                       >
                         {event.name}
+                      </span>
+                    ))}
+                    {(birthdaysByDay?.get(day) || []).map((b) => (
+                      <span
+                        key={`bday-${b.type}-${b.name}`}
+                        className="calendar-day__badge calendar-day__badge--birthday"
+                        title={`יום הולדת: ${b.name}`}
+                      >
+                        🎂 {b.name}
                       </span>
                     ))}
                   </button>

@@ -133,6 +133,12 @@
   color: var(--color-text);
 }
 
+/* יום הולדת (צוות/תלמיד) — רקע חגיגי עדין */
+.calendar-day__badge--birthday {
+  background-color: #fff3d6;
+  color: var(--color-text);
+}
+
 /* ערב חג — עדין יותר מהחג עצמו */
 .calendar-day__badge--eve {
   background-color: var(--color-bg);
@@ -262,6 +268,10 @@
 /* פריט חג בחלון היום — רקע עדין ותג "חג" (אין עריכה/מחיקה) */
 .calendar-day-view__item--holiday {
   background-color: var(--color-primary-light);
+}
+
+.calendar-day-view__item--birthday {
+  background-color: #fff3d6;
 }
 
 .calendar-day-view__tag {

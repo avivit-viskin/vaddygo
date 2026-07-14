@@ -175,15 +175,17 @@ function StudentsPage() {
       <div className="page-header">
         <h2>{totalCount} תלמידים</h2>
         <div className="page-header__actions">
+          <Button variant="brand" onClick={openAddForm}>
+            + הוספת תלמיד
+          </Button>
+          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+            📄 ייבוא מקובץ
+          </Button>
           <BulkReminderButton
             unpaidStudents={(students ?? []).filter(
               (s) => summaries[s.id]?.hasUnpaid
             )}
           />
-          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
-            📄 ייבוא מקובץ
-          </Button>
-          <Button onClick={openAddForm}>+ הוספת תלמיד</Button>
         </div>
       </div>
 

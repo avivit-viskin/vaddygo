@@ -55,6 +55,7 @@ function store(auth) {
     USER_KEY,
     JSON.stringify({
       username: auth.username,
+      email: auth.email,
       role: auth.role,
       subscriptionValidUntil: auth.subscriptionValidUntil,
     })
@@ -83,4 +84,9 @@ export async function loginWithGoogle(credential) {
 export function logout() {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+}
+
+/* שינוי סיסמה למשתמשת המחוברת (משימה: הגדרות → שינוי סיסמה). */
+export function changePassword({ currentPassword, newPassword }) {
+  return api.post("/api/auth/change-password", { currentPassword, newPassword });
 }

@@ -21,6 +21,8 @@ import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
 import StaffBirthdays from "./home/StaffBirthdays";
+import Modal from "../components/Modal";
+import { getUser } from "../services/authService";
 import "../styles/home.css";
 
 /*
@@ -32,6 +34,7 @@ import "../styles/home.css";
 function HomePage() {
   const { data: dashboard, isLoading, error, reload } = useApi(loadDashboard);
   const [panelOpen, setPanelOpen] = useState(false);
+  const [accountOpen, setAccountOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [unpaidStudents, setUnpaidStudents] = useState([]);
 
@@ -99,7 +102,14 @@ function HomePage() {
       <ExpenseAfterEventPrompt onRecorded={reload} />
       <div className="home__header">
         <h2 className="home__title">
-          {dashboard.ganName}{" "}
+          <button
+            type="button"
+            className="home__account-btn"
+            onClick={() => setAccountOpen(true)}
+            aria-label="פרטי החשבון"
+          >
+            {dashboard.ganName}
+          </button>{" "}
           <span className="home__year">{hebrewSchoolYearName(dashboard.year)}</span>
         </h2>
         <button
@@ -137,6 +147,19 @@ function HomePage() {
         onMarkRead={handleMarkRead}
         onMarkAllRead={handleMarkAllRead}
       />
+
+      <Modal
+        isOpen={accountOpen}
+        onClose={() => setAccountOpen(false)}
+        title="פרטי החשבון"
+      >
+        <p className="account-info__row">
+          מוסד: <strong>{dashboard.ganName}</strong>
+        </p>
+        <p className="account-info__row">
+          מחוברת עם המייל: <strong>{getUser()?.email || "—"}</strong>
+        </p>
+      </Modal>
     </div>
   );
 }

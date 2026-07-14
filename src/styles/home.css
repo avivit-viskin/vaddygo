@@ -490,3 +490,20 @@
   line-height: 1.5;
   color: var(--color-text);
 }
+
+/* שם המוסד בכותרת — לחיץ, פותח את פרטי החשבון (מוסד + מייל) */
+.home__account-btn {
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+.home__account-btn:hover {
+  text-decoration: underline;
+}
+.account-info__row {
+  margin: 8px 0;
+  line-height: 1.6;
+}

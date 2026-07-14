@@ -14,13 +14,13 @@ test("מציג את כותרת החודש ואת ימות השבוע", async () 
 
 test("מציג את חנוכה בדצמבר 2026 (חישוב מהתאריך העברי)", async () => {
   render(<CalendarPage initialDate={new Date(2026, 11, 1)} />);
-  const badges = await screen.findAllByText("חנוכה");
+  const badges = await screen.findAllByText(/חנוכה/);
   expect(badges.length).toBeGreaterThan(0);
 });
 
 test("מציג את ראש השנה בספטמבר 2026", async () => {
   render(<CalendarPage initialDate={new Date(2026, 8, 1)} />);
-  const badges = await screen.findAllByText("ראש השנה");
+  const badges = await screen.findAllByText(/ראש השנה/);
   expect(badges.length).toBeGreaterThan(0);
 });
 

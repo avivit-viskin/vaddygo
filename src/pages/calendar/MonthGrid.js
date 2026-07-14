@@ -1,4 +1,5 @@
 import { hebrewDayGematria } from "../../services/hebrewDate";
+import { holidayEmoji } from "../../data/holidays";
 import WhiteShirtIcon from "../../components/WhiteShirtIcon";
 
 /*
@@ -90,6 +91,7 @@ function MonthGrid({
                     )}
                     {(holidaysByDay.get(day) || []).map((name) => {
                       const isEve = name.startsWith("ערב ");
+                      const emoji = holidayEmoji(name);
                       return (
                         <span
                           key={name}
@@ -100,6 +102,7 @@ function MonthGrid({
                           }`}
                           title={name}
                         >
+                          {emoji ? `${emoji} ` : ""}
                           {name}
                         </span>
                       );

@@ -1,5 +1,6 @@
 import { holidayBudgetKey } from "../../services/holidayBudgetsService";
 import { hebrewDateLabel } from "../../services/hebrewDate";
+import { holidayEmoji } from "../../data/holidays";
 
 /*
   HolidaysSection — מדור "חגים": שם ותאריך (לועזי + עברי) של כל חג בחודש המוצג,
@@ -38,7 +39,9 @@ function HolidaysSection({ year, monthIndex, occurrences, budgets, onEditBudget 
                 {hebrewDateLabel(new Date(year, monthIndex, occurrence.days[0]))}
               </span>
             </span>
-            <span className="calendar-list__name">{occurrence.name}</span>
+            <span className="calendar-list__name">
+              {holidayEmoji(occurrence.name)} {occurrence.name}
+            </span>
             {budget != null ? (
               <button
                 type="button"

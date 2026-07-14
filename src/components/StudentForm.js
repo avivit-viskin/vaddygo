@@ -48,6 +48,16 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         birthDate: initialStudent?.birthDate ?? "",
         className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
+        // שדות נוספים (מיובאים מקובץ משרד החינוך; כולם לא חובה)
+        idNumber: initialStudent?.idNumber ?? "",
+        gender: initialStudent?.gender ?? "",
+        allergies: initialStudent?.allergies ?? "",
+        address: initialStudent?.address ?? "",
+        parentEmail: initialStudent?.parentEmail ?? "",
+        parentBName: initialStudent?.parentBName ?? "",
+        parentBPhone: initialStudent?.parentBPhone ?? "",
+        parentBEmail: initialStudent?.parentBEmail ?? "",
+        parentsMarried: initialStudent?.parentsMarried ?? "",
       },
       (v) => validateStudent(v, hasGroups)
     );
@@ -115,6 +125,85 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         onChange={handleChange}
         error={errors.parentPhoneNumber}
       />
+
+      {/* פרטים נוספים — מגיעים אוטומטית מקובץ משרד החינוך, וניתן להשלים ידנית */}
+      <details className="student-form__extra">
+        <summary>פרטים נוספים (לא חובה)</summary>
+
+        <Input
+          id="student-id-number"
+          name="idNumber"
+          label="תעודת זהות"
+          dir="ltr"
+          value={values.idNumber}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-gender"
+          name="gender"
+          label="מין"
+          value={values.gender}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-allergies"
+          name="allergies"
+          label="אלרגיות"
+          placeholder="למשל: בוטנים, ביצים"
+          value={values.allergies}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-address"
+          name="address"
+          label="כתובת"
+          value={values.address}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-parent-email"
+          name="parentEmail"
+          label='דוא"ל הורה א׳'
+          type="email"
+          dir="ltr"
+          value={values.parentEmail}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-parent-b-name"
+          name="parentBName"
+          label="שם הורה ב׳"
+          value={values.parentBName}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-parent-b-phone"
+          name="parentBPhone"
+          label="טלפון הורה ב׳"
+          type="tel"
+          dir="ltr"
+          placeholder="050-1234567"
+          value={values.parentBPhone}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-parent-b-email"
+          name="parentBEmail"
+          label='דוא"ל הורה ב׳'
+          type="email"
+          dir="ltr"
+          value={values.parentBEmail}
+          onChange={handleChange}
+        />
+        <Input
+          id="student-parents-married"
+          name="parentsMarried"
+          label="האם ההורים נשואים"
+          placeholder="כן / לא"
+          value={values.parentsMarried}
+          onChange={handleChange}
+        />
+      </details>
 
       {submitError && (
         <p className="field__error" role="alert">

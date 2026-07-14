@@ -83,6 +83,11 @@ function StudentsImport({ onDone, onCancel }) {
 
   return (
     <div className="students-import">
+      <p className="students-import__intro">
+        אפשר להעלות ישירות את <strong>קובץ משרד החינוך</strong> — המערכת מזהה לבד את
+        העמודות (שם, ת"ז, תאריך לידה, אלרגיות, כתובת ופרטי שני ההורים) לפי שמן. או
+        להשתמש בתבנית הפשוטה:
+      </p>
       <ol className="students-import__steps">
         <li>
           מורידים את התבנית וממלאים בה: <strong>שם הילד · שם ההורה · טלפון</strong>{" "}

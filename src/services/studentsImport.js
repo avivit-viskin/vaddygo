@@ -1,35 +1,216 @@
 import { createStudent } from "./studentsService";
 
 /*
-  studentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11): קובץ עם עמודות
-  שם הילד · שם ההורה · טלפון. תומך בקובצי Excel (‏.xlsx) וגם ב-CSV/טקסט.
-  יוצרים תלמיד לכל שורה, ומה שלא יובא כמו שצריך — ניתן לתקן בעריכת כל תלמיד בנפרד.
+  studentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11). תומך בשני מבנים:
+
+  1. קובץ פשוט: שם הילד · שם ההורה · טלפון (התבנית להורדה).
+  2. קובץ משרד החינוך: קובץ רחב עם כותרות בעברית (שם פרטי, שם משפחה, תעודת זהות,
+     מין, תאריך לידה, אלרגיה, כתובת, ופרטי שני הורים כולל מייל וסטטוס נישואין).
+
+  הזיהוי הוא לפי *שמות העמודות* ולא לפי מיקום, כך שהסדר בקובץ יכול להיות שונה
+  והניסוח מעט אחר. מה שלא זוהה — ניתן להשלים בעריכת כל תלמיד. תומך ב-Excel וב-CSV.
 */
 
-/* תבנית להורדה: כותרת + שורת דוגמה. BOM בהתחלה כדי שאקסל יציג עברית נכון. */
+/* תבנית פשוטה להורדה: כותרת + שורת דוגמה. BOM בהתחלה כדי שאקסל יציג עברית נכון. */
 export const IMPORT_TEMPLATE =
   "﻿שם הילד,שם ההורה,טלפון\nהילי לוי,דנה לוי,050-1234567\n";
 
+/* השדות הנוספים (מעבר לשם/הורה/טלפון) — ריקים כברירת מחדל בכל שורה. */
+function emptyExtras() {
+  return {
+    birthDate: "",
+    idNumber: "",
+    gender: "",
+    allergies: "",
+    address: "",
+    parentEmail: "",
+    parentBName: "",
+    parentBPhone: "",
+    parentBEmail: "",
+    parentsMarried: "",
+  };
+}
+
+/* ── זיהוי כותרות (מיפוי שם עמודה → שדה) ─────────────────────── */
+
+/* מנרמל כותרת להשוואה: מסיר גרשיים, הופך נקודות/מקפים לרווח ומצמצם רווחים. */
+function normalizeHeader(raw) {
+  return String(raw ?? "")
+    .replace(/["'`׳״]/g, "")
+    .replace(/[.\-_/\\]/g, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+}
+
 /*
-  הופך שלושה תאים (שם הילד, שם ההורה, טלפון) לרשומת תלמיד — או null אם אין שם.
-  שם הילד מפוצל לשם פרטי (מילה ראשונה) ולשם משפחה (השאר). התאים עוברים ל-String
-  כי מ-Excel תא עשוי להגיע כמספר (למשל טלפון) או כ-null (תא ריק).
+  מסווג כותרת אחת לשדה מוכר (או null אם לא זוהתה). קודם מזהים אם מדובר בשדה של
+  הורה (א'/ב') ואז את סוגו; אחרת שדה של הילד/ה. הסדר חשוב — הבדיקות הצרות קודם.
 */
-function toStudentRow(childName, parentName, phone) {
-  const name = String(childName ?? "").trim();
+function classifyHeader(raw) {
+  const h = normalizeHeader(raw);
+  if (!h) return null;
+
+  const slot = /הורה\s*ב|הורה\s*2|הורה\s*שני/.test(h)
+    ? "B"
+    : /הורה\s*א|הורה\s*1|הורה\s*ראשון/.test(h)
+    ? "A"
+    : /הורה|אפוטרופוס/.test(h)
+    ? "A"
+    : null;
+
+  if (slot) {
+    if (/טלפון|נייד|פלאפון|סלולר|מובייל/.test(h)) return `parent${slot}Phone`;
+    if (/דואל|מייל|אימייל|email|e mail/i.test(h)) return `parent${slot}Email`;
+    if (/משפח/.test(h)) return `parent${slot}Last`;
+    return `parent${slot}First`; // "שם פרטי הורה" / "שם הורה" / "הורה"
+  }
+
+  if (/אלרג/.test(h)) return "allergies";
+  if (/תעודת זהות|מספר זהות|ת ז|תז|ז ת/.test(h)) return "idNumber";
+  if (/מגדר|מין/.test(h)) return "gender";
+  if (/לידה/.test(h)) return "birthDate";
+  if (/רחוב|כתובת/.test(h)) return "street";
+  if (/דירה/.test(h)) return "apartment";
+  if (/מספר בית|מס בית|בית/.test(h)) return "houseNumber";
+  if (/נשוא/.test(h)) return "married";
+  if (/שם פרטי/.test(h)) return "firstName";
+  if (/שם משפחה|משפחה/.test(h)) return "lastName";
+  if (/שם ה?ילד|שם התלמיד|שם הילדה|שם מלא|^שם$/.test(h)) return "childFullName";
+  if (/טלפון|נייד|פלאפון|סלולר/.test(h)) return "parentAPhone";
+  return null;
+}
+
+/* בונה מיפוי שדה → אינדקס עמודה משורת הכותרת (המופע הראשון מנצח). */
+export function buildColumnMap(headerCells) {
+  const map = {};
+  (headerCells || []).forEach((cell, idx) => {
+    const key = classifyHeader(cell);
+    if (key && map[key] == null) map[key] = idx;
+  });
+  return map;
+}
+
+/* האם השורה הראשונה היא כותרת מוכרת (לפחות שני שדות, ואחד מהם שם הילד/ה). */
+function isHeaderMap(map) {
+  const recognized = Object.keys(map).length;
+  const hasName =
+    map.firstName != null || map.childFullName != null || map.lastName != null;
+  return recognized >= 2 && hasName;
+}
+
+/* ── פירוק תאריך לידה (Excel Date או טקסט) ל-YYYY-MM-DD ──────── */
+const pad = (n) => String(n).padStart(2, "0");
+
+function parseBirthDate(value) {
+  if (value == null || value === "") return "";
+  if (value instanceof Date && !Number.isNaN(value.getTime())) {
+    return `${value.getFullYear()}-${pad(value.getMonth() + 1)}-${pad(
+      value.getDate()
+    )}`;
+  }
+  const s = String(value).trim();
+  let m = s.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/); // כבר ISO
+  if (m) return `${m[1]}-${pad(m[2])}-${pad(m[3])}`;
+  m = s.match(/^(\d{1,2})[./-](\d{1,2})[./-](\d{2,4})$/); // dd/mm/yyyy וכו'
+  if (m) {
+    let [, d, mo, y] = m;
+    if (y.length === 2) y = `20${y}`;
+    return `${y}-${pad(mo)}-${pad(d)}`;
+  }
+  return "";
+}
+
+/* ── בניית רשומת תלמיד ─────────────────────────────────────── */
+
+/* מקובץ עם כותרות מוכרות: שולף כל שדה לפי המיפוי. null אם אין שם פרטי/מלא. */
+function rowFromCells(cells, map) {
+  const c = cells || [];
+  const get = (key) => (map[key] == null ? "" : String(c[map[key]] ?? "").trim());
+
+  let firstName = get("firstName");
+  let lastName = get("lastName");
+  if (!firstName) {
+    const full = get("childFullName");
+    if (full) {
+      const parts = full.split(/\s+/);
+      firstName = parts[0] || "";
+      if (!lastName) lastName = parts.slice(1).join(" ");
+    }
+  }
+  if (!firstName) return null;
+
+  const street = get("street");
+  const house = get("houseNumber");
+  const apt = get("apartment");
+  const address = [
+    [street, house].filter(Boolean).join(" "),
+    apt && `דירה ${apt}`,
+  ]
+    .filter(Boolean)
+    .join(", ");
+
+  const rawBirth = map.birthDate == null ? "" : c[map.birthDate];
+
+  return {
+    firstName,
+    lastName,
+    parentName: [get("parentAFirst"), get("parentALast")].filter(Boolean).join(" "),
+    parentPhoneNumber: get("parentAPhone"),
+    birthDate: parseBirthDate(rawBirth),
+    idNumber: get("idNumber"),
+    gender: get("gender"),
+    allergies: get("allergies"),
+    address,
+    parentEmail: get("parentAEmail"),
+    parentBName: [get("parentBFirst"), get("parentBLast")].filter(Boolean).join(" "),
+    parentBPhone: get("parentBPhone"),
+    parentBEmail: get("parentBEmail"),
+    parentsMarried: get("married"),
+  };
+}
+
+/* מהקובץ הפשוט (לפי מיקום): שם הילד · שם ההורה · טלפון. null אם אין שם. */
+function legacyRowFromCells(cells) {
+  const c = cells || [];
+  const name = String(c[0] ?? "").trim();
   if (!name) return null;
   const parts = name.split(/\s+/);
   return {
     firstName: parts[0],
     lastName: parts.slice(1).join(" "),
-    parentName: String(parentName ?? "").trim(),
-    parentPhoneNumber: String(phone ?? "").trim(),
+    parentName: String(c[1] ?? "").trim(),
+    parentPhoneNumber: String(c[2] ?? "").trim(),
+    ...emptyExtras(),
   };
 }
 
-/* שורת כותרת = השורה הראשונה שבה עמודת הטלפון בלי אף ספרה (למשל "טלפון"). */
+/* שורת כותרת (בקובץ הפשוט) = השורה הראשונה שבה עמודת הטלפון בלי אף ספרה. */
 function isHeaderRow(index, phone) {
   return index === 0 && !/\d/.test(String(phone ?? ""));
+}
+
+/* מנתח טבלה (מערך שורות של תאים) לרשומות תלמיד — בוחר מבנה לפי הכותרות. */
+function parseGrid(grid) {
+  const rows = grid || [];
+  if (rows.length === 0) return [];
+
+  const map = buildColumnMap(rows[0]);
+  if (isHeaderMap(map)) {
+    return rows
+      .slice(1)
+      .map((cells) => rowFromCells(cells, map))
+      .filter(Boolean);
+  }
+
+  // קובץ פשוט לפי מיקום (עם/בלי שורת כותרת)
+  const out = [];
+  rows.forEach((cells, index) => {
+    const c = cells || [];
+    if (isHeaderRow(index, c[2])) return;
+    const row = legacyRowFromCells(c);
+    if (row) out.push(row);
+  });
+  return out;
 }
 
 /* ── CSV / טקסט ─────────────────────────────────────────── */
@@ -61,23 +242,16 @@ function splitLine(line, delimiter) {
   return cols.map((c) => c.trim());
 }
 
-/* מנתח טקסט CSV לרשומות תלמיד. שורת כותרת מדולגת אוטומטית. */
+/* מנתח טקסט CSV לרשומות תלמיד. מבנה הקובץ מזוהה לפי הכותרות. */
 export function parseStudentRows(text) {
   const clean = (text || "").replace(/^﻿/, "");
   const delimiter = detectDelimiter(clean);
-  const lines = clean
+  const grid = clean
     .split(/\r?\n/)
     .map((l) => l.trim())
-    .filter((l) => l.length > 0);
-
-  const rows = [];
-  lines.forEach((line, index) => {
-    const cols = splitLine(line, delimiter);
-    if (isHeaderRow(index, cols[2])) return;
-    const row = toStudentRow(cols[0], cols[1], cols[2]);
-    if (row) rows.push(row);
-  });
-  return rows;
+    .filter((l) => l.length > 0)
+    .map((line) => splitLine(line, delimiter));
+  return parseGrid(grid);
 }
 
 /* ── Excel (‏.xlsx) ─────────────────────────────────────── */
@@ -99,14 +273,7 @@ export function sheetToGrid(result) {
 
 /* מנתח טבלה מ-Excel: מערך של שורות, כל שורה מערך של תאים. */
 export function parseStudentGrid(grid) {
-  const rows = [];
-  (grid || []).forEach((cells, index) => {
-    const c = cells || [];
-    if (isHeaderRow(index, c[2])) return;
-    const row = toStudentRow(c[0], c[1], c[2]);
-    if (row) rows.push(row);
-  });
-  return rows;
+  return parseGrid(grid);
 }
 
 /*
@@ -126,8 +293,8 @@ export async function parseStudentFile(file) {
 }
 
 /*
-  יוצר תלמיד לכל שורה. מחזיר סיכום: כמה נוספו וכמה נכשלו (עם השמות),
-  כדי שהמשתמשת תדע מה לתקן ידנית. createFn מוזרק כדי לאפשר בדיקה.
+  יוצר תלמיד לכל שורה, עם כל השדות שזוהו בקובץ. מחזיר סיכום: כמה נוספו וכמה נכשלו
+  (עם השמות), כדי שהמשתמשת תדע מה לתקן ידנית. createFn מוזרק כדי לאפשר בדיקה.
 */
 export async function importStudents(rows, createFn = createStudent) {
   let added = 0;
@@ -136,15 +303,24 @@ export async function importStudents(rows, createFn = createStudent) {
     try {
       await createFn({
         firstName: row.firstName,
-        lastName: row.lastName,
-        parentName: row.parentName,
+        lastName: row.lastName || "",
+        parentName: row.parentName || "",
         className: "",
-        parentPhoneNumber: row.parentPhoneNumber,
-        birthDate: null,
+        parentPhoneNumber: row.parentPhoneNumber || "",
+        birthDate: row.birthDate || null,
+        idNumber: row.idNumber || "",
+        gender: row.gender || "",
+        allergies: row.allergies || "",
+        address: row.address || "",
+        parentEmail: row.parentEmail || "",
+        parentBName: row.parentBName || "",
+        parentBPhone: row.parentBPhone || "",
+        parentBEmail: row.parentBEmail || "",
+        parentsMarried: row.parentsMarried || "",
       });
       added += 1;
     } catch (err) {
-      const name = `${row.firstName} ${row.lastName}`.trim();
+      const name = `${row.firstName} ${row.lastName || ""}`.trim();
       failed.push({ name: name || "(ללא שם)", error: err.message });
     }
   }

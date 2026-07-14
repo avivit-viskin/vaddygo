@@ -60,6 +60,19 @@ function StudentCard({
               {student.parentPhoneNumber}
             </a>
           </span>
+          {student.parentBPhone && (
+            <span>
+              טלפון הורה ב׳:{" "}
+              <a href={`tel:${student.parentBPhone}`} dir="ltr">
+                {student.parentBPhone}
+              </a>
+            </span>
+          )}
+          {student.allergies && (
+            <small className="student-card__allergies">
+              ⚠️ אלרגיות: {student.allergies}
+            </small>
+          )}
           </div>
         </div>
         <div className="student-card__actions">

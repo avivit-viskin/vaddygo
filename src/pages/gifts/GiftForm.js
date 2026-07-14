@@ -9,22 +9,38 @@ import { GIFT_STATUSES } from "../../services/giftStatus";
   GiftForm — הוספה/עריכה של מתנה (UI_SPEC ס' 12): שם, אירוע (חג קרוב),
   תקציב, סטטוס וספק. אותו טופס לשני המצבים — gift=null בהוספה.
   רשימת החגים והספקים מגיעה מההורה כדי לא לחשב אותה מחדש בכל רינדור.
+  "אחר" מאפשר להקליד אירוע חופשי — הוא נשמר עם מפתח custom| ומופיע ברשימת
+  "הוצאות חגים" כמו כל אירוע אחר.
 */
+const OTHER_KEY = "__other__";
+const CUSTOM_PREFIX = "custom|";
+
+// מפתח לאירוע חופשי — מבוסס על השם שהוקלד, כדי שמתנות לאותו אירוע יתקבצו יחד
+function customHolidayKey(name) {
+  return `${CUSTOM_PREFIX}${name}`;
+}
+
 function validate(values) {
   const errors = {};
   if (!values.name.trim()) errors.name = "צריך למלא שם למתנה";
   if (values.totalAmount === "" || Number(values.totalAmount) < 0) {
     errors.totalAmount = "צריך למלא סכום (0 ומעלה)";
   }
+  if (values.holidayKey === OTHER_KEY && !values.customHoliday.trim()) {
+    errors.customHoliday = "צריך למלא שם לאירוע";
+  }
   return errors;
 }
 
 function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
+  // מתנה שנשמרה עם אירוע חופשי — פותחים אותה במצב "אחר" עם השם המוקלד
+  const isCustom = Boolean(gift?.holidayKey?.startsWith(CUSTOM_PREFIX));
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm(
       {
         name: gift?.name || "",
-        holidayKey: gift?.holidayKey || "",
+        holidayKey: isCustom ? OTHER_KEY : gift?.holidayKey || "",
+        customHoliday: isCustom ? gift.holidayName || "" : "",
         totalAmount: gift?.totalAmount != null ? String(gift.totalAmount) : "",
         status: gift?.status || "planned",
         vendorId: gift?.vendorId != null ? String(gift.vendorId) : "",
@@ -33,14 +49,25 @@ function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
     );
 
   function handleSave(formValues) {
-    const holiday = holidays.find((h) => h.key === formValues.holidayKey);
-    return onSave({
+    const base = {
       name: formValues.name.trim(),
-      holidayKey: formValues.holidayKey || null,
-      holidayName: holiday ? holiday.name : null,
       totalAmount: Number(formValues.totalAmount),
       status: formValues.status,
       vendorId: formValues.vendorId ? Number(formValues.vendorId) : null,
+    };
+    if (formValues.holidayKey === OTHER_KEY) {
+      const custom = formValues.customHoliday.trim();
+      return onSave({
+        ...base,
+        holidayKey: custom ? customHolidayKey(custom) : null,
+        holidayName: custom || null,
+      });
+    }
+    const holiday = holidays.find((h) => h.key === formValues.holidayKey);
+    return onSave({
+      ...base,
+      holidayKey: formValues.holidayKey || null,
+      holidayName: holiday ? holiday.name : null,
     });
   }
 
@@ -68,7 +95,19 @@ function GiftForm({ gift, holidays, vendors, onSave, onCancel }) {
             {holiday.name}
           </option>
         ))}
+        <option value={OTHER_KEY}>אחר (הקלדה חופשית)</option>
       </Select>
+      {values.holidayKey === OTHER_KEY && (
+        <Input
+          id="gift-custom-holiday"
+          name="customHoliday"
+          label="שם האירוע"
+          value={values.customHoliday}
+          error={errors.customHoliday}
+          onChange={handleChange}
+          placeholder="למשל: יום המשפחה"
+        />
+      )}
       <Input
         id="gift-total"
         name="totalAmount"

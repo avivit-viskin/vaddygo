@@ -42,7 +42,7 @@ function BudgetAssistant({ gifts, holidayBudgets }) {
   }
 
   return (
-    <Card title="עוזרת תקציבית 💡">
+    <Card title="הוצאות חגים 💰">
       <ul className="budget-assistant">
         {rows.map((row) => {
           const overBudget = row.allocated > 0 && row.remaining < 0;

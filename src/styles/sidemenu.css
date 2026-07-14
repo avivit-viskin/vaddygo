@@ -65,7 +65,7 @@
 .sidemenu__title {
   margin: 8px 0 0;
   font-size: var(--font-size-base);
-  color: var(--color-text-muted);
+  color: #000000;
 }
 
 .institutions {
@@ -124,7 +124,7 @@
 /* פעולה בתפריט (צור קשר) — קישור בעיצוב פריט תפריט */
 .sidemenu__action {
   display: block;
-  color: var(--color-primary-dark);
+  color: #000000;
   text-decoration: none;
   font-weight: 600;
   font-size: var(--font-size-base);

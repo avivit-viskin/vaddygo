@@ -93,6 +93,7 @@ function LoginPage() {
           <Input
             id="login-identifier"
             label="שם משתמש או מייל"
+            autoComplete="username"
             value={usernameOrEmail}
             onChange={(e) => setUsernameOrEmail(e.target.value)}
             error={errors.usernameOrEmail}
@@ -102,6 +103,7 @@ function LoginPage() {
               id="login-password"
               label="סיסמה"
               type={showPassword ? "text" : "password"}
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               error={errors.password}

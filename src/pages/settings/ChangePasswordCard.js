@@ -2,7 +2,7 @@ import { useState } from "react";
 import Card from "../../components/Card";
 import PasswordField from "../../components/PasswordField";
 import Button from "../../components/Button";
-import { changePassword } from "../../services/authService";
+import { changePassword, getUser } from "../../services/authService";
 
 /*
   ChangePasswordCard — שינוי סיסמה מתוך ההגדרות: הסיסמה הנוכחית + חדשה.
@@ -43,9 +43,21 @@ function ChangePasswordCard() {
   return (
     <Card title="🔑 שינוי סיסמה">
       <form onSubmit={handleSubmit} noValidate>
+        {/* שם המשתמש (נסתר) — עוזר למנהל הסיסמאות של הדפדפן לשייך את העדכון לחשבון */}
+        <input
+          type="text"
+          name="username"
+          autoComplete="username"
+          value={getUser()?.username || ""}
+          readOnly
+          aria-hidden="true"
+          tabIndex={-1}
+          style={{ display: "none" }}
+        />
         <PasswordField
           id="current-password"
           label="הסיסמה הנוכחית"
+          autoComplete="current-password"
           value={current}
           onChange={(e) => setCurrent(e.target.value)}
         />

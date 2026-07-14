@@ -7,7 +7,7 @@ import { evaluatePassword, generateStrongPassword } from "../utils/passwordStren
   וכפתור "הצע לי סיסמה חזקה" שממלא סיסמה חזקה ומציג אותה.
   משתלב עם useForm: onChange מקבל אירוע רגיל, וההצעה קוראת לו עם אירוע סינתטי.
 */
-function PasswordField({ id, name, label, value, error, onChange }) {
+function PasswordField({ id, name, label, value, error, onChange, autoComplete = "new-password" }) {
   const [show, setShow] = useState(false);
   const strength = evaluatePassword(value);
 
@@ -28,7 +28,7 @@ function PasswordField({ id, name, label, value, error, onChange }) {
           value={value}
           onChange={onChange}
           error={error}
-          autoComplete="new-password"
+          autoComplete={autoComplete}
         />
         <button
           type="button"

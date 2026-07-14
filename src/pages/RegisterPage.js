@@ -55,6 +55,7 @@ function RegisterPage() {
             id="register-username"
             name="username"
             label="שם משתמש"
+            autoComplete="username"
             value={values.username}
             onChange={handleChange}
             error={errors.username}
@@ -64,6 +65,7 @@ function RegisterPage() {
             name="email"
             label="כתובת מייל"
             type="email"
+            autoComplete="email"
             value={values.email}
             onChange={handleChange}
             error={errors.email}

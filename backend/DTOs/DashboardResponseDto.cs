@@ -40,6 +40,9 @@ namespace ParentCommitteeAPI.DTOs
         public string Name { get; set; } = string.Empty;
         public decimal TargetAmount { get; set; }
         public decimal CollectedAmount { get; set; }
+
+        /* כמה כסף כבר יצא מהקטגוריה הזו (הוצאות שסווגו לשם הקטגוריה) */
+        public decimal SpentAmount { get; set; }
     }
 
     /* התראה למסך הבית; Type מאפשר ללקוח אייקון/צבע מתאים: payments / birthday */

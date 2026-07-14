@@ -102,6 +102,10 @@ namespace ParentCommitteeAPI.Services
                     CollectedAmount = paidPayments
                         .Where(p => p.CollectionCategoryId == c.Id)
                         .Sum(PaidTotal),
+                    /* מה שיצא מהקטגוריה = הוצאות שסווגו לשם הקטגוריה (למשל "ועד") */
+                    SpentAmount = expenses
+                        .Where(e => e.Category == c.Name)
+                        .Sum(e => e.Amount),
                 }).ToList(),
                 Alerts = BuildAlerts(group, collected, birthdays, today),
                 UpcomingBirthdays = birthdays,

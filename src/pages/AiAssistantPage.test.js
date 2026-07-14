@@ -18,7 +18,7 @@ test("מציג את הפתיח ואת שאלות המהירות", () => {
   renderPage();
   expect(screen.getByText(/במה ברצונך לעזור/)).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: /עזרי לי לנסח תזכורת תשלום/ })
+    screen.getByRole("button", { name: /תעזור לי לנסח הודעה להורים על תזכורת תשלום/ })
   ).toBeInTheDocument();
 });
 

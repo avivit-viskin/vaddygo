@@ -126,6 +126,12 @@ h3 {
   vertical-align: middle;
 }
 
+/* לחיצה על הלוגו → דף הבית */
+.app-header__logo-link {
+  display: inline-flex;
+  text-decoration: none;
+}
+
 .app-main {
   max-width: 640px;
   margin: 0 auto;

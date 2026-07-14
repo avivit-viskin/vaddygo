@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import Logo from "./components/Logo";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
@@ -86,7 +86,9 @@ function App() {
             ☰
           </button>
           <h1>
-            <Logo />
+            <Link to="/" className="app-header__logo-link">
+              <Logo />
+            </Link>
           </h1>
           {activeInstitution && (
             <span className="app-header__institution">{activeInstitution.name}</span>

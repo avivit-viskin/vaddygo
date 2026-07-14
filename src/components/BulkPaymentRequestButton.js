@@ -182,7 +182,9 @@ function BulkPaymentRequestButton({ students = [] }) {
               {/* רשימת תפוצה — שליחה אחת לכל ההורים שנבחרו */}
               <div className="bulk-reminder__group-send">
                 <p className="bulk-reminder__note">
-                  📢 <strong>רשימת תפוצה — שליחה לכולם ביחד:</strong>
+                  ✅ <strong>ההמלצה שלנו לשליחה לכולם:</strong> להעתיק את מספרי
+                  הטלפון וליצור <strong>רשימת תפוצה</strong> בוואטסאפ — כך ההודעה
+                  נשלחת לכולם בבת אחת, וכל הורה מקבל אותה בפרטי.
                 </p>
                 <ol className="bulk-reminder__steps">
                   <li>מעתיקים את המספרים ואת ההודעה (הכפתורים למטה).</li>

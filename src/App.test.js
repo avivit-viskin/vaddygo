@@ -30,11 +30,11 @@ afterEach(() => {
   delete global.fetch;
 });
 
-test('שם המותג VaddyGo מוצג מודגש בכותרת', () => {
+test('הלוגו VaddyGo מוצג בכותרת', () => {
   renderAt('/');
+  // הכותרת מציגה את הלוגו (תמונה עם alt="VaddyGo", או כיתוב fallback לפני העלאת הקובץ)
   const heading = screen.getByRole('heading', { name: /VaddyGo/ });
   expect(heading).toBeInTheDocument();
-  expect(heading.querySelector('strong.brand-name')).not.toBeNull();
 });
 
 test('הניווט התחתון מציג את חמשת המסכים', () => {

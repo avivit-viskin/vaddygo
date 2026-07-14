@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Routes, Route, Navigate, useLocation } from "react-router-dom";
-import BrandName from "./components/BrandName";
+import Logo from "./components/Logo";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
 import AiFab from "./components/AiFab";
@@ -78,7 +78,7 @@ function App() {
             ☰
           </button>
           <h1>
-            <BrandName withHeart />
+            <Logo />
           </h1>
           {activeInstitution && (
             <span className="app-header__institution">{activeInstitution.name}</span>

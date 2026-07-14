@@ -116,6 +116,16 @@ h3 {
   font-size: var(--font-size-xl);
 }
 
+/* תמונת הלוגו בכותרת — מוגבלת בגובה כדי להתאים לשורת הכותרת */
+.app-logo {
+  height: 40px;
+  width: auto;
+  max-width: 160px;
+  object-fit: contain;
+  display: inline-block;
+  vertical-align: middle;
+}
+
 .app-main {
   max-width: 640px;
   margin: 0 auto;

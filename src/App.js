@@ -41,6 +41,8 @@ const FULL_SCREEN_ROUTES = [
 ];
 // נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token)
 const PUBLIC_ROUTES = ["/welcome", "/login", "/register", "/subscription-expired"];
+// מסכי הזדהות — משתמשת שכבר מחוברת לא צריכה לראות אותם שוב (נשלחת הביתה)
+const AUTH_ENTRY_ROUTES = ["/welcome", "/login", "/register"];
 
 function App() {
   const location = useLocation();
@@ -63,6 +65,12 @@ function App() {
         </main>
       </div>
     );
+  }
+
+  // כבר מחוברת ונחתה על מסך כניסה/פתיחה/הרשמה (למשל קיצור-דרך או כתובת אחרונה
+  // שהדפדפן פתח מחדש) → ישר הביתה, בלי לבקש להתחבר שוב.
+  if (isAuthenticated() && AUTH_ENTRY_ROUTES.includes(location.pathname)) {
+    return <Navigate to="/" replace />;
   }
 
   return (

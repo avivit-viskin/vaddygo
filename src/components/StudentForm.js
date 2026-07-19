@@ -126,18 +126,11 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         error={errors.parentPhoneNumber}
       />
 
-      {/* פרטים נוספים — מגיעים אוטומטית מקובץ משרד החינוך, וניתן להשלים ידנית */}
+      {/* פרטים נוספים — מגיעים אוטומטית מקובץ משרד החינוך, וניתן להשלים ידנית.
+          תעודת הזהות נשמרת (לזיהוי כפילויות בייבוא) אך אינה מוצגת — מטעמי פרטיות. */}
       <details className="student-form__extra">
         <summary>פרטים נוספים (לא חובה)</summary>
 
-        <Input
-          id="student-id-number"
-          name="idNumber"
-          label="תעודת זהות"
-          dir="ltr"
-          value={values.idNumber}
-          onChange={handleChange}
-        />
         <Input
           id="student-gender"
           name="gender"

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import Card from "../../components/Card";
 import EmptyState from "../../components/EmptyState";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { getExpenses, deleteExpense } from "../../services/expensesService";
 import { paymentMethodLabel } from "../../services/paymentMethods";
 import { formatShekels, formatDayMonth } from "../../services/format";
@@ -13,6 +14,9 @@ import { formatShekels, formatDayMonth } from "../../services/format";
 function ExpensesList({ refreshSignal = 0, onChanged }) {
   const [expenses, setExpenses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  // הוצאה שממתינה לאישור מחיקה (null = אין דיאלוג פתוח)
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const load = useCallback(() => {
     setIsLoading(true);
@@ -26,15 +30,19 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
     load();
   }, [load, refreshSignal]);
 
-  async function handleDelete(id) {
+  async function confirmDelete() {
+    setIsDeleting(true);
     try {
-      await deleteExpense(id);
+      await deleteExpense(expenseToDelete.id);
+      setExpenseToDelete(null);
       load();
       if (onChanged) {
         onChanged();
       }
     } catch {
       // אם לא נמחק (שרת לא זמין) — משאירים את הרשימה כמו שהיא
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -76,7 +84,7 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
                   type="button"
                   className="expenses-list__delete"
                   aria-label="מחיקת הוצאה"
-                  onClick={() => handleDelete(e.id)}
+                  onClick={() => setExpenseToDelete(e)}
                 >
                   ✕
                 </button>
@@ -101,6 +109,19 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
           </p>
         </>
       )}
+
+      <ConfirmDialog
+        isOpen={expenseToDelete !== null}
+        title="מחיקת הוצאה"
+        message={
+          expenseToDelete
+            ? `למחוק את ההוצאה על סך ${formatShekels(expenseToDelete.amount)}? אי אפשר לבטל.`
+            : ""
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setExpenseToDelete(null)}
+        isLoading={isDeleting}
+      />
     </Card>
   );
 }

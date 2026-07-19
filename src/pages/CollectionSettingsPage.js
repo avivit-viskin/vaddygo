@@ -8,6 +8,7 @@ import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
+import ConfirmDialog from "../components/ConfirmDialog";
 import "../styles/onboarding.css";
 
 const INSTALLMENTS = [1, 2, 3];
@@ -40,6 +41,8 @@ function CollectionSettingsPage() {
   const [saveError, setSaveError] = useState("");
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  // אינדקס הקטגוריה שממתינה לאישור הסרה (null = אין דיאלוג פתוח)
+  const [categoryToRemove, setCategoryToRemove] = useState(null);
 
   // אתחול הרשימה המקומית מהגן ברגע שנטען; אם עדיין אין קטגוריות —
   // מתחילים מהמלצה כללית שאפשר להתאים.
@@ -71,9 +74,10 @@ function CollectionSettingsPage() {
     setSaved(false);
   }
 
-  function removeCategory(index) {
-    setCategories((prev) => prev.filter((_, i) => i !== index));
+  function confirmRemoveCategory() {
+    setCategories((prev) => prev.filter((_, i) => i !== categoryToRemove));
     setSaved(false);
+    setCategoryToRemove(null);
   }
 
   const totalPerChild = categories.reduce(
@@ -166,7 +170,7 @@ function CollectionSettingsPage() {
               ))}
             </div>
           </div>
-          <Button variant="danger" onClick={() => removeCategory(index)}>
+          <Button variant="danger" onClick={() => setCategoryToRemove(index)}>
             הסרת קטגוריה
           </Button>
         </div>
@@ -202,6 +206,21 @@ function CollectionSettingsPage() {
           חזרה למסך הבית
         </Button>
       </div>
+
+      <ConfirmDialog
+        isOpen={categoryToRemove !== null}
+        title="הסרת קטגוריה"
+        message={
+          categoryToRemove !== null
+            ? `להסיר את הקטגוריה "${
+                categories[categoryToRemove]?.name || "ללא שם"
+              }"? השינוי ייכנס לתוקף בשמירה.`
+            : ""
+        }
+        confirmLabel="כן, להסיר"
+        onConfirm={confirmRemoveCategory}
+        onCancel={() => setCategoryToRemove(null)}
+      />
     </div>
   );
 }

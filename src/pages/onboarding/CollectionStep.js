@@ -8,7 +8,7 @@ import Input from "../../components/Input";
 */
 const INSTALLMENT_OPTIONS = [1, 2, 3];
 
-function CollectionStep({ data, onChange }) {
+function CollectionStep({ data, onChange, onSkip }) {
   function updateCategory(key, patch) {
     const categories = data.categories.map((c) =>
       c.key === key ? { ...c, ...patch } : c
@@ -27,7 +27,8 @@ function CollectionStep({ data, onChange }) {
     <>
       <p className="wizard__question">כמה גובים השנה?</p>
       <p className="auth-page__hint" style={{ textAlign: "right", margin: "0 0 8px" }}>
-        הסכומים יעזרו לעקוב ולהמליץ על חלוקת התקציב.
+        הסכומים יעזרו לעקוב ולהמליץ על חלוקת התקציב. אפשר גם לדלג עכשיו ולמלא מאוחר יותר —
+        תמיד אפשר לערוך את הגבייה בהגדרות.
       </p>
 
       {data.categories.map((cat) => (
@@ -68,6 +69,12 @@ function CollectionStep({ data, onChange }) {
           {totalGoal.toLocaleString("he-IL")} ₪
         </div>
       </div>
+
+      {onSkip && (
+        <button type="button" className="wizard__skip" onClick={onSkip}>
+          אכניס את הפרטים מאוחר יותר ←
+        </button>
+      )}
     </>
   );
 }

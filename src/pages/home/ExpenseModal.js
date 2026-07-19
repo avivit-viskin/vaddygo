@@ -3,6 +3,7 @@ import Modal from "../../components/Modal";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
+import ConfirmDialog from "../../components/ConfirmDialog";
 import { PAYMENT_METHODS, paymentMethodLabel } from "../../services/paymentMethods";
 import { formatShekels, formatDayMonth } from "../../services/format";
 import {
@@ -31,6 +32,9 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
   const [history, setHistory] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [collectionCategories, setCollectionCategories] = useState([]);
+  // הוצאה שממתינה לאישור מחיקה (null = אין דיאלוג פתוח)
+  const [expenseToDelete, setExpenseToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   useEffect(() => {
     if (!isOpen) {
@@ -109,15 +113,19 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     }
   }
 
-  async function handleDelete(id) {
+  async function confirmDelete() {
+    setIsDeleting(true);
     try {
-      await deleteExpense(id);
+      await deleteExpense(expenseToDelete.id);
+      setExpenseToDelete(null);
       await reloadHistory();
       if (onSaved) {
         onSaved();
       }
     } catch (err) {
       setError(err.message);
+    } finally {
+      setIsDeleting(false);
     }
   }
 
@@ -225,7 +233,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
                   type="button"
                   className="expenses-history__delete"
                   aria-label="מחיקת הוצאה"
-                  onClick={() => handleDelete(e.id)}
+                  onClick={() => setExpenseToDelete(e)}
                 >
                   ✕
                 </button>
@@ -234,6 +242,19 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
           </ul>
         </div>
       )}
+
+      <ConfirmDialog
+        isOpen={expenseToDelete !== null}
+        title="מחיקת הוצאה"
+        message={
+          expenseToDelete
+            ? `למחוק את ההוצאה על סך ${formatShekels(expenseToDelete.amount)}? אי אפשר לבטל.`
+            : ""
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setExpenseToDelete(null)}
+        isLoading={isDeleting}
+      />
     </Modal>
   );
 }

@@ -89,6 +89,6 @@ test('מסך התלמידים מציג שגיאה ידידותית כשהשרת 
 test('משתמשת לא מחוברת מופנית ממסך פנימי למסך הפתיחה', () => {
   localStorage.removeItem('vaadygo.token');
   renderAt('/students');
-  // בלי token אין גישה למסך התלמידים — מגיעים למסך הפתיחה
-  expect(screen.getByText(/ברוכים הבאים למשפחת/)).toBeInTheDocument();
+  // בלי token אין גישה למסך התלמידים — מגיעים למסך הפתיחה (כפתור "שנתחיל?")
+  expect(screen.getByRole('button', { name: 'שנתחיל?' })).toBeInTheDocument();
 });

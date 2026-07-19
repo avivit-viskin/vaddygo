@@ -114,6 +114,20 @@
   min-height: 32px;
 }
 
+/* שאלת "כמה ועדים" (הועברה מהאשף) — מופרדת בקו עליון מרשימת הצוות */
+.team-committees {
+  margin: 8px 0 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--color-border);
+}
+
 .team-page__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
   margin-top: 8px;
+}
+
+.team-page__actions .btn {
+  width: 100%;
 }

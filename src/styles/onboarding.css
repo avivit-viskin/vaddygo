@@ -199,6 +199,27 @@
   margin: 16px 0 8px;
 }
 
+/* דילוג עדין בשלב הגבייה — "אכניס את הפרטים מאוחר יותר" */
+.wizard__skip {
+  display: block;
+  width: 100%;
+  margin: 16px 0 0;
+  padding: 8px;
+  min-height: var(--touch-target);
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 500;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.wizard__skip:hover {
+  color: var(--color-primary-dark);
+}
+
 .wizard__actions {
   display: flex;
   gap: 12px;

@@ -1,23 +1,20 @@
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BrandName from "../../components/BrandName";
 import Button from "../../components/Button";
 import { saveOnboarding } from "../../services/onboardingService";
-import {
-  saveActiveOnboarding,
-  getInstitutions,
-} from "../../services/institutionsService";
+import { saveActiveOnboarding } from "../../services/institutionsService";
 import GanDetailsStep from "./GanDetailsStep";
 import GroupsStep from "./GroupsStep";
-import CommitteesStep from "./CommitteesStep";
 import CollectionStep from "./CollectionStep";
 import SummaryStep from "./SummaryStep";
 import "../../styles/onboarding.css";
 
 /*
   OnboardingWizard — אשף ההרשמה וההגדרה הראשונית (UI_SPEC סעיפים 3-6).
-  הרשמה ראשונה: פרטי הגן → קבוצות → ועדים נוספים → גבייה → סיכום.
-  הרשמת מוסד נוסף: מדלגים על שאלת "כמה ועדים" (רלוונטית רק בהרשמה הראשונה).
+  הזרימה: פרטי הגן → קבוצות → גבייה → סיכום.
+  שאלת "כמה ועדים" הועברה למסך ניהול ההרשאות (TeamSetupPage) כדי לקצר את האשף.
+  שלב הגבייה אינו חובה — אפשר לדלג ("אכניס את הפרטים מאוחר יותר").
 */
 
 // קטגוריות הגבייה מהאפיון; הסכומים בפנקס הם דוגמאות ולכן משמשים כ-placeholder בלבד
@@ -30,11 +27,7 @@ const DEFAULT_CATEGORIES = [
 
 function OnboardingWizard() {
   const navigate = useNavigate();
-  // הרשמת מוסד נוסף = כבר קיימים מוסדות. אז מדלגים על צעד "ועדים נוספים".
-  const isAdditional = useMemo(() => getInstitutions().length > 0, []);
-  const stepKeys = isAdditional
-    ? ["gan", "groups", "collection", "summary"]
-    : ["gan", "groups", "committees", "collection", "summary"];
+  const stepKeys = ["gan", "groups", "collection", "summary"];
   const totalSteps = stepKeys.length;
 
   const [step, setStep] = useState(1);
@@ -48,8 +41,6 @@ function OnboardingWizard() {
     hasGroups: null,
     institutionType: "gan",
     groups: [],
-    extraCommittees: 0,
-    extraCommitteeNames: [],
     categories: DEFAULT_CATEGORIES,
   });
 
@@ -95,10 +86,10 @@ function OnboardingWizard() {
         return <GanDetailsStep data={data} errors={errors} onChange={handleChange} />;
       case "groups":
         return <GroupsStep data={data} onChange={handleChange} />;
-      case "committees":
-        return <CommitteesStep data={data} onChange={handleChange} />;
       case "collection":
-        return <CollectionStep data={data} onChange={handleChange} />;
+        return (
+          <CollectionStep data={data} onChange={handleChange} onSkip={handleNext} />
+        );
       case "summary":
         return <SummaryStep data={data} />;
       default:

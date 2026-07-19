@@ -4,6 +4,7 @@ import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Select from "../components/Select";
+import ConfirmDialog from "../components/ConfirmDialog";
 import {
   ROLES,
   roleLabel,
@@ -11,6 +12,10 @@ import {
   addTeamMember,
   removeTeamMember,
 } from "../services/teamService";
+import {
+  getInstitutions,
+  addInstitution,
+} from "../services/institutionsService";
 import { whatsappShareUrl } from "../services/whatsapp";
 import "../styles/team.css";
 
@@ -43,6 +48,21 @@ function TeamSetupPage() {
   const [contact, setContact] = useState("");
   const [role, setRole] = useState("viewer");
   const [error, setError] = useState("");
+  // חבר צוות שממתין לאישור הסרה (null = אין דיאלוג פתוח)
+  const [memberToRemove, setMemberToRemove] = useState(null);
+
+  // שאלת "כמה ועדים" (הועברה מהאשף) — רלוונטית רק בהקמה הראשונה, כשקיים רק
+  // המוסד הראשי. בהוספת מוסד נוסף כבר לא שואלים שוב.
+  const [isFirstSetup] = useState(() => getInstitutions().length <= 1);
+  const [extraCount, setExtraCount] = useState(0);
+  const [extraNames, setExtraNames] = useState([]);
+
+  function setCount(count) {
+    const names = [...extraNames];
+    names.length = count;
+    setExtraCount(count);
+    setExtraNames(names);
+  }
 
   function handleAdd(event) {
     event.preventDefault();
@@ -58,8 +78,18 @@ function TeamSetupPage() {
     setError("");
   }
 
-  function handleRemove(id) {
-    setTeam(removeTeamMember(id));
+  function confirmRemove() {
+    setTeam(removeTeamMember(memberToRemove.id));
+    setMemberToRemove(null);
+  }
+
+  // סיום ההקמה: יוצר את הוועדים הנוספים ששמותיהם הוזנו (מוסדות להפעלה מאוחר
+  // יותר), ואז נכנס לאפליקציה. משמש גם ל"כניסה" וגם ל"אעשה זאת מאוחר יותר".
+  function finish() {
+    extraNames
+      .filter((n) => n && n.trim())
+      .forEach((n) => addInstitution(n));
+    navigate("/");
   }
 
   return (
@@ -150,7 +180,7 @@ function TeamSetupPage() {
                 type="button"
                 className="team-list__remove"
                 aria-label={`הסרת ${m.name}`}
-                onClick={() => handleRemove(m.id)}
+                onClick={() => setMemberToRemove(m)}
               >
                 ✕
               </button>
@@ -159,9 +189,70 @@ function TeamSetupPage() {
         </ul>
       )}
 
+      {isFirstSetup && (
+        <section className="team-committees">
+          <h2 className="team-page__title">מנהלת עוד ועדים חוץ מזה? 🏫</h2>
+          <p className="team-page__subtitle">
+            אפשר לנהל כמה ועדים באותו חשבון. הוסיפי אותם עכשיו — או מאוחר יותר
+            מהתפריט.
+          </p>
+          <div className="chips">
+            <button
+              type="button"
+              className={`chip${extraCount === 0 ? " chip--active" : ""}`}
+              aria-pressed={extraCount === 0}
+              onClick={() => setCount(0)}
+            >
+              לא, רק זה
+            </button>
+            {[1, 2, 3, 4].map((n) => (
+              <button
+                key={n}
+                type="button"
+                className={`chip${extraCount === n ? " chip--active" : ""}`}
+                aria-pressed={extraCount === n}
+                onClick={() => setCount(n)}
+              >
+                {n} נוספים
+              </button>
+            ))}
+          </div>
+          {Array.from({ length: extraCount }).map((_, i) => (
+            <Input
+              key={i}
+              id={`extra-committee-${i}`}
+              label={`שם הוועד הנוסף ${i + 1}`}
+              placeholder="למשל: גן הרימון"
+              value={extraNames[i] || ""}
+              onChange={(e) => {
+                const names = [...extraNames];
+                names[i] = e.target.value;
+                setExtraNames(names);
+              }}
+            />
+          ))}
+        </section>
+      )}
+
       <div className="team-page__actions">
-        <Button onClick={() => navigate("/")}>כניסה לאפליקציה</Button>
+        <Button onClick={finish}>כניסה לאפליקציה</Button>
+        <Button variant="secondary" onClick={finish}>
+          אעשה זאת מאוחר יותר
+        </Button>
       </div>
+
+      <ConfirmDialog
+        isOpen={memberToRemove !== null}
+        title="הסרת חבר צוות"
+        message={
+          memberToRemove
+            ? `להסיר את ${memberToRemove.name} מרשימת חברי הצוות?`
+            : ""
+        }
+        confirmLabel="כן, להסיר"
+        onConfirm={confirmRemove}
+        onCancel={() => setMemberToRemove(null)}
+      />
     </div>
   );
 }

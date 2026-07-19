@@ -129,6 +129,18 @@ export function logout() {
   localStorage.removeItem(USER_KEY);
 }
 
+/*
+  מחיקת החשבון וכל הנתונים מהשרת ("הזכות להימחק"). לאחר הצלחה מנקים את כל
+  המידע המקומי במכשיר (כולל טוקן, פרטי משתמש ומטמון האפליקציה) — כאילו מעולם
+  לא נכנסו כאן.
+*/
+export async function deleteAccount() {
+  await api.del("/api/account");
+  Object.keys(localStorage)
+    .filter((key) => key.startsWith("vaadygo."))
+    .forEach((key) => localStorage.removeItem(key));
+}
+
 /* שינוי סיסמה למשתמשת המחוברת (משימה: הגדרות → שינוי סיסמה). */
 export function changePassword({ currentPassword, newPassword }) {
   return api.post("/api/auth/change-password", { currentPassword, newPassword });

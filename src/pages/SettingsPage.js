@@ -7,6 +7,7 @@ import {
 } from "../services/notificationPrefs";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
+import DeleteAccountCard from "./settings/DeleteAccountCard";
 import "../styles/settings.css";
 
 /*
@@ -47,6 +48,8 @@ function SettingsPage() {
       <PaymentLinksCard />
 
       <ChangePasswordCard />
+
+      <DeleteAccountCard />
     </div>
   );
 }

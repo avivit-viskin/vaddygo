@@ -1,0 +1,44 @@
+/*
+  pullToRefresh.css — מחוון "משיכה לרענון". מוסתר מעל המסך ומחליק פנימה
+  ככל שמושכים כלפי מטה.
+*/
+.ptr {
+  position: fixed;
+  top: -60px;
+  left: 0;
+  right: 0;
+  height: 60px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  z-index: 300;
+  pointer-events: none;
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+}
+
+.ptr__circle {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary);
+  border-top-color: var(--color-primary-dark);
+}
+
+.ptr__circle--spin {
+  animation: ptr-spin 0.7s linear infinite;
+}
+
+@keyframes ptr-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ptr__circle--spin {
+    animation-duration: 1.4s;
+  }
+}

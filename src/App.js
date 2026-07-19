@@ -6,6 +6,7 @@ import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
 import AiFab from "./components/AiFab";
 import WhatsAppFab from "./components/WhatsAppFab";
+import PullToRefresh from "./components/PullToRefresh";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import StudentPaymentsPage from "./pages/StudentPaymentsPage";
@@ -92,6 +93,7 @@ function App() {
 
   return (
     <div dir="rtl">
+      {!isFullScreen && <PullToRefresh />}
       {!isFullScreen && (
         <header className="app-header">
           <button

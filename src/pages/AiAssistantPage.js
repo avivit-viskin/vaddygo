@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { askAssistant } from "../services/aiService";
 import { buildFinanceSummary } from "../services/financeContext";
+import { isAiFinanceEnabled } from "../services/aiPrefs";
 import { whatsappShareUrl, extractShareMessage } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -52,8 +53,12 @@ function AiAssistantPage() {
   const [finance, setFinance] = useState(""); // תמצית כספית לרקע (נטענת פעם אחת)
   const threadEndRef = useRef(null);
 
-  // טוענים את המצב הכספי פעם אחת בכניסה, כדי שהעוזרת תדע לענות לפי המספרים
+  // טוענים את המצב הכספי פעם אחת בכניסה (רק אם ההעדפה דלוקה) כדי שהעוזרת תדע
+  // לענות לפי המספרים. אפשר לכבות בהגדרות ← פרטיות, ואז לא נשלח מידע כספי.
   useEffect(() => {
+    if (!isAiFinanceEnabled()) {
+      return undefined;
+    }
     let alive = true;
     buildFinanceSummary().then((summary) => {
       if (alive) setFinance(summary);

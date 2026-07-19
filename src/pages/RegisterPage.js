@@ -85,6 +85,11 @@ function RegisterPage() {
             </Button>
           </div>
           <p className="auth-page__hint">
+            בלחיצה על "יצירת חשבון" את מסכימה ל
+            <Link to="/privacy">מדיניות הפרטיות</Link> ול
+            <Link to="/terms">תנאי השימוש</Link>.
+          </p>
+          <p className="auth-page__hint">
             כבר יש לך חשבון? <Link to="/login">לכניסה עם שם משתמש או Google</Link>
           </p>
         </form>

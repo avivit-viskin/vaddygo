@@ -1,0 +1,97 @@
+/* עמודים משפטיים (פרטיות / תנאים / נגישות / עוגיות) + פוטר הקישורים */
+
+.legal-page__bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-border);
+  background-color: var(--color-surface);
+}
+
+.legal-page__brand {
+  text-decoration: none;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+}
+
+.legal-page__back {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+  font-weight: 600;
+  min-height: var(--touch-target);
+  display: inline-flex;
+  align-items: center;
+}
+
+.legal-page__content {
+  max-width: 780px;
+  margin: 0 auto;
+  padding: 20px 16px 48px;
+  line-height: 1.7;
+  color: var(--color-text);
+}
+
+.legal-page__title {
+  font-size: var(--font-size-lg);
+  margin: 0 0 4px;
+}
+
+.legal-page__updated {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  margin: 0 0 20px;
+}
+
+.legal-page__body h2 {
+  font-size: var(--font-size-base);
+  margin: 22px 0 6px;
+  color: var(--color-primary-dark);
+}
+
+.legal-page__body ul {
+  margin: 6px 0;
+  padding-inline-start: 20px;
+}
+
+.legal-page__body li {
+  margin-bottom: 6px;
+}
+
+.legal-page__note {
+  margin-top: 20px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* פוטר עם קישורים משפטיים — בתחתית התוכן, מעל הניווט התחתון */
+.app-footer {
+  text-align: center;
+  padding: 16px 12px 8px;
+  margin-top: 12px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.app-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.app-footer__links a {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+.app-footer__links a:hover {
+  text-decoration: underline;
+}
+
+.app-footer__copy {
+  margin: 8px 0 0;
+  font-size: 12px;
+}

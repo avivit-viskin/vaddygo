@@ -23,6 +23,11 @@ import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CollectionSettingsPage from "./pages/CollectionSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
+import PrivacyPage from "./pages/legal/PrivacyPage";
+import TermsPage from "./pages/legal/TermsPage";
+import AccessibilityPage from "./pages/legal/AccessibilityPage";
+import CookiesPage from "./pages/legal/CookiesPage";
+import Footer from "./components/Footer";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated, hasVisitedBefore } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -32,6 +37,7 @@ import { getActiveInstitution } from "./services/institutionsService";
   מסכי הפתיחה/כניסה/הרשמה מוצגים במסך מלא — בלי כותרת וניווט תחתון.
   משתמשת שאינה מחוברת מופנית למסך הפתיחה; מחוברת בלי הגדרת גן — לאשף.
 */
+const LEGAL_ROUTES = ["/privacy", "/terms", "/accessibility", "/cookies"];
 const FULL_SCREEN_ROUTES = [
   "/welcome",
   "/login",
@@ -39,9 +45,16 @@ const FULL_SCREEN_ROUTES = [
   "/onboarding",
   "/team-setup",
   "/subscription-expired",
+  ...LEGAL_ROUTES,
 ];
-// נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token)
-const PUBLIC_ROUTES = ["/welcome", "/login", "/register", "/subscription-expired"];
+// נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token, וגם העמודים המשפטיים)
+const PUBLIC_ROUTES = [
+  "/welcome",
+  "/login",
+  "/register",
+  "/subscription-expired",
+  ...LEGAL_ROUTES,
+];
 // מסכי הזדהות — משתמשת שכבר מחוברת לא צריכה לראות אותם שוב (נשלחת הביתה)
 const AUTH_ENTRY_ROUTES = ["/welcome", "/login", "/register"];
 
@@ -133,6 +146,10 @@ function App() {
           <Route path="/files" element={<FilesPage />} />
           <Route path="/collection-settings" element={<CollectionSettingsPage />} />
           <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/privacy" element={<PrivacyPage />} />
+          <Route path="/terms" element={<TermsPage />} />
+          <Route path="/accessibility" element={<AccessibilityPage />} />
+          <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route
@@ -141,6 +158,7 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        {!isFullScreen && <Footer />}
       </main>
       {!isFullScreen && location.pathname !== "/assistant" && (
         <>

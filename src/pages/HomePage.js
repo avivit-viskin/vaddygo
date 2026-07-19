@@ -106,15 +106,20 @@ function HomePage() {
           </button>{" "}
           <span className="home__year">{hebrewSchoolYearName(dashboard.year)}</span>
         </h2>
-        <button
-          type="button"
-          className={`home__bell${count > 0 ? " home__bell--ring" : ""}`}
-          aria-label={`התראות (${count})`}
-          onClick={() => setPanelOpen(true)}
-        >
-          🔔
-          {count > 0 && <span className="home__badge">{count}</span>}
-        </button>
+        <div className="home__actions">
+          <Link to="/assistant" className="home__ai" aria-label="עוזרת AI">
+            <span aria-hidden="true">AI</span>
+          </Link>
+          <button
+            type="button"
+            className={`home__bell${count > 0 ? " home__bell--ring" : ""}`}
+            aria-label={`התראות (${count})`}
+            onClick={() => setPanelOpen(true)}
+          >
+            🔔
+            {count > 0 && <span className="home__badge">{count}</span>}
+          </button>
+        </div>
       </div>
 
       {!dashboard.fromServer && (

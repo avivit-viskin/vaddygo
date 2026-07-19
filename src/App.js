@@ -4,7 +4,6 @@ import Logo from "./components/Logo";
 import InstitutionAvatar from "./components/InstitutionAvatar";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
-import AiFab from "./components/AiFab";
 import WhatsAppFab from "./components/WhatsAppFab";
 import PullToRefresh from "./components/PullToRefresh";
 import HomePage from "./pages/HomePage";
@@ -162,12 +161,7 @@ function App() {
         </Routes>
         {!isFullScreen && <Footer />}
       </main>
-      {!isFullScreen && location.pathname !== "/assistant" && (
-        <>
-          <WhatsAppFab />
-          <AiFab />
-        </>
-      )}
+      {!isFullScreen && <WhatsAppFab />}
       {!isFullScreen && <BottomNav />}
     </div>
   );

@@ -16,6 +16,35 @@
   justify-content: space-between;
 }
 
+/* פעולות מהירות בכותרת הבית — עוזרת AI + פעמון התראות, זה לצד זה */
+.home__actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* כפתור עוזרת ה-AI — כדור בולט ליד הפעמון (במקום כפתור צף שהוסתר בתוכן) */
+.home__ai {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: var(--touch-target);
+  min-height: var(--touch-target);
+  padding: 0 12px;
+  border-radius: 999px;
+  background-color: var(--color-primary-dark);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  text-decoration: none;
+  box-shadow: var(--shadow-sm);
+}
+
+.home__ai:hover {
+  filter: brightness(0.9);
+}
+
 .home__title {
   margin: 0;
   font-size: var(--font-size-xl);

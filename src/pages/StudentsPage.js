@@ -53,6 +53,17 @@ function StudentsPage() {
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
+  // בחירת תלמידים למחיקה גורפת (סט של מזהים)
+  const [selectedIds, setSelectedIds] = useState(() => new Set());
+  const [showBulkDelete, setShowBulkDelete] = useState(false);
+  const [isBulkDeleting, setIsBulkDeleting] = useState(false);
+  const [bulkDeleteError, setBulkDeleteError] = useState("");
+
+  // אישור הוספה כשהשם כבר קיים ברשימה (payload ממתין לאישור)
+  const [duplicatePending, setDuplicatePending] = useState(null);
+  const [isAddingDuplicate, setIsAddingDuplicate] = useState(false);
+  const [duplicateError, setDuplicateError] = useState("");
+
   // ייבוא תלמידים מקובץ
   const [isImportOpen, setIsImportOpen] = useState(false);
 
@@ -129,17 +140,77 @@ function StudentsPage() {
     setEditedStudent(null);
   }
 
+  /* השוואת שם מלא (שם פרטי + משפחה), ללא תלות ברווחים/אותיות גדולות. */
+  function sameFullName(a, b) {
+    return (
+      `${a.firstName} ${a.lastName}`.trim().toLowerCase() ===
+      `${b.firstName} ${b.lastName}`.trim().toLowerCase()
+    );
+  }
+
   /* שמירה משותפת להוספה ולעריכה; שגיאה נזרקת הלאה ומוצגת בתוך הטופס.
-     תאריך לידה ריק נשלח כ-null (ולא כמחרוזת ריקה) כדי שהשרת יקבל אותו. */
+     תאריך לידה ריק נשלח כ-null (ולא כמחרוזת ריקה) כדי שהשרת יקבל אותו.
+     בהוספה — אם השם כבר קיים ברשימה, מבקשים אישור לפני שמוסיפים שוב. */
   async function saveStudent(values) {
     const payload = { ...values, birthDate: values.birthDate || null };
     if (editedStudent) {
       await updateStudent(editedStudent.id, payload);
-    } else {
-      await createStudent(payload);
+      closeForm();
+      await reload();
+      return;
     }
+    const isDuplicate = (students ?? []).some((s) => sameFullName(s, values));
+    if (isDuplicate) {
+      closeForm();
+      setDuplicatePending(payload); // מחכים לאישור/ביטול בדיאלוג
+      return;
+    }
+    await createStudent(payload);
     closeForm();
     await reload();
+  }
+
+  /* אישור הוספת תלמיד ששמו כבר קיים — מוסיפים אותו בכל זאת. */
+  async function confirmAddDuplicate() {
+    setIsAddingDuplicate(true);
+    setDuplicateError("");
+    try {
+      await createStudent(duplicatePending);
+      setDuplicatePending(null);
+      await reload();
+    } catch (err) {
+      setDuplicateError(err.message);
+    } finally {
+      setIsAddingDuplicate(false);
+    }
+  }
+
+  function toggleSelect(id) {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }
+
+  /* מחיקה גורפת של כל התלמידים שנבחרו (במקביל), עם אישור. */
+  async function confirmBulkDelete() {
+    setIsBulkDeleting(true);
+    setBulkDeleteError("");
+    try {
+      await Promise.all([...selectedIds].map((id) => deleteStudent(id)));
+      setSelectedIds(new Set());
+      setShowBulkDelete(false);
+      await reload();
+    } catch (err) {
+      setBulkDeleteError(err.message);
+    } finally {
+      setIsBulkDeleting(false);
+    }
   }
 
   function closeDeleteDialog() {
@@ -172,6 +243,22 @@ function StudentsPage() {
   const totalCount = students?.length ?? 0;
   // מספר הילדים שהוגדר בהקמת הגן — "כמה מתוך כמה" נמצאים כבר ברשימה
   const configuredCount = Number(getOnboarding()?.childrenCount) || 0;
+
+  const allVisibleSelected =
+    visibleStudents.length > 0 &&
+    visibleStudents.every((s) => selectedIds.has(s.id));
+
+  function toggleSelectAll() {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (allVisibleSelected) {
+        visibleStudents.forEach((s) => next.delete(s.id));
+      } else {
+        visibleStudents.forEach((s) => next.add(s.id));
+      }
+      return next;
+    });
+  }
 
   return (
     <div>
@@ -226,7 +313,30 @@ function StudentsPage() {
               checked={onlyUnpaid}
               onChange={(event) => setOnlyUnpaid(event.target.checked)}
             />
+            <Checkbox
+              id="students-select-all"
+              label="סמן הכל"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAll}
+            />
           </div>
+
+          {selectedIds.size > 0 && (
+            <div className="students-selection">
+              <span className="students-selection__count">
+                {selectedIds.size} נבחרו
+              </span>
+              <Button variant="danger" onClick={() => setShowBulkDelete(true)}>
+                🗑️ מחיקת הנבחרים
+              </Button>
+              <Button
+                variant="secondary"
+                onClick={() => setSelectedIds(new Set())}
+              >
+                ביטול בחירה
+              </Button>
+            </div>
+          )}
 
           {visibleStudents.length === 0 ? (
             <EmptyState icon="🔍" message="לא נמצאו תלמידים שמתאימים לחיפוש" />
@@ -236,6 +346,8 @@ function StudentsPage() {
                 key={student.id}
                 student={student}
                 summary={summaries[student.id]}
+                selected={selectedIds.has(student.id)}
+                onToggleSelect={toggleSelect}
                 onPayments={(s) => navigate(`/students/${s.id}/payments`)}
                 onEdit={openEditForm}
                 onDelete={setStudentToDelete}
@@ -283,6 +395,43 @@ function StudentsPage() {
         onCancel={closeDeleteDialog}
         isLoading={isDeleting}
         error={deleteError}
+      />
+
+      {/* אישור הוספת תלמיד ששמו כבר קיים ברשימה */}
+      <ConfirmDialog
+        isOpen={duplicatePending !== null}
+        title="השם כבר קיים ברשימה"
+        message={
+          duplicatePending
+            ? `השם "${duplicatePending.firstName} ${duplicatePending.lastName}" כבר נמצא ברשימת התלמידים. להוסיף אותו שוב?`
+            : ""
+        }
+        confirmLabel="אישור"
+        cancelLabel="ביטול"
+        confirmVariant="brand"
+        onConfirm={confirmAddDuplicate}
+        onCancel={() => {
+          setDuplicatePending(null);
+          setDuplicateError("");
+        }}
+        isLoading={isAddingDuplicate}
+        error={duplicateError}
+      />
+
+      {/* אישור מחיקה גורפת של התלמידים שנבחרו */}
+      <ConfirmDialog
+        isOpen={showBulkDelete}
+        title="מחיקת תלמידים"
+        message={`למחוק ${selectedIds.size} תלמידים שנבחרו? אי אפשר לבטל`}
+        confirmLabel="כן, למחוק"
+        cancelLabel="ביטול"
+        onConfirm={confirmBulkDelete}
+        onCancel={() => {
+          setShowBulkDelete(false);
+          setBulkDeleteError("");
+        }}
+        isLoading={isBulkDeleting}
+        error={bulkDeleteError}
       />
     </div>
   );

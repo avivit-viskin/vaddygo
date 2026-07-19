@@ -1,4 +1,4 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import StudentsPage from "./StudentsPage";
@@ -104,7 +104,7 @@ test("בקשת תשלום בוואטסאפ: פותחת חלון, בחירת הת
     screen.getByRole("button", { name: /בקשת תשלום בוואטסאפ/ })
   );
   // מסמנים את כל התלמידים בתוך החלון
-  await userEvent.click(await screen.findByLabelText("סמן הכל"));
+  await userEvent.click(await screen.findByLabelText("בחר הכל"));
 
   // לכל הורה מסומן מופיע קישור "שליחה" בוואטסאפ
   const sendLinks = screen.getAllByRole("link", { name: /שליחה/ });
@@ -235,6 +235,77 @@ test("מחיקת תלמיד: דיאלוג אישור עם השם, ואחרי א�
   expect(await screen.findByText(/עדיין אין תלמידים/)).toBeInTheDocument();
   expect(global.fetch).toHaveBeenCalledWith(
     expect.stringContaining("/api/students/1"),
+    expect.objectContaining({ method: "DELETE" })
+  );
+});
+
+async function fillDuplicateName() {
+  await userEvent.click(screen.getByRole("button", { name: /הוספת תלמיד/ }));
+  await userEvent.type(screen.getByLabelText("שם פרטי"), "דנה");
+  await userEvent.type(screen.getByLabelText("שם משפחה"), "כהן");
+  await userEvent.type(screen.getByLabelText("טלפון הורה"), "050-9998887");
+  await userEvent.selectOptions(await screen.findByLabelText("קבוצה"), "פרפרים");
+  await userEvent.click(screen.getByRole("button", { name: "שמירה" }));
+}
+
+test("הוספת תלמיד ששמו כבר קיים — מבקש אישור, ואישור מוסיף אותו (POST)", async () => {
+  mockServer([dana]);
+  renderPage();
+  await screen.findByText(/דנה כהן/);
+
+  await fillDuplicateName();
+  expect(
+    await screen.findByText(/כבר נמצא ברשימת התלמידים/)
+  ).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: "אישור" }));
+  await waitFor(() =>
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/students"),
+      expect.objectContaining({ method: "POST" })
+    )
+  );
+});
+
+test("הוספת תלמיד ששמו כבר קיים — ביטול לא מוסיף ולא שולח POST", async () => {
+  mockServer([dana]);
+  renderPage();
+  await screen.findByText(/דנה כהן/);
+
+  await fillDuplicateName();
+  await screen.findByText(/כבר נמצא ברשימת התלמידים/);
+  await userEvent.click(screen.getByRole("button", { name: "ביטול" }));
+
+  await waitFor(() =>
+    expect(
+      screen.queryByText(/כבר נמצא ברשימת התלמידים/)
+    ).not.toBeInTheDocument()
+  );
+  expect(global.fetch).not.toHaveBeenCalledWith(
+    expect.stringContaining("/api/students"),
+    expect.objectContaining({ method: "POST" })
+  );
+});
+
+test("סימון הכל ומחיקה גורפת מוחקת את כל התלמידים שנבחרו", async () => {
+  mockServer([dana, noam]);
+  renderPage();
+  await screen.findByText(/דנה כהן/);
+
+  await userEvent.click(screen.getByLabelText("סמן הכל"));
+  expect(screen.getByText(/2 נבחרו/)).toBeInTheDocument();
+
+  await userEvent.click(screen.getByRole("button", { name: /מחיקת הנבחרים/ }));
+  await userEvent.click(screen.getByRole("button", { name: "כן, למחוק" }));
+
+  await waitFor(() =>
+    expect(global.fetch).toHaveBeenCalledWith(
+      expect.stringContaining("/api/students/1"),
+      expect.objectContaining({ method: "DELETE" })
+    )
+  );
+  expect(global.fetch).toHaveBeenCalledWith(
+    expect.stringContaining("/api/students/2"),
     expect.objectContaining({ method: "DELETE" })
   );
 });

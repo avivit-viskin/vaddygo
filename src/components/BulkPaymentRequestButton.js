@@ -129,7 +129,7 @@ function BulkPaymentRequestButton({ students = [] }) {
                   checked={allSelected}
                   onChange={toggleAll}
                 />
-                סמן הכל
+                בחר הכל
               </label>
             )}
           </div>

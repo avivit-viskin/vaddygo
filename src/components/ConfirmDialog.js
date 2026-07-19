@@ -11,6 +11,7 @@ function ConfirmDialog({
   message,
   confirmLabel = "כן, למחוק",
   cancelLabel = "ביטול",
+  confirmVariant = "danger",
   onConfirm,
   onCancel,
   isLoading = false,
@@ -25,7 +26,7 @@ function ConfirmDialog({
         </p>
       )}
       <div className="form-actions">
-        <Button variant="danger" onClick={onConfirm} isLoading={isLoading}>
+        <Button variant={confirmVariant} onClick={onConfirm} isLoading={isLoading}>
           {confirmLabel}
         </Button>
         <Button variant="secondary" onClick={onCancel} disabled={isLoading}>

@@ -16,7 +16,7 @@ test("פותחים את החלון, מסמנים תלמידים, ומקבלים 
   );
 
   // סימון כל התלמידים בתוך החלון
-  fireEvent.click(await screen.findByLabelText("סמן הכל"));
+  fireEvent.click(await screen.findByLabelText("בחר הכל"));
 
   // שליחה אישית לכל הורה (052... → 9725...)
   const sendLinks = screen.getAllByRole("link", { name: /^שליחה/ });
@@ -37,7 +37,7 @@ test("כשלא בוחרים אף תלמיד — אין כלי שליחה", async
   fireEvent.click(
     screen.getByRole("button", { name: /בקשת תשלום בוואטסאפ/ })
   );
-  await screen.findByLabelText("סמן הכל");
+  await screen.findByLabelText("בחר הכל");
 
   expect(screen.queryByRole("button", { name: /העתקת המספרים/ })).toBeNull();
 });

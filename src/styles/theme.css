@@ -201,6 +201,33 @@ h3 {
   color: #ffffff;
 }
 
+/*
+  יישור אחיד לכל כפתורי-האייקון הקטנים (עריכה/מחיקה/הסרה) בכל המסכים —
+  אותו גודל, יישור ומרווח, כדי שהאייקונים ייראו מסודרים. משפיע רק על הגודל
+  והיישור (לא על הצבע — אדום למחיקה נשמר). קידומת button. מבטיחה עדיפות.
+*/
+button.gift-card__action,
+button.folders__action,
+button.calendar-list__edit,
+button.calendar-list__delete,
+button.team-list__remove,
+button.expenses-list__delete,
+button.expenses-history__edit,
+button.expenses-history__delete,
+button.staff__edit,
+button.staff__delete,
+button.vendor-panel__edit,
+button.vendor-form__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 40px;
+  min-height: 40px;
+  padding: 4px;
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
 /* ===== Input (שדה טופס עם תווית ושגיאה) ===== */
 
 .field {

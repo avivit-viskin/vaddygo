@@ -38,7 +38,7 @@ module.exports = defineConfig({
     },
     {
       name: "loggedin",
-      testMatch: /(loggedin|money|flows)\.spec\.js/,
+      testMatch: /(loggedin|money|flows|crawl)\.spec\.js/,
       use: { ...devices["Desktop Chrome"], storageState: "e2e/.auth/bot.json" },
       dependencies: ["setup"],
     },

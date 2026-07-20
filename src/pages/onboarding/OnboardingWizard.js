@@ -8,6 +8,7 @@ import GanDetailsStep from "./GanDetailsStep";
 import GroupsStep from "./GroupsStep";
 import CollectionStep from "./CollectionStep";
 import SummaryStep from "./SummaryStep";
+import ProcessingOverlay from "../../components/ProcessingOverlay";
 import "../../styles/onboarding.css";
 
 /*
@@ -99,6 +100,10 @@ function OnboardingWizard() {
 
   return (
     <div className="wizard">
+      <ProcessingOverlay
+        isOpen={isSaving}
+        message="שומרים את הגן שלך — הנתונים שמורים בבטחה."
+      />
       <h1 className="wizard__logo">
         <BrandName withHeart />
       </h1>

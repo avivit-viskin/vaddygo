@@ -4,8 +4,31 @@
 */
 
 import { getActiveServerGroupId } from "./institutionsService";
+import { toastSuccess, toastError } from "./toastBus";
 
 const BASE_URL = process.env.REACT_APP_API_URL;
+
+// פעולות שמירה (מוטציות) — עליהן מציגים "השינויים נשמרו ✓" בהצלחה
+const SAVE_METHODS = new Set(["POST", "PUT", "DELETE"]);
+// נתיבים שאינם "שמירה" של הלקוח — התחברות ועוזרת AI: בלי הודעת "נשמר"
+const NO_TOAST_PREFIXES = ["/api/auth", "/api/ai"];
+// נתיבים ללא נפילה ל-localStorage — כאן כישלון שרת = הנתונים באמת לא נשמרו,
+// ולכן רק עליהם מציגים "שגיאה, לא נשמר" (בשאר, כישלון נשמר מקומית = לא שגיאה).
+const HARD_SAVE_PREFIXES = ["/api/students", "/api/expenses", "/api/payments"];
+
+function isSaveRequest(method, path) {
+  return (
+    SAVE_METHODS.has(method) &&
+    !NO_TOAST_PREFIXES.some((prefix) => path.startsWith(prefix))
+  );
+}
+
+function isHardSaveRequest(method, path) {
+  return (
+    SAVE_METHODS.has(method) &&
+    HARD_SAVE_PREFIXES.some((prefix) => path.startsWith(prefix))
+  );
+}
 
 // מפתח ה-token מוגדר גם ב-authService; נקרא כאן ישירות מ-localStorage
 // כדי להימנע מתלות מעגלית (authService מייבא את api).
@@ -71,11 +94,23 @@ async function request(path, { method = "GET", body } = {}) {
       body: body ? JSON.stringify(body) : undefined,
     });
   } catch {
+    // כשל רשת: רק בנתיבים ללא גיבוי מקומי זו "לא נשמר" אמיתי (בשאר נשמר מקומית)
+    if (isHardSaveRequest(method, path)) {
+      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. נסי שוב 🙏");
+    }
     throw new ApiError("לא הצלחנו להתחבר לשרת. בדקי שהוא פועל ונסי שוב 🙂");
   }
 
   if (!response.ok) {
+    if (isHardSaveRequest(method, path)) {
+      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. נסי שוב 🙏");
+    }
     throw new ApiError(await extractErrorMessage(response), response.status);
+  }
+
+  // הצלחת שמירה בשרת — משוב "נשמר" (הודעות זהות מתאחדות ב-ToastContainer)
+  if (isSaveRequest(method, path)) {
+    toastSuccess("השינויים נשמרו בהצלחה");
   }
 
   if (response.status === 204) {

@@ -129,8 +129,9 @@
 
 .collection__label {
   margin: 0;
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark); /* כותרת "יתרת הקופה"/"יעד" בשחור */
   font-size: var(--font-size-sm);
+  font-weight: 600;
 }
 
 .collection__amount {
@@ -188,7 +189,7 @@
 .expenses-history__title {
   margin: 0 0 8px;
   font-size: var(--font-size-base);
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark);
 }
 
 .expenses-history__list {

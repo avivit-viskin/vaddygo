@@ -21,18 +21,18 @@ function WelcomePopup() {
     <Modal
       isOpen={open}
       onClose={close}
-      title="ברוכים הבאים לפורטל ניהול ועד ההורים 💜"
+      title="ברוכים הבאים לפורטל ניהול ועד ההורים"
     >
       <p className="welcome-popup__text">
         אנחנו יודעים כמה שעות אתם משקיעים — בלי תודה, בלי שכר, רק מתוך אהבה.
       </p>
       <p className="welcome-popup__text">
         עכשיו <BrandName /> לוקחת את העומס מהכתפיים שלכם: הגבייה קלה, יש שקיפות —
-        ואתם סוף־סוף יכולים לנשום. 💜
+        ואתם סוף־סוף יכולים לנשום.
       </p>
       <p className="welcome-popup__text">
         טיפ קטן: השתמשו בלשוניות שבתחתית המסך למעבר בין הגבייה, לוח החגים, המתנות
-        והקבצים — ואל תשכחו את עוזרת ה-AI 🤖
+        והקבצים — ואל תשכחו את עוזרת ה-AI
       </p>
       <div style={{ marginTop: 14 }}>
         <Button onClick={close}>הבנתי, בואו נתחיל 🙂</Button>

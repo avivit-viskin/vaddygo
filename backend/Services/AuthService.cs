@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.Auth;
@@ -17,15 +18,17 @@ namespace ParentCommitteeAPI.Services
         private readonly IJwtTokenService _jwt;
         private readonly IConfiguration _config;
         private readonly IAccessScope _access;
+        private readonly IEmailSender _email;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(AppDbContext db, IJwtTokenService jwt, IConfiguration config,
-            IAccessScope access, ILogger<AuthService> logger)
+            IAccessScope access, IEmailSender email, ILogger<AuthService> logger)
         {
             _db = db;
             _jwt = jwt;
             _config = config;
             _access = access;
+            _email = email;
             _logger = logger;
         }
 
@@ -150,6 +153,64 @@ namespace ParentCommitteeAPI.Services
             user.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Password changed (User: {UserId})", user.Id);
+            return null;
+        }
+
+        public async Task RequestPasswordResetAsync(ForgotPasswordDto dto)
+        {
+            var email = dto.Email.Trim().ToLowerInvariant();
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            // אבטחה: לא חושפים אם המייל קיים — תמיד מחזירים הצלחה כללית.
+            // רק אם המשתמש קיים באמת מייצרים קוד ושולחים.
+            if (user == null)
+            {
+                return;
+            }
+
+            // קוד בן 6 ספרות (קריפטוגרפי). נשמר מגובב בלבד; תקף ל-15 דקות.
+            var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+            user.ResetCodeHash = PasswordHasher.Hash(code);
+            user.ResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            await _db.SaveChangesAsync();
+
+            var body =
+                "שלום 🙂\n\n" +
+                $"הקוד שלך לאיפוס הסיסמה ב-VaddyGo הוא: {code}\n\n" +
+                "הקוד תקף ל-15 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
+                "בהצלחה,\nצוות VaddyGo 💜";
+            try
+            {
+                await _email.SendAsync(user.Email, "קוד לאיפוס סיסמה — VaddyGo", body);
+                _logger.LogInformation("Password reset code issued (User: {UserId})", user.Id);
+            }
+            catch (Exception ex)
+            {
+                // כשל שליחה לא נחשף למשתמש (עדיין מחזירים הצלחה כללית) — רק נרשם ללוג.
+                _logger.LogError(ex, "Failed to send reset email (User: {UserId})", user.Id);
+            }
+        }
+
+        public async Task<string?> ResetPasswordAsync(ResetPasswordDto dto)
+        {
+            var email = dto.Email.Trim().ToLowerInvariant();
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+
+            // הודעה אחידה לכל כשל (קוד שגוי/פג/אין בקשה) — לא חושפים פרטים
+            if (user == null
+                || string.IsNullOrEmpty(user.ResetCodeHash)
+                || user.ResetCodeExpiresAt == null
+                || user.ResetCodeExpiresAt.Value < DateTime.UtcNow
+                || !PasswordHasher.Verify(dto.Code.Trim(), user.ResetCodeHash))
+            {
+                return "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש.";
+            }
+
+            user.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
+            user.ResetCodeHash = null;      // קוד חד-פעמי — נמחק אחרי שימוש
+            user.ResetCodeExpiresAt = null;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Password reset via code (User: {UserId})", user.Id);
             return null;
         }
 

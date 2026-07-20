@@ -52,6 +52,8 @@ builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
+// שליחת מייל (קוד איפוס סיסמה) דרך SMTP/Gmail — הגדרות ב-Smtp:* (משתני סביבה)
+builder.Services.AddScoped<IEmailSender, SmtpEmailSender>();
 builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

@@ -8,13 +8,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { login, loginWithGoogle } from "../services/authService";
 import { restoreOnboardingFromServer } from "../services/onboardingService";
-import { whatsappUrl } from "../services/whatsapp";
 import "../styles/onboarding.css";
-
-// שכחתי סיסמה — כרגע פנייה לתמיכה בוואטסאפ (איפוס ידני). מספר ציבורי.
-const FORGOT_PASSWORD_URL = `${whatsappUrl("054-4579179")}?text=${encodeURIComponent(
-  "שלום, שכחתי את הסיסמה שלי ל-VaddyGo ואשמח לעזרה באיפוס 🙂"
-)}`;
 
 /*
   LoginPage — מסך כניסה למנוי רשום (UI_SPEC ס' 2): שם משתמש/מייל + סיסמה.
@@ -124,9 +118,7 @@ function LoginPage() {
             </Button>
           </div>
           <p className="auth-page__hint">
-            <a href={FORGOT_PASSWORD_URL} target="_blank" rel="noreferrer">
-              שכחת סיסמה? כתבי לנו ונאפס לך
-            </a>
+            <Link to="/forgot-password">שכחת סיסמה? נשלח לך קוד למייל</Link>
           </p>
           <div className="auth-divider">או</div>
           <div className="google-signin-wrap">

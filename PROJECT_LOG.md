@@ -6,6 +6,14 @@
 
 ---
 
+## 20.07.2026 — איפוס סיסמה עצמאי בקוד למייל (frontend + backend) [Claude Opus]
+
+- **מה נעשה:** זרימת איפוס סיסמה מלאה בשני שלבים. **Frontend:** `ForgotPasswordPage` (שלב 1 — בקשת קוד למייל; שלב 2 — הזנת קוד + סיסמה חדשה), `authService.requestPasswordReset`/`resetPassword`, נתיב `/forgot-password` (ציבורי), והקישור "שכחת סיסמה?" במסך הכניסה הוחלף מפניית וואטסאפ ידנית למסך החדש. **Backend:** שדות `ResetCodeHash`+`ResetCodeExpiresAt` ב-`User` + מיגרציה `AddPasswordResetCode`; שירות `IEmailSender`/`SmtpEmailSender` (SMTP/Gmail); `AuthService.RequestPasswordResetAsync`/`ResetPasswordAsync` (קוד 6 ספרות קריפטוגרפי, מגובב PBKDF2, תוקף 15 דק', חד-פעמי); ונקודות קצה `POST /api/auth/forgot-password` + `/api/auth/reset-password`.
+- **למה:** בקשת בעלת המוצר לאיפוס אוטומטי (במקום וואטסאפ ידני לתמיכה). בחירתה: שליחה במייל דרך Gmail SMTP.
+- **קבצים:** frontend: `src/pages/ForgotPasswordPage.js`(+טסט), `src/services/authService.js`, `src/App.js`, `src/pages/LoginPage.js`. backend: `Models/User.cs`, `DTOs/PasswordResetDtos.cs`, `Services/{IEmailSender,SmtpEmailSender,IAuthService,AuthService}.cs`, `Controllers/AuthController.cs`, `Program.cs`, `appsettings.json`, `Migrations/20260720125513_AddPasswordResetCode.*`.
+- **החלטות/אבטחה:** לא חושפים אם המייל קיים (`forgot-password` תמיד 200); הקוד נשמר **מגובב בלבד**, חד-פעמי, נמחק אחרי שימוש מוצלח; אם SMTP לא מוגדר — לא שולחים אבל לא קורסים (נרשם ללוג). נעילת backend נתפסה ושוחררה לפי הפרוטוקול. אימות: `dotnet build` 0/0, המיגרציה הוחלה, סמוק-טסט של ה-endpoints עבר (200/400), ‏`npm run build` + טסטים ירוקים.
+- **⚠️ הצעד הבא (דרוש מבעלת המוצר):** להגדיר ב-Railway (שירות ה-backend) משתני סביבה: `Smtp__Host=smtp.gmail.com`, `Smtp__Port=587`, `Smtp__User=<כתובת Gmail>`, `Smtp__Password=<App Password של Gmail>`, `Smtp__From=<כתובת Gmail>`. עד אז הזרימה עובדת אך המייל לא נשלח בפועל.
+
 ## 19.07.2026 — UX: קיצור אשף ההרשמה, פופאפ פתיחה, ואישור לכל מחיקה [Claude Opus]
 
 - **מה נעשה:** (1) **אשף ההרשמה קוצר מ-5 ל-4 צעדים** — שאלת "כמה ועדים" הועברה למסך ניהול ההרשאות (`TeamSetupPage`), שם היא נשאלת רק בהקמה הראשונה ויוצרת מוסדות נוספים דרך `addInstitution`. `CommitteesStep.js` נמחק. (2) בצעד הגבייה נוסף כפתור עדין **"אכניס את הפרטים מאוחר יותר"** + טקסט מרגיע. (3) **מסך הפתיחה נוקה** ללוגו + 2 כפתורים; הטקסט הרגשי ("אנחנו יודעים כמה שעות...") עבר **לפופאפ הכניסה** (`WelcomePopup`). (4) במסך ההרשאות נוסף כפתור **"אעשה זאת מאוחר יותר"** לצד "כניסה לאפליקציה". (5) **אישור מחיקה (`ConfirmDialog`) נוסף ב-4 מקומות שחסרו:** הסרת חבר צוות, הסרת קטגוריית גבייה, ומחיקת הוצאה (`ExpensesList` + `ExpenseModal`).

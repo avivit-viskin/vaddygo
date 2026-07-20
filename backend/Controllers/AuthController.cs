@@ -63,5 +63,26 @@ namespace ParentCommitteeAPI.Controllers
                 return BadRequest(new { message = error });
             return Ok(new { message = "הסיסמה שונתה בהצלחה" });
         }
+
+        // POST: api/auth/forgot-password — איפוס שלב 1: שליחת קוד למייל.
+        // תמיד מחזיר הצלחה כללית (לא חושף אם המייל רשום).
+        [AllowAnonymous]
+        [HttpPost("forgot-password")]
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
+        {
+            await _authService.RequestPasswordResetAsync(dto);
+            return Ok(new { message = "אם המייל רשום אצלנו, ישלח אליו קוד לאיפוס" });
+        }
+
+        // POST: api/auth/reset-password — איפוס שלב 2: קוד + סיסמה חדשה.
+        [AllowAnonymous]
+        [HttpPost("reset-password")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
+        {
+            var error = await _authService.ResetPasswordAsync(dto);
+            if (error != null)
+                return BadRequest(new { message = error });
+            return Ok(new { message = "הסיסמה אופסה בהצלחה" });
+        }
     }
 }

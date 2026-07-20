@@ -23,6 +23,11 @@ namespace ParentCommitteeAPI.Models
         // המנוי תקף עד תאריך זה (כולל). אחריו הכניסה נחסמת.
         public DateTime SubscriptionValidUntil { get; set; }
 
+        // קוד איפוס סיסמה חד-פעמי — מגובב (כמו הסיסמה, אף פעם לא הקוד עצמו)
+        // ותוקפו. null כשאין תהליך איפוס פעיל. מתאפס אחרי איפוס מוצלח.
+        public string? ResetCodeHash { get; set; }
+        public DateTime? ResetCodeExpiresAt { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

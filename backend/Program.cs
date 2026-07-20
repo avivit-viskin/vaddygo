@@ -52,9 +52,9 @@ builder.Services.AddScoped<IGiftService, GiftService>();
 builder.Services.AddScoped<IVendorService, VendorService>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
-// שליחת מייל (קוד איפוס סיסמה) דרך ה-HTTP API של Brevo (HTTPS — Railway חוסמת SMTP).
-// הגדרות ב-Brevo:ApiKey ו-Brevo:Sender (משתני סביבה). typed HttpClient כמו ל-AI.
-builder.Services.AddHttpClient<IEmailSender, BrevoEmailSender>();
+// שליחת מייל (קוד איפוס סיסמה) דרך ה-HTTP API של Resend (HTTPS — Railway חוסמת SMTP).
+// הגדרות ב-Resend:ApiKey (ו-Resend:Sender אופציונלי). typed HttpClient כמו ל-AI.
+builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
 builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

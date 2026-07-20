@@ -6,6 +6,14 @@
 
 ---
 
+## 21.07.2026 — שליחת מייל האיפוס: מעבר מ-Brevo ל-Resend [Claude Opus]
+
+- **מה נעשה:** החלפת שולח המייל מ-Brevo ל-**Resend** (HTTP API, `https://api.resend.com/emails`, Bearer auth). נוסף `ResendEmailSender` (typed `HttpClient`), הרישום ב-`Program.cs` הוחלף, `appsettings.json` — סקשן `Brevo` הוחלף ב-`Resend` (`ApiKey`, `Sender`), ו-`BrevoEmailSender.cs` נמחק. ברירת מחדל לשולח: `onboarding@resend.dev` (עובד בלי דומיין).
+- **למה:** חשבון Brevo החדש של בעלת המוצר היה "תחת בדיקה" וחסם יצירת מפתח API. Resend מאפשר יצירת מפתח מיד. (SMTP רגיל לא אופציה — Railway חוסמת אותו.)
+- **קבצים:** backend: `Services/ResendEmailSender.cs` (חדש), `Services/BrevoEmailSender.cs` (נמחק), `Program.cs`, `appsettings.json`.
+- **אימות:** `dotnet build` 0/0; סמוק-טסט (רישום → `forgot-password`) חזר HTTP 200 ב-0.9 שניות, והלוג הראה POST ל-`api.resend.com/emails` שקיבל 401 עם מפתח מזויף (נתיב ה-HTTPS מוכח).
+- **⚠️ הצעד הבא (דרוש מבעלת המוצר):** ב-Railway → **soothing-clarity** → Variables: `Resend__ApiKey` = מפתח ה-API מ-resend.com. **מגבלה:** בלי דומיין מאומת, Resend שולח רק לכתובת בעל החשבון (`avivitm91@gmail.com`) — מספיק לאיפוס של בעלת המוצר עצמה. לשליחה לחברי ועד אחרים: לאמת דומיין ב-Resend ולעדכן `Resend__Sender`.
+
 ## 20.07.2026 — שליחת מייל האיפוס: מעבר מ-SMTP ל-Brevo (HTTPS) [Claude Opus]
 
 - **מה נעשה:** החלפת מנגנון שליחת המייל מ-SMTP (Gmail) ל-**HTTP API של Brevo** (`https://api.brevo.com/v3/smtp/email`). נוסף `BrevoEmailSender` (typed `HttpClient`), הרישום ב-`Program.cs` הוחלף (`AddHttpClient<IEmailSender, BrevoEmailSender>`), `appsettings.json` — סקשן `Smtp` הוחלף ב-`Brevo` (`ApiKey`, `Sender`), ו-`SmtpEmailSender.cs` נמחק.

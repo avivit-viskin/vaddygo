@@ -136,8 +136,10 @@
 
 .collection__amount {
   margin: 4px 0 0;
-  font-size: var(--font-size-xl);
-  font-weight: bold;
+  font-size: var(--font-size-2xl); /* מספר-גיבור — היתרה בולטת */
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
   color: var(--color-primary-dark);
 }
 
@@ -363,21 +365,21 @@
 
 /* צבע ייעודי לכל אמצעי תשלום (הצבעים של בעלת המוצר) */
 .methods__item--bit {
-  background: var(--color-bit-tint);
+  background: #fdfaf3; /* רקע חם אחיד — ההיכר נשמר בקו-העליון ובצבע הסכום */
   border-top-color: var(--color-bit);
 }
 .methods__item--bit .methods__amount {
   color: var(--color-bit-bg);
 }
 .methods__item--paybox {
-  background: var(--color-paybox-tint);
+  background: #fdfaf3;
   border-top-color: var(--color-paybox);
 }
 .methods__item--paybox .methods__amount {
   color: var(--color-paybox-dark);
 }
 .methods__item--cash {
-  background: var(--color-money-tint);
+  background: #fdfaf3;
   border-top-color: var(--color-money);
 }
 .methods__item--cash .methods__amount {

@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ParentCommitteeAPI;
 
@@ -10,9 +11,11 @@ using ParentCommitteeAPI;
 namespace ParentCommitteeAPI.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260720123659_AddCardPaymentFields")]
+    partial class AddCardPaymentFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.9");
@@ -42,7 +45,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Budgets", (string)null);
+                    b.ToTable("Budgets");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.CollectionCategory", b =>
@@ -68,7 +71,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("CollectionCategories", (string)null);
+                    b.ToTable("CollectionCategories");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.DriveFolder", b =>
@@ -90,7 +93,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("DriveFolders", (string)null);
+                    b.ToTable("DriveFolders");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Event", b =>
@@ -133,7 +136,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Events", (string)null);
+                    b.ToTable("Events");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Expense", b =>
@@ -165,7 +168,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Expenses", (string)null);
+                    b.ToTable("Expenses");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Gift", b =>
@@ -201,7 +204,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("Gifts", (string)null);
+                    b.ToTable("Gifts");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Group", b =>
@@ -245,7 +248,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Groups", (string)null);
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Payment", b =>
@@ -287,7 +290,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("StudentId");
 
-                    b.ToTable("Payments", (string)null);
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.StaffMember", b =>
@@ -314,7 +317,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("StaffMembers", (string)null);
+                    b.ToTable("StaffMembers");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Student", b =>
@@ -392,7 +395,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("GroupId");
 
-                    b.ToTable("Students", (string)null);
+                    b.ToTable("Students");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.User", b =>
@@ -433,7 +436,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("Username");
 
-                    b.ToTable("Users", (string)null);
+                    b.ToTable("Users");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.Vendor", b =>
@@ -456,7 +459,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Vendors", (string)null);
+                    b.ToTable("Vendors");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.VendorProduct", b =>
@@ -483,7 +486,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("VendorProducts", (string)null);
+                    b.ToTable("VendorProducts");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.VendorSocialLink", b =>
@@ -507,7 +510,7 @@ namespace ParentCommitteeAPI.Migrations
 
                     b.HasIndex("VendorId");
 
-                    b.ToTable("VendorSocialLinks", (string)null);
+                    b.ToTable("VendorSocialLinks");
                 });
 
             modelBuilder.Entity("ParentCommitteeAPI.Models.CollectionCategory", b =>

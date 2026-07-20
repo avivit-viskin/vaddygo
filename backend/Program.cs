@@ -56,6 +56,18 @@ builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 
+// סליקת אשראי — ספק לפי Payments:Provider. mock=סימולטור לפיתוח/בדיקות, payplus=פרודקשן.
+var paymentProvider = builder.Configuration["Payments:Provider"] ?? "mock";
+if (string.Equals(paymentProvider, "payplus", StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddHttpClient<IPaymentGateway, PayPlusGateway>();
+}
+else
+{
+    builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
+}
+builder.Services.AddScoped<ICardPaymentService, CardPaymentService>();
+
 // אימות JWT — בודק את ה-token שהלקוח שולח בכותרת Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

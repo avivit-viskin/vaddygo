@@ -112,8 +112,8 @@ namespace ParentCommitteeAPI.Services
             };
         }
 
-        /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים */
-        private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount;
+        /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים (כולל אשראי בסליקה) */
+        private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount;
 
         /* סך ההוצאות שיצאו מאמצעי מסוים (ביט/פייבוקס/מזומן) */
         private static decimal MethodExpenses(List<Expense> expenses, string method) =>

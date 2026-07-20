@@ -22,8 +22,13 @@ namespace ParentCommitteeAPI.Models
         public decimal BitAmount { get; set; }
         public decimal PayBoxAmount { get; set; }
         public decimal CashAmount { get; set; }
+        /* סכום ששולם בכרטיס אשראי דרך סליקה בתוך האפליקציה (ספק הסליקה) */
+        public decimal CardAmount { get; set; }
 
         public bool IsPaid { get; set; }
+
+        /* מזהה העסקה אצל ספק הסליקה — לשיוך אישור ה-webhook לתשלום הנכון (אשראי) */
+        public string? TransactionRef { get; set; }
 
         /* מתי סומן ששולם — נגזר אוטומטית בשרת בעת הסימון */
         public DateTime? PaidDate { get; set; }

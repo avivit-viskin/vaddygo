@@ -110,7 +110,7 @@ namespace ParentCommitteeAPI.Services
             return payments
                 .Where(p => p.IsPaid)
                 .GroupBy(p => p.StudentId)
-                .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount));
+                .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount));
         }
 
         /* מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפונים בלי מקף. */

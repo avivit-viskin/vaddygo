@@ -6,6 +6,14 @@
 
 ---
 
+## 20.07.2026 — שליחת מייל האיפוס: מעבר מ-SMTP ל-Brevo (HTTPS) [Claude Opus]
+
+- **מה נעשה:** החלפת מנגנון שליחת המייל מ-SMTP (Gmail) ל-**HTTP API של Brevo** (`https://api.brevo.com/v3/smtp/email`). נוסף `BrevoEmailSender` (typed `HttpClient`), הרישום ב-`Program.cs` הוחלף (`AddHttpClient<IEmailSender, BrevoEmailSender>`), `appsettings.json` — סקשן `Smtp` הוחלף ב-`Brevo` (`ApiKey`, `Sender`), ו-`SmtpEmailSender.cs` נמחק.
+- **למה:** אצל בעלת המוצר המייל לא נשלח וה-UI נתקע על "רק רגע". האבחון: **Railway חוסמת שליחת SMTP** (פורט 587), ולכן `SmtpClient` נתלה עד timeout (~100 שניות). Brevo שולח דרך HTTPS (443) ש-Railway לא חוסמת.
+- **קבצים:** backend: `Services/BrevoEmailSender.cs` (חדש), `Services/SmtpEmailSender.cs` (נמחק), `Program.cs`, `appsettings.json`.
+- **אימות:** `dotnet build` 0/0; סמוק-טסט מלא (רישום משתמש → `forgot-password`) — חזר **HTTP 200 ב-0.82 שניות** (במקום להיתקע), והלוג הראה שהקריאה הגיעה בפועל ל-Brevo וקיבלה 401 עם מפתח מזויף (נתיב ה-HTTPS מוכח). עם מפתח אמיתי + Sender מאומת → 201 ומייל נשלח.
+- **⚠️ הצעד הבא (דרוש מבעלת המוצר):** ב-Railway → שירות **soothing-clarity** (ה-backend!) → Variables: `Brevo__ApiKey` = מפתח ה-API של Brevo, `Brevo__Sender` = `avivitm91@gmail.com` (כתובת השולח המאומתת ב-Brevo). אפשר למחוק את משתני `Smtp__*` הישנים.
+
 ## 20.07.2026 — איפוס סיסמה עצמאי בקוד למייל (frontend + backend) [Claude Opus]
 
 - **מה נעשה:** זרימת איפוס סיסמה מלאה בשני שלבים. **Frontend:** `ForgotPasswordPage` (שלב 1 — בקשת קוד למייל; שלב 2 — הזנת קוד + סיסמה חדשה), `authService.requestPasswordReset`/`resetPassword`, נתיב `/forgot-password` (ציבורי), והקישור "שכחת סיסמה?" במסך הכניסה הוחלף מפניית וואטסאפ ידנית למסך החדש. **Backend:** שדות `ResetCodeHash`+`ResetCodeExpiresAt` ב-`User` + מיגרציה `AddPasswordResetCode`; שירות `IEmailSender`/`SmtpEmailSender` (SMTP/Gmail); `AuthService.RequestPasswordResetAsync`/`ResetPasswordAsync` (קוד 6 ספרות קריפטוגרפי, מגובב PBKDF2, תוקף 15 דק', חד-פעמי); ונקודות קצה `POST /api/auth/forgot-password` + `/api/auth/reset-password`.

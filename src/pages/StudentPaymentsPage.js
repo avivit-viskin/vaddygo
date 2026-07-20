@@ -10,6 +10,8 @@ import {
   buildReminderMessage,
 } from "../services/paymentsService";
 import { startCardCheckout } from "../services/cardPaymentService";
+import { whatsappUrl } from "../services/whatsapp";
+import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
@@ -44,6 +46,8 @@ function StudentPaymentsPage() {
   const [amounts, setAmounts] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  // קישור התשלום שנוצר (לשליחה להורה); null = אין מודאל פתוח
+  const [cardLink, setCardLink] = useState(null);
 
   // אתחול הסכומים מהנתונים שנטענו
   useEffect(() => {
@@ -109,12 +113,18 @@ function StudentPaymentsPage() {
     }
   }
 
-  // תשלום באשראי לקטגוריה — פותח תשלום בשרת ומעביר לעמוד התשלום המאובטח של הספק.
+  // מייצר קישור תשלום באשראי לקטגוריה, ומכין הודעת וואטסאפ מוכנה לשליחה להורה.
   async function handleCardPay(categoryId) {
     setSaveError("");
+    const payment = payments.find((p) => p.collectionCategoryId === categoryId);
+    const categoryName = payment?.categoryName ?? "התשלום";
     try {
       const url = await startCardCheckout(studentId, categoryId);
-      window.location.href = url;
+      const message =
+        `שלום :) לתשלום ${categoryName} של ${fullName} בכרטיס אשראי או ביט, ` +
+        `היכנסו לקישור המאובטח: ${url}`;
+      const waUrl = `${whatsappUrl(student.parentPhoneNumber)}?text=${encodeURIComponent(message)}`;
+      setCardLink({ categoryName, paymentUrl: url, waUrl });
     } catch (err) {
       setSaveError(err.message);
     }
@@ -179,6 +189,31 @@ function StudentPaymentsPage() {
           </div>
         </>
       )}
+
+      <Modal
+        isOpen={cardLink !== null}
+        onClose={() => setCardLink(null)}
+        title="קישור לתשלום באשראי 💳"
+      >
+        {cardLink && (
+          <div className="card-link">
+            <p>
+              הקישור לתשלום <strong>{cardLink.categoryName}</strong> מוכן. שלחו
+              אותו להורה — הוא ישלם בעמוד המאובטח של הספק, והתשלום יסומן "שולם"
+              אוטומטית.
+            </p>
+            <a
+              className="card-link__send"
+              href={cardLink.waUrl}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => setCardLink(null)}
+            >
+              <Button>שלח בוואטסאפ להורה 💬</Button>
+            </a>
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

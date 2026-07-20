@@ -68,7 +68,7 @@ function PaymentRow({ payment, installments = 1, amounts, onChange, onCardPay })
             className="payment-row__card-btn"
             onClick={() => onCardPay(payment.collectionCategoryId)}
           >
-            💳 שלם באשראי
+            💳 שלח קישור לתשלום
           </button>
         )}
       </div>

@@ -145,3 +145,16 @@ export async function deleteAccount() {
 export function changePassword({ currentPassword, newPassword }) {
   return api.post("/api/auth/change-password", { currentPassword, newPassword });
 }
+
+/*
+  איפוס סיסמה — שלב 1: בקשת קוד חד-פעמי למייל. השרת שולח קוד בן 6 ספרות
+  (אם המייל רשום). מטעמי אבטחה השרת לא חושף אם המייל קיים — תמיד מצליח.
+*/
+export function requestPasswordReset(email) {
+  return api.post("/api/auth/forgot-password", { email });
+}
+
+/* איפוס סיסמה — שלב 2: הזנת הקוד שהתקבל במייל + סיסמה חדשה. */
+export function resetPassword({ email, code, newPassword }) {
+  return api.post("/api/auth/reset-password", { email, code, newPassword });
+}

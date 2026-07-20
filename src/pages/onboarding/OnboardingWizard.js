@@ -68,6 +68,11 @@ function OnboardingWizard() {
   }
 
   function handleBack() {
+    // מהשלב הראשון אין צעד קודם באשף — חוזרים למסך שלפניו
+    if (step === 1) {
+      navigate(-1);
+      return;
+    }
     setStep((s) => Math.max(s - 1, 1));
   }
 
@@ -107,9 +112,6 @@ function OnboardingWizard() {
       <h1 className="wizard__logo">
         <BrandName withHeart />
       </h1>
-      {step === 1 && (
-        <p className="wizard__intro">מתחילים 🙂 כמה שאלות קצרות שנוכל להכיר</p>
-      )}
       <p className="wizard__progress">
         שלב {step} מתוך {totalSteps}
       </p>
@@ -117,11 +119,9 @@ function OnboardingWizard() {
       {renderStep(currentKey)}
 
       <div className="wizard__actions">
-        {step > 1 && (
-          <Button variant="secondary" onClick={handleBack}>
-            חזרה
-          </Button>
-        )}
+        <Button variant="secondary" onClick={handleBack}>
+          חזרה
+        </Button>
         {step < totalSteps && <Button onClick={handleNext}>המשך</Button>}
         {step === totalSteps && (
           <Button onClick={handleFinish} isLoading={isSaving}>

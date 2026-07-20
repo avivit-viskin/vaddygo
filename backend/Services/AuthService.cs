@@ -168,16 +168,16 @@ namespace ParentCommitteeAPI.Services
                 return;
             }
 
-            // קוד בן 6 ספרות (קריפטוגרפי). נשמר מגובב בלבד; תקף ל-15 דקות.
+            // קוד בן 6 ספרות (קריפטוגרפי). נשמר מגובב בלבד; תקף ל-5 דקות.
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
             user.ResetCodeHash = PasswordHasher.Hash(code);
-            user.ResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(15);
+            user.ResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(5);
             await _db.SaveChangesAsync();
 
             var body =
                 "שלום 🙂\n\n" +
                 $"הקוד שלך לאיפוס הסיסמה ב-VaddyGo הוא: {code}\n\n" +
-                "הקוד תקף ל-15 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
+                "הקוד תקף ל-5 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
                 "בהצלחה,\nצוות VaddyGo 💜";
             try
             {

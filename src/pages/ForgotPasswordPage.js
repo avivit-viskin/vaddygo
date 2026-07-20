@@ -122,8 +122,8 @@ function ForgotPasswordPage() {
               className="auth-page__hint"
               style={{ textAlign: "right", margin: "0 0 12px" }}
             >
-              אם המייל שהזנת רשום אצלנו — שלחנו אליו קוד בן 6 ספרות. כדאי לבדוק גם
-              בתיקיית הספאם 🙂
+              אם המייל שהזנת רשום אצלנו — שלחנו אליו קוד בן 6 ספרות. הקוד תקף
+              ל-5 דקות. כדאי לבדוק גם בתיקיית הספאם 🙂
             </p>
             <Input
               id="fp-code"

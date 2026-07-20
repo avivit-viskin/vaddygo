@@ -195,6 +195,9 @@ function StudentsImport({ onDone, onCancel }) {
       {result && (
         <div className="students-import__result" role="status">
           <p>✅ נוספו {result.added} תלמידים.</p>
+          {result.skipped > 0 && (
+            <p>⏭️ {result.skipped} כבר היו ברשימה ולא נוספו שוב (כפילויות).</p>
+          )}
           {result.failed.length > 0 && (
             <>
               <p>⚠️ {result.failed.length} לא נוספו:</p>

@@ -1,4 +1,4 @@
-import { createStudent } from "./studentsService";
+import { createStudent, getStudents } from "./studentsService";
 import { getActiveServerGroupId } from "./institutionsService";
 
 /*
@@ -416,14 +416,54 @@ export async function parseStudentFile(file, password) {
   return parseStudentGrid(grid);
 }
 
+/* מזהה כפילות: מנרמל תעודת זהות (רק ספרות) ושם מלא (רווחים מצומצמים). */
+function idKey(v) {
+  return String(v ?? "").replace(/\D/g, "");
+}
+function nameKey(firstName, lastName) {
+  return `${firstName ?? ""} ${lastName ?? ""}`.replace(/\s+/g, " ").trim();
+}
+
 /*
-  יוצר תלמיד לכל שורה, עם כל השדות שזוהו בקובץ. מחזיר סיכום: כמה נוספו וכמה נכשלו
-  (עם השמות), כדי שהמשתמשת תדע מה לתקן ידנית. createFn מוזרק כדי לאפשר בדיקה.
+  יוצר תלמיד לכל שורה, עם כל השדות שזוהו בקובץ, ומדלג על כפילויות: אם כבר קיים
+  תלמיד עם אותה תעודת זהות — לא מוסיפים; אם אין ת"ז — משווים לפי שם מלא (פרטי+משפחה),
+  כדי לא לבלבל בין אחים. בודקים גם מול הקיימים וגם בתוך הקובץ עצמו. מחזיר סיכום:
+  כמה נוספו, כמה דולגו ככפילות, וכמה נכשלו. הפונקציות מוזרקות כדי לאפשר בדיקה.
 */
-export async function importStudents(rows, createFn = createStudent) {
+export async function importStudents(
+  rows,
+  createFn = createStudent,
+  getExistingFn = getStudents
+) {
   let added = 0;
+  let skipped = 0;
   const failed = [];
+
+  // בונים אינדקס של התלמידים הקיימים (ת"ז ושמות) כדי לזהות כפילויות
+  const seenIds = new Set();
+  const seenNames = new Set();
+  let existing = [];
+  try {
+    existing = (await getExistingFn()) || [];
+  } catch {
+    existing = []; // אם לא הצלחנו לטעון — לא חוסמים את הייבוא
+  }
+  for (const s of existing) {
+    const id = idKey(s.idNumber);
+    if (id) seenIds.add(id);
+    const nm = nameKey(s.firstName, s.lastName);
+    if (nm) seenNames.add(nm);
+  }
+
   for (const row of rows) {
+    const id = idKey(row.idNumber);
+    const nm = nameKey(row.firstName, row.lastName);
+    // כפילות: לפי ת"ז אם קיימת, אחרת לפי שם מלא
+    const isDuplicate = id ? seenIds.has(id) : Boolean(nm) && seenNames.has(nm);
+    if (isDuplicate) {
+      skipped += 1;
+      continue;
+    }
     try {
       await createFn({
         firstName: row.firstName,
@@ -443,10 +483,13 @@ export async function importStudents(rows, createFn = createStudent) {
         parentsMarried: row.parentsMarried || "",
       });
       added += 1;
+      // מוסיפים לאינדקס כדי לזהות כפילויות גם בתוך אותו קובץ
+      if (id) seenIds.add(id);
+      if (nm) seenNames.add(nm);
     } catch (err) {
       const name = `${row.firstName} ${row.lastName || ""}`.trim();
       failed.push({ name: name || "(ללא שם)", error: err.message });
     }
   }
-  return { added, failed };
+  return { added, skipped, failed };
 }

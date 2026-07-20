@@ -289,9 +289,10 @@ test("importStudents מסכם כמה נוספו וכמה נכשלו", async () =
     return Promise.resolve({ id: 1, ...s });
   });
 
-  const result = await importStudents(rows, createFn);
+  const result = await importStudents(rows, createFn, () => Promise.resolve([]));
 
   expect(result.added).toBe(1);
+  expect(result.skipped).toBe(0);
   expect(result.failed).toHaveLength(1);
   expect(result.failed[0].name).toBe("ב");
   expect(createFn).toHaveBeenCalledTimes(2);
@@ -312,7 +313,7 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
     },
   ];
   const createFn = jest.fn(() => Promise.resolve({ id: 1 }));
-  await importStudents(rows, createFn);
+  await importStudents(rows, createFn, () => Promise.resolve([]));
 
   expect(createFn).toHaveBeenCalledWith(
     expect.objectContaining({
@@ -324,4 +325,23 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
       parentsMarried: "כן",
     })
   );
+});
+
+test('importStudents מדלג על כפילויות (לפי ת"ז, ואם אין — לפי שם מלא)', async () => {
+  const existing = [
+    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" },
+    { firstName: "נועה", lastName: "כהן", idNumber: "" },
+  ];
+  const rows = [
+    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" }, // כפילות לפי ת"ז
+    { firstName: "נועה", lastName: "כהן", idNumber: "" }, // כפילות לפי שם (אין ת"ז)
+    { firstName: "רון", lastName: "לוי", idNumber: "999" }, // חדש (אותה משפחה, ת"ז שונה)
+    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" }, // כפילות בתוך הקובץ עצמו
+  ];
+  const createFn = jest.fn(() => Promise.resolve({ id: 1 }));
+  const result = await importStudents(rows, createFn, () => Promise.resolve(existing));
+
+  expect(result.added).toBe(1); // רק "רון"
+  expect(result.skipped).toBe(3); // 2 מול הקיימים + 1 בתוך הקובץ
+  expect(createFn).toHaveBeenCalledTimes(1);
 });

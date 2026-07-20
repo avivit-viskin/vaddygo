@@ -6,6 +6,14 @@
 
 ---
 
+## 21.07.2026 — מייל RTL + תיקון: תשלומי אשראי לא נספרו בבקשת התשלום [Claude Opus]
+
+- **מה נעשה:** (1) **מייל האיפוס מימין-לשמאל** — `ResendEmailSender` שולח עכשיו גם `html` עטוף ב-`<div dir="rtl">` (לא רק טקסט פשוט), כך שהעברית מיושרת נכון בכל תוכנת מייל. (2) **תיקון באג חישוב:** תשלום ב**אשראי** (`CardAmount`, נשמר ע"י `CardPaymentService`) **לא נספר** בבקשת התשלום — `PaymentResponseDto` לא החזיר אותו ו-`amountPaidSoFar` בפרונט לא כלל אותו. התוצאה: הורה ששילם באשראי נראה כמי שלא שילם, והחוב חושב שגוי. נוסף `CardAmount` ל-DTO ול-`PaymentService` (ToResponse+Default), ונכלל ב-`amountPaidSoFar` וב-`total` של `PaymentRow`.
+- **למה:** בקשות בעלת המוצר — כיוון עברי במייל, ותלונה שבקשת התשלום "לא מחשבת נכון את הכסף".
+- **קבצים:** backend: `DTOs/PaymentResponseDto.cs`, `Services/PaymentService.cs`, `Services/ResendEmailSender.cs`. frontend: `services/paymentsService.js`, `pages/payments/PaymentRow.js`.
+- **אימות:** `dotnet build` 0/0, `npm run build` ירוק, 25 טסטי תשלומים עוברים. (Dashboard/StudentService כבר סופרים אשראי — רק ה-DTO והפרונט פספסו.)
+- **הצעד הבא:** לוודא מול בעלת המוצר שהתלונה נפתרה; אם ה"שולם" השגוי נמשך בתרחיש שאינו אשראי — לבדוק את סכום היעד של הקטגוריה (amount).
+
 ## 21.07.2026 — שליחת מייל האיפוס: מעבר מ-Brevo ל-Resend [Claude Opus]
 
 - **מה נעשה:** החלפת שולח המייל מ-Brevo ל-**Resend** (HTTP API, `https://api.resend.com/emails`, Bearer auth). נוסף `ResendEmailSender` (typed `HttpClient`), הרישום ב-`Program.cs` הוחלף, `appsettings.json` — סקשן `Brevo` הוחלף ב-`Resend` (`ApiKey`, `Sender`), ו-`BrevoEmailSender.cs` נמחק. ברירת מחדל לשולח: `onboarding@resend.dev` (עובד בלי דומיין).

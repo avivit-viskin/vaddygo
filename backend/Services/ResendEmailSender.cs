@@ -45,11 +45,19 @@ namespace ParentCommitteeAPI.Services
                 from = DefaultSender;
             }
 
+            // גוף HTML עם dir="rtl" כדי שהעברית תוצג מימין-לשמאל בכל תוכנת מייל
+            // (שורות ריקות ב-body הופכות ל-<br>). text נשמר כגיבוי טקסט פשוט.
+            var html =
+                "<div dir=\"rtl\" style=\"text-align:right;font-family:Arial,Helvetica,sans-serif;font-size:16px;line-height:1.6\">"
+                + System.Net.WebUtility.HtmlEncode(body).Replace("\n", "<br>")
+                + "</div>";
+
             var payload = new
             {
                 from,
                 to = new[] { toEmail },
                 subject,
+                html,
                 text = body,
             };
             var json = JsonSerializer.Serialize(payload);

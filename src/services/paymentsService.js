@@ -15,14 +15,17 @@ export function saveStudentPayment(studentId, categoryId, payment) {
 }
 
 /*
-  כמה שולם בפועל בקטגוריה — סכום כל אמצעי התשלום (ביט + פייבוקס + מזומן).
-  סכום חסר/לא-מספרי נספר כ-0 (עמידות מפני שדה שלא הוחזר מהשרת).
+  כמה שולם בפועל בקטגוריה — סכום כל אמצעי התשלום (ביט + פייבוקס + מזומן +
+  אשראי). סכום חסר/לא-מספרי נספר כ-0 (עמידות מפני שדה שלא הוחזר מהשרת).
+  ⚠️ חובה לכלול גם cardAmount — תשלום באשראי (PayPlus) נשמר בו; בלעדיו
+  בקשת התשלום התעלמה מתשלומי אשראי וחישבה חוב שגוי.
 */
 export function amountPaidSoFar(payment) {
   return (
     (Number(payment.bitAmount) || 0) +
     (Number(payment.payBoxAmount) || 0) +
-    (Number(payment.cashAmount) || 0)
+    (Number(payment.cashAmount) || 0) +
+    (Number(payment.cardAmount) || 0)
   );
 }
 

@@ -14,10 +14,11 @@ function installmentsLabel(n) {
 }
 
 function PaymentRow({ payment, installments = 1, amounts, onChange, onCardPay }) {
-  const total = PAYMENT_METHODS.reduce(
-    (sum, m) => sum + (Number(amounts[m.value]) || 0),
-    0
-  );
+  // סך ששולם = השדות הנערכים (ביט/פייבוקס/מזומן) + תשלום אשראי שכבר בוצע
+  // (payment.cardAmount, לא נערך כאן) — כדי שלא ייראה כאילו לא שולם באשראי.
+  const total =
+    PAYMENT_METHODS.reduce((sum, m) => sum + (Number(amounts[m.value]) || 0), 0) +
+    (Number(payment.cardAmount) || 0);
 
   // כמה תשלומים "נסגרו" — נגזר מהסכום ששולם מול גובה תשלום בודד (יעד/מס' תשלומים).
   // כך רואים אם התלמיד באמצע תוכנית תשלומים (למשל 1 מתוך 2) ואין מה לדרוש עדיין.

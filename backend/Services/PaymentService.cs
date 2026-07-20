@@ -110,6 +110,7 @@ namespace ParentCommitteeAPI.Services
             BitAmount = 0,
             PayBoxAmount = 0,
             CashAmount = 0,
+            CardAmount = 0,
             IsPaid = false,
             PaidDate = null,
         };
@@ -124,6 +125,7 @@ namespace ParentCommitteeAPI.Services
             BitAmount = payment.BitAmount,
             PayBoxAmount = payment.PayBoxAmount,
             CashAmount = payment.CashAmount,
+            CardAmount = payment.CardAmount,
             IsPaid = payment.IsPaid,
             PaidDate = payment.PaidDate,
         };

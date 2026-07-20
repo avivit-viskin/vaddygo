@@ -71,6 +71,31 @@
   margin-bottom: 0;
 }
 
+/* הטקסט "שולם X מתוך Y" דוחף את כפתור האשראי לקצה השורה */
+.payment-row__total {
+  flex: 1;
+}
+
+/* כפתור "שלם באשראי" בשורת קטגוריה שטרם שולמה */
+.payment-row__card-btn {
+  border: 1px solid var(--color-primary);
+  background: var(--color-primary);
+  color: #ffffff;
+  border-radius: var(--radius-md);
+  padding: 8px 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+  white-space: nowrap;
+}
+
+.payment-row__card-btn:hover {
+  background: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
 .payment-row__status {
   flex: 1;
   color: var(--color-success);

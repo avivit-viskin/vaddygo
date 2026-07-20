@@ -23,6 +23,7 @@ import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
+import CardReturnPage from "./pages/CardReturnPage";
 import CollectionSettingsPage from "./pages/CollectionSettingsPage";
 import SettingsPage from "./pages/SettingsPage";
 import PrivacyPage from "./pages/legal/PrivacyPage";
@@ -48,15 +49,18 @@ const FULL_SCREEN_ROUTES = [
   "/onboarding",
   "/team-setup",
   "/subscription-expired",
+  "/pay/return",
   ...LEGAL_ROUTES,
 ];
-// נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token, וגם העמודים המשפטיים)
+// נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token, העמודים המשפטיים,
+// ועמוד החזרה מסליקת האשראי — ההורה שמשלם אינו מחובר לאפליקציה)
 const PUBLIC_ROUTES = [
   "/welcome",
   "/login",
   "/register",
   "/forgot-password",
   "/subscription-expired",
+  "/pay/return",
   ...LEGAL_ROUTES,
 ];
 // מסכי הזדהות — משתמשת שכבר מחוברת לא צריכה לראות אותם שוב (נשלחת הביתה)
@@ -159,6 +163,7 @@ function App() {
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
+          <Route path="/pay/return" element={<CardReturnPage />} />
           <Route
             path="/institutions/:id/purchase"
             element={<PurchasePage />}

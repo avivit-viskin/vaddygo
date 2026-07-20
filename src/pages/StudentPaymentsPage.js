@@ -9,6 +9,7 @@ import {
   buildWhatsappReminderUrl,
   buildReminderMessage,
 } from "../services/paymentsService";
+import { startCardCheckout } from "../services/cardPaymentService";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
@@ -108,6 +109,17 @@ function StudentPaymentsPage() {
     }
   }
 
+  // תשלום באשראי לקטגוריה — פותח תשלום בשרת ומעביר לעמוד התשלום המאובטח של הספק.
+  async function handleCardPay(categoryId) {
+    setSaveError("");
+    try {
+      const url = await startCardCheckout(studentId, categoryId);
+      window.location.href = url;
+    } catch (err) {
+      setSaveError(err.message);
+    }
+  }
+
   return (
     <div className="payments">
       <Link to="/students" className="payments__back">
@@ -140,6 +152,7 @@ function StudentPaymentsPage() {
                   [payment.collectionCategoryId]: next,
                 }))
               }
+              onCardPay={handleCardPay}
             />
           ))}
 

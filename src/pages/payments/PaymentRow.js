@@ -13,7 +13,7 @@ function installmentsLabel(n) {
   return n === 1 ? "תשלום אחד" : `${n} תשלומים`;
 }
 
-function PaymentRow({ payment, installments = 1, amounts, onChange }) {
+function PaymentRow({ payment, installments = 1, amounts, onChange, onCardPay }) {
   const total = PAYMENT_METHODS.reduce(
     (sum, m) => sum + (Number(amounts[m.value]) || 0),
     0
@@ -62,6 +62,15 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
           שולם {formatShekels(total)} מתוך {formatShekels(payment.amount)}
           {installments > 1 && ` · תשלום ${installmentsPaid} מתוך ${installments}`}
         </span>
+        {!isFullyPaid && onCardPay && (
+          <button
+            type="button"
+            className="payment-row__card-btn"
+            onClick={() => onCardPay(payment.collectionCategoryId)}
+          >
+            💳 שלם באשראי
+          </button>
+        )}
       </div>
     </div>
   );

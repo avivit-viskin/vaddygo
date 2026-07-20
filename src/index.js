@@ -4,7 +4,10 @@ import { BrowserRouter } from 'react-router-dom';
 import './styles/theme.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
+import { initMonitoring } from './services/monitoring';
 import reportWebVitals from './reportWebVitals';
+
+initMonitoring(); // מפעיל מעקב שגיאות בזמן אמת (רק אם הוגדר מפתח בסביבה)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

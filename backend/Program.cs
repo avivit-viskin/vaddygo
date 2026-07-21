@@ -71,6 +71,19 @@ else
 }
 builder.Services.AddScoped<ICardPaymentService, CardPaymentService>();
 
+// אבטחה (fail-closed): בייצור חובה מפתח JWT אמיתי. אם חסר, או שהוא מפתח-הפיתוח
+// הציבורי — השרת לא יעלה, כדי שלא נרוץ בטעות עם מפתח שאפשר לזייף איתו טוקנים.
+if (!builder.Environment.IsDevelopment())
+{
+    var configuredJwtKey = builder.Configuration["Jwt:Key"];
+    if (string.IsNullOrWhiteSpace(configuredJwtKey) || configuredJwtKey == JwtSettings.DevKey)
+    {
+        throw new InvalidOperationException(
+            "Jwt:Key חייב להיות מוגדר בייצור (משתנה סביבה Jwt__Key) כמפתח סודי חזק — " +
+            "מפתח הפיתוח הציבורי אסור בשימוש.");
+    }
+}
+
 // אימות JWT — בודק את ה-token שהלקוח שולח בכותרת Authorization
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>

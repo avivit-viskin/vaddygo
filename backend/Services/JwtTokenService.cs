@@ -51,15 +51,16 @@ namespace ParentCommitteeAPI.Services
         public const string Issuer = "VaddyGo";
         public const string Audience = "VaddyGoClient";
 
+        // מפתח פיתוח בלבד — ציבורי (מופיע בקוד/בריפו). מאפשר לשרת לרוץ מהקופסה
+        // בפיתוח. ⚠️ אסור בייצור — נאכף fail-closed ב-Program.cs (השרת לא יעלה).
+        public const string DevKey = "vaadygo-dev-only-signing-key-change-in-production-please-32b";
+
         public static string GetKey(IConfiguration config)
         {
             // בייצור המפתח מגיע מ-Jwt__Key (משתנה סביבה ב-Railway).
-            // בפיתוח בלבד יש ברירת מחדל כדי שהשרת ירוץ מהקופסה
-            // (מחרוזת ריקה ב-appsettings נחשבת כ"לא הוגדר").
+            // מחרוזת ריקה ב-appsettings נחשבת כ"לא הוגדר" → ברירת המחדל לפיתוח.
             var key = config["Jwt:Key"];
-            return string.IsNullOrWhiteSpace(key)
-                ? "vaadygo-dev-only-signing-key-change-in-production-please-32b"
-                : key;
+            return string.IsNullOrWhiteSpace(key) ? DevKey : key;
         }
     }
 }

@@ -6,8 +6,14 @@ import {
   setNotificationPref,
 } from "../services/notificationPrefs";
 import { isAiFinanceEnabled, setAiFinanceEnabled } from "../services/aiPrefs";
+import {
+  hasAnalyticsConsent,
+  setCookieConsent,
+} from "../services/cookieConsentService";
+import { applyAnalyticsConsent } from "../services/analytics";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
+import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
 import "../styles/settings.css";
 
@@ -18,6 +24,14 @@ import "../styles/settings.css";
 function SettingsPage() {
   const [prefs, setPrefs] = useState(getNotificationPrefs);
   const [aiFinance, setAiFinance] = useState(isAiFinanceEnabled);
+  const [analytics, setAnalytics] = useState(hasAnalyticsConsent);
+
+  function toggleAnalytics(event) {
+    const on = event.target.checked;
+    setCookieConsent(on ? "accepted" : "declined");
+    applyAnalyticsConsent(on);
+    setAnalytics(on);
+  }
 
   function toggle(key) {
     return (event) => setPrefs(setNotificationPref(key, event.target.checked));
@@ -61,9 +75,21 @@ function SettingsPage() {
             setAiFinance(setAiFinanceEnabled(event.target.checked))
           }
         />
+        <p className="settings__hint" style={{ marginTop: 12 }}>
+          עוגיות מדידה/סטטיסטיקה (אנליטיקס) עוזרות לנו לשפר את השירות. אפשר
+          לאשר או לבטל בכל רגע — כשמבטלים, לא נאסף עלייך מעקב.
+        </p>
+        <Checkbox
+          id="pref-analytics"
+          label="לאפשר עוגיות מדידה/סטטיסטיקה"
+          checked={analytics}
+          onChange={toggleAnalytics}
+        />
       </Card>
 
       <PaymentLinksCard />
+
+      <BankAccountCard />
 
       <ChangePasswordCard />
 

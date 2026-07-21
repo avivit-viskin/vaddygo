@@ -55,6 +55,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/groups/1/payment-provider — עדכון חשבון סליקת האשראי של הוועד
+        [HttpPut("{id}/payment-provider")]
+        public async Task<ActionResult<GroupResponseDto>> UpdatePaymentProvider(
+            int id, [FromBody] GroupPaymentProviderDto dto)
+        {
+            var updated = await _groupService.UpdatePaymentProviderAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/categories — עדכון קטגוריות הגבייה (מסך "עריכת גבייה")
         [HttpPut("{id}/categories")]
         public async Task<ActionResult<GroupResponseDto>> UpdateCategories(

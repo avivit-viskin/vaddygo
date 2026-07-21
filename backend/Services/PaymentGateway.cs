@@ -3,8 +3,13 @@ using System.Text.Json;
 
 namespace ParentCommitteeAPI.Services
 {
-    /* בקשת יצירת תשלום לספק הסליקה: סכום, תיאור, מזהה עסקה שלנו, וכתובת חזרה. */
-    public record GatewayPaymentRequest(decimal Amount, string Description, string TransactionRef, string ReturnUrl);
+    /* מפתחות חשבון הספק של הוועד — כדי שכסף הגבייה יגיע לחשבון של אותו ועד. */
+    public record GatewayCredentials(string? ApiKey, string? SecretKey, string? PageUid);
+
+    /* בקשת יצירת תשלום: סכום, תיאור, מזהה עסקה שלנו, כתובת חזרה, ומפתחות הוועד. */
+    public record GatewayPaymentRequest(
+        decimal Amount, string Description, string TransactionRef, string ReturnUrl,
+        GatewayCredentials? Credentials = null);
 
     /* תוצאת יצירת תשלום — הכתובת של עמוד התשלום המאובטח של הספק. */
     public record GatewayPaymentResult(string PaymentUrl);
@@ -97,12 +102,16 @@ namespace ParentCommitteeAPI.Services
 
         public string Name => "payplus";
 
+        private static string? FirstNonEmpty(string? a, string? b) =>
+            !string.IsNullOrWhiteSpace(a) ? a : b;
+
         public async Task<GatewayPaymentResult> CreatePaymentAsync(GatewayPaymentRequest request)
         {
             var baseUrl = _config["Payments:PayPlus:BaseUrl"];
-            var apiKey = _config["Payments:PayPlus:ApiKey"];
-            var secret = _config["Payments:PayPlus:SecretKey"];
-            var pageUid = _config["Payments:PayPlus:PaymentPageUid"];
+            // מפתחות הוועד (מהגן) קודמים; נפילה חזרה להגדרה הגלובלית (למשל למנוי המרכזי).
+            var apiKey = FirstNonEmpty(request.Credentials?.ApiKey, _config["Payments:PayPlus:ApiKey"]);
+            var secret = FirstNonEmpty(request.Credentials?.SecretKey, _config["Payments:PayPlus:SecretKey"]);
+            var pageUid = FirstNonEmpty(request.Credentials?.PageUid, _config["Payments:PayPlus:PaymentPageUid"]);
             if (string.IsNullOrEmpty(apiKey) || string.IsNullOrEmpty(secret) || string.IsNullOrEmpty(pageUid))
             {
                 throw new InvalidOperationException("PayPlus אינו מוגדר — חסרים מפתחות ב-Payments:PayPlus.");

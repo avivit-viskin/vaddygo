@@ -23,6 +23,24 @@ namespace ParentCommitteeAPI.DTOs
 
         // תקציבי החגים של הוועד: מפתח "שם|שנה עברית" → סכום
         public Dictionary<string, decimal> HolidayBudgets { get; set; } = new();
+
+        // חשבון סליקת האשראי של הוועד — מוחזרים רק פרטים לא-סודיים + דגל "מוגדר".
+        // המפתחות (ApiKey/SecretKey) לעולם לא מוחזרים ללקוח.
+        public string? PayProvider { get; set; }
+        public string? PayPageUid { get; set; }
+        public bool HasClearing { get; set; }
+    }
+
+    /*
+      GroupPaymentProviderDto — עדכון חשבון סליקת האשראי של הוועד (המפתחות שלו).
+      שדה סוד ריק = "אל תשנה" (משאיר את הקיים) — כדי לא לחייב הקלדה חוזרת של הסוד.
+    */
+    public class GroupPaymentProviderDto
+    {
+        public string? Provider { get; set; }
+        public string? ApiKey { get; set; }
+        public string? SecretKey { get; set; }
+        public string? PageUid { get; set; }
     }
 
     /*

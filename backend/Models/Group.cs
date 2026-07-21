@@ -29,6 +29,14 @@ namespace ParentCommitteeAPI.Models
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }
 
+        // חשבון סליקת האשראי של הוועד — כל ועד מזין את המפתחות של *חשבון הספק
+        // שלו* (המקושר לחשבון הבנק שלו), כדי שכסף הגבייה יגיע ישירות אליו.
+        // הסודות נשמרים כאן ולעולם לא מוחזרים ללקוח (ראה GroupResponseDto).
+        public string? PayProvider { get; set; }   // "payplus" וכו'
+        public string? PayApiKey { get; set; }
+        public string? PaySecretKey { get; set; }
+        public string? PayPageUid { get; set; }
+
         // תקציבי החגים של הוועד (מפתח "שם|שנה עברית" → סכום) כ-JSON — משותפים לכל
         // החברות; מוגדרים בלוח השנה ומשמשים גם את העוזרת התקציבית במסך המתנות.
         public string? HolidayBudgetsJson { get; set; }

@@ -69,10 +69,16 @@ namespace ParentCommitteeAPI.Services
             payment.TransactionRef = reff;
             await _db.SaveChangesAsync();
 
+            // מפתחות חשבון הספק של הוועד — כדי שכסף הגבייה יגיע לחשבון של הוועד הזה.
+            var group = await _db.Groups.FirstOrDefaultAsync(g => g.Id == student.GroupId);
+            var credentials = group == null
+                ? null
+                : new GatewayCredentials(group.PayApiKey, group.PaySecretKey, group.PayPageUid);
+
             var returnUrl = _config["Payments:ReturnUrl"] ?? "http://localhost:3000/pay/return";
             var description = $"{category.Name} — {student.FirstName} {student.LastName}".Trim();
             var result = await _gateway.CreatePaymentAsync(
-                new GatewayPaymentRequest(amount, description, reff, returnUrl));
+                new GatewayPaymentRequest(amount, description, reff, returnUrl, credentials));
 
             _logger.LogInformation(
                 "Card checkout started (StudentId: {StudentId}, CategoryId: {CategoryId}, Provider: {Provider})",

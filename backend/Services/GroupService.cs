@@ -99,6 +99,47 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
+          עדכון חשבון סליקת האשראי של הוועד (המפתחות של *חשבון הספק שלו*).
+          ספק ריק = ניתוק (מנקים הכל). מפתח סוד ריק = משאירים את הקיים (כדי לא
+          לחייב הקלדה חוזרת של הסוד בכל עדכון). בבעלות המשתמש בלבד (IDOR).
+        */
+        public async Task<GroupResponseDto?> UpdatePaymentProviderAsync(int id, GroupPaymentProviderDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null || group.UserId != _access.UserId)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(dto.Provider))
+            {
+                group.PayProvider = null;
+                group.PayPageUid = null;
+                group.PayApiKey = null;
+                group.PaySecretKey = null;
+            }
+            else
+            {
+                group.PayProvider = dto.Provider.Trim();
+                group.PayPageUid = string.IsNullOrWhiteSpace(dto.PageUid) ? null : dto.PageUid.Trim();
+                if (!string.IsNullOrWhiteSpace(dto.ApiKey))
+                {
+                    group.PayApiKey = dto.ApiKey.Trim();
+                }
+                if (!string.IsNullOrWhiteSpace(dto.SecretKey))
+                {
+                    group.PaySecretKey = dto.SecretKey.Trim();
+                }
+            }
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group payment provider updated (Id: {GroupId}, Provider: {Provider})",
+                id, group.PayProvider ?? "(none)");
+            return ToResponse(group);
+        }
+
+        /*
           עדכון קטגוריות הגבייה של גן קיים — כדי להגדיר/לתקן סכומים ומספר תשלומים
           אחרי ההרשמה.
 
@@ -225,6 +266,10 @@ namespace ParentCommitteeAPI.Services
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),
+                // חשבון הסליקה — רק פרטים לא-סודיים + דגל "מוגדר"; לעולם לא המפתחות
+                PayProvider = group.PayProvider,
+                PayPageUid = group.PayPageUid,
+                HasClearing = !string.IsNullOrEmpty(group.PaySecretKey),
             };
         }
     }

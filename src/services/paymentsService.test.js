@@ -4,6 +4,9 @@ import {
   buildReminderMessage,
   buildBulkPaymentRequestMessage,
   getPaymentSummary,
+  amountPaidSoFar,
+  amountRemaining,
+  isCategoryFullyPaid,
 } from "./paymentsService";
 import { api } from "./api";
 
@@ -95,5 +98,26 @@ describe("getPaymentSummary", () => {
     const summary = await getPaymentSummary(9);
     expect(summary.hasUnpaid).toBe(true); // טיולים לא כוסתה למרות isPaid
     expect(summary.paidCount).toBe(1);
+  });
+});
+
+describe("תשלום באשראי (cardAmount) נספר בחישוב", () => {
+  test("תשלום מלא באשראי — הקטגוריה נחשבת שולמה ואין חוב", () => {
+    const p = { amount: 1200, cardAmount: 1200 };
+    expect(amountPaidSoFar(p)).toBe(1200);
+    expect(isCategoryFullyPaid(p)).toBe(true);
+    expect(amountRemaining(p)).toBe(0);
+  });
+
+  test("תשלום חלקי באשראי (900 מתוך 1200) — עדיין חוב פתוח של 300", () => {
+    const p = { amount: 1200, cardAmount: 900 };
+    expect(isCategoryFullyPaid(p)).toBe(false);
+    expect(amountRemaining(p)).toBe(300);
+  });
+
+  test("אשראי מצטרף לשאר האמצעים בסכום ה'שולם'", () => {
+    const p = { amount: 1200, cashAmount: 300, cardAmount: 900 };
+    expect(amountPaidSoFar(p)).toBe(1200);
+    expect(isCategoryFullyPaid(p)).toBe(true);
   });
 });

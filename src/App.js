@@ -31,6 +31,7 @@ import TermsPage from "./pages/legal/TermsPage";
 import AccessibilityPage from "./pages/legal/AccessibilityPage";
 import CookiesPage from "./pages/legal/CookiesPage";
 import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated, hasVisitedBefore } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -88,6 +89,7 @@ function App() {
             <Route path="*" element={<Navigate to={entry} replace />} />
           </Routes>
         </main>
+        <CookieConsent />
       </div>
     );
   }
@@ -174,6 +176,7 @@ function App() {
       </main>
       {!isFullScreen && <WhatsAppFab />}
       {!isFullScreen && <BottomNav />}
+      <CookieConsent />
     </div>
   );
 }

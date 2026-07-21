@@ -1,0 +1,66 @@
+/*
+  cookie-consent — הודעת אישור עוגיות בכניסה למערכת. שכבה מעל התוכן (רקע מעומעם)
+  עם תיבה בתחתית המסך, כדי שיידרש אישור מפורש לפני המשך השימוש.
+*/
+.cookie-consent {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(18, 16, 28, 0.5);
+}
+
+.cookie-consent__box {
+  width: 100%;
+  max-width: 560px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px 18px;
+  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.28);
+}
+
+.cookie-consent__text {
+  margin: 0;
+  flex: 1;
+  min-width: 220px;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.cookie-consent__text a {
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.cookie-consent__btn {
+  flex: none;
+  min-height: var(--touch-target);
+  padding: 10px 24px;
+  border: none;
+  border-radius: 999px;
+  background-color: var(--color-primary-dark);
+  color: #ffffff;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.cookie-consent__btn:hover {
+  filter: brightness(0.92);
+}
+
+.cookie-consent__btn:focus-visible {
+  outline: 3px solid var(--color-primary-light);
+  outline-offset: 2px;
+}

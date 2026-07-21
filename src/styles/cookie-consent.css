@@ -42,25 +42,49 @@
   font-weight: 600;
 }
 
-.cookie-consent__btn {
+/* שני הכפתורים באותו גודל וזמינות — הסכמה וסירוב שווים (בלי "דפוסים אפלים") */
+.cookie-consent__actions {
   flex: none;
+  display: flex;
+  gap: 8px;
+}
+
+.cookie-consent__btn {
   min-height: var(--touch-target);
-  padding: 10px 24px;
-  border: none;
+  padding: 10px 20px;
   border-radius: 999px;
-  background-color: var(--color-primary-dark);
-  color: #ffffff;
   font-family: inherit;
   font-size: var(--font-size-base);
   font-weight: 700;
   cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.cookie-consent__btn--accept {
+  background-color: var(--color-primary-dark);
+  color: #ffffff;
+}
+
+.cookie-consent__btn--decline {
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
 }
 
 .cookie-consent__btn:hover {
-  filter: brightness(0.92);
+  filter: brightness(0.95);
 }
 
 .cookie-consent__btn:focus-visible {
   outline: 3px solid var(--color-primary-light);
   outline-offset: 2px;
+}
+
+@media (max-width: 420px) {
+  .cookie-consent__actions {
+    width: 100%;
+  }
+  .cookie-consent__btn {
+    flex: 1;
+  }
 }

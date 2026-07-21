@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import Logo from "./components/Logo";
 import InstitutionAvatar from "./components/InstitutionAvatar";
@@ -32,6 +32,8 @@ import AccessibilityPage from "./pages/legal/AccessibilityPage";
 import CookiesPage from "./pages/legal/CookiesPage";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
+import { applyAnalyticsConsent } from "./services/analytics";
+import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { isOnboardingComplete } from "./services/onboardingService";
 import { isAuthenticated, hasVisitedBefore } from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
@@ -70,6 +72,11 @@ const AUTH_ENTRY_ROUTES = ["/welcome", "/login", "/register"];
 function App() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+
+  // בעליית האפליקציה: מפעילים מעקב רק אם המשתמש/ת אישרה עוגיות מדידה (אחרת לא).
+  useEffect(() => {
+    applyAnalyticsConsent(hasAnalyticsConsent());
+  }, []);
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");
   const isFullScreen =

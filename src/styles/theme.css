@@ -471,8 +471,24 @@ button.vendor-form__remove {
   font-weight: 600;
 }
 
+.bottom-nav__link {
+  position: relative;
+}
+
 .bottom-nav__link.active {
   color: var(--color-primary-dark);
+}
+
+/* קו ורוד עדין מעל הפריט הפעיל — מסמן איפה אנחנו בבירור */
+.bottom-nav__link.active::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 22%;
+  right: 22%;
+  height: 3px;
+  border-radius: 0 0 3px 3px;
+  background: var(--color-primary);
 }
 
 .bottom-nav__icon {

@@ -14,6 +14,8 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  gap: 12px;
+  padding: 4px 0 2px;
 }
 
 /* פעולות מהירות בכותרת הבית — עוזרת AI + פעמון התראות, זה לצד זה */
@@ -32,8 +34,9 @@
   min-height: var(--touch-target);
   padding: 0 12px;
   border-radius: 999px;
-  background-color: var(--color-primary-dark);
-  color: #ffffff;
+  background-color: var(--color-accent-pink); /* ורוד בהיר ורך — קליל ולא כבד */
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary-muted);
   font-weight: 700;
   font-size: 0.9rem;
   letter-spacing: 0.5px;
@@ -114,6 +117,12 @@
 }
 
 /* ── כרטיס הגבייה ────────────────────────────────────────── */
+
+/* כרטיס הגבייה הוא "גיבור" המסך — רקע חם עדין ומסגרת ורודה רכה שמייחדות אותו */
+.card:has(.collection__top) {
+  background: linear-gradient(180deg, #ffffff 0%, #fdf1f6 100%);
+  border-color: #f2d6e4;
+}
 
 .collection__top {
   display: flex;

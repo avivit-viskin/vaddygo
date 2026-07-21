@@ -145,7 +145,8 @@ h3 {
 .app-main {
   max-width: 640px;
   margin: 0 auto;
-  padding: 16px 16px calc(var(--bottom-nav-height) + 16px);
+  padding: 16px 16px
+    calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
 /* ===== המותג — VaddyGo תמיד מודגש ===== */
@@ -450,7 +451,10 @@ button.vendor-form__remove {
   bottom: 0;
   right: 0;
   left: 0;
-  height: var(--bottom-nav-height);
+  /* מגביהים את הסרגל מעל פס-הבית של הטלפון + עוד קצת אוויר, כדי שיהיה קל לראות
+     וללחוץ ולא יהיה "נדבק" לתחתית המסך */
+  height: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 6px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 6px);
   display: flex;
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-border);

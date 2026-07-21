@@ -6,6 +6,14 @@
 
 ---
 
+## 21.07.2026 — אבטחה: הגבלת ניסיונות לקוד איפוס הסיסמה (anti brute-force) [Claude Opus]
+
+- **מה נעשה:** נוסף `User.ResetCodeAttempts` (+ מיגרציה `AddResetCodeAttempts`). ב-`AuthService.ResetPasswordAsync` — כל קוד שגוי סופר ניסיון, ואחרי **5 ניסיונות שגויים הקוד מבוטל** (נמחק, צריך לבקש חדש). הפקת קוד חדש ואיפוס מוצלח מאפסים את המונה. כך ניחוש גס של הקוד בן 6 הספרות מוגבל ל-5 ניסיונות = 5 למיליון (במקום מיליון אפשרויות פתוחות).
+- **למה:** ביקורת אבטחה (בקשת בעלת המוצר) — הקוד היה חשוף לניחוש גס בלי תקרת ניסיונות.
+- **קבצים:** `backend/Models/User.cs`, `backend/Services/AuthService.cs`, `backend/Migrations/*AddResetCodeAttempts.*`.
+- **אימות:** `dotnet build` 0/0, המיגרציה נקייה (עמודת int); סמוק-טסט: 6 ניסיונות שגויים → 400 בלי קריסה, והלוג הראה `Reset code invalidated after too many attempts` אחרי ה-5.
+- **⚠️ הצעד הבא (קריטי לבעלת המוצר):** לוודא ש-`Jwt__Key` מוגדר ב-Railway (שירות `soothing-clarity`) כמחרוזת אקראית ארוכה — אחרת `JwtSettings.GetKey` נופל למפתח-פיתוח **ציבורי** שבריפו, וכל מי שרואה את הריפו יכול לזייף טוקנים. הבא בתור: מעבר ל-SQL Server (שלב 11).
+
 ## 21.07.2026 — מייל RTL + תיקון: תשלומי אשראי לא נספרו בבקשת התשלום [Claude Opus]
 
 - **מה נעשה:** (1) **מייל האיפוס מימין-לשמאל** — `ResendEmailSender` שולח עכשיו גם `html` עטוף ב-`<div dir="rtl">` (לא רק טקסט פשוט), כך שהעברית מיושרת נכון בכל תוכנת מייל. (2) **תיקון באג חישוב:** תשלום ב**אשראי** (`CardAmount`, נשמר ע"י `CardPaymentService`) **לא נספר** בבקשת התשלום — `PaymentResponseDto` לא החזיר אותו ו-`amountPaidSoFar` בפרונט לא כלל אותו. התוצאה: הורה ששילם באשראי נראה כמי שלא שילם, והחוב חושב שגוי. נוסף `CardAmount` ל-DTO ול-`PaymentService` (ToResponse+Default), ונכלל ב-`amountPaidSoFar` וב-`total` של `PaymentRow`.

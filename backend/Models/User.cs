@@ -28,6 +28,10 @@ namespace ParentCommitteeAPI.Models
         public string? ResetCodeHash { get; set; }
         public DateTime? ResetCodeExpiresAt { get; set; }
 
+        // מונה ניסיונות שגויים לקוד האיפוס — אחרי 5 מבטלים את הקוד (מונע ניחוש גס
+        // של הקוד בן 6 הספרות). מתאפס עם הפקת קוד חדש ואחרי איפוס מוצלח.
+        public int ResetCodeAttempts { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

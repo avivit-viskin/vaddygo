@@ -172,6 +172,7 @@ namespace ParentCommitteeAPI.Services
             var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
             user.ResetCodeHash = PasswordHasher.Hash(code);
             user.ResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(5);
+            user.ResetCodeAttempts = 0; // קוד חדש — מאתחלים את מונה הניסיונות
             await _db.SaveChangesAsync();
 
             var body =
@@ -193,22 +194,41 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<string?> ResetPasswordAsync(ResetPasswordDto dto)
         {
+            const string genericError = "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש.";
             var email = dto.Email.Trim().ToLowerInvariant();
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
 
-            // הודעה אחידה לכל כשל (קוד שגוי/פג/אין בקשה) — לא חושפים פרטים
+            // אין תהליך איפוס פעיל / פג תוקף — כשל אחיד (לא חושפים פרטים)
             if (user == null
                 || string.IsNullOrEmpty(user.ResetCodeHash)
                 || user.ResetCodeExpiresAt == null
-                || user.ResetCodeExpiresAt.Value < DateTime.UtcNow
-                || !PasswordHasher.Verify(dto.Code.Trim(), user.ResetCodeHash))
+                || user.ResetCodeExpiresAt.Value < DateTime.UtcNow)
             {
-                return "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש.";
+                return genericError;
             }
 
+            // קוד שגוי — סופרים ניסיון; אחרי 5 שגויים מבטלים את הקוד (מונע ניחוש
+            // גס של הקוד בן 6 הספרות — צריך לבקש קוד חדש).
+            if (!PasswordHasher.Verify(dto.Code.Trim(), user.ResetCodeHash))
+            {
+                user.ResetCodeAttempts += 1;
+                if (user.ResetCodeAttempts >= 5)
+                {
+                    user.ResetCodeHash = null;
+                    user.ResetCodeExpiresAt = null;
+                    user.ResetCodeAttempts = 0;
+                    _logger.LogWarning(
+                        "Reset code invalidated after too many attempts (User: {UserId})", user.Id);
+                }
+                await _db.SaveChangesAsync();
+                return genericError;
+            }
+
+            // קוד תקין — מאפסים סיסמה ומנקים את מצב האיפוס
             user.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
             user.ResetCodeHash = null;      // קוד חד-פעמי — נמחק אחרי שימוש
             user.ResetCodeExpiresAt = null;
+            user.ResetCodeAttempts = 0;
             await _db.SaveChangesAsync();
             _logger.LogInformation("Password reset via code (User: {UserId})", user.Id);
             return null;

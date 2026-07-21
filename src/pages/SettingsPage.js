@@ -8,7 +8,6 @@ import {
 import { isAiFinanceEnabled, setAiFinanceEnabled } from "../services/aiPrefs";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
-import ClearingSettingsCard from "./settings/ClearingSettingsCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
 import "../styles/settings.css";
 
@@ -65,8 +64,6 @@ function SettingsPage() {
       </Card>
 
       <PaymentLinksCard />
-
-      <ClearingSettingsCard />
 
       <ChangePasswordCard />
 

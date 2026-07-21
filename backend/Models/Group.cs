@@ -37,6 +37,13 @@ namespace ParentCommitteeAPI.Models
         public string? PaySecretKey { get; set; }
         public string? PayPageUid { get; set; }
 
+        // חשבון הבנק של הוועד לקבלת תשלומי אשראי (מודל "חשבונות מחוברים") —
+        // בלי מפתחות: כל ועד מזין רק את פרטי חשבונו, והכסף מנותב אליו ע"י הספק.
+        public string? BankHolder { get; set; }
+        public string? BankName { get; set; }
+        public string? BankBranch { get; set; }
+        public string? BankAccount { get; set; }
+
         // תקציבי החגים של הוועד (מפתח "שם|שנה עברית" → סכום) כ-JSON — משותפים לכל
         // החברות; מוגדרים בלוח השנה ומשמשים גם את העוזרת התקציבית במסך המתנות.
         public string? HolidayBudgetsJson { get; set; }

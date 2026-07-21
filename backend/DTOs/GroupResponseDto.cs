@@ -29,6 +29,12 @@ namespace ParentCommitteeAPI.DTOs
         public string? PayProvider { get; set; }
         public string? PayPageUid { get; set; }
         public bool HasClearing { get; set; }
+
+        // חשבון הבנק של הוועד לקבלת תשלומי אשראי (פרטי הוועד עצמו — מוחזרים לבעלים)
+        public string? BankHolder { get; set; }
+        public string? BankName { get; set; }
+        public string? BankBranch { get; set; }
+        public string? BankAccount { get; set; }
     }
 
     /*
@@ -41,6 +47,15 @@ namespace ParentCommitteeAPI.DTOs
         public string? ApiKey { get; set; }
         public string? SecretKey { get; set; }
         public string? PageUid { get; set; }
+    }
+
+    /* GroupBankAccountDto — עדכון חשבון הבנק של הוועד לקבלת תשלומי אשראי (בלי מפתחות). */
+    public class GroupBankAccountDto
+    {
+        public string? Holder { get; set; }
+        public string? BankName { get; set; }
+        public string? Branch { get; set; }
+        public string? Account { get; set; }
     }
 
     /*

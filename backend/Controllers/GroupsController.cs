@@ -66,6 +66,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/groups/1/bank-account — עדכון חשבון הבנק של הוועד לקבלת תשלומי אשראי
+        [HttpPut("{id}/bank-account")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateBankAccount(
+            int id, [FromBody] GroupBankAccountDto dto)
+        {
+            var updated = await _groupService.UpdateBankAccountAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/categories — עדכון קטגוריות הגבייה (מסך "עריכת גבייה")
         [HttpPut("{id}/categories")]
         public async Task<ActionResult<GroupResponseDto>> UpdateCategories(

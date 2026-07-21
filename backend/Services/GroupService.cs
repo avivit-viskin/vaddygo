@@ -139,6 +139,26 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        /* עדכון חשבון הבנק של הוועד לקבלת תשלומי אשראי (בלי מפתחות). בבעלות בלבד (IDOR). */
+        public async Task<GroupResponseDto?> UpdateBankAccountAsync(int id, GroupBankAccountDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null || group.UserId != _access.UserId)
+            {
+                return null;
+            }
+
+            group.BankHolder = string.IsNullOrWhiteSpace(dto.Holder) ? null : dto.Holder.Trim();
+            group.BankName = string.IsNullOrWhiteSpace(dto.BankName) ? null : dto.BankName.Trim();
+            group.BankBranch = string.IsNullOrWhiteSpace(dto.Branch) ? null : dto.Branch.Trim();
+            group.BankAccount = string.IsNullOrWhiteSpace(dto.Account) ? null : dto.Account.Trim();
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group bank account updated (Id: {GroupId})", id);
+            return ToResponse(group);
+        }
+
         /*
           עדכון קטגוריות הגבייה של גן קיים — כדי להגדיר/לתקן סכומים ומספר תשלומים
           אחרי ההרשמה.
@@ -270,6 +290,10 @@ namespace ParentCommitteeAPI.Services
                 PayProvider = group.PayProvider,
                 PayPageUid = group.PayPageUid,
                 HasClearing = !string.IsNullOrEmpty(group.PaySecretKey),
+                BankHolder = group.BankHolder,
+                BankName = group.BankName,
+                BankBranch = group.BankBranch,
+                BankAccount = group.BankAccount,
             };
         }
     }

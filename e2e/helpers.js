@@ -29,4 +29,12 @@ async function deleteAllStudents(request) {
   return students.length;
 }
 
-module.exports = { API_URL, apiToken, deleteAllStudents };
+/* סוגר את באנר העוגיות אם הופיע (מקבל) — אחרת הוא חוסם לחיצות באתר. */
+async function acceptCookies(page) {
+  await page
+    .locator(".cookie-consent__btn--accept")
+    .click({ timeout: 3000 })
+    .catch(() => {});
+}
+
+module.exports = { API_URL, apiToken, deleteAllStudents, acceptCookies };

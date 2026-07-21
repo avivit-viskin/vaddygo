@@ -1,4 +1,5 @@
 const { test: setup, expect } = require("@playwright/test");
+const { acceptCookies } = require("./helpers");
 
 /*
   auth.setup — מתחבר פעם אחת עם חשבון-הבדיקה הייעודי (דרך מסך הכניסה, כמו משתמשת
@@ -14,6 +15,7 @@ setup("התחברות חשבון-הבדיקה ושמירת המצב", async ({ p
   expect(password, "חסר E2E_PASSWORD").toBeTruthy();
 
   await page.goto("/login");
+  await acceptCookies(page); // באנר העוגיות חוסם את כפתור הכניסה — סוגרים קודם
   await page.locator("#login-identifier").fill(user);
   await page.locator("#login-password").fill(password);
   await page.getByRole("button", { name: "כניסה" }).click();

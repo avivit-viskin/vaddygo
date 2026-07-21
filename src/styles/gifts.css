@@ -17,7 +17,35 @@
 }
 
 .countdown__icon {
-  font-size: 2rem;
+  font-size: 1.7rem;
+  flex-shrink: 0;
+}
+
+.countdown__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* כפתור ה-X להסתרת התראה — קטן ועדין בפינה */
+.countdown__dismiss,
+.upcoming__dismiss {
+  flex-shrink: 0;
+  align-self: flex-start;
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1;
+  min-width: 32px;
+  min-height: 32px;
+  border-radius: var(--radius-sm);
+}
+
+.countdown__dismiss:hover,
+.upcoming__dismiss:hover {
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
 }
 
 .countdown__title {

@@ -496,6 +496,12 @@ button.vendor-form__remove {
   line-height: 1;
 }
 
+.bottom-nav__icon svg {
+  width: 25px;
+  height: 25px;
+  display: block;
+}
+
 /* ===== כותרת עמוד עם כפתור פעולה ===== */
 
 .page-header {

@@ -2,28 +2,27 @@ import { useParams, useNavigate } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
-import { getInstitutions } from "../services/institutionsService";
+import { getInstitutions, beginActivation } from "../services/institutionsService";
 import { formatShekels } from "../services/format";
 import "../styles/onboarding.css";
 
 /*
-  PurchasePage — מסך רכישת מנוי למוסד נוסף (UI_SPEC ס' 3.5). מציג את מחיר המנוי
-  וממשיך לתשלום; אחרי תשלום מוצלח המוסד מופעל וממשיכים לאשף ההגדרה שלו. הכסף
-  כאן מגיע ל-VaddyGo (הכנסת המוצר), בשונה מכסף הגבייה שמגיע לכל ועד.
+  PurchasePage — מסך הפעלת מוסד נוסף (UI_SPEC ס' 3.5). חודש ראשון חינם (תקופת
+  ניסיון); מפעילים ללא תשלום וממשיכים לאשף ההגדרה. לאחר תקופת הניסיון ייגבה
+  תשלום המנוי (הכנסת VaddyGo, בשונה מכסף הגבייה שמגיע לכל ועד).
+  ⏳ אכיפת סיום הניסיון והחיוב בפועל = מערכת חיוב עתידית.
 */
-// מחיר המנוי למוסד נוסף (ערך התחלתי — ניתן לשינוי בהמשך).
-const SUBSCRIPTION_PRICE = 360;
+// מחיר המנוי לאחר תקופת הניסיון (ערך התחלתי — ניתן לשינוי).
+const SUBSCRIPTION_PRICE = 249;
 
 function PurchasePage() {
   const { id } = useParams();
   const navigate = useNavigate();
   const institution = getInstitutions().find((i) => i.id === id);
 
-  function goToPayment() {
-    const label = `מנוי VaddyGo — ${institution?.name || "מוסד חדש"}`;
-    navigate(
-      `/pay?amount=${SUBSCRIPTION_PRICE}&for=${encodeURIComponent(label)}&activate=${id}`
-    );
+  function startTrial() {
+    beginActivation(id);
+    navigate("/onboarding");
   }
 
   return (
@@ -33,17 +32,18 @@ function PurchasePage() {
       </h1>
       <Card title={`הפעלת המוסד "${institution?.name || "החדש"}"`}>
         <p>
-          כדי לנהל מוסד נוסף צריך מנוי נפרד. אחרי התשלום נגדיר יחד את המוסד החדש
-          (שם, קבוצות, גבייה) — בדיוק כמו בהרשמה הראשונה.
+          מפעילים את המוסד החדש ומגדירים אותו יחד (שם, קבוצות, גבייה) — בדיוק כמו
+          בהרשמה הראשונה.
         </p>
-        <div className="purchase__price">
-          <span className="purchase__price-label">מנוי שנתי למוסד</span>
-          <span className="purchase__price-amount">
-            {formatShekels(SUBSCRIPTION_PRICE)}
-          </span>
+        <div className="purchase__trial">
+          <span className="purchase__trial-badge">🎁 חודש ראשון חינם</span>
+          <p className="purchase__trial-note">
+            תקופת ניסיון של חודש — ללא תשלום. לאחר תקופת הניסיון ייגבה תשלום של
+            כ־{formatShekels(SUBSCRIPTION_PRICE)}.
+          </p>
         </div>
         <div className="auth-page__actions">
-          <Button onClick={goToPayment}>המשך לתשלום 💳</Button>
+          <Button onClick={startTrial}>התחל חודש ניסיון חינם</Button>
           <Button variant="secondary" onClick={() => navigate("/")}>
             חזרה
           </Button>

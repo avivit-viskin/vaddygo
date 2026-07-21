@@ -1,10 +1,11 @@
 import { useState } from "react";
-import { useSearchParams, Link } from "react-router-dom";
+import { useSearchParams, Link, useNavigate } from "react-router-dom";
 import useForm from "../hooks/useForm";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import { formatShekels } from "../services/format";
+import { beginActivation } from "../services/institutionsService";
 import "../styles/checkout.css";
 
 /*
@@ -31,8 +32,20 @@ function validateCard(values) {
 
 function CheckoutPage() {
   const [params] = useSearchParams();
+  const navigate = useNavigate();
   const amount = Number(params.get("amount")) || 500;
   const description = params.get("for") || "דמי ועד";
+  // אם התשלום הוא על הפעלת מוסד נוסף — ממשיכים משם להגדרת המוסד
+  const activateId = params.get("activate");
+
+  function continueAfterPurchase() {
+    if (activateId) {
+      beginActivation(activateId);
+      navigate("/onboarding");
+    } else {
+      navigate("/");
+    }
+  }
 
   const [isPaid, setIsPaid] = useState(false);
   const { values, errors, isSubmitting, handleChange, handleSubmit } = useForm(
@@ -59,9 +72,13 @@ function CheckoutPage() {
             <p className="checkout__demo-note">
               הדגמה — לא בוצע חיוב אמיתי. סליקה אמיתית תחובר בהמשך.
             </p>
-            <Link to="/" className="checkout__back">
-              <Button variant="secondary">חזרה לבית</Button>
-            </Link>
+            {activateId ? (
+              <Button onClick={continueAfterPurchase}>המשך להגדרת המוסד</Button>
+            ) : (
+              <Link to="/" className="checkout__back">
+                <Button variant="secondary">חזרה לבית</Button>
+              </Link>
+            )}
           </div>
         </Card>
       </div>

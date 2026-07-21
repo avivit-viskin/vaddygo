@@ -316,3 +316,20 @@
 .summary-list .summary-list__value {
   font-weight: 500;
 }
+
+/* מחיר המנוי במסך רכישת מוסד נוסף */
+.purchase__price {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  margin: 16px 0;
+  padding: 12px 16px;
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+}
+
+.purchase__price-amount {
+  font-size: var(--font-size-xl);
+  font-weight: bold;
+  color: var(--color-primary-dark);
+}

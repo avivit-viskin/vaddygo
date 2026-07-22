@@ -479,11 +479,12 @@ button.vendor-form__remove {
   position: relative;
 }
 
+/* המסך הפעיל נצבע בוורוד קריא (רוז חם) — האייקון, התווית והקו העליון */
 .bottom-nav__link.active {
-  color: var(--color-primary-dark);
+  color: var(--color-link);
 }
 
-/* קו ורוד עדין מעל הפריט הפעיל — מסמן איפה אנחנו בבירור */
+/* קו ורוד מעל הפריט הפעיל — מסמן איפה אנחנו בבירור */
 .bottom-nav__link.active::before {
   content: "";
   position: absolute;
@@ -492,7 +493,7 @@ button.vendor-form__remove {
   right: 22%;
   height: 3px;
   border-radius: 0 0 3px 3px;
-  background: var(--color-primary);
+  background: var(--color-link);
 }
 
 .bottom-nav__icon {

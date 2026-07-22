@@ -12,5 +12,6 @@ namespace ParentCommitteeAPI.Services
         Task<GroupResponseDto?> UpdateBankAccountAsync(int id, GroupBankAccountDto dto);
         Task<GroupResponseDto?> UpdateCategoriesAsync(int id, GroupCategoriesUpdateDto dto);
         Task<GroupResponseDto?> UpdateHolidayBudgetsAsync(int id, Dictionary<string, decimal> budgets);
+        Task<bool> DeleteAsync(int id);
     }
 }

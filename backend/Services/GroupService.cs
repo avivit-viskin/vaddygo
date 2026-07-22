@@ -80,6 +80,62 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        /*
+          מחיקת מוסד (Group) בודד וכל הנתונים שלו — רק הגן הזה, לא המשתמש ולא
+          גנים אחרים. מותר *לבעלים בלבד* (לא לחברי צוות), ולכן בודקים UserId;
+          מי שאינו הבעלים מקבל "לא נמצא" (לא חושפים קיום). מוחקים בסדר שמכבד
+          מפתחות זרים (תשלומים → שאר הישויות → הגן), הכל בטרנזקציה אחת.
+          מחזיר true אם נמחק, false אם הגן לא קיים או אינו בבעלות המשתמש.
+        */
+        public async Task<bool> DeleteAsync(int id)
+        {
+            var uid = _access.UserId;
+            if (uid == null)
+            {
+                return false;
+            }
+
+            var group = await _db.Groups
+                .FirstOrDefaultAsync(g => g.Id == id && g.UserId == uid.Value);
+            if (group == null)
+            {
+                return false;
+            }
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+
+            var studentIds = await _db.Students
+                .Where(s => s.GroupId == id)
+                .Select(s => s.Id)
+                .ToListAsync();
+            var categoryIds = await _db.CollectionCategories
+                .Where(c => c.GroupId == id)
+                .Select(c => c.Id)
+                .ToListAsync();
+
+            // 1) תשלומים (מצביעים על תלמידים/קטגוריות) — נמחקים ראשונים
+            await _db.Payments
+                .Where(p => studentIds.Contains(p.StudentId)
+                         || categoryIds.Contains(p.CollectionCategoryId))
+                .ExecuteDeleteAsync();
+
+            // 2) כל הישויות של הגן הזה
+            await _db.Students.Where(s => s.GroupId == id).ExecuteDeleteAsync();
+            await _db.StaffMembers.Where(s => s.GroupId == id).ExecuteDeleteAsync();
+            await _db.Expenses.Where(e => e.GroupId == id).ExecuteDeleteAsync();
+            await _db.Gifts.Where(g => g.GroupId == id).ExecuteDeleteAsync();
+            await _db.Events.Where(e => e.GroupId == id).ExecuteDeleteAsync();
+            await _db.DriveFolders.Where(d => d.GroupId == id).ExecuteDeleteAsync();
+            await _db.CollectionCategories.Where(c => c.GroupId == id).ExecuteDeleteAsync();
+
+            // 3) הגן עצמו — רק שלו, בבעלות המשתמש (לא המשתמש ולא גנים אחרים)
+            await _db.Groups.Where(g => g.Id == id && g.UserId == uid.Value).ExecuteDeleteAsync();
+
+            await tx.CommitAsync();
+            _logger.LogInformation("Institution deleted (GroupId: {GroupId}, UserId: {UserId})", id, uid.Value);
+            return true;
+        }
+
         public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
         {
             var group = await _db.Groups

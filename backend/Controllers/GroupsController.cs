@@ -98,5 +98,15 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "גן לא נמצא" });
             return Ok(updated);
         }
+
+        // DELETE: api/groups/1 — מחיקת מוסד בודד וכל נתוניו (בבעלות המשתמש בלבד)
+        [HttpDelete("{id}")]
+        public async Task<IActionResult> DeleteGroup(int id)
+        {
+            var deleted = await _groupService.DeleteAsync(id);
+            if (!deleted)
+                return NotFound(new { message = "גן לא נמצא" });
+            return NoContent();
+        }
     }
 }

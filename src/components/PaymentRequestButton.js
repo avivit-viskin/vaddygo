@@ -8,6 +8,9 @@ import {
   amountRemaining,
 } from "../services/paymentsService";
 import { getPaymentLinks } from "../services/paymentSettingsService";
+import { getBankAccount } from "../services/bankAccountService";
+import { startStudentCardCheckout } from "../services/cardPaymentService";
+import { whatsappUrl } from "../services/whatsapp";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
@@ -47,12 +50,20 @@ function PaymentRequestContent({ student, fullName }) {
   );
   const { data: payments, isLoading, error, reload } = useApi(fetcher);
   const [links, setLinks] = useState({ bit: "", paybox: "" });
+  const [cardConfigured, setCardConfigured] = useState(false);
+  const [cardWa, setCardWa] = useState(""); // קישור וואטסאפ לאשראי, אחרי יצירת קישור התשלום
+  const [cardLoading, setCardLoading] = useState(false);
+  const [cardError, setCardError] = useState("");
 
-  // קישורי הוועד נטענים מהשרת (עם נפילה מקומית) בפתיחת החלון
+  // אמצעי התשלום שהוועד הגדיר נטענים בפתיחת החלון: ביט/פייבוקס (קישורים) ואשראי
+  // (חשבון בנק שהוזן). כל אמצעי מוצג רק אם הוגדר.
   useEffect(() => {
     let alive = true;
     getPaymentLinks().then((loaded) => {
       if (alive) setLinks(loaded);
+    });
+    getBankAccount().then((acct) => {
+      if (alive) setCardConfigured(Boolean(acct?.account));
     });
     return () => {
       alive = false;
@@ -92,6 +103,25 @@ function PaymentRequestContent({ student, fullName }) {
       buildPaymentRequestMessage(fullName, unpaid, method, links)
     );
 
+  // אשראי: פותח תשלום לכל החוב של התלמיד, ומכין הודעת וואטסאפ עם הקישור המאובטח.
+  async function handleCard() {
+    setCardError("");
+    setCardLoading(true);
+    try {
+      const url = await startStudentCardCheckout(student.id);
+      const message =
+        `שלום :) לתשלום דמי הוועד של ${fullName} בכרטיס אשראי, ` +
+        `היכנסו לקישור המאובטח: ${url}`;
+      setCardWa(
+        `${whatsappUrl(student.parentPhoneNumber)}?text=${encodeURIComponent(message)}`
+      );
+    } catch (err) {
+      setCardError(err.message || "לא הצלחנו ליצור קישור אשראי");
+    } finally {
+      setCardLoading(false);
+    }
+  }
+
   return (
     <div className="pay-request">
       <p className="pay-request__total">
@@ -106,41 +136,64 @@ function PaymentRequestContent({ student, fullName }) {
       </ul>
 
       <p className="pay-request__prompt">באיזה אמצעי לבקש מההורה לשלם?</p>
-      <div className="pay-request__methods">
-        {links.bit && (
+      {cardWa ? (
+        <div className="pay-request__methods">
           <a
             className="pay-request__method"
-            href={methodUrl("bit")}
+            href={cardWa}
             target="_blank"
             rel="noreferrer"
           >
-            <Button>BIT</Button>
+            <Button>💳 שלח קישור אשראי בוואטסאפ</Button>
           </a>
-        )}
-        {links.paybox && (
+        </div>
+      ) : (
+        <div className="pay-request__methods">
+          {cardConfigured && (
+            <Button onClick={handleCard} isLoading={cardLoading}>
+              💳 אשראי
+            </Button>
+          )}
+          {links.bit && (
+            <a
+              className="pay-request__method"
+              href={methodUrl("bit")}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>🔵 ביט</Button>
+            </a>
+          )}
+          {links.paybox && (
+            <a
+              className="pay-request__method"
+              href={methodUrl("paybox")}
+              target="_blank"
+              rel="noreferrer"
+            >
+              <Button>🟣 פייבוקס</Button>
+            </a>
+          )}
           <a
             className="pay-request__method"
-            href={methodUrl("paybox")}
+            href={methodUrl("cash")}
             target="_blank"
             rel="noreferrer"
           >
-            <Button>פייבוקס</Button>
+            <Button variant="secondary">מזומן (תזכורת)</Button>
           </a>
-        )}
-        <a
-          className="pay-request__method"
-          href={methodUrl("cash")}
-          target="_blank"
-          rel="noreferrer"
-        >
-          <Button variant="secondary">מזומן (תזכורת)</Button>
-        </a>
-      </div>
+        </div>
+      )}
+      {cardError && (
+        <p className="field__error" role="alert">
+          {cardError}
+        </p>
+      )}
 
-      {!links.bit && !links.paybox && (
+      {!cardConfigured && !links.bit && !links.paybox && (
         <p className="pay-request__hint">
-          💡 להוספת אמצעי תשלום — ביט, פייבוקס או העברה בכרטיס אשראי — אפשר
-          להיכנס ל<strong>הגדרות</strong>.
+          💡 להוספת אמצעי תשלום — אשראי (חשבון בנק), ביט או פייבוקס — אפשר להיכנס
+          ל<strong>הגדרות</strong>.
         </p>
       )}
     </div>

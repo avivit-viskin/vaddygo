@@ -57,7 +57,7 @@ test("עם קישור ביט שמור — כפתור ביט מצרף את הקי
   render(<PaymentRequestButton student={student} />);
 
   fireEvent.click(screen.getByRole("button", { name: /בקשת תשלום/ }));
-  const bit = await screen.findByRole("link", { name: "BIT" });
+  const bit = await screen.findByRole("link", { name: /ביט/ });
   expect(bit.getAttribute("href")).toContain(
     encodeURIComponent("https://bit.example/vaad")
   );

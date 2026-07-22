@@ -15,6 +15,12 @@ export async function startCardCheckout(studentId, categoryId) {
   return res.paymentUrl;
 }
 
+/* פותח תשלום אשראי לכל החוב הפתוח של התלמיד (סכום כל הקטגוריות) — מחזיר כתובת. */
+export async function startStudentCardCheckout(studentId) {
+  const res = await api.post(`/api/students/${studentId}/card-checkout`);
+  return res.paymentUrl;
+}
+
 /* סימולטור בלבד: מאשר את התשלום המדומה (שולח webhook כמו הספק). */
 export async function confirmMockPayment(transactionRef, amount) {
   return api.post("/api/payments/card-webhook", {

@@ -32,6 +32,18 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(new { paymentUrl = result.PaymentUrl });
         }
 
+        // תשלום אשראי לכל החוב הפתוח של התלמיד (סכום כל הקטגוריות שטרם שולמו)
+        [HttpPost("api/students/{studentId}/card-checkout")]
+        public async Task<IActionResult> CheckoutStudent(int studentId)
+        {
+            var result = await _cardPayments.StartStudentCheckoutAsync(studentId);
+            if (result == null)
+            {
+                return NotFound(new { message = "אין חוב פתוח לתלמיד, או שלא נמצא" });
+            }
+            return Ok(new { paymentUrl = result.PaymentUrl });
+        }
+
         [AllowAnonymous]
         [HttpPost("api/payments/card-webhook")]
         public async Task<IActionResult> Webhook()

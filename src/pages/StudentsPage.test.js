@@ -51,6 +51,14 @@ function mockServer(initialStudents, paymentsByStudent = {}) {
   let students = [...initialStudents];
   global.fetch = jest.fn((url, options = {}) => {
     const method = options.method ?? "GET";
+    // סיכום מרוכז לכל התלמידים — רשימה שטוחה של שורות עם studentId
+    if (method === "GET" && url.includes("/api/payment-summaries")) {
+      const flat = [];
+      for (const [sid, rows] of Object.entries(paymentsByStudent)) {
+        for (const row of rows) flat.push({ studentId: Number(sid), ...row });
+      }
+      return jsonResponse(flat);
+    }
     if (method === "GET" && url.endsWith("/payments")) {
       const studentId = Number(url.split("/").slice(-2)[0]);
       return jsonResponse(paymentsByStudent[studentId] ?? []);

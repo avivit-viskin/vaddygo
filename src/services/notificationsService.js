@@ -1,7 +1,7 @@
 import { getEvents, parseEventDate } from "./eventsService";
 import { getGifts } from "./giftsService";
 import { getStudents } from "./studentsService";
-import { getPaymentSummary } from "./paymentsService";
+import { getAllPaymentSummaries } from "./paymentsService";
 import { upcomingHolidays } from "./upcomingHoliday";
 import { getNotificationPrefs } from "./notificationPrefs";
 
@@ -155,15 +155,16 @@ export function markAllNotificationsRead(idList) {
   saveReadIds(ids);
 }
 
-/* מחזיר את התלמידים שעדיין עם תשלום פתוח (לתזכורת הגורפת ולספירה). */
+/* מחזיר את התלמידים שעדיין עם תשלום פתוח (לתזכורת הגורפת ולספירה).
+   סיכומי התשלום נטענים בבקשה אחת מרוכזת (במקום בקשה נפרדת לכל תלמיד). */
 export async function loadUnpaidStudents() {
-  const students = await getStudents().catch(() => []);
+  const [students, summaries] = await Promise.all([
+    getStudents().catch(() => []),
+    getAllPaymentSummaries().catch(() => []),
+  ]);
   if (!students || students.length === 0) {
     return [];
   }
-  const summaries = await Promise.all(
-    students.map((s) => getPaymentSummary(s.id).catch(() => null))
-  );
   const unpaidIds = new Set(
     summaries.filter((s) => s && s.hasUnpaid).map((s) => s.studentId)
   );

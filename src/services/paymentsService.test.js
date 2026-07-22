@@ -4,6 +4,7 @@ import {
   buildReminderMessage,
   buildBulkPaymentRequestMessage,
   getPaymentSummary,
+  getAllPaymentSummaries,
   amountPaidSoFar,
   amountRemaining,
   isCategoryFullyPaid,
@@ -98,6 +99,24 @@ describe("getPaymentSummary", () => {
     const summary = await getPaymentSummary(9);
     expect(summary.hasUnpaid).toBe(true); // טיולים לא כוסתה למרות isPaid
     expect(summary.paidCount).toBe(1);
+  });
+});
+
+describe("getAllPaymentSummaries", () => {
+  test("מקבץ את השורות לפי תלמיד ומחזיר סיכום לכל אחד (בקשה אחת)", async () => {
+    api.get.mockResolvedValueOnce([
+      { studentId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 1200, isPaid: true },
+      { studentId: 1, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+      { studentId: 2, categoryName: "הזנה", amount: 1200, cashAmount: 0, isPaid: false },
+      { studentId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+    ]);
+    const summaries = await getAllPaymentSummaries();
+    const byId = Object.fromEntries(summaries.map((s) => [s.studentId, s]));
+    expect(api.get).toHaveBeenCalledWith("/api/payment-summaries");
+    expect(byId[1].allPaid).toBe(true);
+    expect(byId[1].paidCount).toBe(2);
+    expect(byId[2].hasUnpaid).toBe(true);
+    expect(byId[2].paidCount).toBe(1);
   });
 });
 

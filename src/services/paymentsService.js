@@ -48,12 +48,10 @@ export function amountRemaining(payment) {
 }
 
 /*
-  סיכום מצב התשלומים של תלמיד (כמה קטגוריות שולמו מתוך הכל), לתצוגת תג
-  ברשימת התלמידים. ⏳ כרגע קריאה אחת לתלמיד; אם מספר התלמידים יגדל מאוד
-  כדאי endpoint סיכום מרוכז בשרת (`GET /api/students/payments-summary`).
+  סיכום מצב תשלומים מתוך שורות התשלום של תלמיד אחד. לוגיקה משותפת לבקשה
+  הבודדת ולבקשה המרוכזת — כך כלל ה"שולם" זהה בשתיהן.
 */
-export async function getPaymentSummary(studentId) {
-  const payments = await getStudentPayments(studentId);
+export function summarizePayments(studentId, payments) {
   const totalCount = payments.length;
   const paidCount = payments.filter(isCategoryFullyPaid).length;
   // התאריך האחרון שבו נרשם תשלום — כדי לדעת מתי לדרוש שוב (מיון ISO = כרונולוגי)
@@ -66,6 +64,33 @@ export async function getPaymentSummary(studentId) {
     hasUnpaid: payments.some((p) => !isCategoryFullyPaid(p)),
     lastPaymentDate: paidDates.length ? paidDates[paidDates.length - 1] : null,
   };
+}
+
+/* סיכום מצב התשלומים של תלמיד אחד (קריאה בודדת). */
+export async function getPaymentSummary(studentId) {
+  return summarizePayments(studentId, await getStudentPayments(studentId));
+}
+
+/* כל שורות התשלום של כל תלמידי הגן, בבקשה אחת (GET /api/payment-summaries). */
+export function getAllStudentPayments() {
+  return api.get("/api/payment-summaries");
+}
+
+/*
+  סיכום תשלומים לכל תלמידי הגן בבקשה *אחת* במקום בקשה נפרדת לכל תלמיד —
+  מהיר בהרבה כשיש הרבה תלמידים. מחזיר מערך סיכומים (כמו getPaymentSummary לכל אחד).
+*/
+export async function getAllPaymentSummaries() {
+  const rows = await getAllStudentPayments();
+  const byStudent = new Map();
+  for (const row of rows) {
+    const list = byStudent.get(row.studentId) || [];
+    list.push(row);
+    byStudent.set(row.studentId, list);
+  }
+  return [...byStudent.entries()].map(([studentId, payments]) =>
+    summarizePayments(studentId, payments)
+  );
 }
 
 /*
@@ -104,7 +129,7 @@ function reminderHead(studentFullName, unpaidPayments) {
   return [
     "היי 😊",
     `אנחנו עושים מעבר על יתרות כספי הוועד, ולפי הרישומים שלנו נותר תשלום עבור ${studentFullName}.`,
-    "נשמח אם תוכלי להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
+    "נשמח אם ניתן להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
     "תודה רבה על שיתוף הפעולה! 🌸",
     "",
     "תזכורת תשלומים:",
@@ -127,7 +152,7 @@ export function buildBulkPaymentRequestMessage(_ganName, links = {}) {
   const lines = [
     "היי 😊",
     "אנחנו עושים מעבר על יתרות כספי הוועד, ולפי הרישומים שלנו נותר תשלום.",
-    "נשמח אם תוכלי להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
+    "נשמח אם ניתן להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
     "תודה רבה על שיתוף הפעולה! 🌸",
   ];
   if (links.bit || links.paybox) {

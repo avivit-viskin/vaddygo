@@ -46,6 +46,45 @@ namespace ParentCommitteeAPI.Services
                 .ToList();
         }
 
+        public async Task<List<PaymentResponseDto>> GetAllForGroupAsync(int? groupId = null)
+        {
+            // בעלות + הפרדת מוסדות: רק הגן שבבעלות המשתמש המחובר (כמו StudentService)
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            if (scoped == null)
+            {
+                return new List<PaymentResponseDto>();
+            }
+
+            var studentIds = await _db.Students.AsNoTracking()
+                .Where(s => s.GroupId == scoped.Value)
+                .Select(s => s.Id)
+                .ToListAsync();
+            var categories = await GetGroupCategoriesAsync(scoped.Value);
+            if (studentIds.Count == 0 || categories.Count == 0)
+            {
+                return new List<PaymentResponseDto>();
+            }
+
+            // כל התשלומים הקיימים של תלמידי הגן — שאילתה אחת, ממופתחים לפי (תלמיד, קטגוריה)
+            var existing = (await _db.Payments.AsNoTracking()
+                .Where(p => studentIds.Contains(p.StudentId))
+                .ToListAsync())
+                .ToDictionary(p => (p.StudentId, p.CollectionCategoryId));
+
+            // שורה לכל תלמיד × קטגוריה: הרשומה הקיימת, או ברירת מחדל "טרם שולם"
+            var result = new List<PaymentResponseDto>(studentIds.Count * categories.Count);
+            foreach (var studentId in studentIds)
+            {
+                foreach (var category in categories)
+                {
+                    result.Add(existing.TryGetValue((studentId, category.Id), out var payment)
+                        ? ToResponse(payment, category)
+                        : DefaultResponse(studentId, category));
+                }
+            }
+            return result;
+        }
+
         public async Task<PaymentResponseDto?> UpsertAsync(int studentId, int categoryId, PaymentUpsertDto dto)
         {
             // בעלות: התלמיד חייב להיות בגן של המשתמש המחובר (IDOR)

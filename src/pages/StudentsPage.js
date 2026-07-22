@@ -7,7 +7,7 @@ import {
   updateStudent,
   deleteStudent,
 } from "../services/studentsService";
-import { getPaymentSummary } from "../services/paymentsService";
+import { getAllPaymentSummaries } from "../services/paymentsService";
 import { getGroups } from "../services/groupsService";
 import { getOnboarding } from "../services/onboardingService";
 import { getActiveServerGroupId } from "../services/institutionsService";
@@ -67,23 +67,26 @@ function StudentsPage() {
   // ייבוא תלמידים מקובץ
   const [isImportOpen, setIsImportOpen] = useState(false);
 
-  // טעינת סיכומי התשלום במקביל לכל התלמידים (ברקע, אחרי הרשימה)
+  // סיכומי התשלום לכל התלמידים — בבקשה *אחת* מרוכזת (במקום בקשה לכל תלמיד),
+  // ברקע אחרי הרשימה כדי לא לחסום את הצגת הכרטיסים.
   useEffect(() => {
     if (!students || students.length === 0) {
       setSummaries({});
       return;
     }
     let cancelled = false;
-    Promise.all(
-      students.map((student) => getPaymentSummary(student.id).catch(() => null))
-    ).then((results) => {
-      if (cancelled) return;
-      const next = {};
-      results.forEach((summary) => {
-        if (summary) next[summary.studentId] = summary;
+    getAllPaymentSummaries()
+      .then((list) => {
+        if (cancelled) return;
+        const next = {};
+        list.forEach((summary) => {
+          next[summary.studentId] = summary;
+        });
+        setSummaries(next);
+      })
+      .catch(() => {
+        if (!cancelled) setSummaries({});
       });
-      setSummaries(next);
-    });
     return () => {
       cancelled = true;
     };
@@ -280,7 +283,7 @@ function StudentsPage() {
       </div>
 
       {totalCount === 0 ? (
-        <EmptyState message="עדיין אין תלמידים — הוסיפי את הראשונה!" />
+        <EmptyState message="עדיין אין תלמידים — אפשר להוסיף את הראשון!" />
       ) : (
         <>
           <div className="toolbar">

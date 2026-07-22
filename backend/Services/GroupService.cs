@@ -26,14 +26,15 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<List<GroupResponseDto>> GetAllAsync()
         {
-            // בעלות: מחזירים אך ורק את הגנים של המשתמש המחובר — לעולם לא של אחרים.
-            var uid = _access.UserId;
-            if (uid == null)
+            // גישה: הגנים שהמשתמש בעליהם *או* חבר בהם (owned OR member) — לעולם לא של אחרים.
+            // חבר צוות (למשל "צופה") חייב לראות את הגן שהוזמן אליו ברשימת המוסדות.
+            var accessibleIds = (await _access.AccessibleGroupIdsAsync()).ToList();
+            if (accessibleIds.Count == 0)
             {
                 return new List<GroupResponseDto>();
             }
             var groups = await _db.Groups
-                .Where(g => g.UserId == uid.Value)
+                .Where(g => accessibleIds.Contains(g.Id))
                 .Include(g => g.Categories)
                 .ToListAsync();
             return groups.Select(ToResponse).ToList();
@@ -44,8 +45,8 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            // אם הגן לא קיים או אינו בבעלות המשתמש → מתייחסים כלא-נמצא (לא חושפים קיום)
-            if (group == null || group.UserId != _access.UserId)
+            // אם הגן לא קיים, או שהמשתמש אינו בעליו ואינו חבר בו → מתייחסים כלא-נמצא
+            if (group == null || !await _access.CanAccessGroupAsync(group.Id))
             {
                 return null;
             }

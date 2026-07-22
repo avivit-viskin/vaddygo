@@ -40,10 +40,10 @@ test("מסך הפתיחה מציג לוגו ושני כפתורים", () => {
 
 test("האשף לא ממשיך מצעד 1 בלי פרטי חובה", () => {
   renderWithRouter(<OnboardingWizard />);
-  expect(screen.getByText("שלב 1 מתוך 4")).toBeInTheDocument();
+  expect(screen.getByText("שאלה 1/4")).toBeInTheDocument();
   userEvent.click(screen.getByRole("button", { name: "המשך" }));
   expect(screen.getByText("צריך למלא עיר")).toBeInTheDocument();
-  expect(screen.getByText("שלב 1 מתוך 4")).toBeInTheDocument();
+  expect(screen.getByText("שאלה 1/4")).toBeInTheDocument();
 });
 
 test("מסלול מלא באשף: מילוי, סיכום ושמירה", async () => {

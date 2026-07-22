@@ -151,7 +151,7 @@ function HomePage() {
           מוסד: <strong>{dashboard.ganName}</strong>
         </p>
         <p className="account-info__row">
-          מחוברת עם המייל: <strong>{getUser()?.email || "—"}</strong>
+          החשבון מחובר למייל: <strong>{getUser()?.email || "—"}</strong>
         </p>
       </Modal>
     </div>

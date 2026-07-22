@@ -22,6 +22,16 @@ namespace ParentCommitteeAPI.Auth
             return new DateTime(purchaseDate.Year + 1, 8, 30, 23, 59, 59, DateTimeKind.Utc);
         }
 
+        /*
+          חידוש חודשי (אחרי תשלום מאומת): מאריך בחודש מהמאוחר מבין "עכשיו" לתוקף
+          הנוכחי — כך חידוש מוקדם (לפני שפג) מוסיף חודש על הקיים ולא מקצר אותו.
+        */
+        public static DateTime RenewedFrom(DateTime currentValidUntil)
+        {
+            var from = currentValidUntil > DateTime.UtcNow ? currentValidUntil : DateTime.UtcNow;
+            return from.AddMonths(1);
+        }
+
         public static bool IsActive(DateTime validUntil)
         {
             return DateTime.UtcNow <= validUntil;

@@ -56,11 +56,11 @@ function DeleteAccountCard() {
       >
         <p>
           פעולה זו <strong>בלתי הפיכה</strong> — כל הנתונים שלך יימחקו מהשרת.
-          כדי לאשר, הקלידי את המילה <strong>{CONFIRM_WORD}</strong>:
+          כדי לאשר, יש להקליד את המילה <strong>{CONFIRM_WORD}</strong>:
         </p>
         <Input
           id="delete-confirm"
-          label={`הקלידי "${CONFIRM_WORD}" לאישור`}
+          label={`יש להקליד "${CONFIRM_WORD}" לאישור`}
           value={confirmText}
           onChange={(e) => setConfirmText(e.target.value)}
         />

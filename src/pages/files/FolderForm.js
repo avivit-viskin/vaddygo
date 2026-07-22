@@ -48,7 +48,7 @@ function FolderForm({ folder, onSave, onCancel }) {
         value={values.url}
         error={errors.url}
         onChange={handleChange}
-        placeholder="הדביקי כאן את קישור השיתוף"
+        placeholder="כאן מדביקים את קישור השיתוף"
       />
       {submitError && <ErrorMessage message={submitError} />}
       <div className="folder-form__actions">

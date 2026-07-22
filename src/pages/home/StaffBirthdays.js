@@ -70,7 +70,7 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
       {!isLoading && error && <p className="staff__error">{error}</p>}
 
       {!isLoading && !error && sorted.length === 0 && (
-        <EmptyState icon="🎈" message="עדיין אין אנשי צוות — הוסיפי את הראשונה!" />
+        <EmptyState icon="🎈" message="עדיין אין אנשי צוות — אפשר להוסיף את הראשון!" />
       )}
 
       {!isLoading && !error && sorted.length > 0 && totalGiftBudget > 0 && (

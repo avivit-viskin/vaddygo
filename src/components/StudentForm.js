@@ -106,7 +106,7 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
           onChange={handleChange}
           error={errors.className}
         >
-          <option value="">בחרי קבוצה...</option>
+          <option value="">בחירת קבוצה...</option>
           {subgroups.map((group) => (
             <option key={group} value={group}>
               {group}

@@ -45,7 +45,7 @@ function SettingsPage() {
 
       <Card title="🔔 התראות">
         <p className="settings__hint">
-          בחרי אילו התראות יופיעו בפעמון ובמסכים. אפשר לשנות בכל רגע.
+          כאן בוחרים אילו התראות יופיעו בפעמון ובמסכים. אפשר לשנות בכל רגע.
         </p>
         <Checkbox
           id="pref-payments"
@@ -77,7 +77,7 @@ function SettingsPage() {
         />
         <p className="settings__hint" style={{ marginTop: 12 }}>
           עוגיות מדידה/סטטיסטיקה (אנליטיקס) עוזרות לנו לשפר את השירות. אפשר
-          לאשר או לבטל בכל רגע — כשמבטלים, לא נאסף עלייך מעקב.
+          לאשר או לבטל בכל רגע — כשמבטלים, לא נאסף מעקב כלל.
         </p>
         <Checkbox
           id="pref-analytics"

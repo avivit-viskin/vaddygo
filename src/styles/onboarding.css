@@ -180,10 +180,35 @@
 /* ===== אשף — צעדים ===== */
 
 .wizard__progress {
-  text-align: center;
-  color: var(--color-text-muted);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+}
+
+.wizard__progress-label {
+  color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
-  margin-bottom: 12px;
+  font-weight: 700;
+}
+
+/* פס התקדמות קטן שממלא לפי מספר השאלה */
+.wizard__progress-bar {
+  width: 100%;
+  max-width: 260px;
+  height: 8px;
+  background: var(--color-primary-light);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.wizard__progress-fill {
+  display: block;
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
 }
 
 /* משפט פתיחה חם בצעד הראשון של האשף */
@@ -218,6 +243,11 @@
 
 .wizard__skip:hover {
   color: var(--color-primary-dark);
+}
+
+/* אותו כפתור דילוג, אבל למעלה (מתחת למשפט הפתיחה) כדי שלא יפספסו אותו */
+.wizard__skip--top {
+  margin: 4px 0 12px;
 }
 
 .wizard__actions {

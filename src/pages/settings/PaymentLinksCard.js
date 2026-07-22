@@ -40,7 +40,7 @@ function PaymentLinksCard() {
       setLinks(await savePaymentLinks(links));
       setSaved(true);
     } catch (err) {
-      setError(err.message || "השמירה נכשלה, נסי שוב");
+      setError(err.message || "השמירה נכשלה, אפשר לנסות שוב");
     } finally {
       setIsSaving(false);
     }
@@ -64,7 +64,7 @@ function PaymentLinksCard() {
         label="קישור קבוצת פייבוקס"
         value={links.paybox}
         onChange={change("paybox")}
-        placeholder="הדביקי כאן את קישור קבוצת הפייבוקס"
+        placeholder="כאן מדביקים את קישור קבוצת הפייבוקס"
       />
       <div className="settings__save-row">
         <Button onClick={handleSave} isLoading={isSaving}>

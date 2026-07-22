@@ -7,9 +7,9 @@ import { getActiveInstitution } from "./institutionsService";
 
 // שלוש רמות ההרשאה מהעיצוב של בעלת המוצר
 export const ROLES = [
-  { value: "viewer", label: "צופה", icon: "👀", desc: "יכולה לצפות בלבד — בלי לערוך" },
-  { value: "editor", label: "עורך", icon: "✏️", desc: "יכולה לצפות ולערוך נתונים" },
-  { value: "manager", label: "מנהל", icon: "⭐", desc: "יכולה הכל — כולל להזמין ולמחוק משתמשים" },
+  { value: "viewer", label: "צופה", icon: "👀", desc: "צפייה בלבד — בלי לערוך" },
+  { value: "editor", label: "עורך", icon: "✏️", desc: "צפייה ועריכה של הנתונים" },
+  { value: "manager", label: "מנהל", icon: "⭐", desc: "הכול — כולל הזמנה ומחיקה של משתמשים" },
 ];
 
 export function roleLabel(value) {
@@ -43,6 +43,13 @@ export function addTeamMember({ name, contact, role }) {
 
 export function removeTeamMember(id) {
   const next = getTeam().filter((m) => m.id !== id);
+  localStorage.setItem(storageKey(), JSON.stringify(next));
+  return next;
+}
+
+/* עדכון חבר צוות קיים (למשל שינוי הרשאה); מחזיר את הרשימה המעודכנת. */
+export function updateTeamMember(id, patch) {
+  const next = getTeam().map((m) => (m.id === id ? { ...m, ...patch } : m));
   localStorage.setItem(storageKey(), JSON.stringify(next));
   return next;
 }

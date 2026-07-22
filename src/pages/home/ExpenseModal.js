@@ -152,7 +152,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
           value={category}
           onChange={(e) => setCategory(e.target.value)}
         >
-          <option value="">— בחרי (לא חובה) —</option>
+          <option value="">— בחירה (לא חובה) —</option>
           {collectionCategories.length > 0 && (
             <optgroup label="קטגוריות הגבייה שלך">
               {collectionCategories.map((name) => (

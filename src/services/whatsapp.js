@@ -22,10 +22,27 @@ export function whatsappUrl(value) {
 
 /*
   whatsappShareUrl — קישור שיתוף עם טקסט מוכן, בלי נמען מוגדר:
-  וואטסאפ נפתח עם ההודעה מוקלדת והמשתמשת בוחרת למי לשלוח.
+  וואטסאפ נפתח עם ההודעה מוקלדת ובוחרים למי לשלוח.
 */
 export function whatsappShareUrl(text) {
   return `https://wa.me/?text=${encodeURIComponent(text || "")}`;
+}
+
+/*
+  whatsappUrlWithText — קישור וואטסאפ ישיר לנמען לפי מספר טלפון, עם הודעה מוכנה:
+  וואטסאפ נפתח כבר בשיחה עם אותו אדם וההודעה מוקלדת (נשאר רק ללחוץ "שליחה").
+  אם אין מספר טלפון תקין — נופלים לקישור שיתוף כללי (בוחרים נמען ידנית).
+*/
+export function whatsappUrlWithText(phone, text) {
+  const encoded = encodeURIComponent(text || "");
+  const digits = (phone || "").replace(/\D/g, "");
+  if (digits) {
+    const international = digits.startsWith("0")
+      ? `972${digits.slice(1)}`
+      : digits;
+    return `https://wa.me/${international}?text=${encoded}`;
+  }
+  return `https://wa.me/?text=${encoded}`;
 }
 
 // ביטויים ש"מסגירים" פסקה פותחת/מסיימת של שיחה עם המשתמשת (לא חלק מההודעה עצמה)

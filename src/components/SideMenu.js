@@ -137,7 +137,7 @@ function SideMenu({ isOpen, onClose }) {
             error={addError}
           />
           <p className="purchase__note">
-            המוסד יתווסף לרשימה, ותוכלי להפעיל אותו בלחיצה עליו.
+            המוסד יתווסף לרשימה, ואפשר להפעיל אותו בלחיצה עליו.
           </p>
           <div style={{ marginTop: 12 }}>
             <Button type="submit">המשך</Button>

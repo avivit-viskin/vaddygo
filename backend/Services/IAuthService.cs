@@ -19,5 +19,8 @@ namespace ParentCommitteeAPI.Services
 
         /* איפוס סיסמה שלב 2: מאמת קוד+תוקף ומחליף סיסמה. מחזיר הודעת שגיאה או null בהצלחה. */
         Task<string?> ResetPasswordAsync(ResetPasswordDto dto);
+
+        /* חידוש מנוי בחודש (נקרא אחרי תשלום מאומת בסליקה). מאריך את התוקף ומחזיר טוקן חדש. */
+        Task<AuthResult> RenewSubscriptionAsync(int userId);
     }
 }

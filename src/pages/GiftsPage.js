@@ -140,7 +140,7 @@ function GiftsPage() {
       <UpcomingMonth />
       <PendingEventExpenses onRecorded={load} />
 
-      <Card title="מתנות">
+      <Card title="המתנות שרכשתי 🎁">
         {gifts.length === 0 ? (
           <EmptyState icon="🎁" message="עדיין אין מתנות — נוסיף את הראשונה?" />
         ) : (
@@ -168,7 +168,7 @@ function GiftsPage() {
 
       <Card title="ספקים 🏷️">
         {vendors.length === 0 ? (
-          <EmptyState icon="🛍️" message="עדיין אין ספקים — הוסיפי ספק ראשון." />
+          <EmptyState icon="🛍️" message="עדיין אין ספקים — אפשר להוסיף ספק ראשון." />
         ) : (
           <ul className="vendors">
             {vendors.map((vendor) => (

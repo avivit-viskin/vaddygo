@@ -9,7 +9,7 @@ function ErrorMessage({ message, onRetry }) {
       <p>{message}</p>
       {onRetry && (
         <Button variant="secondary" onClick={onRetry}>
-          נסי שוב
+          לנסות שוב
         </Button>
       )}
     </div>

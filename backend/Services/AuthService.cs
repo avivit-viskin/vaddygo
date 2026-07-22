@@ -235,6 +235,28 @@ namespace ParentCommitteeAPI.Services
             return null;
         }
 
+        /*
+          חידוש מנוי בחודש — נקרא אחרי שהתשלום אומת בסליקה (Grow). מאריך את
+          SubscriptionValidUntil (RenewedFrom) ומחזיר תגובה עם טוקן חדש שתוקפו מעודכן.
+          לא נחשף כ-endpoint ישיר למשתמש — מופעל רק מזרם התשלום המאומת.
+        */
+        public async Task<AuthResult> RenewSubscriptionAsync(int userId)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return new AuthResult(null, "המשתמש לא נמצא");
+            }
+
+            user.SubscriptionValidUntil = SubscriptionPolicy.RenewedFrom(user.SubscriptionValidUntil);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation(
+                "Subscription renewed (User: {UserId}) until {ValidUntil}",
+                user.Id, user.SubscriptionValidUntil);
+
+            return new AuthResult(BuildResponse(user), null);
+        }
+
         private AuthResponseDto BuildResponse(User user) => new()
         {
             Token = _jwt.CreateToken(user),

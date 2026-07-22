@@ -102,8 +102,8 @@ function BulkPaymentRequestButton({ students = [] }) {
         <div className="bulk-reminder">
           {!hasLinks && (
             <p className="bulk-reminder__note">
-              💡 אפשר להוסיף קישורי תשלום (ביט/פייבוקס) ב<strong>הגדרות</strong>,
-              והם ייכנסו אוטומטית להודעה.
+              💡 אפשר להוסיף אמצעי תשלום — ביט, פייבוקס או העברה בכרטיס אשראי —
+              ב<strong>הגדרות</strong>. קישורי ביט ופייבוקס ייכנסו אוטומטית להודעה.
             </p>
           )}
           <label className="field__label" htmlFor="bulk-pay-message">
@@ -121,7 +121,7 @@ function BulkPaymentRequestButton({ students = [] }) {
           />
 
           <div className="wa-picker__head">
-            <span className="field__label">בחרי למי לשלוח:</span>
+            <span className="field__label">בחירת הנמענים:</span>
             {students.length > 0 && (
               <label className="wa-picker__all">
                 <input

@@ -139,7 +139,7 @@ function StudentPaymentsPage() {
       <div className="payments__header">
         <h2>תשלומים — {fullName}</h2>
         <p className="payments__summary">
-          מלאי כמה שולם בכל אמצעי, ולחצי "אישור" בסוף.
+          יש למלא כמה שולם בכל אמצעי, וללחוץ "אישור" בסוף.
         </p>
       </div>
 
@@ -183,7 +183,7 @@ function StudentPaymentsPage() {
                 target="_blank"
                 rel="noreferrer"
               >
-                <Button variant="secondary">שלחי תזכורת בוואטסאפ 💬</Button>
+                <Button variant="secondary">שליחת תזכורת בוואטסאפ 💬</Button>
               </a>
             )}
           </div>

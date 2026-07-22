@@ -112,9 +112,24 @@ function OnboardingWizard() {
       <h1 className="wizard__logo">
         <BrandName withHeart />
       </h1>
-      <p className="wizard__progress">
-        שלב {step} מתוך {totalSteps}
-      </p>
+      <div
+        className="wizard__progress"
+        role="progressbar"
+        aria-valuenow={step}
+        aria-valuemin={1}
+        aria-valuemax={totalSteps}
+        aria-label={`שאלה ${step} מתוך ${totalSteps}`}
+      >
+        <span className="wizard__progress-label">
+          שאלה {step}/{totalSteps}
+        </span>
+        <span className="wizard__progress-bar">
+          <span
+            className="wizard__progress-fill"
+            style={{ width: `${(step / totalSteps) * 100}%` }}
+          />
+        </span>
+      </div>
 
       {renderStep(currentKey)}
 

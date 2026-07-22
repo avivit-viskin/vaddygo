@@ -45,7 +45,7 @@ function LoginPage() {
   );
 
   const handleGoogleError = useCallback(() => {
-    setSubmitError("לא הצלחנו לטעון את כניסת Google. נסי שוב או השתמשי בשם משתמש וסיסמה.");
+    setSubmitError("לא הצלחנו לטעון את כניסת Google. אפשר לנסות שוב או להשתמש בשם משתמש וסיסמה.");
   }, []);
 
   async function handleSubmit(e) {

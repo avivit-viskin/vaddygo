@@ -66,9 +66,20 @@ function PaymentRequestContent({ student, fullName }) {
     return <ErrorMessage message={error} onRetry={reload} />;
   }
 
+  // אם עדיין לא הוגדרו סכומי גבייה (למשל דילגו על ההקמה) — אין קטגוריות כלל,
+  // ואסור לכתוב "כל התשלומים שולמו". מפנים להגדיר את הגבייה קודם.
+  if (!payments || payments.length === 0) {
+    return (
+      <p className="pay-request__hint">
+        💡 עדיין לא הוגדרו סכומי גבייה. כדי לבקש תשלום, קודם צריך להגדיר את
+        הגבייה ב<strong>הגדרות</strong> (בתפריט הצדדי ☰).
+      </p>
+    );
+  }
+
   // "טרם שולם" = הקטגוריה לא כוסתה במלואה. תשלום חלקי עדיין נחשב חוב פתוח,
   // כדי שלא ייכתב בטעות "כל התשלומים שולמו" למי ששילם רק חלק.
-  const unpaid = (payments || []).filter((p) => !isCategoryFullyPaid(p));
+  const unpaid = payments.filter((p) => !isCategoryFullyPaid(p));
   if (unpaid.length === 0) {
     return <p className="pay-request__done">כל התשלומים של {fullName} שולמו ✅</p>;
   }
@@ -128,7 +139,8 @@ function PaymentRequestContent({ student, fullName }) {
 
       {!links.bit && !links.paybox && (
         <p className="pay-request__hint">
-          💡 להוספת קישור תשלום בביט/פייבוקס — היכנסי ל<strong>הגדרות</strong>.
+          💡 להוספת אמצעי תשלום — ביט, פייבוקס או העברה בכרטיס אשראי — אפשר
+          להיכנס ל<strong>הגדרות</strong>.
         </p>
       )}
     </div>

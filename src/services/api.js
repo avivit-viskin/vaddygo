@@ -47,7 +47,7 @@ export class ApiError extends Error {
   אם אין — חוזרים להודעה כללית.
 */
 async function extractErrorMessage(response) {
-  const fallback = "משהו השתבש בשרת. נסי שוב בעוד רגע.";
+  const fallback = "משהו השתבש בשרת. אפשר לנסות שוב בעוד רגע.";
   try {
     const body = await response.json();
     if (body && typeof body.message === "string") {
@@ -96,14 +96,14 @@ async function request(path, { method = "GET", body } = {}) {
   } catch {
     // כשל רשת: רק בנתיבים ללא גיבוי מקומי זו "לא נשמר" אמיתי (בשאר נשמר מקומית)
     if (isHardSaveRequest(method, path)) {
-      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. נסי שוב 🙏");
+      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. אפשר לנסות שוב 🙏");
     }
-    throw new ApiError("לא הצלחנו להתחבר לשרת. בדקי שהוא פועל ונסי שוב 🙂");
+    throw new ApiError("לא הצלחנו להתחבר לשרת. כדאי לבדוק שהוא פועל ולנסות שוב 🙂");
   }
 
   if (!response.ok) {
     if (isHardSaveRequest(method, path)) {
-      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. נסי שוב 🙏");
+      toastError("אירעה שגיאה — הנתונים האחרונים לא נשמרו. אפשר לנסות שוב 🙏");
     }
     throw new ApiError(await extractErrorMessage(response), response.status);
   }

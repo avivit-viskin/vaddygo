@@ -91,6 +91,35 @@
   color: var(--color-primary-dark);
 }
 
+/* ההרשאה כפתור לחיץ לעריכה (מציג "צופה ✏️") */
+.team-list__role-edit {
+  align-self: flex-start;
+  border: none;
+  background: none;
+  padding: 0;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
+  cursor: pointer;
+  text-align: start;
+}
+
+.team-list__role-edit:hover {
+  text-decoration: underline;
+}
+
+.team-list__role-select {
+  align-self: flex-start;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  padding: 4px 6px;
+  min-height: var(--touch-target);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  color: var(--color-text);
+}
+
 .team-list__contact {
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);

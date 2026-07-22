@@ -11,12 +11,13 @@ import {
   getTeam,
   addTeamMember,
   removeTeamMember,
+  updateTeamMember,
 } from "../services/teamService";
 import {
   getInstitutions,
   addInstitution,
 } from "../services/institutionsService";
-import { whatsappShareUrl } from "../services/whatsapp";
+import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/team.css";
 
 /*
@@ -41,6 +42,13 @@ function mailtoInvite(member) {
   );
 }
 
+/* קישור וואטסאפ להזמנה; אם הוזן טלפון (ולא מייל) — נפתחת שיחה ישירה עם המספר. */
+function whatsappInvite(member) {
+  const contact = member.contact || "";
+  const phone = contact.includes("@") ? "" : contact;
+  return whatsappUrlWithText(phone, inviteText(member));
+}
+
 function TeamSetupPage() {
   const navigate = useNavigate();
   const [team, setTeam] = useState(getTeam);
@@ -50,6 +58,8 @@ function TeamSetupPage() {
   const [error, setError] = useState("");
   // חבר צוות שממתין לאישור הסרה (null = אין דיאלוג פתוח)
   const [memberToRemove, setMemberToRemove] = useState(null);
+  // חבר צוות שההרשאה שלו נמצאת כרגע בעריכה (null = אף אחד)
+  const [editingId, setEditingId] = useState(null);
 
   // שאלת "כמה ועדים" (הועברה מהאשף) — רלוונטית רק בהקמה הראשונה, כשקיים רק
   // המוסד הראשי. בהוספת מוסד נוסף כבר לא שואלים שוב.
@@ -81,6 +91,12 @@ function TeamSetupPage() {
   function confirmRemove() {
     setTeam(removeTeamMember(memberToRemove.id));
     setMemberToRemove(null);
+  }
+
+  // שינוי הרשאה לחבר צוות קיים — נשמר מיד וסוגר את מצב העריכה
+  function changeRole(id, newRole) {
+    setTeam(updateTeamMember(id, { role: newRole }));
+    setEditingId(null);
   }
 
   // סיום ההקמה: יוצר את הוועדים הנוספים ששמותיהם הוזנו (מוסדות להפעלה מאוחר
@@ -155,14 +171,36 @@ function TeamSetupPage() {
             <li key={m.id} className="team-list__item">
               <div className="team-list__info">
                 <span className="team-list__name">{m.name}</span>
-                <span className="team-list__role">{roleLabel(m.role)}</span>
+                {editingId === m.id ? (
+                  <select
+                    className="team-list__role-select"
+                    value={m.role}
+                    onChange={(e) => changeRole(m.id, e.target.value)}
+                    aria-label={`שינוי הרשאה ל${m.name}`}
+                  >
+                    {ROLES.map((r) => (
+                      <option key={r.value} value={r.value}>
+                        {r.label}
+                      </option>
+                    ))}
+                  </select>
+                ) : (
+                  <button
+                    type="button"
+                    className="team-list__role team-list__role-edit"
+                    onClick={() => setEditingId(m.id)}
+                    aria-label={`עריכת הרשאה ל${m.name} (${roleLabel(m.role)})`}
+                  >
+                    {roleLabel(m.role)} ✏️
+                  </button>
+                )}
                 {m.contact && (
                   <span className="team-list__contact">{m.contact}</span>
                 )}
               </div>
               <a
                 className="team-list__invite"
-                href={whatsappShareUrl(inviteText(m))}
+                href={whatsappInvite(m)}
                 target="_blank"
                 rel="noreferrer"
                 aria-label={`שליחת הזמנה ל${m.name} בוואטסאפ`}
@@ -193,8 +231,8 @@ function TeamSetupPage() {
         <section className="team-committees">
           <h2 className="team-page__title">מנהלת עוד ועדים חוץ מזה? 🏫</h2>
           <p className="team-page__subtitle">
-            אפשר לנהל כמה ועדים באותו חשבון. הוסיפי אותם עכשיו — או מאוחר יותר
-            מהתפריט.
+            אפשר לנהל כמה ועדים באותו חשבון. אפשר להוסיף אותם עכשיו — או מאוחר
+            יותר מהתפריט.
           </p>
           <div className="chips">
             <button

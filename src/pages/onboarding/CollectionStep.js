@@ -26,10 +26,28 @@ function CollectionStep({ data, onChange, onSkip }) {
   return (
     <>
       <p className="wizard__question">כמה גובים השנה?</p>
-      <p className="auth-page__hint" style={{ textAlign: "right", margin: "0 0 8px" }}>
-        הסכומים יעזרו לעקוב ולהמליץ על חלוקת התקציב. אפשר גם לדלג עכשיו ולמלא מאוחר יותר —
-        תמיד אפשר לערוך את הגבייה בהגדרות.
+      <p
+        className="auth-page__hint"
+        style={{
+          textAlign: "right",
+          margin: "0 0 8px",
+          color: "var(--color-text)",
+          fontWeight: 500,
+        }}
+      >
+        הסכומים יעזרו לעקוב ולהמליץ על חלוקת התקציב. אפשר גם לדלג עכשיו ולמלא מאוחר
+        יותר — תמיד אפשר לערוך את הגבייה ב<strong>הגדרות</strong> (בתפריט הצדדי ☰).
       </p>
+
+      {onSkip && (
+        <button
+          type="button"
+          className="wizard__skip wizard__skip--top"
+          onClick={onSkip}
+        >
+          אכניס את הפרטים מאוחר יותר ←
+        </button>
+      )}
 
       {data.categories.map((cat) => (
         <div className="category-row" key={cat.key}>
@@ -69,12 +87,6 @@ function CollectionStep({ data, onChange, onSkip }) {
           {totalGoal.toLocaleString("he-IL")} ₪
         </div>
       </div>
-
-      {onSkip && (
-        <button type="button" className="wizard__skip" onClick={onSkip}>
-          אכניס את הפרטים מאוחר יותר ←
-        </button>
-      )}
     </>
   );
 }

@@ -37,7 +37,7 @@ function BankAccountCard() {
       setAcct(await saveBankAccount(acct));
       setSaved(true);
     } catch (err) {
-      setError(err.message || "השמירה נכשלה, נסי שוב");
+      setError(err.message || "השמירה נכשלה, אפשר לנסות שוב");
     } finally {
       setIsSaving(false);
     }

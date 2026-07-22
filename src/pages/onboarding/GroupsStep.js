@@ -88,7 +88,7 @@ function GroupsStep({ data, onChange }) {
           </div>
 
           <p className="wizard__question">
-            {isSchool ? "סמני את הכיתות:" : "סמני את הקבוצות הקיימות:"}
+            {isSchool ? "סמנו את הכיתות:" : "סמנו את הקבוצות הקיימות:"}
           </p>
           <div className="chips">
             {predefined.map((name) => (

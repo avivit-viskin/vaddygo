@@ -77,10 +77,10 @@ function StudentsImport({ onDone, onCancel }) {
         setNeedsPassword(true); // הקובץ נעול — נבקש סיסמה
       } else if (err?.code === "WRONG_PASSWORD") {
         setNeedsPassword(true);
-        setReadError("הסיסמה שגויה — נסי שוב 🔑");
+        setReadError("הסיסמה שגויה — אפשר לנסות שוב 🔑");
       } else if (err?.code === "DECRYPT_FAILED") {
         setReadError(
-          "לא הצלחנו לפענח את הקובץ 😕 ודאי שהסיסמה נכונה. אם זה לא עוזר — אפשר " +
+          "לא הצלחנו לפענח את הקובץ 😕 כדאי לוודא שהסיסמה נכונה. אם זה לא עוזר — אפשר " +
             "להסיר את הסיסמה באקסל ולהעלות מחדש, או קובץ פשוט עם: שם תלמיד, טלפון, תאריך לידה."
         );
       } else {
@@ -149,7 +149,7 @@ function StudentsImport({ onDone, onCancel }) {
       {needsPassword && (
         <form onSubmit={submitPassword} className="students-import__password">
           <p className="students-import__count">
-            🔒 הקובץ נעול בסיסמה. הקלידי את הסיסמה שקיבלת כדי לפתוח אותו:
+            🔒 הקובץ נעול בסיסמה. יש להקליד את הסיסמה שקיבלת כדי לפתוח אותו:
           </p>
           <div className="students-import__pw-wrap">
             <Input

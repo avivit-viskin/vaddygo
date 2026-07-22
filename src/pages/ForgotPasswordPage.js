@@ -116,7 +116,7 @@ function ForgotPasswordPage() {
           </form>
         </Card>
       ) : (
-        <Card title="הזיני את הקוד וסיסמה חדשה">
+        <Card title="הזנת הקוד וסיסמה חדשה">
           <form onSubmit={handleReset} noValidate>
             <p
               className="auth-page__hint"

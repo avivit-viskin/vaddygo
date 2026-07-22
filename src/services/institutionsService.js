@@ -85,6 +85,32 @@ export function addInstitution(name) {
 }
 
 /*
+  מחיקת מוסד בודד מהרשימה המקומית (נתוני השרת נמחקים בנפרד דרך deleteGroup).
+  אם המוסד שנמחק היה הפעיל — עוברים למוסד מופעל אחר וטוענים את נתוניו, או
+  מנקים אם לא נשאר אף מוסד. מחזיר את הרשימה המעודכנת.
+*/
+export function removeInstitution(id) {
+  const list = readList().filter((i) => i.id !== id);
+  writeList(list);
+  const activeId = localStorage.getItem(ACTIVE_KEY);
+  if (activeId === id) {
+    const nextActive = list.find((i) => i.activated);
+    if (nextActive) {
+      localStorage.setItem(ACTIVE_KEY, nextActive.id);
+      if (nextActive.onboarding) {
+        localStorage.setItem(ONBOARDING_KEY, JSON.stringify(nextActive.onboarding));
+      } else {
+        localStorage.removeItem(ONBOARDING_KEY);
+      }
+    } else {
+      localStorage.removeItem(ACTIVE_KEY);
+      localStorage.removeItem(ONBOARDING_KEY);
+    }
+  }
+  return list;
+}
+
+/*
   נקרא בסיום אשף ההרשמה. בפעם הראשונה — יוצר את המוסד הראשי (מופעל) ואת
   המוסדות הנוספים ששמותיהם הוזנו (לא-מופעלים). אחרת — מפעיל את המוסד הפעיל
   הנוכחי עם נתוני ההרשמה שלו (הפעלת מוסד נוסף אחרי רכישה).

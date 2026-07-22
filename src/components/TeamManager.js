@@ -22,7 +22,7 @@ import "../styles/team.css";
 */
 function inviteText(member) {
   return (
-    `הוזמנת לנהל איתי את ועד ההורים ב-VaddyGo כ${roleLabel(member.role)} 💜\n` +
+    `הוזמנת לנהל איתי את ועד ההורים ב-VaddyGo כ${roleLabel(member.role)} 🙂\n` +
     `לכניסה: https://vaddygo-production.up.railway.app/welcome`
   );
 }

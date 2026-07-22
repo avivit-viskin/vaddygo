@@ -147,7 +147,7 @@ function PaymentRequestContent({ student, fullName }) {
         {cardConfigured && (
           <div className="pay-request__method">
             <Button onClick={handleCard} isLoading={cardLoading}>
-              🏦 אשראי
+              💳 אשראי
             </Button>
           </div>
         )}

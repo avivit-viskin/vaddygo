@@ -4,7 +4,7 @@
   זהים למה שהשרת מצפה לו.
 */
 export const PAYMENT_METHODS = [
-  { value: "bit", label: "BIT", icon: "💳" },
+  { value: "bit", label: "BIT", icon: "💠" },
   { value: "paybox", label: "פייבוקס", icon: "📲" },
   { value: "cash", label: "מזומן", icon: "💵" },
 ];

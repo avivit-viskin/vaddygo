@@ -1,0 +1,233 @@
+/*
+  accessibility.css — התאמות הנגישות (ת"י 5568) + סמל הנגישות הצף והפאנל.
+  ההתאמות מגדירות מחדש את משתני העיצוב תחת מחלקות על <html>, ולכן חלות על כל
+  הרכיבים שמשתמשים במשתנים.
+*/
+
+/* ===== הגדלת טקסט (3 רמות) ===== */
+.a11y-font-1 {
+  --font-size-base: 18px;
+  --font-size-sm: 16px;
+  --font-size-lg: 21px;
+  --font-size-xl: 27px;
+  --font-size-2xl: 37px;
+}
+.a11y-font-2 {
+  --font-size-base: 21px;
+  --font-size-sm: 18px;
+  --font-size-lg: 24px;
+  --font-size-xl: 30px;
+  --font-size-2xl: 42px;
+}
+.a11y-font-3 {
+  --font-size-base: 24px;
+  --font-size-sm: 21px;
+  --font-size-lg: 28px;
+  --font-size-xl: 34px;
+  --font-size-2xl: 46px;
+}
+
+/* ===== ניגודיות גבוהה — רקע שחור, טקסט לבן, קישורים צהובים ===== */
+.a11y-contrast {
+  --color-bg: #000000;
+  --color-surface: #000000;
+  --color-text: #ffffff;
+  --color-text-muted: #ffffff;
+  --color-border: #ffffff;
+  --color-primary-dark: #ffffff; /* טקסט, כותרות, אייקונים */
+  --color-primary-light: #000000; /* רקע כותרת/טבלה */
+  --color-link: #ffff00;
+  --color-primary: #ffff00; /* מילוי כפתורים */
+  --color-primary-muted: #ffe600;
+}
+.a11y-contrast body {
+  background-color: #000000;
+  color: #ffffff;
+}
+/* כפתורים ראשיים — צהוב על שחור לניגודיות מרבית */
+.a11y-contrast .btn--primary,
+.a11y-contrast .btn--brand {
+  background-color: #ffff00;
+  color: #000000;
+  border: 2px solid #ffffff;
+}
+.a11y-contrast .btn--secondary {
+  background-color: #000000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+/* שדות טופס */
+.a11y-contrast .field__input,
+.a11y-contrast input,
+.a11y-contrast textarea,
+.a11y-contrast select {
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+/* קישורים — צהוב ומודגש */
+.a11y-contrast a {
+  color: #ffff00;
+}
+/* תגים/סטטוסים — מסגרת לבנה לבהירות */
+.a11y-contrast .pay-badge,
+.a11y-contrast .pay-badge--paid {
+  background-color: #000000;
+  color: #ffffff;
+  border: 1px solid #ffffff;
+}
+
+/* ===== הדגשת קישורים ===== */
+.a11y-links a {
+  text-decoration: underline !important;
+  font-weight: 700;
+}
+
+/* ===== גופן קריא ===== */
+.a11y-readable {
+  --font-family: Arial, "Segoe UI", "Noto Sans Hebrew", sans-serif;
+}
+.a11y-readable body,
+.a11y-readable input,
+.a11y-readable textarea,
+.a11y-readable select,
+.a11y-readable button {
+  font-family: var(--font-family);
+}
+
+/* ===== סמל הנגישות הצף ===== */
+.a11y-fab {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 12px);
+  right: 12px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background-color: #1f57c3; /* כחול נגישות מוכר */
+  color: #ffffff;
+  border: 2px solid #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  cursor: pointer;
+  z-index: 60;
+}
+.a11y-fab:hover {
+  filter: brightness(1.08);
+}
+.a11y-fab:focus-visible {
+  outline: 3px solid #ffdd00;
+  outline-offset: 2px;
+}
+
+/* ===== פאנל הנגישות ===== */
+.a11y-panel {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height) + 68px);
+  right: 12px;
+  width: 264px;
+  max-width: calc(100vw - 24px);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: 14px;
+  z-index: 61;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.a11y-panel__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary-dark);
+}
+
+.a11y-panel__close {
+  min-width: 36px;
+  min-height: 36px;
+  border: none;
+  background: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-lg);
+  cursor: pointer;
+}
+
+.a11y-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  padding: 4px 0;
+}
+
+.a11y-fontctl {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.a11y-fontctl button {
+  min-width: 40px;
+  min-height: 40px;
+  border: 1px solid var(--color-primary-dark);
+  background-color: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: var(--radius-sm);
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+.a11y-fontctl button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.a11y-level {
+  min-width: 16px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--color-text-muted);
+}
+
+.a11y-toggle {
+  text-align: right;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background-color: var(--color-surface);
+  color: var(--color-text);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.a11y-toggle.is-on {
+  background-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary-dark);
+}
+
+.a11y-reset {
+  margin-top: 4px;
+  padding: 8px 12px;
+  border: none;
+  background: none;
+  color: var(--color-link);
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: center;
+}
+
+.a11y-statement {
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+}

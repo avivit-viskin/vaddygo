@@ -32,8 +32,10 @@ import AccessibilityPage from "./pages/legal/AccessibilityPage";
 import CookiesPage from "./pages/legal/CookiesPage";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
+import AccessibilityWidget from "./components/AccessibilityWidget";
 import { applyAnalyticsConsent } from "./services/analytics";
 import { hasAnalyticsConsent } from "./services/cookieConsentService";
+import { applyA11ySettings } from "./services/accessibility";
 import { isOnboardingComplete } from "./services/onboardingService";
 import {
   isAuthenticated,
@@ -77,9 +79,11 @@ function App() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  // בעליית האפליקציה: מפעילים מעקב רק אם המשתמש/ת אישרה עוגיות מדידה (אחרת לא).
+  // בעליית האפליקציה: מפעילים מעקב רק אם אושרו עוגיות מדידה, ומחילים את
+  // הגדרות הנגישות השמורות (גודל טקסט/ניגודיות וכו').
   useEffect(() => {
     applyAnalyticsConsent(hasAnalyticsConsent());
+    applyA11ySettings();
   }, []);
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");
@@ -101,6 +105,7 @@ function App() {
           </Routes>
         </main>
         <CookieConsent />
+        <AccessibilityWidget />
       </div>
     );
   }
@@ -194,6 +199,7 @@ function App() {
       {!isFullScreen && <WhatsAppFab />}
       {!isFullScreen && <BottomNav />}
       <CookieConsent />
+      <AccessibilityWidget />
     </div>
   );
 }

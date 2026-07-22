@@ -15,18 +15,30 @@ function renderPage() {
   );
 }
 
+/* ההגדרות בנויות כתפריט — קודם פותחים את נושא "התראות" מהתפריט */
+async function openNotifications() {
+  await userEvent.click(screen.getByRole("button", { name: /התראות/ }));
+}
+
 test("ברירת מחדל: כל ההתראות דלוקות", async () => {
   renderPage();
-  // כרטיס קישורי התשלום נטען אסינכרונית — מחכים לו כדי לא לקבל אזהרת act
-  await screen.findByLabelText(/תשלום בביט/);
+  await openNotifications();
   expect(screen.getByLabelText(/תזכורות תשלום/)).toBeChecked();
   expect(screen.getByLabelText(/התראות ימי הולדת/)).toBeChecked();
 });
 
 test("כיבוי תזכורות תשלום נשמר בהעדפות", async () => {
   renderPage();
-  await screen.findByLabelText(/תשלום בביט/);
+  await openNotifications();
   await userEvent.click(screen.getByLabelText(/תזכורות תשלום/));
   expect(getNotificationPrefs().payments).toBe(false);
   expect(getNotificationPrefs().birthdays).toBe(true);
+});
+
+test("מסך ההגדרות פותח כתפריט קצר של נושאים", () => {
+  renderPage();
+  expect(screen.getByRole("button", { name: /חברי ועד והרשאות/ })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: /תשלומים/ })).toBeInTheDocument();
+  // התוכן עצמו (תיבות הסימון) מוצג רק אחרי כניסה לנושא
+  expect(screen.queryByLabelText(/תזכורות תשלום/)).not.toBeInTheDocument();
 });

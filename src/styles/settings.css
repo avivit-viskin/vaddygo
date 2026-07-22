@@ -1,4 +1,87 @@
 /* settings.css — מסך ההגדרות (משימה 12) */
+
+/* ── תפריט ההגדרות: רשימת נושאים, כל אחד נפתח במסך משלו ───── */
+.settings-menu {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-menu__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow-sm);
+  cursor: pointer;
+  font-family: inherit;
+  text-align: start;
+  min-height: var(--touch-target);
+}
+
+.settings-menu__item:hover {
+  border-color: var(--color-primary-muted);
+}
+
+.settings-menu__icon {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}
+
+.settings-menu__text {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.settings-menu__label {
+  font-weight: 600;
+  color: var(--color-text);
+}
+
+.settings-menu__subtitle {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.settings-menu__chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+/* ── כותרת מסך נושא בודד, עם כפתור "חזרה" ──────────────────── */
+.settings-section__header {
+  justify-content: flex-start;
+  gap: 12px;
+}
+
+.settings-section__back {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 6px 18px;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 40px;
+}
+
+.settings-section__back:hover {
+  border-color: var(--color-primary-muted);
+}
+
 .settings__hint {
   margin: 0 0 12px;
   color: var(--color-text-muted);

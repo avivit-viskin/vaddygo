@@ -131,10 +131,18 @@ function CollectionSettingsPage() {
       <div className="page-header">
         <h2>עריכת גבייה — {group.name}</h2>
       </div>
-      <p className="auth-page__hint" style={{ textAlign: "right", margin: "0 0 12px" }}>
-        הסכומים המוצגים הם <strong>המלצה כללית</strong> — התאימי אותם לסכומים
-        שגובים במוסד שלך. השינויים נשמרים בשרת ומשפיעים על מסך הבית ועל התשלומים
-        של כל תלמיד.
+      <p
+        className="auth-page__hint"
+        style={{
+          textAlign: "right",
+          margin: "0 0 12px",
+          color: "var(--color-text)",
+          fontWeight: 500,
+        }}
+      >
+        הסכומים המוצגים הם <strong>המלצה כללית</strong> — אפשר להתאים אותם
+        לסכומים שגובים במוסד שלך. השינויים נשמרים ומשפיעים על מסך הבית ועל
+        התשלומים של כל תלמיד.
       </p>
 
       {categories.map((cat, index) => (

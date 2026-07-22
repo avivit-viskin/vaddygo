@@ -29,6 +29,20 @@ export function isAuthenticated() {
 }
 
 /*
+  האם תוקף המנוי/הניסיון פג — לפי התאריך שנשמר בכניסה/הרשמה. משמש לנעילה
+  בזמן אמת (הפניה למסך החידוש). אם אין תאריך — לא נועלים (בטיחות: לא חוסמים
+  משתמש בגלל מידע חסר). ה-JWT ממילא פג באותו תאריך, אז השרת אוכף גם הוא.
+*/
+export function isSubscriptionExpired() {
+  const until = getUser()?.subscriptionValidUntil;
+  if (!until) {
+    return false;
+  }
+  const validUntilMs = new Date(until).getTime();
+  return Number.isFinite(validUntilMs) && validUntilMs < Date.now();
+}
+
+/*
   האם כבר נכנסו לאפליקציה במכשיר הזה בעבר (משתמש חוזר). הסימן: קיים "בעל
   נתונים" — מישהו כבר נרשם/התחבר כאן. משמש להחלטה בכניסה: משתמש חדש רואה קודם
   את מסך הברוכים-הבאים, ומשתמש חוזר מגיע ישר למסך הכניסה.

@@ -3,7 +3,7 @@ namespace ParentCommitteeAPI.Models
     /*
       User — מנוי המערכת (חבר/ת ועד או מנהלת). ההזדהות לפי UI_SPEC ס' 2:
       בעת הרכישה בוחרים שם משתמש + סיסמה; אפשר להתחבר גם עם Google (אותו חשבון).
-      תוקף המנוי גורף עד 30.8 של השנה שאחרי הרכישה (ראו SubscriptionPolicy).
+      הרשמה = חודש ניסיון; חידוש בתשלום מאריך את התוקף (ראו SubscriptionPolicy).
     */
     public class User
     {

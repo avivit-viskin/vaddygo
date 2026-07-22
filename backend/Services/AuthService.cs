@@ -49,7 +49,8 @@ namespace ParentCommitteeAPI.Services
                 Email = email,
                 PasswordHash = PasswordHasher.Hash(dto.Password),
                 Role = "Member",
-                SubscriptionValidUntil = SubscriptionPolicy.ValidUntil(DateTime.UtcNow),
+                // הרשמה = תקופת ניסיון של חודש בלבד. חידוש בתשלום יאריך בהמשך.
+                SubscriptionValidUntil = SubscriptionPolicy.TrialUntil(DateTime.UtcNow),
             };
 
             _db.Users.Add(user);

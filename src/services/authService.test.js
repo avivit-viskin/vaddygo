@@ -1,4 +1,4 @@
-import { login, getToken } from "./authService";
+import { login, getToken, isSubscriptionExpired } from "./authService";
 
 /*
   אבטחה: החלפת משתמש באותו מכשיר חייבת לנקות את הנתונים המקומיים של הקודם
@@ -48,4 +48,28 @@ test("כניסה חוזרת של אותו משתמש שומרת את הנתונ�
   await login({ usernameOrEmail: "userA", password: "x" });
 
   expect(localStorage.getItem("vaadygo.institutions")).not.toBeNull();
+});
+
+describe("isSubscriptionExpired", () => {
+  function setUser(subscriptionValidUntil) {
+    localStorage.setItem(
+      "vaadygo.user",
+      JSON.stringify({ username: "u", subscriptionValidUntil })
+    );
+  }
+
+  test("תאריך בעבר → פג (נעילה)", () => {
+    setUser("2000-01-01T00:00:00Z");
+    expect(isSubscriptionExpired()).toBe(true);
+  });
+
+  test("תאריך בעתיד → בתוקף", () => {
+    setUser("2999-01-01T00:00:00Z");
+    expect(isSubscriptionExpired()).toBe(false);
+  });
+
+  test("אין תאריך → לא נועלים (בטיחות)", () => {
+    setUser(null);
+    expect(isSubscriptionExpired()).toBe(false);
+  });
 });

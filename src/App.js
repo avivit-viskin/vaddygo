@@ -35,7 +35,11 @@ import CookieConsent from "./components/CookieConsent";
 import { applyAnalyticsConsent } from "./services/analytics";
 import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { isOnboardingComplete } from "./services/onboardingService";
-import { isAuthenticated, hasVisitedBefore } from "./services/authService";
+import {
+  isAuthenticated,
+  hasVisitedBefore,
+  isSubscriptionExpired,
+} from "./services/authService";
 import { getActiveInstitution } from "./services/institutionsService";
 
 /*
@@ -105,6 +109,12 @@ function App() {
   // שהדפדפן פתח מחדש) → ישר הביתה, בלי לבקש להתחבר שוב.
   if (isAuthenticated() && AUTH_ENTRY_ROUTES.includes(location.pathname)) {
     return <Navigate to="/" replace />;
+  }
+
+  // תקופת הניסיון/המנוי פגה → נעילה: מפנים למסך החידוש. מסכים ציבוריים (כולל
+  // מסך החידוש עצמו) פטורים, כדי לא ליצור לולאת הפניה.
+  if (isAuthenticated() && !isPublic && isSubscriptionExpired()) {
+    return <Navigate to="/subscription-expired" replace />;
   }
 
   return (

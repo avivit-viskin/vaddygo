@@ -15,6 +15,7 @@ import ChangePasswordCard from "./settings/ChangePasswordCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
+import TeamManager from "../components/TeamManager";
 import "../styles/settings.css";
 
 /*
@@ -85,6 +86,13 @@ function SettingsPage() {
           checked={analytics}
           onChange={toggleAnalytics}
         />
+      </Card>
+
+      <Card title="👥 חברי ועד והרשאות">
+        <p className="settings__hint">
+          כאן אפשר להוסיף חברי ועד, לשנות את ההרשאה של כל אחד, או להסיר.
+        </p>
+        <TeamManager />
       </Card>
 
       <PaymentLinksCard />

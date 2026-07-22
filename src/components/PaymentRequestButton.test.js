@@ -29,10 +29,10 @@ test("פותח חלון בקשת תשלום, מציג חוב פתוח וקישו
   fireEvent.click(screen.getByRole("button", { name: /בקשת תשלום/ }));
   expect(await screen.findByText(/חוב פתוח/)).toBeInTheDocument();
 
-  // מזומן זמין תמיד — קישור wa.me להורה (052... → 9725...)
-  const cash = screen.getByRole("link", { name: /מזומן/ });
-  expect(cash.getAttribute("href")).toContain("wa.me/972501234567");
-  expect(cash.getAttribute("href")).toContain("text=");
+  // "תזכורת כללית" זמינה תמיד — קישור wa.me להורה (052... → 9725...)
+  const reminder = screen.getByRole("link", { name: /תזכורת/ });
+  expect(reminder.getAttribute("href")).toContain("wa.me/972501234567");
+  expect(reminder.getAttribute("href")).toContain("text=");
 });
 
 test("כשכל התשלומים שולמו — מוצגת הודעה שאין חוב", async () => {

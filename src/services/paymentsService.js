@@ -179,6 +179,9 @@ export function buildPaymentRequestMessage(studentFullName, unpaidPayments, meth
   if (method === "paybox" && links?.paybox) {
     return [...head, "", `לתשלום בפייבוקס: ${links.paybox}`].join("\n");
   }
-  // מזומן או ללא קישור — הנוסח כבר מבקש להסדיר, בלי שורת קישור נוספת
+  if (method === "card" && links?.card) {
+    return [...head, "", `לתשלום מאובטח בכרטיס אשראי: ${links.card}`].join("\n");
+  }
+  // מזומן/תזכורת או ללא קישור — הנוסח כבר מבקש להסדיר, בלי שורת קישור נוספת
   return head.join("\n");
 }

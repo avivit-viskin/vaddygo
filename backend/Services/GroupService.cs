@@ -84,11 +84,13 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
-            if (group == null || group.UserId != _access.UserId)
+            // בעלות: גן שאינו קיים → לא-נמצא (לא חושפים קיום)
+            if (group == null)
             {
                 return null;
             }
+            // הרשאת עריכה: בעלים/מנהל/עורך רשאים; "צופה" (או מי שאינו חבר בגן) נחסם
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
 
             // מחרוזת ריקה נשמרת כ-null (== "לא הוגדר")
             group.BitLink = string.IsNullOrWhiteSpace(dto.BitLink) ? null : dto.BitLink.Trim();
@@ -175,11 +177,13 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
-            if (group == null || group.UserId != _access.UserId)
+            // בעלות: גן שאינו קיים → לא-נמצא (לא חושפים קיום)
+            if (group == null)
             {
                 return null;
             }
+            // הרשאת עריכה: בעלים/מנהל/עורך רשאים; "צופה" (או מי שאינו חבר בגן) נחסם
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
 
             var incoming = dto.Categories
                 .Select(c => new { Name = c.Name.Trim(), c.AmountPerChild, c.Installments })
@@ -229,11 +233,13 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstOrDefaultAsync(g => g.Id == id);
-            // בעלות: אין לגעת בגן שאינו של המשתמש המחובר (IDOR)
-            if (group == null || group.UserId != _access.UserId)
+            // בעלות: גן שאינו קיים → לא-נמצא (לא חושפים קיום)
+            if (group == null)
             {
                 return null;
             }
+            // הרשאת עריכה: בעלים/מנהל/עורך רשאים; "צופה" (או מי שאינו חבר בגן) נחסם
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
 
             group.HolidayBudgetsJson = (budgets == null || budgets.Count == 0)
                 ? null

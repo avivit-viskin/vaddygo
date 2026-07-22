@@ -21,6 +21,12 @@ namespace ParentCommitteeAPI.Middleware
             {
                 await _next(context);
             }
+            catch (ForbiddenException forbidden)
+            {
+                // חוסר הרשאה (למשל "צופה" שמנסה לערוך) — 403 עם הודעה ידידותית
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+                await context.Response.WriteAsJsonAsync(new { message = forbidden.Message });
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unhandled exception on {Method} {Path}",

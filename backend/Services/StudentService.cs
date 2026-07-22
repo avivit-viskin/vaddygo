@@ -65,7 +65,10 @@ namespace ParentCommitteeAPI.Services
             var student = new Student();
             ApplyWrite(student, dto);
             // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
-            student.GroupId = await _access.ScopeGroupIdAsync(groupId);
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            // הרשאת עריכה: "צופה" אינו רשאי ליצור נתונים
+            if (scoped != null && !await _access.CanEditGroupAsync(scoped)) throw new ForbiddenException();
+            student.GroupId = scoped;
             await _students.AddAsync(student);
             _logger.LogInformation("Student created (Id: {StudentId}, Group: {GroupId})",
                 student.Id, student.GroupId);
@@ -80,6 +83,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי לעדכן נתונים
+            if (!await _access.CanEditGroupAsync(student.GroupId)) throw new ForbiddenException();
 
             ApplyWrite(student, dto);
             await _students.UpdateAsync(student);
@@ -97,6 +102,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי למחוק נתונים
+            if (!await _access.CanEditGroupAsync(student.GroupId)) throw new ForbiddenException();
 
             await _students.DeleteAsync(student);
             _logger.LogInformation("Student deleted (Id: {StudentId})", id);

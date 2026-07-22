@@ -58,6 +58,7 @@ builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
 builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<ITeamService, TeamService>();
 
 // סליקת אשראי — ספק לפי Payments:Provider. mock=סימולטור לפיתוח/בדיקות, payplus=פרודקשן.
 var paymentProvider = builder.Configuration["Payments:Provider"] ?? "mock";

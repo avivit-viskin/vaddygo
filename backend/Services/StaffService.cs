@@ -51,7 +51,10 @@ namespace ParentCommitteeAPI.Services
             var member = new StaffMember();
             ApplyWrite(member, dto);
             // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
-            member.GroupId = await _access.ScopeGroupIdAsync(groupId);
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            // הרשאת עריכה: "צופה" אינו רשאי ליצור נתונים
+            if (scoped != null && !await _access.CanEditGroupAsync(scoped)) throw new ForbiddenException();
+            member.GroupId = scoped;
             await _staff.AddAsync(member);
             _logger.LogInformation("Staff member created (Id: {StaffId})", member.Id);
             return ToResponse(member);
@@ -65,6 +68,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי לעדכן נתונים
+            if (!await _access.CanEditGroupAsync(member.GroupId)) throw new ForbiddenException();
 
             ApplyWrite(member, dto);
             await _staff.UpdateAsync(member);
@@ -80,6 +85,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי למחוק נתונים
+            if (!await _access.CanEditGroupAsync(member.GroupId)) throw new ForbiddenException();
 
             await _staff.DeleteAsync(member);
             _logger.LogInformation("Staff member deleted (Id: {StaffId})", id);

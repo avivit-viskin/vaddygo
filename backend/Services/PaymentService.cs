@@ -93,6 +93,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי לרשום/לעדכן תשלום
+            if (!await _access.CanEditGroupAsync(student.GroupId)) throw new ForbiddenException();
             // הקטגוריה חייבת להיות של הגן של התלמיד — לא של גן אחר
             var category = await _db.CollectionCategories
                 .FirstOrDefaultAsync(c => c.Id == categoryId && c.GroupId == student.GroupId);

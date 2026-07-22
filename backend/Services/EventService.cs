@@ -54,7 +54,10 @@ namespace ParentCommitteeAPI.Services
             var item = new Event();
             ApplyWrite(item, dto);
             // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
-            item.GroupId = await _access.ScopeGroupIdAsync(groupId);
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            // הרשאת עריכה: "צופה" אינו רשאי ליצור נתונים
+            if (scoped != null && !await _access.CanEditGroupAsync(scoped)) throw new ForbiddenException();
+            item.GroupId = scoped;
             await _events.AddAsync(item);
             _logger.LogInformation("Event created (Id: {EventId})", item.Id);
             return ToResponse(item);
@@ -68,6 +71,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי לעדכן נתונים
+            if (!await _access.CanEditGroupAsync(item.GroupId)) throw new ForbiddenException();
 
             ApplyWrite(item, dto);
             await _events.UpdateAsync(item);
@@ -83,6 +88,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי למחוק נתונים
+            if (!await _access.CanEditGroupAsync(item.GroupId)) throw new ForbiddenException();
 
             await _events.DeleteAsync(item);
             _logger.LogInformation("Event deleted (Id: {EventId})", id);

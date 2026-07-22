@@ -41,6 +41,10 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<ExpenseResponseDto> CreateAsync(ExpenseCreateDto dto, int? groupId = null)
         {
+            // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT)
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            // הרשאת עריכה: "צופה" אינו רשאי ליצור נתונים
+            if (scoped != null && !await _access.CanEditGroupAsync(scoped)) throw new ForbiddenException();
             var expense = new Expense
             {
                 Amount = dto.Amount,
@@ -48,8 +52,7 @@ namespace ParentCommitteeAPI.Services
                 Description = (dto.Description ?? string.Empty).Trim(),
                 Category = (dto.Category ?? string.Empty).Trim(),
                 Date = DateTime.UtcNow,
-                // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT)
-                GroupId = await _access.ScopeGroupIdAsync(groupId),
+                GroupId = scoped,
             };
             await _expenses.AddAsync(expense);
             _logger.LogInformation("Expense created (Id: {ExpenseId}, Group: {GroupId})",
@@ -65,6 +68,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי למחוק נתונים
+            if (!await _access.CanEditGroupAsync(expense.GroupId)) throw new ForbiddenException();
             await _expenses.DeleteAsync(expense);
             _logger.LogInformation("Expense deleted (Id: {ExpenseId})", id);
             return true;

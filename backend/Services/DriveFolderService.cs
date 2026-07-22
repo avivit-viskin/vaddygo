@@ -51,7 +51,10 @@ namespace ParentCommitteeAPI.Services
             var folder = new DriveFolder();
             ApplyWrite(folder, dto);
             // בעלות: משייכים לגן שבבעלות המשתמש (מאומת מול ה-JWT), לא לערך גולמי מהלקוח
-            folder.GroupId = await _access.ScopeGroupIdAsync(groupId);
+            var scoped = await _access.ScopeGroupIdAsync(groupId);
+            // הרשאת עריכה: "צופה" אינו רשאי ליצור נתונים
+            if (scoped != null && !await _access.CanEditGroupAsync(scoped)) throw new ForbiddenException();
+            folder.GroupId = scoped;
             await _folders.AddAsync(folder);
             _logger.LogInformation("Drive folder created (Id: {FolderId})", folder.Id);
             return ToResponse(folder);
@@ -65,6 +68,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי לעדכן נתונים
+            if (!await _access.CanEditGroupAsync(folder.GroupId)) throw new ForbiddenException();
 
             ApplyWrite(folder, dto);
             await _folders.UpdateAsync(folder);
@@ -80,6 +85,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            // הרשאת עריכה: "צופה" אינו רשאי למחוק נתונים
+            if (!await _access.CanEditGroupAsync(folder.GroupId)) throw new ForbiddenException();
 
             await _folders.DeleteAsync(folder);
             _logger.LogInformation("Drive folder deleted (Id: {FolderId})", id);

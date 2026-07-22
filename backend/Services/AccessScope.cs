@@ -21,6 +21,18 @@ namespace ParentCommitteeAPI.Services
         /* מזהי הגנים שבבעלות המשתמש המחובר. */
         Task<IReadOnlyList<int>> OwnedGroupIdsAsync();
 
+        /* כל הגנים שהמשתמש רשאי לגשת אליהם: בבעלותו + כאלה שהוזמן אליהם (חבר). */
+        Task<IReadOnlyList<int>> AccessibleGroupIdsAsync();
+
+        /* ההרשאה של המשתמש בגן: "manager" (בעלים/מנהל) | "editor" | "viewer" | null. */
+        Task<string?> GetRoleAsync(int? groupId);
+
+        /* האם המשתמש רשאי *לערוך* בגן — בעלים/מנהל/עורך (לא צופה). */
+        Task<bool> CanEditGroupAsync(int? groupId);
+
+        /* האם המשתמש רשאי *לנהל* את הגן (הזמנה/הסרת חברים) — בעלים או מנהל. */
+        Task<bool> CanManageGroupAsync(int? groupId);
+
         /*
           מחזיר את מזהה הגן שאליו יש לסנן רשימה:
           - אם הלקוח ביקש מוסד (X-Institution) והוא בבעלות המשתמש → אותו מזהה.
@@ -43,6 +55,7 @@ namespace ParentCommitteeAPI.Services
         private readonly AppDbContext _db;
         private readonly IHttpContextAccessor _http;
         private IReadOnlyList<int>? _ownedCache;
+        private Dictionary<int, string>? _memberRolesCache;
 
         public AccessScope(AppDbContext db, IHttpContextAccessor http)
         {
@@ -80,21 +93,45 @@ namespace ParentCommitteeAPI.Services
             return _ownedCache;
         }
 
-        public async Task<int?> ScopeGroupIdAsync(int? requestedGroupId)
+        /* מיפוי גן→הרשאה עבור הגנים שאליהם המשתמש *הוזמן* (חבר, לא בעלים). */
+        private async Task<Dictionary<int, string>> MemberRolesAsync()
+        {
+            if (_memberRolesCache != null)
+            {
+                return _memberRolesCache;
+            }
+            var uid = UserId;
+            _memberRolesCache = uid == null
+                ? new Dictionary<int, string>()
+                : await _db.GroupMembers
+                    .Where(m => m.UserId == uid.Value)
+                    .ToDictionaryAsync(m => m.GroupId, m => m.Role);
+            return _memberRolesCache;
+        }
+
+        public async Task<IReadOnlyList<int>> AccessibleGroupIdsAsync()
         {
             var owned = await OwnedGroupIdsAsync();
-            if (owned.Count == 0)
+            var member = await MemberRolesAsync();
+            // בעלות קודם — כדי שברירת המחדל (הגן הראשון) תהיה הגן של המשתמש עצמו
+            return owned.Concat(member.Keys.Where(id => !owned.Contains(id))).ToList();
+        }
+
+        public async Task<int?> ScopeGroupIdAsync(int? requestedGroupId)
+        {
+            var accessible = await AccessibleGroupIdsAsync();
+            if (accessible.Count == 0)
             {
                 return null;
             }
-            // מוסד שהתבקש ובבעלות המשתמש → אותו מוסד. אחרת (לא התבקש, או
-            // X-Institution ישן/שגוי שאינו שלו) → הגן הראשון *שלו*, לא null —
-            // כדי שרשומות חדשות לא ייווצרו יתומות ויעלמו. תמיד נתוני המשתמש עצמו.
-            if (requestedGroupId.HasValue && owned.Contains(requestedGroupId.Value))
+            // מוסד שהתבקש ושהמשתמש רשאי לגשת אליו (בעלות/חברוּת) → אותו מוסד.
+            // אחרת (לא התבקש, או X-Institution ישן/שגוי) → הגן הראשון הנגיש *שלו*,
+            // לעולם לא של משתמש אחר.
+            if (requestedGroupId.HasValue && accessible.Contains(requestedGroupId.Value))
             {
                 return requestedGroupId;
             }
-            return owned[0];
+            return accessible[0];
         }
 
         public async Task<bool> CanAccessGroupAsync(int? groupId)
@@ -103,8 +140,35 @@ namespace ParentCommitteeAPI.Services
             {
                 return false;
             }
+            var accessible = await AccessibleGroupIdsAsync();
+            return accessible.Contains(groupId.Value);
+        }
+
+        public async Task<string?> GetRoleAsync(int? groupId)
+        {
+            if (groupId == null)
+            {
+                return null;
+            }
             var owned = await OwnedGroupIdsAsync();
-            return owned.Contains(groupId.Value);
+            if (owned.Contains(groupId.Value))
+            {
+                return "manager"; // הבעלים = מנהל מלא
+            }
+            var roles = await MemberRolesAsync();
+            return roles.TryGetValue(groupId.Value, out var role) ? role : null;
+        }
+
+        public async Task<bool> CanEditGroupAsync(int? groupId)
+        {
+            var role = await GetRoleAsync(groupId);
+            return role == "manager" || role == "editor";
+        }
+
+        public async Task<bool> CanManageGroupAsync(int? groupId)
+        {
+            var role = await GetRoleAsync(groupId);
+            return role == "manager";
         }
     }
 }

@@ -23,6 +23,8 @@ namespace ParentCommitteeAPI
         public DbSet<User> Users { get; set; }
         public DbSet<DriveFolder> DriveFolders { get; set; }
         public DbSet<Expense> Expenses { get; set; }
+        public DbSet<GroupMember> GroupMembers { get; set; }
+        public DbSet<GroupInvite> GroupInvites { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -32,6 +34,10 @@ namespace ParentCommitteeAPI
             // על עצמו בין לקוחות — לכן אינדקס רגיל בלבד; המייל חייב להיות ייחודי.
             modelBuilder.Entity<User>().HasIndex(u => u.Username);
             modelBuilder.Entity<User>().HasIndex(u => u.Email).IsUnique();
+
+            // חברוּת ייחודית לכל (גן, משתמש); טוקן הזמנה ייחודי לחיפוש מהיר.
+            modelBuilder.Entity<GroupMember>().HasIndex(m => new { m.GroupId, m.UserId }).IsUnique();
+            modelBuilder.Entity<GroupInvite>().HasIndex(i => i.Token).IsUnique();
         }
     }
 }

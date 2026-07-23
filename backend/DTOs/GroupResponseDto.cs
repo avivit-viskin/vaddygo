@@ -17,6 +17,10 @@ namespace ParentCommitteeAPI.DTOs
         public decimal TotalPerChild { get; set; }
         public decimal CollectionGoal { get; set; }
 
+        // הרשאת המשתמש המחובר בגן הזה: "manager" | "editor" | "viewer".
+        // מאפשר ללקוח להתאים את הממשק (להסתיר עריכה מ"צופה"). ברירת מחדל manager.
+        public string Role { get; set; } = "manager";
+
         // קישורי התשלום של הוועד (לבקשת תשלום); ריקים עד שהמשתמשת מגדירה אותם
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }

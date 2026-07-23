@@ -58,6 +58,7 @@ namespace ParentCommitteeAPI.DTOs
     /* תצוגה מקדימה של הזמנה בעמוד ההצטרפות (לפי הטוקן) */
     public class InvitePreviewDto
     {
+        public int GanId { get; set; }
         public string GanName { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public bool AlreadyMember { get; set; }

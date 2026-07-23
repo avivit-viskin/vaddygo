@@ -37,7 +37,15 @@ namespace ParentCommitteeAPI.Services
                 .Where(g => accessibleIds.Contains(g.Id))
                 .Include(g => g.Categories)
                 .ToListAsync();
-            return groups.Select(ToResponse).ToList();
+            var result = new List<GroupResponseDto>();
+            foreach (var g in groups)
+            {
+                var dto = ToResponse(g);
+                // ההרשאה של המשתמש בגן — כדי שהלקוח יוכל להסתיר עריכה מ"צופה"
+                dto.Role = await _access.GetRoleAsync(g.Id) ?? "viewer";
+                result.Add(dto);
+            }
+            return result;
         }
 
         public async Task<GroupResponseDto?> GetByIdAsync(int id)
@@ -50,7 +58,9 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            return ToResponse(group);
+            var dto = ToResponse(group);
+            dto.Role = await _access.GetRoleAsync(group.Id) ?? "viewer";
+            return dto;
         }
 
         public async Task<GroupResponseDto> CreateAsync(GroupCreateDto dto)

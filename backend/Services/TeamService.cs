@@ -184,6 +184,7 @@ namespace ParentCommitteeAPI.Services
 
             return new InvitePreviewDto
             {
+                GanId = invite.GroupId,
                 GanName = ganName ?? string.Empty,
                 Role = invite.Role,
                 AlreadyMember = already,
@@ -236,6 +237,7 @@ namespace ParentCommitteeAPI.Services
                 .FirstOrDefaultAsync();
             return new InvitePreviewDto
             {
+                GanId = invite.GroupId,
                 GanName = ganName ?? string.Empty,
                 Role = invite.Role,
                 AlreadyMember = true,

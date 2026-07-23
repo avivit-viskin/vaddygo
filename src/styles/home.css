@@ -453,6 +453,8 @@
   text-align: center;
   display: flex;
   flex-direction: column;
+  align-items: center; /* מרכוז אופקי של התוכן בתוך הריבוע */
+  justify-content: center; /* מרכוז אנכי — כשריבוע נמתח לגובה שכנו */
   gap: 2px;
 }
 

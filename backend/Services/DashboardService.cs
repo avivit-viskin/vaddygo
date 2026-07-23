@@ -94,6 +94,7 @@ namespace ParentCommitteeAPI.Services
                     new() { Method = "bit", Amount = paidPayments.Sum(p => p.BitAmount) - MethodExpenses(expenses, "bit") },
                     new() { Method = "paybox", Amount = paidPayments.Sum(p => p.PayBoxAmount) - MethodExpenses(expenses, "paybox") },
                     new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) - MethodExpenses(expenses, "cash") },
+                    new() { Method = "card", Amount = paidPayments.Sum(p => p.CardAmount) - MethodExpenses(expenses, "card") },
                 },
                 ByCategory = group.Categories.Select(c => new DashboardCategoryDto
                 {

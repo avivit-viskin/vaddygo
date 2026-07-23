@@ -136,6 +136,33 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        /*
+          עדכון שם הגן (תיקון טעות הקלדה). הרשאת עריכה: בעלים/מנהל/עורך רשאים;
+          "צופה" (או מי שאינו חבר בגן) נחסם. שם ריק (או רווחים בלבד) — לא משנים.
+        */
+        public async Task<GroupResponseDto?> UpdateNameAsync(int id, GroupNameDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            // בעלות: גן שאינו קיים → לא-נמצא (לא חושפים קיום)
+            if (group == null)
+            {
+                return null;
+            }
+            // הרשאת עריכה: בעלים/מנהל/עורך רשאים; "צופה" (או מי שאינו חבר בגן) נחסם
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
+
+            var name = (dto.Name ?? string.Empty).Trim();
+            if (name.Length > 0)
+            {
+                group.Name = name;
+                await _db.SaveChangesAsync();
+                _logger.LogInformation("Group name updated (Id: {GroupId})", id);
+            }
+            return ToResponse(group);
+        }
+
         public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
         {
             var group = await _db.Groups

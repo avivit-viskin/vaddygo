@@ -44,6 +44,17 @@ namespace ParentCommitteeAPI.Controllers
             return CreatedAtAction(nameof(GetGroup), new { id = created.Id }, created);
         }
 
+        // PUT: api/groups/1/name — שינוי שם הגן (תיקון טעות הקלדה)
+        [HttpPut("{id}/name")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateName(
+            int id, [FromBody] GroupNameDto dto)
+        {
+            var updated = await _groupService.UpdateNameAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/payment-links — עדכון קישורי הביט/פייבוקס של הוועד
         [HttpPut("{id}/payment-links")]
         public async Task<ActionResult<GroupResponseDto>> UpdatePaymentLinks(

@@ -7,6 +7,7 @@ namespace ParentCommitteeAPI.Services
         Task<List<GroupResponseDto>> GetAllAsync();
         Task<GroupResponseDto?> GetByIdAsync(int id);
         Task<GroupResponseDto> CreateAsync(GroupCreateDto dto);
+        Task<GroupResponseDto?> UpdateNameAsync(int id, GroupNameDto dto);
         Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto);
         Task<GroupResponseDto?> UpdatePaymentProviderAsync(int id, GroupPaymentProviderDto dto);
         Task<GroupResponseDto?> UpdateBankAccountAsync(int id, GroupBankAccountDto dto);

@@ -49,6 +49,15 @@ namespace ParentCommitteeAPI.DTOs
         public string? PageUid { get; set; }
     }
 
+    /* GroupNameDto — עדכון שם הגן (תיקון טעות הקלדה). */
+    public class GroupNameDto
+    {
+        [System.ComponentModel.DataAnnotations.Required(ErrorMessage = "צריך להזין שם למוסד")]
+        [System.ComponentModel.DataAnnotations.StringLength(100, MinimumLength = 1,
+            ErrorMessage = "שם המוסד יכול להכיל עד 100 תווים")]
+        public string Name { get; set; } = string.Empty;
+    }
+
     /* GroupBankAccountDto — עדכון חשבון הבנק של הוועד לקבלת תשלומי אשראי (בלי מפתחות). */
     public class GroupBankAccountDto
     {

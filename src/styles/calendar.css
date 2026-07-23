@@ -158,6 +158,14 @@
   margin-top: 16px;
 }
 
+/* משפט הסבר קטן מתחת לכותרת מדור (למשל "אבא ואמא של שבת") */
+.calendar-list__hint {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
 .calendar-list__item {
   display: flex;
   align-items: center;

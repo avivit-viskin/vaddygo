@@ -40,14 +40,32 @@ export async function getEvents() {
   }
 }
 
-export async function addEvent({ name, eventDate, description, location, reminder }) {
-  const payload = {
+/* בונה את גוף האירוע לשרת. כולל את שדות "אמא/אבא של שבת" — השרת שומר אותם
+   (ShareWithParent/WhatToBring/ParentPhone), ולכן קישור הוואטסאפ להורה נשמר. */
+function eventPayload({
+  name,
+  eventDate,
+  description,
+  location,
+  reminder,
+  shareWithParent,
+  whatToBring,
+  parentPhone,
+}) {
+  return {
     name,
     eventDate,
     description: description || "",
     location: location || "",
     reminder: Boolean(reminder),
+    shareWithParent: Boolean(shareWithParent),
+    whatToBring: whatToBring || "",
+    parentPhone: parentPhone || "",
   };
+}
+
+export async function addEvent(fields) {
+  const payload = eventPayload(fields);
   try {
     return await api.post("/api/events", payload);
   } catch {
@@ -57,14 +75,8 @@ export async function addEvent({ name, eventDate, description, location, reminde
   }
 }
 
-export async function updateEvent(id, { name, eventDate, description, location, reminder }) {
-  const payload = {
-    name,
-    eventDate,
-    description: description || "",
-    location: location || "",
-    reminder: Boolean(reminder),
-  };
+export async function updateEvent(id, fields) {
+  const payload = eventPayload(fields);
   try {
     return await api.put(`/api/events/${id}`, payload);
   } catch {

@@ -1,14 +1,17 @@
 import { useState } from "react";
 import Input from "../../components/Input";
+import Select from "../../components/Select";
 import Checkbox from "../../components/Checkbox";
 import Button from "../../components/Button";
+import { roleFromGender } from "../../services/shabbatParents";
 
 /*
   EventForm — טופס הוספת/עריכת אירוע ללוח השנה (מוצג בתוך Modal).
   במצב עריכה מקבל initialEvent וממלא את השדות מראש.
-  ולידציה בלקוח: שם ותאריך חובה. הכפתור נעול בזמן שמירה.
+  ל"אבא/אמא של שבת": בוחרים ילד/ה מהרשימה — הטלפון של ההורה ממולא לבד, והתפקיד
+  (אבא/אמא) נקבע לפי מין הילד/ה (וניתן לשינוי ידני). ולידציה: שם ותאריך חובה.
 */
-function EventForm({ onSave, defaultDate, initialEvent }) {
+function EventForm({ onSave, defaultDate, initialEvent, students = [] }) {
   const isEdit = Boolean(initialEvent);
   const [name, setName] = useState(initialEvent?.name || "");
   const [eventDate, setEventDate] = useState(
@@ -22,10 +25,31 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
   const [shareWithParent, setShareWithParent] = useState(
     Boolean(initialEvent?.shareWithParent)
   );
+  const [studentId, setStudentId] = useState(
+    initialEvent?.studentId ? String(initialEvent.studentId) : ""
+  );
+  const [shabbatRole, setShabbatRole] = useState(
+    initialEvent?.shabbatRole === "mom" ? "mom" : "dad"
+  );
   const [whatToBring, setWhatToBring] = useState(initialEvent?.whatToBring || "");
   const [parentPhone, setParentPhone] = useState(initialEvent?.parentPhone || "");
   const [errors, setErrors] = useState({});
   const [isSaving, setIsSaving] = useState(false);
+
+  // בחירת ילד/ה — ממלאת אוטומטית את טלפון ההורה ואת התפקיד (אבא/אמא) לפי המין
+  function handleStudentChange(event) {
+    const id = event.target.value;
+    setStudentId(id);
+    const student = students.find((s) => String(s.id) === String(id));
+    if (student) {
+      if (student.parentPhoneNumber) setParentPhone(student.parentPhoneNumber);
+      const derived = roleFromGender(student.gender);
+      if (derived) setShabbatRole(derived);
+      if (!name.trim()) {
+        setName(`${student.firstName} ${student.lastName} — אבא/אמא של שבת`.trim());
+      }
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -47,6 +71,8 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
         shareWithParent,
         whatToBring: shareWithParent ? whatToBring.trim() : "",
         parentPhone: shareWithParent ? parentPhone.trim() : "",
+        studentId: shareWithParent ? studentId : "",
+        shabbatRole: shareWithParent ? shabbatRole : "",
       });
     } finally {
       setIsSaving(false);
@@ -92,12 +118,46 @@ function EventForm({ onSave, defaultDate, initialEvent }) {
       />
       <Checkbox
         id="event-share-parent"
-        label="👪 אירוע שמשתף הורה (למשל אמא/אבא של שבת)"
+        label="👪 אבא/אמא של שבת (שליחת הודעה להורה)"
         checked={shareWithParent}
         onChange={(e) => setShareWithParent(e.target.checked)}
       />
       {shareWithParent && (
         <>
+          <Select
+            id="event-student"
+            label="הילד/ה שנבחר/ה"
+            value={studentId}
+            onChange={handleStudentChange}
+          >
+            <option value="">— בחירת ילד/ה מהרשימה —</option>
+            {students.map((s) => (
+              <option key={s.id} value={s.id}>
+                {s.firstName} {s.lastName}
+              </option>
+            ))}
+          </Select>
+          <div className="category-row__installments">
+            <span>אבא או אמא של שבת?</span>
+            <div className="chips">
+              <button
+                type="button"
+                className={`chip${shabbatRole === "dad" ? " chip--active" : ""}`}
+                aria-pressed={shabbatRole === "dad"}
+                onClick={() => setShabbatRole("dad")}
+              >
+                אבא של שבת
+              </button>
+              <button
+                type="button"
+                className={`chip${shabbatRole === "mom" ? " chip--active" : ""}`}
+                aria-pressed={shabbatRole === "mom"}
+                onClick={() => setShabbatRole("mom")}
+              >
+                אמא של שבת
+              </button>
+            </div>
+          </div>
           <Input
             id="event-what-to-bring"
             label="מה להביא?"

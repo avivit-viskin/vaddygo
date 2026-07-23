@@ -23,7 +23,14 @@ import {
   birthdaysByDayForMonth,
 } from "../services/birthdaysService";
 import { hebrewDateLabel } from "../services/hebrewDate";
-import { whatsappUrl } from "../services/whatsapp";
+import { getStudents } from "../services/studentsService";
+import { getOnboarding } from "../services/onboardingService";
+import {
+  getShabbatInfo,
+  setShabbatInfo,
+  shabbatWhatsappUrl,
+  roleLabel,
+} from "../services/shabbatParents";
 import { isActiveReadOnly } from "../services/institutionsService";
 import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
@@ -58,13 +65,6 @@ function toDateInputValue(date) {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
 
-/* וואטסאפ להורה עם מה להביא לאירוע (אמא/אבא של שבת) */
-function parentWhatsappUrl(event) {
-  const message =
-    `שלום 🙂 לקראת "${event.name}", נשמח אם תביאו: ${event.whatToBring}. תודה רבה! 💜`;
-  return `${whatsappUrl(event.parentPhone)}?text=${encodeURIComponent(message)}`;
-}
-
 function CalendarPage({ initialDate }) {
   // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של אירועים ותקציבי חגים
   const readOnly = isActiveReadOnly();
@@ -85,6 +85,9 @@ function CalendarPage({ initialDate }) {
   const { data: budgets, reload: reloadBudgets } = useApi(getHolidayBudgets);
   // ימי-הולדת של הצוות והתלמידים — נטענים אוטומטית ומסונכרנים ללוח
   const { data: birthdays } = useApi(getBirthdays);
+  // התלמידים — לבחירת "אבא/אמא של שבת" (ממלא טלפון ומין אוטומטית)
+  const { data: students } = useApi(getStudents);
+  const ganName = getOnboarding()?.ganName || "";
 
   const year = viewDate.getFullYear();
   const monthIndex = viewDate.getMonth();
@@ -123,7 +126,16 @@ function CalendarPage({ initialDate }) {
 
   const monthEvents = useMemo(() => {
     return (events || [])
-      .map((event) => ({ ...event, date: parseEventDate(event.eventDate) }))
+      .map((event) => {
+        // התפקיד (אבא/אמא) נשמר מקומית לכל אירוע — ממוזג חזרה כאן
+        const info = getShabbatInfo(event.id);
+        return {
+          ...event,
+          date: parseEventDate(event.eventDate),
+          shabbatRole: info?.role || event.shabbatRole || "dad",
+          studentId: info?.studentId ?? event.studentId ?? null,
+        };
+      })
       .filter(
         (event) =>
           event.date.getFullYear() === year &&
@@ -131,6 +143,12 @@ function CalendarPage({ initialDate }) {
       )
       .sort((a, b) => a.date - b.date);
   }, [events, year, monthIndex]);
+
+  // אירועי "אבא/אמא של שבת" של החודש — למדור הייעודי בתחתית
+  const shabbatEvents = useMemo(
+    () => monthEvents.filter((event) => event.shareWithParent),
+    [monthEvents]
+  );
 
   const eventsByDay = useMemo(() => {
     const map = new Map();
@@ -187,14 +205,26 @@ function CalendarPage({ initialDate }) {
     openAddForm(dateValue);
   }
 
+  // שומר את תפקיד "אבא/אמא של שבת" (או מנקה אותו אם האירוע כבר לא מסומן)
+  function saveShabbatRole(id, fields) {
+    setShabbatInfo(
+      id,
+      fields.shareWithParent
+        ? { role: fields.shabbatRole, studentId: fields.studentId }
+        : null
+    );
+  }
+
   async function handleSave(newEvent) {
-    await addEvent(newEvent);
+    const saved = await addEvent(newEvent);
+    saveShabbatRole(saved.id, newEvent);
     setIsFormOpen(false);
     await reload();
   }
 
   async function handleUpdate(fields) {
     await updateEvent(editTarget.id, fields);
+    saveShabbatRole(editTarget.id, fields);
     setEditTarget(null);
     await reload();
   }
@@ -318,17 +348,6 @@ function CalendarPage({ initialDate }) {
               {event.reminder && " 🔔"}
               {event.shareWithParent && " 👪"}
             </span>
-            {event.shareWithParent && event.parentPhone && (
-              <a
-                className="calendar-list__whatsapp"
-                href={parentWhatsappUrl(event)}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`שליחת וואטסאפ להורה על ${event.name}`}
-              >
-                💬
-              </a>
-            )}
             {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
             {!readOnly && (
               <>
@@ -380,12 +399,52 @@ function CalendarPage({ initialDate }) {
         )}
       </section>
 
+      {/* מדור: אבא ואמא של שבת — לפי אירועים שסומנו */}
+      <section className="calendar-list" aria-label="אבא ואמא של שבת">
+        <h3>אבא ואמא של שבת 👪</h3>
+        <p className="calendar-list__hint">
+          אפשר להוסיף אבא ואמא של שבת לפי ההוספה באירוע — מסמנים אירוע כ"אבא/אמא
+          של שבת", והוא מופיע כאן עם כפתור לשליחת הודעה להורה 🙂
+        </p>
+        {shabbatEvents.length === 0 ? (
+          <p>
+            עדיין אין. כשמוסיפים אירוע ומסמנים "אבא/אמא של שבת", הוא יופיע כאן.
+          </p>
+        ) : (
+          shabbatEvents.map((event) => (
+            <div className="calendar-list__item" key={`shabbat-${event.id}`}>
+              <span className="calendar-list__date">
+                {listDateFormatter.format(event.date)}
+              </span>
+              <span className="calendar-list__name">
+                👪 {roleLabel(event.shabbatRole)} · {event.name}
+              </span>
+              {event.parentPhone && (
+                <a
+                  className="calendar-list__whatsapp"
+                  href={shabbatWhatsappUrl(event, ganName)}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`שליחת וואטסאפ להורה של ${event.name}`}
+                >
+                  💬
+                </a>
+              )}
+            </div>
+          ))
+        )}
+      </section>
+
       <Modal
         isOpen={isFormOpen}
         onClose={() => setIsFormOpen(false)}
         title="אירוע חדש"
       >
-        <EventForm onSave={handleSave} defaultDate={addDate || defaultFormDate} />
+        <EventForm
+          onSave={handleSave}
+          defaultDate={addDate || defaultFormDate}
+          students={students || []}
+        />
       </Modal>
 
       <Modal
@@ -394,7 +453,11 @@ function CalendarPage({ initialDate }) {
         title="עריכת אירוע"
       >
         {editTarget && (
-          <EventForm onSave={handleUpdate} initialEvent={editTarget} />
+          <EventForm
+            onSave={handleUpdate}
+            initialEvent={editTarget}
+            students={students || []}
+          />
         )}
       </Modal>
 

@@ -46,9 +46,9 @@ function SummaryStep({ data }) {
             </span>
           </li>
           <li>
-            <span>משתמשות</span>
+            <span>אנשי צוות בגן</span>
             <span className="summary-list__value">
-              את + {Number(data.staffCount) || 0}
+              {Number(data.staffCount) || 0}
             </span>
           </li>
         </ul>

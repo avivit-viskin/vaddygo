@@ -162,6 +162,70 @@ export function removeInstitution(id) {
   המוסדות הנוספים ששמותיהם הוזנו (לא-מופעלים). אחרת — מפעיל את המוסד הפעיל
   הנוכחי עם נתוני ההרשמה שלו (הפעלת מוסד נוסף אחרי רכישה).
 */
+/*
+  syncServerGroups — מסנכרן את רשימת המוסדות המקומית עם הגנים מהשרת
+  (GET /api/groups). כל גן מהשרת — בבעלות המשתמש או כזה שהוזמן אליו כחבר —
+  מתווסף/מתעדכן ברשימה לפי serverGroupId, יחד עם ההרשאה שלו (role). כך גן
+  שהוזמנת אליו מופיע ב-InstitutionSwitcher וניתן לפתוח אותו, ולפי ה-role
+  יודעים אם הוא לקריאה-בלבד. מוסדות מקומיים בלבד (שטרם נוצרו בשרת) נשמרים כמו
+  שהם. מחזיר את הרשימה המעודכנת.
+*/
+export function syncServerGroups(groups) {
+  if (!Array.isArray(groups)) {
+    return readList();
+  }
+  const list = readList();
+  const byServerId = new Map(
+    list
+      .filter((i) => i.serverGroupId != null)
+      .map((i) => [i.serverGroupId, i])
+  );
+  groups.forEach((g) => {
+    if (g == null || g.id == null) {
+      return;
+    }
+    // הרשאה מהשרת: manager|editor|viewer. ברירת מחדל manager (תאימות לאחור:
+    // גנים קיימים שהשרת עדיין לא מחזיר להם role — הבעלים).
+    const role = g.role || "manager";
+    const existing = byServerId.get(g.id);
+    if (existing) {
+      // מוסד קיים: מעדכנים שם/הרשאה בלבד — לא דורסים את ה-onboarding המקומי
+      // (עשוי להכיל שדות מקומיים שאינם בשרת).
+      existing.name = g.name || existing.name;
+      existing.role = role;
+      existing.activated = true;
+    } else {
+      // מוסד חדש (בדרך כלל גן שהוזמנת אליו): שומרים גם את נתוני ההרשמה מהשרת
+      // (g.onboarding, אם צורף) כדי שהמעבר אליו יציג את הגן הנכון ויעבור את
+      // שער ההרשמה של האפליקציה.
+      list.push({
+        id: `inst-server-${g.id}`,
+        name: g.name || "מוסד",
+        type: "gan",
+        activated: true,
+        onboarding: g.onboarding || null,
+        serverGroupId: g.id,
+        role,
+      });
+    }
+  });
+  writeList(list);
+  return list;
+}
+
+/*
+  ההרשאה של המשתמש במוסד הפעיל: "manager" | "editor" | "viewer".
+  ברירת מחדל "manager" — מוסדות ישנים ללא שדה role נחשבים בבעלות (תאימות לאחור).
+*/
+export function getActiveRole() {
+  return getActiveInstitution()?.role || "manager";
+}
+
+/* האם המוסד הפעיל הוא לצפייה בלבד (המשתמש "צופה") — משמש להסתרת כפתורי עריכה. */
+export function isActiveReadOnly() {
+  return getActiveRole() === "viewer";
+}
+
 export function saveActiveOnboarding(data, serverGroupId = null) {
   let list = readList();
   const stamp = Date.now();

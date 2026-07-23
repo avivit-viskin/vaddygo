@@ -1,6 +1,6 @@
 import { api } from "./api";
 import { getGroups } from "./groupsService";
-import { saveActiveOnboarding } from "./institutionsService";
+import { saveActiveOnboarding, syncServerGroups } from "./institutionsService";
 
 /*
   onboardingService — שמירת הגדרות הגן מאשף ההרשמה.
@@ -57,6 +57,32 @@ export function getOnboarding() {
 
 export function isOnboardingComplete() {
   return getOnboarding() !== null;
+}
+
+/*
+  syncInstitutionsFromServer — מושך את כל הגנים מהשרת (בבעלות המשתמש + כאלה
+  שהוזמן אליהם כחבר) ומסנכרן אותם לרשימת המוסדות המקומית, כדי שגם גן שהוזמנת
+  אליו יופיע ב-InstitutionSwitcher עם ההרשאה שלו. נקרא אחרי כניסה ואחרי פדיון
+  הזמנה. שקט לכשלים (שרת לא זמין → פשוט לא מסנכרן). מחזיר את מספר הגנים.
+*/
+export async function syncInstitutionsFromServer() {
+  let groups;
+  try {
+    groups = await getGroups();
+  } catch {
+    return 0;
+  }
+  if (!Array.isArray(groups)) {
+    return 0;
+  }
+  // מצרפים לכל גן את נתוני ההרשמה שלו (מהשרת) כדי שגן שהוזמנת אליו יישמר עם
+  // הכותרת/הקטגוריות שלו, והמעבר אליו יעבוד ויעבור את שער ההרשמה.
+  const enriched = groups.map((g) => ({
+    ...g,
+    onboarding: groupToOnboardingData(g),
+  }));
+  syncServerGroups(enriched);
+  return groups.length;
 }
 
 /* ממפה גן מהשרת (GroupResponseDto) בחזרה למבנה נתוני האשף. */

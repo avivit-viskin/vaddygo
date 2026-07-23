@@ -16,6 +16,7 @@ import FilesPage from "./pages/FilesPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import JoinPage from "./pages/JoinPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import TeamSetupPage from "./pages/TeamSetupPage";
@@ -42,7 +43,11 @@ import {
   hasVisitedBefore,
   isSubscriptionExpired,
 } from "./services/authService";
-import { getActiveInstitution } from "./services/institutionsService";
+import {
+  getActiveInstitution,
+  isActiveReadOnly,
+} from "./services/institutionsService";
+import "./styles/readonly.css";
 
 /*
   App — שלד האפליקציה: כותרת עליונה, אזור התוכן לפי הנתיב, וניווט תחתון קבוע.
@@ -87,9 +92,11 @@ function App() {
   }, []);
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");
+  // עמוד הצטרפות לגן דרך קישור הזמנה (/join/:token) — ציבורי ובמסך מלא
+  const isJoin = location.pathname.startsWith("/join/");
   const isFullScreen =
-    FULL_SCREEN_ROUTES.includes(location.pathname) || isPurchase;
-  const isPublic = PUBLIC_ROUTES.includes(location.pathname);
+    FULL_SCREEN_ROUTES.includes(location.pathname) || isPurchase || isJoin;
+  const isPublic = PUBLIC_ROUTES.includes(location.pathname) || isJoin;
   const activeInstitution = getActiveInstitution();
 
   // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות.
@@ -149,6 +156,11 @@ function App() {
       {!isFullScreen && (
         <SideMenu isOpen={isMenuOpen} onClose={() => setIsMenuOpen(false)} />
       )}
+      {!isFullScreen && isActiveReadOnly() && (
+        <div className="readonly-banner" role="status">
+          👀 מצב צפייה בלבד — יש לך הרשאת צפייה בגן הזה, בלי אפשרות לערוך.
+        </div>
+      )}
       <main className="app-main">
         <Routes>
           <Route
@@ -164,6 +176,7 @@ function App() {
           <Route path="/welcome" element={<WelcomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/join/:token" element={<JoinPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route
             path="/subscription-expired"

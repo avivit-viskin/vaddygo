@@ -1,5 +1,5 @@
 import { useState, useCallback } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -7,7 +7,10 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { login, loginWithGoogle } from "../services/authService";
-import { restoreOnboardingFromServer } from "../services/onboardingService";
+import {
+  restoreOnboardingFromServer,
+  syncInstitutionsFromServer,
+} from "../services/onboardingService";
 import "../styles/onboarding.css";
 
 /*
@@ -17,6 +20,11 @@ import "../styles/onboarding.css";
 */
 function LoginPage() {
   const navigate = useNavigate();
+  // יעד לחזרה אחרי כניסה (למשל השלמת הצטרפות לגן: ?next=/join/<token>).
+  // מתירים רק נתיבים פנימיים (מתחילים ב-"/") כדי למנוע הפניה החוצה.
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : null;
   const [usernameOrEmail, setUsernameOrEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -32,7 +40,9 @@ function LoginPage() {
         await loginWithGoogle(credential);
         // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
         await restoreOnboardingFromServer();
-        navigate("/");
+        // מסנכרן את כל הגנים (כולל כאלה שהוזמנת אליהם) למחליף המוסדות
+        await syncInstitutionsFromServer();
+        navigate(safeNext || "/");
       } catch (err) {
         if (err.message && err.message.includes("המנוי פג")) {
           navigate("/subscription-expired");
@@ -41,7 +51,7 @@ function LoginPage() {
         }
       }
     },
-    [navigate]
+    [navigate, safeNext]
   );
 
   const handleGoogleError = useCallback(() => {

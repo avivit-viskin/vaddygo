@@ -1,4 +1,4 @@
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
@@ -32,6 +32,10 @@ function validate(values) {
 
 function RegisterPage() {
   const navigate = useNavigate();
+  // אם נרשמים תוך כדי הצטרפות לגן (?next=/join/<token>) — חוזרים לשם במקום לאשף.
+  const [searchParams] = useSearchParams();
+  const nextParam = searchParams.get("next");
+  const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : null;
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm({ username: "", email: "", password: "" }, validate);
 
@@ -41,7 +45,7 @@ function RegisterPage() {
       email: formValues.email.trim(),
       password: formValues.password,
     });
-    navigate("/onboarding");
+    navigate(safeNext || "/onboarding");
   });
 
   return (

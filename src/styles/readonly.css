@@ -1,0 +1,18 @@
+/* באנר "מצב צפייה בלבד" — מוצג כשלמשתמש יש הרשאת צופה בגן הפעיל (בלי עריכה). */
+.readonly-banner {
+  background: #fdf0d5;
+  color: #7a5b1e;
+  text-align: center;
+  padding: 8px 12px;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  border-bottom: 1px solid #f0dca8;
+}
+
+@media (prefers-color-scheme: dark) {
+  .readonly-banner {
+    background: #3a3320;
+    color: #f0dca8;
+    border-bottom-color: #5a4d2a;
+  }
+}

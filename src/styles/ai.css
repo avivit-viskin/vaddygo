@@ -169,3 +169,10 @@
   font-size: 28px;
   line-height: 1;
 }
+
+/* מסך רחב (מחשב): הכפתור הצף צמוד לקצה הכרטיס הממורכז, לא לקצה המסך הרחוק */
+@media (min-width: 768px) {
+  .whatsapp-fab {
+    left: calc(50% - 320px + 12px);
+  }
+}

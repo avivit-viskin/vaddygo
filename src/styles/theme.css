@@ -602,3 +602,37 @@ button.vendor-form__remove {
 .confirm-dialog__message {
   margin: 0 0 8px;
 }
+
+/* ===== מסך רחב (מחשב): עמודה ממורכזת במסגרת מעוצבת =====
+   האתר בנוי מובייל-first; במסך רחב התוכן נראה כעמודה דקה על רקע ריק ורחב.
+   כאן שומרים בדיוק על אותה עמודה ממורכזת (מובייל לא משתנה), אבל עוטפים אותה
+   ב"כרטיס" לבן על רקע רך — כך שהצדדים נראים מכוונים ונעים, לא שבורים.
+   חל רק מ-768px ומעלה. */
+@media (min-width: 768px) {
+  body {
+    background: linear-gradient(180deg, #f6edf2 0%, #eef2f7 100%);
+    background-attachment: fixed;
+  }
+
+  /* התוכן = כרטיס לבן ממורכז, נמשך מתחת לכותרת וממלא את גובה המסך */
+  .app-main {
+    background: var(--color-surface);
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+    min-height: calc(100vh - 56px);
+  }
+
+  /* הניווט התחתון מיושר לרוחב הכרטיס (לא נמתח על כל רוחב המסך) */
+  .bottom-nav {
+    left: 50%;
+    right: auto;
+    transform: translateX(-50%);
+    width: 640px;
+    max-width: 100%;
+    border-left: 1px solid var(--color-border);
+    border-right: 1px solid var(--color-border);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+}

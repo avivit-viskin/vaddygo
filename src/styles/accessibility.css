@@ -231,3 +231,11 @@
   font-size: var(--font-size-sm);
   color: var(--color-link);
 }
+
+/* מסך רחב (מחשב): סמל הנגישות והפאנל צמודים לקצה הכרטיס הממורכז */
+@media (min-width: 768px) {
+  .a11y-fab,
+  .a11y-panel {
+    right: calc(50% - 320px + 12px);
+  }
+}

@@ -10,7 +10,7 @@ namespace ParentCommitteeAPI.Services
     */
     public class ExpenseService : IExpenseService
     {
-        private static readonly HashSet<string> AllowedMethods = new() { "bit", "paybox", "cash" };
+        private static readonly HashSet<string> AllowedMethods = new() { "bit", "paybox", "cash", "card" };
 
         private readonly IRepository<Expense> _expenses;
         private readonly IAccessScope _access;

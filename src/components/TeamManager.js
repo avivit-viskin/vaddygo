@@ -187,10 +187,13 @@ function TeamManager() {
               <li key={`inv-${inv.id}`} className="team-list__item">
                 <div className="team-list__info">
                   <span className="team-list__name">
-                    {inv.inviteeName || "הזמנה"}
+                    {inv.inviteeName || "משתמש שהוזמן"}
                   </span>
                   <span className="team-list__role">
-                    {roleLabel(inv.role)} · ממתין/ה להצטרפות
+                    {roleLabel(inv.role)}
+                    <span className="team-status team-status--pending">
+                      ⏳ טרם אושר
+                    </span>
                   </span>
                 </div>
                 <a
@@ -234,7 +237,12 @@ function TeamManager() {
             {team.members.map((m) => (
               <li key={`m-${m.id}`} className="team-list__item">
                 <div className="team-list__info">
-                  <span className="team-list__name">{m.username}</span>
+                  <span className="team-list__name">
+                    {m.username}
+                    <span className="team-status team-status--approved">
+                      ✓ אושר
+                    </span>
+                  </span>
                   {canManage && editingId === m.id ? (
                     <select
                       className="team-list__role-select"

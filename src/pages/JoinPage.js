@@ -110,11 +110,15 @@ function JoinPage() {
       )}
 
       {authed && !loading && error && (
-        <Card title="ההזמנה לא זמינה">
-          <ErrorMessage message={error} />
+        <Card title="אפשר להיכנס לאפליקציה 🙂">
+          <p className="auth-page__hint">
+            הקישור הזה כבר נוצל, או שאינו פעיל יותר. אם כבר יש לך גישה לגן —
+            אפשר פשוט להיכנס לאפליקציה. אם רצית להזמין מישהו, שלח/י לו קישור
+            הזמנה חדש ממסך ניהול הצוות.
+          </p>
           <div className="auth-page__actions">
             <Link to="/">
-              <Button>חזרה לעמוד הראשי</Button>
+              <Button>כניסה לאפליקציה</Button>
             </Link>
           </div>
         </Card>

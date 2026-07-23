@@ -22,7 +22,6 @@ import PendingEventExpenses from "./gifts/PendingEventExpenses";
 import BudgetRecommendation from "./gifts/BudgetRecommendation";
 import GiftCard from "./gifts/GiftCard";
 import GiftForm from "./gifts/GiftForm";
-import BudgetAssistant from "./gifts/BudgetAssistant";
 import VendorPanel from "./gifts/VendorPanel";
 import VendorForm from "./gifts/VendorForm";
 import "../styles/gifts.css";
@@ -168,8 +167,6 @@ function GiftsPage() {
           </Button>
         )}
       </Card>
-
-      <BudgetAssistant gifts={gifts} holidayBudgets={budgets} />
 
       <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
 

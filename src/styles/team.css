@@ -160,3 +160,24 @@
 .team-page__actions .btn {
   width: 100%;
 }
+
+/* תג סטטוס הצטרפות ליד שם המוזמן: "טרם אושר" / "אושר" */
+.team-status {
+  display: inline-block;
+  margin-inline-start: 8px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.team-status--pending {
+  background: #fdf0d5;
+  color: #7a5b1e;
+}
+
+.team-status--approved {
+  background: #e4f5ea;
+  color: #2e7d4f;
+}

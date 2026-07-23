@@ -2,8 +2,10 @@ import Card from "../../components/Card";
 import { formatShekels, formatNumber } from "../../services/format";
 
 /*
-  CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): הזנה, ועד, חוגים, קלמר.
-  לכל קטגוריה שורה אחת: כמה כסף יצא מהקטגוריה (הוצאה שסווגה לשמה) מתוך היעד שלה.
+  CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): לכל קטגוריה כמה כסף יצא
+  (הוצאה שסווגה לשמה). לקטגוריית גבייה (הזנה/ועד/חוגים...) מוצג "יצא X מתוך
+  [היעד]"; לקטגוריית הוצאה בלבד (בלת"ם / מתנות סוף שנה — בלי יעד גבייה) מוצג
+  "יצא X" בלבד. כך כל הוצאה מקבלת ריבוע, וסך הריבועים = סך ההוצאות.
 */
 function CategoryList({ categories }) {
   if (!categories || categories.length === 0) {
@@ -20,7 +22,9 @@ function CategoryList({ categories }) {
             <li key={category.name} className="categories__item">
               <span className="categories__name">{category.name}</span>
               <span className="categories__amounts">
-                יצא {formatNumber(spent)} מתוך {formatShekels(target)}
+                {target > 0
+                  ? `יצא ${formatNumber(spent)} מתוך ${formatShekels(target)}`
+                  : `יצא ${formatShekels(spent)}`}
               </span>
             </li>
           );

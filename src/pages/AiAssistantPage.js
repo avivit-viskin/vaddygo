@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { askAssistant } from "../services/aiService";
 import { buildFinanceSummary } from "../services/financeContext";
 import { isAiFinanceEnabled } from "../services/aiPrefs";
+import { isActiveReadOnly } from "../services/institutionsService";
 import { whatsappShareUrl, extractShareMessage } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -55,8 +56,9 @@ function AiAssistantPage() {
 
   // טוענים את המצב הכספי פעם אחת בכניסה (רק אם ההעדפה דלוקה) כדי שהעוזרת תדע
   // לענות לפי המספרים. אפשר לכבות בהגדרות ← פרטיות, ואז לא נשלח מידע כספי.
+  // "צופה" — שליחת נתוני הגן ל-AI שמורה למנהל/בעלים, ולכן לצופה לא נשלח מידע כספי.
   useEffect(() => {
-    if (!isAiFinanceEnabled()) {
+    if (!isAiFinanceEnabled() || isActiveReadOnly()) {
       return undefined;
     }
     let alive = true;

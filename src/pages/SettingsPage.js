@@ -84,24 +84,35 @@ function SettingsPage() {
     {
       key: "privacy",
       icon: "🔒",
+      // "צופה" — ההגדרה ששולחת את נתוני הגן ל-AI שמורה למנהל/בעלים; לצופה
+      // נשארת רק הסכמת עוגיות המדידה (אישית, ברמת הדפדפן).
       title: "פרטיות",
-      subtitle: "נתוני AI ועוגיות מדידה",
+      subtitle: readOnly ? "עוגיות מדידה" : "נתוני AI ועוגיות מדידה",
       render: () => (
         <Card>
-          <p className="settings__hint">
-            עוזרת ה-AI יכולה לראות את המצב הכספי שלך (יתרה, גבייה והוצאות) כדי
-            לתת תשובות מדויקות. המידע — סכומים בלבד, בלי שמות או טלפונים — נשלח
-            ל-Google. אפשר לכבות כדי לא לשלוח אותו.
-          </p>
-          <Checkbox
-            id="pref-ai-finance"
-            label="לאפשר לעוזרת ה-AI לראות נתונים כספיים"
-            checked={aiFinance}
-            onChange={(event) =>
-              setAiFinance(setAiFinanceEnabled(event.target.checked))
-            }
-          />
-          <p className="settings__hint" style={{ marginTop: 12 }}>
+          {/* "לאפשר ל-AI לראות נתונים כספיים" שולח את נתוני הגן ל-Google — לכן
+              מוצג רק למנהל/בעלים, לא לצופה (הוחלט עם בעלת המוצר). */}
+          {!readOnly && (
+            <>
+              <p className="settings__hint">
+                עוזרת ה-AI יכולה לראות את המצב הכספי שלך (יתרה, גבייה והוצאות) כדי
+                לתת תשובות מדויקות. המידע — סכומים בלבד, בלי שמות או טלפונים — נשלח
+                ל-Google. אפשר לכבות כדי לא לשלוח אותו.
+              </p>
+              <Checkbox
+                id="pref-ai-finance"
+                label="לאפשר לעוזרת ה-AI לראות נתונים כספיים"
+                checked={aiFinance}
+                onChange={(event) =>
+                  setAiFinance(setAiFinanceEnabled(event.target.checked))
+                }
+              />
+            </>
+          )}
+          <p
+            className="settings__hint"
+            style={readOnly ? undefined : { marginTop: 12 }}
+          >
             עוגיות מדידה/סטטיסטיקה (אנליטיקס) עוזרות לנו לשפר את השירות. אפשר
             לאשר או לבטל בכל רגע — כשמבטלים, לא נאסף מעקב כלל.
           </p>

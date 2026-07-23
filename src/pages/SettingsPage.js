@@ -12,6 +12,7 @@ import {
 } from "../services/cookieConsentService";
 import { applyAnalyticsConsent } from "../services/analytics";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
+import RenameInstitutionCard from "./settings/RenameInstitutionCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
@@ -44,6 +45,13 @@ function SettingsPage() {
   // כל נושא = פריט בתפריט + התוכן שלו במסך נפרד. הכותרת מוצגת פעם אחת בראש
   // המסך, ולכן כרטיסי ההתראות/פרטיות/צוות בפנים בלי כותרת כפולה.
   const SECTIONS = [
+    {
+      key: "institution",
+      icon: "🏫",
+      title: "שם המוסד",
+      subtitle: "תיקון שם המוסד אם נפלה טעות",
+      render: () => <RenameInstitutionCard />,
+    },
     {
       key: "notifications",
       icon: "🔔",

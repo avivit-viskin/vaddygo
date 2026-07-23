@@ -85,6 +85,53 @@ export function addInstitution(name) {
 }
 
 /*
+  שינוי שם מוסד (למשל תיקון טעות הקלדה). מעדכן את השם ברשימת המוסדות וגם
+  בנתוני ההרשמה (ganName) — שהם מקור הכותרת בכל האפליקציה. אם זה המוסד הפעיל,
+  מעדכן גם את מפתח ה-onboarding המשותף כדי שהשינוי ייראה מיד לאחר רענון.
+  סנכרון השם לשרת נעשה בנפרד (groupsService.renameGroup) כדי שיישמר גם אחרי
+  ניקוי דפדפן או כניסה ממכשיר אחר. מחזיר true בהצלחה.
+*/
+export function renameInstitution(id, rawName) {
+  const name = (rawName || "").trim();
+  if (!name) {
+    return false;
+  }
+  const list = readList();
+  if (!list.some((i) => i.id === id)) {
+    return false;
+  }
+  const updated = list.map((i) =>
+    i.id === id
+      ? {
+          ...i,
+          name,
+          onboarding: i.onboarding
+            ? { ...i.onboarding, ganName: name }
+            : i.onboarding,
+        }
+      : i
+  );
+  writeList(updated);
+
+  // אם זה המוסד הפעיל — לעדכן גם את ההרשמה המשותפת (מקור הכותרת בכל המסכים)
+  if (localStorage.getItem(ACTIVE_KEY) === id) {
+    try {
+      const raw = localStorage.getItem(ONBOARDING_KEY);
+      if (raw) {
+        const data = JSON.parse(raw);
+        localStorage.setItem(
+          ONBOARDING_KEY,
+          JSON.stringify({ ...data, ganName: name })
+        );
+      }
+    } catch {
+      /* אם ההרשמה המשותפת לא קריאה — מדלגים; השם ברשימה כבר עודכן */
+    }
+  }
+  return true;
+}
+
+/*
   מחיקת מוסד בודד מהרשימה המקומית (נתוני השרת נמחקים בנפרד דרך deleteGroup).
   אם המוסד שנמחק היה הפעיל — עוברים למוסד מופעל אחר וטוענים את נתוניו, או
   מנקים אם לא נשאר אף מוסד. מחזיר את הרשימה המעודכנת.

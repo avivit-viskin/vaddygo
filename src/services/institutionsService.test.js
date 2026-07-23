@@ -102,6 +102,38 @@ test("סנכרון חוזר מעדכן הרשאה של גן קיים (viewer →
   expect(list[0].role).toBe("editor");
 });
 
+test("מירר: גן שכבר אינו ברשימת השרת מוסר מהמחליף", () => {
+  syncServerGroups([
+    { id: 10, name: "גן א", role: "manager" },
+    { id: 20, name: "ארנב", role: "viewer" },
+  ]);
+  expect(getInstitutions().filter((i) => i.serverGroupId != null)).toHaveLength(2);
+
+  syncServerGroups([{ id: 10, name: "גן א", role: "manager" }]); // "ארנב" נעלם מהשרת
+  const server = getInstitutions().filter((i) => i.serverGroupId != null);
+  expect(server).toHaveLength(1);
+  expect(server[0].serverGroupId).toBe(10);
+});
+
+test("מירר: רשימת שרת ריקה לא מוחקת (הגנה מכשל זמני)", () => {
+  syncServerGroups([{ id: 10, name: "גן א", role: "manager" }]);
+  syncServerGroups([]);
+  expect(getInstitutions().filter((i) => i.serverGroupId != null)).toHaveLength(1);
+});
+
+test("אם הגן הפעיל הוסר בסנכרון — עוברים לגן תקף", () => {
+  syncServerGroups([
+    { id: 10, name: "גן א", role: "manager" },
+    { id: 20, name: "ארנב", role: "viewer" },
+  ]);
+  const rabbit = getInstitutions().find((i) => i.serverGroupId === 20);
+  setActiveInstitution(rabbit.id);
+  expect(getActiveInstitution().serverGroupId).toBe(20);
+
+  syncServerGroups([{ id: 10, name: "גן א", role: "manager" }]);
+  expect(getActiveInstitution().serverGroupId).toBe(10);
+});
+
 test("מעבר בין שני מוסדות מופעלים טוען את נתוני ההרשמה של הפעיל", () => {
   saveActiveOnboarding({ ganName: "גן א", extraCommitteeNames: ["גן ב"] });
   const locked = getInstitutions().find((i) => !i.activated);

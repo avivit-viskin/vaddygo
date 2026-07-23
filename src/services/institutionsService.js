@@ -174,7 +174,21 @@ export function syncServerGroups(groups) {
   if (!Array.isArray(groups)) {
     return readList();
   }
-  const list = readList();
+  let list = readList();
+
+  // מירר עם השרת: משאירים מוסדות מקומיים-בלבד (serverGroupId==null), ומוסדות-שרת
+  // רק אם הם עדיין ברשימת השרת (המשתמש עדיין בעליהם/חבר בהם). כך גן שהוסרה ממנו
+  // הגישה — או שאריות מבדיקות — כבר לא ממשיך להופיע במחליף המוסדות.
+  // הגנה: לא מוחקים כשהשרת החזיר רשימה ריקה (ייתכן כשל זמני — לא מוחקים הכל).
+  if (groups.length > 0) {
+    const serverIds = new Set(
+      groups.map((g) => g && g.id).filter((id) => id != null)
+    );
+    list = list.filter(
+      (i) => i.serverGroupId == null || serverIds.has(i.serverGroupId)
+    );
+  }
+
   const byServerId = new Map(
     list
       .filter((i) => i.serverGroupId != null)
@@ -210,7 +224,29 @@ export function syncServerGroups(groups) {
     }
   });
   writeList(list);
+  ensureValidActive(list);
   return list;
+}
+
+/*
+  ensureValidActive — אם המוסד הפעיל כבר אינו ברשימה (הוסר בסנכרון כי אין אליו
+  גישה יותר), עוברים למוסד תקף וטוענים את נתוני ההרשמה שלו, כדי שלא יישאר "פעיל"
+  גן שאין אליו גישה (ואז ההתראות/הנתונים מתייחסים לגן הלא-נכון).
+*/
+function ensureValidActive(list) {
+  const activeId = localStorage.getItem(ACTIVE_KEY);
+  if (activeId && list.some((i) => i.id === activeId)) {
+    return; // הפעיל עדיין תקף
+  }
+  const next = list.find((i) => i.activated) || null;
+  if (next) {
+    localStorage.setItem(ACTIVE_KEY, next.id);
+    if (next.onboarding) {
+      localStorage.setItem(ONBOARDING_KEY, JSON.stringify(next.onboarding));
+    }
+  } else {
+    localStorage.removeItem(ACTIVE_KEY);
+  }
 }
 
 /*

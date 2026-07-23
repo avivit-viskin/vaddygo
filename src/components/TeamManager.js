@@ -178,10 +178,10 @@ function TeamManager() {
 
       {loading && <Spinner />}
 
-      {/* הזמנות שממתינות לפדיון — עם קישור לשיתוף וכפתור ביטול (למנהל) */}
+      {/* בקשות הגישה שנשלחו — נשארות ברשימה גם אחרי אישור (סטטוס משתנה ל"אושר") */}
       {team.pendingInvites.length > 0 && (
         <div className="team-section">
-          <h3 className="team-section__title">הזמנות שנשלחו וממתינות</h3>
+          <h3 className="team-section__title">בקשות גישה שנשלחו</h3>
           <ul className="team-list">
             {team.pendingInvites.map((inv) => (
               <li key={`inv-${inv.id}`} className="team-list__item">
@@ -191,37 +191,48 @@ function TeamManager() {
                   </span>
                   <span className="team-list__role">
                     {roleLabel(inv.role)}
-                    <span className="team-status team-status--pending">
-                      ⏳ טרם אושר
-                    </span>
+                    {inv.approved ? (
+                      <span className="team-status team-status--approved">
+                        ✓ אושר
+                      </span>
+                    ) : (
+                      <span className="team-status team-status--pending">
+                        ⏳ טרם אושר
+                      </span>
+                    )}
                   </span>
                 </div>
-                <a
-                  className="team-list__invite"
-                  href={whatsappUrlWithText("", inviteMessage(inviteLink(inv.token), inv.role))}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`שליחת ההזמנה ל${inv.inviteeName || ""} בוואטסאפ`}
-                >
-                  <WhatsAppIcon size={16} /> וואטסאפ
-                </a>
-                <button
-                  type="button"
-                  className="team-list__invite"
-                  onClick={() => copyLink(inv.token)}
-                  aria-label="העתקת קישור ההזמנה"
-                >
-                  העתקת קישור 🔗
-                </button>
-                {canManage && (
-                  <button
-                    type="button"
-                    className="team-list__remove"
-                    aria-label={`ביטול ההזמנה ל${inv.inviteeName || ""}`}
-                    onClick={() => setMemberToRemove({ ...inv, __invite: true })}
-                  >
-                    ✕
-                  </button>
+                {/* כפתורי שיתוף/ביטול רק כל עוד לא אושר */}
+                {!inv.approved && (
+                  <>
+                    <a
+                      className="team-list__invite"
+                      href={whatsappUrlWithText("", inviteMessage(inviteLink(inv.token), inv.role))}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`שליחת ההזמנה ל${inv.inviteeName || ""} בוואטסאפ`}
+                    >
+                      <WhatsAppIcon size={16} /> וואטסאפ
+                    </a>
+                    <button
+                      type="button"
+                      className="team-list__invite"
+                      onClick={() => copyLink(inv.token)}
+                      aria-label="העתקת קישור ההזמנה"
+                    >
+                      העתקת קישור 🔗
+                    </button>
+                    {canManage && (
+                      <button
+                        type="button"
+                        className="team-list__remove"
+                        aria-label={`ביטול ההזמנה ל${inv.inviteeName || ""}`}
+                        onClick={() => setMemberToRemove({ ...inv, __invite: true })}
+                      >
+                        ✕
+                      </button>
+                    )}
+                  </>
                 )}
               </li>
             ))}

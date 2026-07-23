@@ -45,14 +45,19 @@ namespace ParentCommitteeAPI.Services
                     })
                 .ToListAsync();
 
+            // מחזירים את כל ההזמנות — גם שנוצלו (Approved) — כך שההזמנה נשארת
+            // ברשימה ומשנה סטטוס ל"אושר" במקום להיעלם. הממתינות ראשונות.
             var invites = await _db.GroupInvites
-                .Where(i => i.GroupId == scoped.Value && !i.Used)
+                .Where(i => i.GroupId == scoped.Value)
+                .OrderBy(i => i.Used)
+                .ThenByDescending(i => i.Id)
                 .Select(i => new PendingInviteDto
                 {
                     Id = i.Id,
                     Token = i.Token,
                     Role = i.Role,
                     InviteeName = i.InviteeName,
+                    Approved = i.Used,
                 })
                 .ToListAsync();
 

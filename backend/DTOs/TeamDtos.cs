@@ -44,6 +44,10 @@ namespace ParentCommitteeAPI.DTOs
         public string Token { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public string InviteeName { get; set; } = string.Empty;
+
+        // האם ההזמנה כבר אושרה (מישהו הצטרף איתה). כך היא נשארת ברשימה כ"אושר"
+        // במקום להיעלם — המזמין רואה שהבקשה שלו אושרה.
+        public bool Approved { get; set; }
     }
 
     public class TeamResponseDto

@@ -41,7 +41,15 @@ export function getActiveInstitution() {
 
 /* מזהה ה-Group בשרת של המוסד הפעיל — נשלח ב-X-Institution לסינון הנתונים. */
 export function getActiveServerGroupId() {
-  return getActiveInstitution()?.serverGroupId ?? null;
+  const active = getActiveInstitution();
+  if (active?.serverGroupId != null) {
+    return active.serverGroupId;
+  }
+  // המוסד הפעיל עדיין בלי מזהה שרת (למשל לפני סנכרון) — נופלים לגן-שרת הראשון,
+  // כדי ש-X-Institution תמיד יצביע על גן תקף. כך יצירת הזמנה ושליפת הצוות
+  // משתמשות באותו גן (עקביות) והנתונים לא "נעלמים" אחרי רענון.
+  const withServer = readList().find((i) => i.serverGroupId != null);
+  return withServer?.serverGroupId ?? null;
 }
 
 /*

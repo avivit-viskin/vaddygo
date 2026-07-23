@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useSearchParams } from "react-router-dom";
 import Card from "../components/Card";
 import Checkbox from "../components/Checkbox";
 import {
@@ -26,8 +27,12 @@ import "../styles/settings.css";
   גם כשמצטברות עוד הגדרות.
 */
 function SettingsPage() {
-  // null = מסך התפריט; אחרת מפתח הנושא הפתוח
-  const [section, setSection] = useState(null);
+  // הנושא הפתוח נשמר בכתובת (?section=...) כדי שרענון (או כפתור "אחורה")
+  // יישאר באותו נושא ולא יזרוק חזרה לרשימה. null/ריק = מסך התפריט.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const section = searchParams.get("section");
+  const openSection = (key) => setSearchParams({ section: key });
+  const backToMenu = () => setSearchParams({});
   const [prefs, setPrefs] = useState(getNotificationPrefs);
   const [aiFinance, setAiFinance] = useState(isAiFinanceEnabled);
   const [analytics, setAnalytics] = useState(hasAnalyticsConsent);
@@ -180,7 +185,7 @@ function SettingsPage() {
           <button
             type="button"
             className="settings-section__back"
-            onClick={() => setSection(null)}
+            onClick={backToMenu}
           >
             חזרה
           </button>
@@ -205,7 +210,7 @@ function SettingsPage() {
             <button
               type="button"
               className="settings-menu__item"
-              onClick={() => setSection(s.key)}
+              onClick={() => openSection(s.key)}
             >
               <span className="settings-menu__icon" aria-hidden="true">
                 {s.icon}

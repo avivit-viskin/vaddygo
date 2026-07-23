@@ -43,6 +43,10 @@
   --color-money: #6ea6ca;
   --color-money-dark: #3f7191; /* גוון כהה לטקסט מזומן */
   --color-money-tint: #edf3f8; /* רקע בהיר לתג מזומן */
+  /* ===== אשראי (סגול רך) ===== */
+  --color-card: #a084c9;
+  --color-card-dark: #6b4fa0; /* גוון כהה לטקסט אשראי */
+  --color-card-tint: #f1ecf8; /* רקע בהיר לתג אשראי */
   /* ===== אקסנט ורוד ===== */
   --color-accent-pink: #f9dae9;
 

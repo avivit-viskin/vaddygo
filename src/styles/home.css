@@ -394,6 +394,13 @@
 .methods__item--cash .methods__amount {
   color: var(--color-money-dark);
 }
+.methods__item--card {
+  background: #fdfaf3;
+  border-top-color: var(--color-card);
+}
+.methods__item--card .methods__amount {
+  color: var(--color-card-dark);
+}
 
 .methods__icon {
   font-size: 1.3rem;

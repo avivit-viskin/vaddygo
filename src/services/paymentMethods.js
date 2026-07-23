@@ -1,7 +1,8 @@
 /*
-  paymentMethods — מקור אחד לאמצעי התשלום הנתמכים (ביט/פייבוקס/מזומן):
-  גם רשימת הבחירה בטפסים וגם התוויות בתצוגה. הערכים (bit/paybox/cash)
-  זהים למה שהשרת מצפה לו.
+  paymentMethods — מקור אחד לאמצעי התשלום. PAYMENT_METHODS = האמצעים להזנה
+  ידנית (ביט/פייבוקס/מזומן). התצוגה (תווית+אייקון) כוללת גם "אשראי" — שאינו
+  אמצעי להזנה ידנית אלא נקלט מהסליקה. אותם אייקונים משמשים בכל מקום (קוביות
+  מסך הבית, חלון בקשת התשלום) כדי שיהיו זהים. הערכים זהים למה שהשרת מצפה לו.
 */
 export const PAYMENT_METHODS = [
   { value: "bit", label: "BIT", icon: "💠" },
@@ -9,14 +10,19 @@ export const PAYMENT_METHODS = [
   { value: "cash", label: "מזומן", icon: "💵" },
 ];
 
-const LABELS = Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.label]));
-const ICONS = Object.fromEntries(PAYMENT_METHODS.map((m) => [m.value, m.icon]));
+// תצוגה לכל אמצעי — כולל אשראי (card), שמופיע בקוביות/בקשת התשלום אך לא בהזנה.
+const DISPLAY = {
+  bit: { label: "BIT", icon: "💠" },
+  paybox: { label: "פייבוקס", icon: "📲" },
+  cash: { label: "מזומן", icon: "💵" },
+  card: { label: "אשראי", icon: "💳" },
+};
 
 export function paymentMethodLabel(value) {
-  return LABELS[value] || value;
+  return DISPLAY[value]?.label || value;
 }
 
 /* אייקון אמצעי התשלום (אמוג'י זמני — יוחלף באייקונים שבעלת המוצר תשלח). */
 export function paymentMethodIcon(value) {
-  return ICONS[value] || "💰";
+  return DISPLAY[value]?.icon || "💰";
 }

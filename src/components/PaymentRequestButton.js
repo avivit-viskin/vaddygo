@@ -147,7 +147,7 @@ function PaymentRequestContent({ student, fullName }) {
         {cardConfigured && (
           <div className="pay-request__method">
             <Button onClick={handleCard} isLoading={cardLoading}>
-              💳 אשראי
+              {paymentMethodIcon("card")} אשראי
             </Button>
           </div>
         )}
@@ -177,7 +177,7 @@ function PaymentRequestContent({ student, fullName }) {
           target="_blank"
           rel="noreferrer"
         >
-          <Button variant="secondary">🔔 תזכורת כללית</Button>
+          <Button variant="secondary">{paymentMethodIcon("cash")} תזכורת כללית</Button>
         </a>
       </div>
       {cardError && (

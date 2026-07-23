@@ -572,6 +572,12 @@ button.vendor-form__remove {
   text-decoration: none;
 }
 
+/* פירוט לפי אמצעי תשלום בכרטיס התלמיד — טקסט קטן ומעודן מתחת ל"שולם עד כה" */
+.student-card__methods {
+  font-size: var(--font-size-sm);
+  color: var(--color-money-dark);
+}
+
 .student-card__actions {
   display: flex;
   gap: 8px;

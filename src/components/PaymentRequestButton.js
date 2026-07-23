@@ -11,7 +11,6 @@ import { getPaymentLinks } from "../services/paymentSettingsService";
 import { getBankAccount } from "../services/bankAccountService";
 import { startStudentCardCheckout } from "../services/cardPaymentService";
 import { paymentMethodIcon } from "../services/paymentMethods";
-import PaymentMethodIcon from "./PaymentMethodIcon";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
@@ -148,7 +147,7 @@ function PaymentRequestContent({ student, fullName }) {
         {cardConfigured && (
           <div className="pay-request__method">
             <Button onClick={handleCard} isLoading={cardLoading}>
-              {paymentMethodIcon("card")} אשראי
+              אשראי
             </Button>
           </div>
         )}
@@ -159,7 +158,7 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button><PaymentMethodIcon method="bit" /> ביט</Button>
+            <Button>ביט</Button>
           </a>
         )}
         {links.paybox && (
@@ -169,7 +168,7 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button><PaymentMethodIcon method="paybox" /> פייבוקס</Button>
+            <Button>פייבוקס</Button>
           </a>
         )}
         <a

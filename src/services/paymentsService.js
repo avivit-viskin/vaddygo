@@ -47,6 +47,11 @@ export function amountRemaining(payment) {
   return target > 0 ? Math.max(0, target - amountPaidSoFar(payment)) : target;
 }
 
+/* סכום שדה מספרי על פני כל שורות התשלום (0 לשדה חסר/לא-מספרי). */
+function sumField(payments, field) {
+  return payments.reduce((sum, p) => sum + (Number(p[field]) || 0), 0);
+}
+
 /*
   סיכום מצב תשלומים מתוך שורות התשלום של תלמיד אחד. לוגיקה משותפת לבקשה
   הבודדת ולבקשה המרוכזת — כך כלל ה"שולם" זהה בשתיהן.
@@ -63,6 +68,13 @@ export function summarizePayments(studentId, payments) {
     allPaid: totalCount > 0 && paidCount === totalCount,
     hasUnpaid: payments.some((p) => !isCategoryFullyPaid(p)),
     lastPaymentDate: paidDates.length ? paidDates[paidDates.length - 1] : null,
+    // כמה שולם בפועל בכל אמצעי (לפירוט בכרטיס התלמיד) — סכום כל הקטגוריות
+    paidByMethod: {
+      bit: sumField(payments, "bitAmount"),
+      paybox: sumField(payments, "payBoxAmount"),
+      cash: sumField(payments, "cashAmount"),
+      card: sumField(payments, "cardAmount"),
+    },
   };
 }
 

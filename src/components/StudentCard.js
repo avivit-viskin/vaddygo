@@ -2,6 +2,16 @@ import Card from "./Card";
 import Button from "./Button";
 import PaymentRequestButton from "./PaymentRequestButton";
 import { formatShekels, formatBirthday } from "../services/format";
+import { paymentMethodLabel } from "../services/paymentMethods";
+
+// סדר האמצעים בפירוט (כמו קוביות הבית); מציגים רק אמצעי שבו שולם סכום כלשהו.
+// טקסט בלבד, בלי אייקונים — לבקשת בעלת המוצר בכרטיס התלמיד.
+const METHOD_ORDER = ["bit", "paybox", "cash", "card"];
+function paidMethodParts(byMethod) {
+  return METHOD_ORDER.filter((m) => (Number(byMethod?.[m]) || 0) > 0).map(
+    (m) => `${paymentMethodLabel(m)} ${formatShekels(byMethod[m])}`
+  );
+}
 
 /*
   StudentCard — כרטיס תלמיד אחד ברשימה: שם מלא, יום הולדת (בקטן), סכום ששולם,
@@ -49,6 +59,11 @@ function StudentCard({
           )}
           {student.className && <span>קבוצה: {student.className}</span>}
           <span>שולם עד כה: <strong>{formatShekels(student.totalPaid)}</strong></span>
+          {summary?.paidByMethod && paidMethodParts(summary.paidByMethod).length > 0 && (
+            <small className="student-card__methods">
+              {paidMethodParts(summary.paidByMethod).join(" · ")}
+            </small>
+          )}
           {summary?.lastPaymentDate && (
             <small className="student-card__updated">
               🕒 תשלום אחרון: {formatBirthday(summary.lastPaymentDate)}

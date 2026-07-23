@@ -61,9 +61,10 @@ function JoinPage() {
     try {
       const result = await acceptInvite(token);
       await syncInstitutionsFromServer();
-      // פתיחת הגן שהצטרפת אליו (התאמה לפי שם + הרשאה מבין המוסדות המסונכרנים)
+      // פתיחת הגן שהצטרפת אליו — לפי מזהה השרת (GanId), עם נפילה להתאמה לפי שם
       const list = getInstitutions().filter((i) => i.serverGroupId != null);
       const joined =
+        list.find((i) => i.serverGroupId === result.ganId) ||
         list.find((i) => i.name === result.ganName && i.role === result.role) ||
         list.find((i) => i.name === result.ganName);
       if (joined) {

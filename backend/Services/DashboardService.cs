@@ -17,6 +17,15 @@ namespace ParentCommitteeAPI.Services
         /* כמה ימים קדימה נחשב "יום הולדת קרוב" (התראה שבוע לפני, UI_SPEC ס' 9) */
         private const int BirthdayWindowDays = 30;
         private const int BirthdayAlertDays = 7;
+        /* כמה ימים אחורה מציגים למנהל התראה על חבר צוות שהצטרף */
+        private const int JoinAlertDays = 7;
+
+        private static readonly Dictionary<string, string> RoleHebrew = new()
+        {
+            ["viewer"] = "צופה",
+            ["editor"] = "עורך",
+            ["manager"] = "מנהל",
+        };
 
         private readonly AppDbContext _db;
         private readonly IAccessScope _access;
@@ -77,6 +86,13 @@ namespace ParentCommitteeAPI.Services
                 .OrderBy(b => b.NextBirthday)
                 .ToList();
 
+            var alerts = BuildAlerts(group, collected, birthdays, today);
+            // התראה למנהל הוועד: מי הצטרף לגן לאחרונה (רק למי שרשאי לנהל את הגן)
+            if (await _access.CanManageGroupAsync(group.Id))
+            {
+                alerts.AddRange(await BuildJoinAlertsAsync(group.Id));
+            }
+
             return new DashboardResponseDto
             {
                 GanName = group.Name,
@@ -108,7 +124,7 @@ namespace ParentCommitteeAPI.Services
                         .Where(e => e.Category == c.Name)
                         .Sum(e => e.Amount),
                 }).ToList(),
-                Alerts = BuildAlerts(group, collected, birthdays, today),
+                Alerts = alerts,
                 UpcomingBirthdays = birthdays,
             };
         }
@@ -146,6 +162,31 @@ namespace ParentCommitteeAPI.Services
             }
 
             return alerts;
+        }
+
+        /*
+          התראות "הצטרפו לגן" למנהל: חברי צוות שהצטרפו ב-JoinAlertDays הימים
+          האחרונים. ה-JoinedAt נשמר כ-UTC, ולכן משווים מול UtcNow. ההודעה מזהה
+          לפי התוכן בצד הלקוח (שם + הרשאה) כך שסימון "נקרא" יציב.
+        */
+        private async Task<List<DashboardAlertDto>> BuildJoinAlertsAsync(int groupId)
+        {
+            var since = DateTime.UtcNow.AddDays(-JoinAlertDays);
+            var recent = await _db.GroupMembers.AsNoTracking()
+                .Where(m => m.GroupId == groupId && m.JoinedAt >= since)
+                .Join(_db.Users, m => m.UserId, u => u.Id,
+                    (m, u) => new { u.Username, m.Role, m.JoinedAt })
+                .OrderByDescending(x => x.JoinedAt)
+                .ToListAsync();
+
+            return recent
+                .Select(x => new DashboardAlertDto
+                {
+                    Type = "team",
+                    Message =
+                        $"{x.Username} הצטרף/ה לגן כ{(RoleHebrew.TryGetValue(x.Role, out var r) ? r : x.Role)} 👋",
+                })
+                .ToList();
         }
 
         /* מחשב מתי יחול יום ההולדת הבא (מטפל גם ב-29.2 בשנה לא מעוברת) */

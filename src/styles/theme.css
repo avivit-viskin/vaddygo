@@ -462,6 +462,8 @@ button.vendor-form__remove {
   display: flex;
   background-color: var(--color-surface);
   border-top: 1px solid var(--color-border);
+  /* צל עדין כלפי מעלה — מרים את הסרגל מהתוכן כדי שבולט וקל לשים לב אליו */
+  box-shadow: 0 -3px 14px rgba(120, 55, 80, 0.12);
   z-index: 50;
 }
 
@@ -475,8 +477,8 @@ button.vendor-form__remove {
   min-height: var(--touch-target);
   text-decoration: none;
   color: var(--color-text-muted);
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .bottom-nav__link {
@@ -506,8 +508,8 @@ button.vendor-form__remove {
 }
 
 .bottom-nav__icon svg {
-  width: 25px;
-  height: 25px;
+  width: 26px;
+  height: 26px;
   display: block;
 }
 

@@ -16,11 +16,11 @@ import Button from "../components/Button";
 import PaymentRow from "./payments/PaymentRow";
 import "../styles/payments.css";
 
-const EMPTY_ROW = { bit: "", paybox: "", cash: "" };
+const EMPTY_ROW = { bit: "", paybox: "", cash: "", card: "" };
 
 /*
   StudentPaymentsPage — תשלומי תלמיד לפי קטגוריות (שלב 5, UI_SPEC ס' 11+15):
-  לכל קטגוריה שדות סכום לביט/פייבוקס/מזומן; ממלאים את כל הקטגוריות,
+  לכל קטגוריה שדות סכום לביט/פייבוקס/מזומן/אשראי; ממלאים את כל הקטגוריות,
   ולוחצים "אישור" אחד בסוף ששומר הכל וחוזר לרשימת התלמידים.
 */
 function StudentPaymentsPage() {
@@ -39,7 +39,7 @@ function StudentPaymentsPage() {
   const { data, isLoading, error, reload } = useApi(load);
 
   // הסכומים של כל הקטגוריות מנוהלים כאן; כפתור "אישור" אחד שומר את כולם.
-  // { [categoryId]: { bit, paybox, cash } }
+  // { [categoryId]: { bit, paybox, cash, card } }
   const [amounts, setAmounts] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
@@ -55,6 +55,8 @@ function StudentPaymentsPage() {
         bit: p.bitAmount || "",
         paybox: p.payBoxAmount || "",
         cash: p.cashAmount || "",
+        // אשראי מאותחל מהסכום שכבר נגבה (ידני או מסליקה) כדי לשמר אותו בשמירה
+        card: p.cardAmount || "",
       };
     });
     setAmounts(init);
@@ -93,11 +95,13 @@ function StudentPaymentsPage() {
           const bit = Number(a.bit) || 0;
           const paybox = Number(a.paybox) || 0;
           const cash = Number(a.cash) || 0;
+          const card = Number(a.card) || 0;
           return saveStudentPayment(studentId, p.collectionCategoryId, {
             bitAmount: bit,
             payBoxAmount: paybox,
             cashAmount: cash,
-            isPaid: bit + paybox + cash > 0,
+            cardAmount: card,
+            isPaid: bit + paybox + cash + card > 0,
           });
         })
       );

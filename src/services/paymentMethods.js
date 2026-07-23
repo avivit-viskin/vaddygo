@@ -10,6 +10,19 @@ export const PAYMENT_METHODS = [
   { value: "cash", label: "מזומן", icon: "💵" },
 ];
 
+/*
+  COLLECTION_METHODS — אמצעי הגבייה מההורים בהזנה הידנית (מסך תשלומי התלמיד).
+  כולל גם "אשראי" — כדי שאפשר יהיה לרשום ידנית תשלום שנגבה בכרטיס. הסכומים
+  זהים למה שהשרת מצפה לו (PaymentUpsertDto: bitAmount/payBoxAmount/cashAmount/
+  cardAmount). ההוצאות/מתנות ממשיכות להשתמש ב-PAYMENT_METHODS (בלי אשראי).
+*/
+export const COLLECTION_METHODS = [
+  { value: "bit", label: "BIT" },
+  { value: "paybox", label: "פייבוקס" },
+  { value: "cash", label: "מזומן" },
+  { value: "card", label: "אשראי" },
+];
+
 // תצוגה לכל אמצעי — כולל אשראי (card), שמופיע בקוביות/בקשת התשלום אך לא בהזנה.
 const DISPLAY = {
   bit: { label: "BIT", icon: "💠" },

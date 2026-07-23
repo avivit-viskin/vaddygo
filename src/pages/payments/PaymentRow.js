@@ -1,12 +1,12 @@
 import Input from "../../components/Input";
-import { PAYMENT_METHODS } from "../../services/paymentMethods";
+import { COLLECTION_METHODS } from "../../services/paymentMethods";
 import { formatShekels } from "../../services/format";
 
 /*
   PaymentRow — שורת קטגוריית גבייה אחת: שם הקטגוריה + יעד, ולכל אמצעי
-  (ביט/פייבוקס/מזומן) שדה סכום. רכיב **מבוקר** — הסכומים והשינויים מנוהלים
-  ב-StudentPaymentsPage, שם יש כפתור "אישור" אחד ששומר את כל הקטגוריות יחד
-  (אין כאן כפתור "שולם" נפרד לכל שורה).
+  (ביט/פייבוקס/מזומן/אשראי) שדה סכום. רכיב **מבוקר** — הסכומים והשינויים
+  מנוהלים ב-StudentPaymentsPage, שם יש כפתור "אישור" אחד ששומר את כל
+  הקטגוריות יחד (אין כאן כפתור "שולם" נפרד לכל שורה).
 */
 /* "תשלום אחד" / "2 תשלומים" / "3 תשלומים" — כפי שהוגדר ב"עריכת גבייה" */
 function installmentsLabel(n) {
@@ -14,11 +14,12 @@ function installmentsLabel(n) {
 }
 
 function PaymentRow({ payment, installments = 1, amounts, onChange }) {
-  // סך ששולם = השדות הנערכים (ביט/פייבוקס/מזומן) + תשלום אשראי שכבר בוצע
-  // (payment.cardAmount, לא נערך כאן) — כדי שלא ייראה כאילו לא שולם באשראי.
-  const total =
-    PAYMENT_METHODS.reduce((sum, m) => sum + (Number(amounts[m.value]) || 0), 0) +
-    (Number(payment.cardAmount) || 0);
+  // סך ששולם = כל שדות האמצעים שנערכים כאן (ביט/פייבוקס/מזומן/אשראי). שדה
+  // האשראי מאותחל מהסכום שכבר נגבה (payment.cardAmount) ולכן נספר דרכו.
+  const total = COLLECTION_METHODS.reduce(
+    (sum, m) => sum + (Number(amounts[m.value]) || 0),
+    0
+  );
 
   // כמה תשלומים "נסגרו" — נגזר מהסכום ששולם מול גובה תשלום בודד (יעד/מס' תשלומים).
   // כך רואים אם התלמיד באמצע תוכנית תשלומים (למשל 1 מתוך 2) ואין מה לדרוש עדיין.
@@ -41,7 +42,7 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
       </div>
 
       <div className="payment-row__methods">
-        {PAYMENT_METHODS.map((m) => (
+        {COLLECTION_METHODS.map((m) => (
           <Input
             key={m.value}
             id={`pay-${payment.collectionCategoryId}-${m.value}`}

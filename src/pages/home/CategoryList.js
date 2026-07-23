@@ -3,8 +3,7 @@ import { formatShekels, formatNumber } from "../../services/format";
 
 /*
   CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): הזנה, ועד, חוגים, קלמר.
-  לכל קטגוריה שורה אחת: כמה כסף יצא מהקטגוריה (הוצאה שסווגה לשמה) מתוך היעד שלה,
-  וכמה נשאר לתשלום — כך הוצאה בקטגוריית "ועד" מפחיתה את מה שנשאר בקטגוריה.
+  לכל קטגוריה שורה אחת: כמה כסף יצא מהקטגוריה (הוצאה שסווגה לשמה) מתוך היעד שלה.
 */
 function CategoryList({ categories }) {
   if (!categories || categories.length === 0) {
@@ -17,14 +16,11 @@ function CategoryList({ categories }) {
         {categories.map((category) => {
           const spent = Number(category.spentAmount) || 0;
           const target = Number(category.targetAmount) || 0;
-          // ההוצאה יורדת מהיעד; מה שנשאר לתשלום = היעד פחות מה שיצא (לא שלילי)
-          const remaining = Math.max(0, target - spent);
           return (
             <li key={category.name} className="categories__item">
               <span className="categories__name">{category.name}</span>
               <span className="categories__amounts">
-                יצא {formatNumber(spent)} מתוך {formatShekels(target)} · נשאר
-                לתשלום {formatShekels(remaining)}
+                יצא {formatNumber(spent)} מתוך {formatShekels(target)}
               </span>
             </li>
           );

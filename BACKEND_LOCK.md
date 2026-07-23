@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: LOCKED by [Claude Opus 4.8, 2026-07-23 - expose per-gan role + invite GanId (team UI gating)]
+STATUS: FREE
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

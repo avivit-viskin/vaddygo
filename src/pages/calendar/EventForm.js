@@ -45,9 +45,6 @@ function EventForm({ onSave, defaultDate, initialEvent, students = [] }) {
       if (student.parentPhoneNumber) setParentPhone(student.parentPhoneNumber);
       const derived = roleFromGender(student.gender);
       if (derived) setShabbatRole(derived);
-      if (!name.trim()) {
-        setName(`${student.firstName} ${student.lastName} — אבא/אמא של שבת`.trim());
-      }
     }
   }
 

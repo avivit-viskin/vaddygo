@@ -40,6 +40,7 @@ import Modal from "../components/Modal";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
+import WhatsAppIcon from "../components/WhatsAppIcon";
 import "../styles/calendar.css";
 
 /*
@@ -422,17 +423,19 @@ function CalendarPage({ initialDate }) {
                 {listDateFormatter.format(event.date)}
               </span>
               <span className="calendar-list__name">
-                👪 {roleLabel(event.shabbatRole)} · {event.name}
+                👪 {event.name?.trim() || roleLabel(event.shabbatRole)}
               </span>
               {event.parentPhone && (
                 <a
-                  className="calendar-list__whatsapp"
+                  className="calendar-list__send"
                   href={shabbatWhatsappUrl(event, ganName)}
                   target="_blank"
                   rel="noreferrer"
-                  aria-label={`שליחת וואטסאפ להורה של ${event.name}`}
+                  aria-label={`שליחת הודעה בוואטסאפ להורה של ${
+                    event.name?.trim() || roleLabel(event.shabbatRole)
+                  }`}
                 >
-                  💬
+                  <WhatsAppIcon size={18} /> שליחת הודעה
                 </a>
               )}
             </div>

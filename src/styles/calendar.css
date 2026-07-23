@@ -236,6 +236,28 @@
   font-size: var(--font-size-base);
 }
 
+/* כפתור "שליחת הודעה" בוואטסאפ (לוגו וואטסאפ + טקסט) במדור אבא/אמא של שבת */
+.calendar-list__send {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+  min-height: var(--touch-target);
+  padding: 0 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  color: var(--color-success);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.calendar-list__send:hover {
+  border-color: var(--color-success);
+  background: #eafaf0;
+}
+
 /* חלון היום: אירועי היום שנבחר (צפייה, עריכה, מחיקה, והוספה) */
 .calendar-day-view__empty {
   margin: 0 0 16px;

@@ -176,11 +176,26 @@ export function syncServerGroups(groups) {
   }
   let list = readList();
 
-  // מירר עם השרת: משאירים מוסדות מקומיים-בלבד (serverGroupId==null), ומוסדות-שרת
-  // רק אם הם עדיין ברשימת השרת (המשתמש עדיין בעליהם/חבר בהם). כך גן שהוסרה ממנו
-  // הגישה — או שאריות מבדיקות — כבר לא ממשיך להופיע במחליף המוסדות.
-  // הגנה: לא מוחקים כשהשרת החזיר רשימה ריקה (ייתכן כשל זמני — לא מוחקים הכל).
   if (groups.length > 0) {
+    // 1) התאמת מוסד מקומי (serverGroupId==null) לגן מהשרת *לפי שם* — ממלאים לו
+    //    את ה-serverGroupId. כך גן שנוצר באשף לפני שהתקבל id מהשרת לא ייווצר
+    //    ככפילות, וה-X-Institution שלו יהיה תקין.
+    groups.forEach((g) => {
+      if (g == null || g.id == null) {
+        return;
+      }
+      const name = (g.name || "").trim();
+      const localMatch = list.find(
+        (i) => i.serverGroupId == null && (i.name || "").trim() === name
+      );
+      if (localMatch) {
+        localMatch.serverGroupId = g.id;
+      }
+    });
+
+    // 2) מירר עם השרת: מוסדות-שרת שאינם ברשימת השרת (איבדת גישה / שאריות מבדיקות)
+    //    מוסרים. מוסדות מקומיים-בלבד (עדיין serverGroupId==null) נשמרים.
+    //    הגנה: לא מוחקים כשהרשימה ריקה (ייתכן כשל זמני).
     const serverIds = new Set(
       groups.map((g) => g && g.id).filter((id) => id != null)
     );
@@ -189,30 +204,33 @@ export function syncServerGroups(groups) {
     );
   }
 
-  const byServerId = new Map(
-    list
-      .filter((i) => i.serverGroupId != null)
-      .map((i) => [i.serverGroupId, i])
-  );
+  // 3) הסרת כפילויות — מוסד אחד לכל serverGroupId (שומרים את הראשון, בדרך כלל
+  //    זה עם נתוני ה-onboarding מהאשף).
+  const byServerId = new Map();
+  list = list.filter((inst) => {
+    if (inst.serverGroupId == null) {
+      return true;
+    }
+    if (byServerId.has(inst.serverGroupId)) {
+      return false; // כפילות — מסירים
+    }
+    byServerId.set(inst.serverGroupId, inst);
+    return true;
+  });
+
+  // 4) הוספה/עדכון לפי serverGroupId
   groups.forEach((g) => {
     if (g == null || g.id == null) {
       return;
     }
-    // הרשאה מהשרת: manager|editor|viewer. ברירת מחדל manager (תאימות לאחור:
-    // גנים קיימים שהשרת עדיין לא מחזיר להם role — הבעלים).
     const role = g.role || "manager";
     const existing = byServerId.get(g.id);
     if (existing) {
-      // מוסד קיים: מעדכנים שם/הרשאה בלבד — לא דורסים את ה-onboarding המקומי
-      // (עשוי להכיל שדות מקומיים שאינם בשרת).
       existing.name = g.name || existing.name;
       existing.role = role;
       existing.activated = true;
     } else {
-      // מוסד חדש (בדרך כלל גן שהוזמנת אליו): שומרים גם את נתוני ההרשמה מהשרת
-      // (g.onboarding, אם צורף) כדי שהמעבר אליו יציג את הגן הנכון ויעבור את
-      // שער ההרשמה של האפליקציה.
-      list.push({
+      const inst = {
         id: `inst-server-${g.id}`,
         name: g.name || "מוסד",
         type: "gan",
@@ -220,9 +238,12 @@ export function syncServerGroups(groups) {
         onboarding: g.onboarding || null,
         serverGroupId: g.id,
         role,
-      });
+      };
+      byServerId.set(g.id, inst);
+      list.push(inst);
     }
   });
+
   writeList(list);
   ensureValidActive(list);
   return list;

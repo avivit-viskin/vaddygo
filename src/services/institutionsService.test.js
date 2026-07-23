@@ -2,6 +2,7 @@ import {
   saveActiveOnboarding,
   getInstitutions,
   getActiveInstitution,
+  getActiveServerGroupId,
   setActiveInstitution,
   beginActivation,
   addInstitution,
@@ -119,6 +120,36 @@ test("מירר: רשימת שרת ריקה לא מוחקת (הגנה מכשל ז
   syncServerGroups([{ id: 10, name: "גן א", role: "manager" }]);
   syncServerGroups([]);
   expect(getInstitutions().filter((i) => i.serverGroupId != null)).toHaveLength(1);
+});
+
+test("ריבוי גנים: הגן הפעיל נשמר אחרי סנכרון חוזר (רענון)", () => {
+  syncServerGroups([
+    { id: 10, name: "גן A", role: "manager" },
+    { id: 20, name: "גן B", role: "manager" },
+  ]);
+  const a = getInstitutions().find((i) => i.serverGroupId === 10);
+  setActiveInstitution(a.id);
+  expect(getActiveServerGroupId()).toBe(10);
+
+  // "רענון" — סנכרון חוזר עם אותם הגנים
+  syncServerGroups([
+    { id: 10, name: "גן A", role: "manager" },
+    { id: 20, name: "גן B", role: "manager" },
+  ]);
+  expect(getActiveServerGroupId()).toBe(10); // עדיין A
+});
+
+test("onboarding (בלי serverGroupId) + סנכרון — לא נוצר גן כפול, וה-serverGroupId מתמלא", () => {
+  // אשף ההרשמה יצר את המוסד לפני שהשרת החזיר id → serverGroupId חסר
+  saveActiveOnboarding({ ganName: "גן A", extraCommitteeNames: [] });
+  expect(getActiveServerGroupId()).toBeNull();
+
+  // הסנכרון מהשרת מחזיר את אותו גן עם id=10
+  syncServerGroups([{ id: 10, name: "גן A", role: "manager" }]);
+
+  const gansA = getInstitutions().filter((i) => i.name === "גן A");
+  expect(gansA).toHaveLength(1); // לא כפילות!
+  expect(getActiveServerGroupId()).toBe(10); // הגן הפעיל קיבל serverGroupId
 });
 
 test("אם הגן הפעיל הוסר בסנכרון — עוברים לגן תקף", () => {

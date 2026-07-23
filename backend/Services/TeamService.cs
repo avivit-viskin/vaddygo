@@ -224,10 +224,12 @@ namespace ParentCommitteeAPI.Services
                 {
                     existing.Role = invite.Role; // הוזמן מחדש → מעדכנים הרשאה
                 }
-            }
 
-            // הזמנה חד-פעמית — מסירים אותה לאחר הפדיון
-            _db.GroupInvites.Remove(invite);
+                // הזמנה חד-פעמית — "שורפים" אותה רק כשמישהו באמת הצטרף/עודכן.
+                // אם הבעלים פותח את הקישור של עצמו (בדיקה) — לא מוחקים, כדי
+                // שהמוזמן האמיתי עדיין יוכל להשתמש בקישור.
+                _db.GroupInvites.Remove(invite);
+            }
             await _db.SaveChangesAsync();
             _logger.LogInformation("Invite accepted (Group: {GroupId}, User: {UserId})", invite.GroupId, uid);
 

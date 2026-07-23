@@ -1,7 +1,8 @@
 import { useState } from "react";
 import Card from "../../components/Card";
 import { formatShekels } from "../../services/format";
-import { paymentMethodLabel, paymentMethodIcon } from "../../services/paymentMethods";
+import { paymentMethodLabel } from "../../services/paymentMethods";
+import PaymentMethodIcon from "../../components/PaymentMethodIcon";
 import ExpenseModal from "./ExpenseModal";
 
 /*
@@ -60,8 +61,8 @@ function CollectionCard({ dashboard, onExpenseChanged }) {
       <ul className="methods">
         {dashboard.byPaymentMethod.map((m) => (
           <li key={m.method} className={`methods__item methods__item--${m.method}`}>
-            <span className="methods__icon" aria-hidden="true">
-              {paymentMethodIcon(m.method)}
+            <span className="methods__icon">
+              <PaymentMethodIcon method={m.method} />
             </span>
             <span className="methods__name">{paymentMethodLabel(m.method)}</span>
             <span className="methods__amount">{formatShekels(m.amount)}</span>

@@ -169,6 +169,27 @@
   min-width: 90px;
 }
 
+/* תגי-מותג לביט/פייבוקס — צבע ושם האפליקציה במקום אמוג'י, כדי שיהיו תואמים
+   למראה האפליקציות. משמשים גם בקוביות מסך הבית וגם בחלון בקשת התשלום. */
+.pay-brand {
+  display: inline-block;
+  border-radius: 6px;
+  padding: 2px 8px;
+  font-size: 0.8em;
+  font-weight: 700;
+  line-height: 1.4;
+  color: #ffffff;
+  vertical-align: middle;
+  letter-spacing: 0.2px;
+  white-space: nowrap;
+}
+.pay-brand--bit {
+  background: #22b8c2; /* טורקיז — הצבע של ביט */
+}
+.pay-brand--paybox {
+  background: var(--color-paybox); /* כחול — הצבע של פייבוקס */
+}
+
 .pay-request__method .btn {
   width: 100%;
 }

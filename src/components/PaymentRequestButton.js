@@ -11,6 +11,7 @@ import { getPaymentLinks } from "../services/paymentSettingsService";
 import { getBankAccount } from "../services/bankAccountService";
 import { startStudentCardCheckout } from "../services/cardPaymentService";
 import { paymentMethodIcon } from "../services/paymentMethods";
+import PaymentMethodIcon from "./PaymentMethodIcon";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
@@ -158,7 +159,7 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button>{paymentMethodIcon("bit")} ביט</Button>
+            <Button><PaymentMethodIcon method="bit" /> ביט</Button>
           </a>
         )}
         {links.paybox && (
@@ -168,7 +169,7 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button>{paymentMethodIcon("paybox")} פייבוקס</Button>
+            <Button><PaymentMethodIcon method="paybox" /> פייבוקס</Button>
           </a>
         )}
         <a

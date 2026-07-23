@@ -3,8 +3,8 @@ import { formatShekels } from "../../services/format";
 
 /*
   CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): הזנה, ועד, חוגים, קלמר.
-  לכל קטגוריה: כמה נגבה מתוך היעד שלה, וכשיצא כסף מהקטגוריה (הוצאה שסווגה לשמה)
-  גם כמה יצא וכמה נשאר בפועל — כך הוצאה בקטגוריית "ועד" מפחיתה את הקטגוריה.
+  לכל קטגוריה שורה אחת: כמה כסף יצא מהקטגוריה (הוצאה שסווגה לשמה) מתוך היעד שלה,
+  וכמה נשאר לתשלום — כך הוצאה בקטגוריית "ועד" מפחיתה את מה שנשאר בקטגוריה.
 */
 function CategoryList({ categories }) {
   if (!categories || categories.length === 0) {
@@ -16,24 +16,15 @@ function CategoryList({ categories }) {
       <ul className="categories">
         {categories.map((category) => {
           const spent = Number(category.spentAmount) || 0;
-          // ההוצאה יורדת מהסכום הכולל של הקטגוריה (היעד), כמו שביקשה בעלת המוצר
-          const remaining = (Number(category.targetAmount) || 0) - spent;
+          const target = Number(category.targetAmount) || 0;
+          // ההוצאה יורדת מהיעד; מה שנשאר לתשלום = היעד פחות מה שיצא (לא שלילי)
+          const remaining = Math.max(0, target - spent);
           return (
             <li key={category.name} className="categories__item">
               <span className="categories__name">{category.name}</span>
               <span className="categories__amounts">
-                <span>
-                  {formatShekels(category.collectedAmount)}
-                  <span className="categories__of"> מתוך </span>
-                  {formatShekels(category.targetAmount)}
-                </span>
-                {spent > 0 && (
-                  <small className="categories__spent">
-                    יצא {formatShekels(spent)} מתוך{" "}
-                    {formatShekels(category.targetAmount)} · נשאר{" "}
-                    {formatShekels(remaining)}
-                  </small>
-                )}
+                יצא {formatShekels(spent)} מתוך {formatShekels(target)} · נשאר
+                לתשלום {formatShekels(remaining)}
               </span>
             </li>
           );

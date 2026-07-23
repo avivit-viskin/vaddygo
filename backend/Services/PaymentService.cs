@@ -115,6 +115,9 @@ namespace ParentCommitteeAPI.Services
             payment.BitAmount = dto.BitAmount;
             payment.PayBoxAmount = dto.PayBoxAmount;
             payment.CashAmount = dto.CashAmount;
+            // אשראי נרשם ידנית כאן (כמו שאר האמצעים); הזנה ידנית גוברת על הערך
+            // הקיים — הלקוח שולח בחזרה את הסכום שכבר נגבה, כך שהוא נשמר.
+            payment.CardAmount = dto.CardAmount;
             payment.IsPaid = dto.IsPaid;
             // תאריך התשלום נקבע בשרת בעת הסימון, ומתאפס אם מבטלים את הסימון
             payment.PaidDate = dto.IsPaid ? (payment.PaidDate ?? DateTime.UtcNow) : null;

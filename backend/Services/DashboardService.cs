@@ -93,6 +93,37 @@ namespace ParentCommitteeAPI.Services
                 alerts.AddRange(await BuildJoinAlertsAsync(group.Id));
             }
 
+            // תשלומים לפי קטגוריה: קודם קטגוריות הגבייה (עם יעד), ואז קטגוריות
+            // הוצאה בלבד (בלי יעד גבייה).
+            var collectionNames = group.Categories.Select(c => c.Name).ToHashSet();
+            var byCategory = group.Categories.Select(c => new DashboardCategoryDto
+            {
+                Name = c.Name,
+                TargetAmount = c.AmountPerChild * group.ChildrenCount,
+                CollectedAmount = paidPayments
+                    .Where(p => p.CollectionCategoryId == c.Id)
+                    .Sum(PaidTotal),
+                /* מה שיצא מהקטגוריה = הוצאות שסווגו לשם הקטגוריה (למשל "ועד") */
+                SpentAmount = expenses.Where(e => e.Category == c.Name).Sum(e => e.Amount),
+            }).ToList();
+
+            // קטגוריות הוצאה בלבד (בלת"ם / מתנות סוף שנה / חגים...) שאין להן קטגוריית
+            // גבייה — כל אחת מקבלת ריבוע משלה עם מה שיצא, כדי שסך הריבועים יתאזן עם
+            // סך ההוצאות. הוצאה בלי קטגוריה מקובצת ל"ללא קטגוריה". TargetAmount=0
+            // מסמן ללקוח להציג "יצא X" בלבד (בלי "מתוך").
+            var extraCategories = expenses
+                .Where(e => !collectionNames.Contains(e.Category))
+                .GroupBy(e => string.IsNullOrWhiteSpace(e.Category) ? "ללא קטגוריה" : e.Category)
+                .Select(g => new DashboardCategoryDto
+                {
+                    Name = g.Key,
+                    TargetAmount = 0,
+                    CollectedAmount = 0,
+                    SpentAmount = g.Sum(e => e.Amount),
+                })
+                .OrderByDescending(c => c.SpentAmount);
+            byCategory.AddRange(extraCategories);
+
             return new DashboardResponseDto
             {
                 GanName = group.Name,
@@ -112,18 +143,7 @@ namespace ParentCommitteeAPI.Services
                     new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) - MethodExpenses(expenses, "cash") },
                     new() { Method = "card", Amount = paidPayments.Sum(p => p.CardAmount) - MethodExpenses(expenses, "card") },
                 },
-                ByCategory = group.Categories.Select(c => new DashboardCategoryDto
-                {
-                    Name = c.Name,
-                    TargetAmount = c.AmountPerChild * group.ChildrenCount,
-                    CollectedAmount = paidPayments
-                        .Where(p => p.CollectionCategoryId == c.Id)
-                        .Sum(PaidTotal),
-                    /* מה שיצא מהקטגוריה = הוצאות שסווגו לשם הקטגוריה (למשל "ועד") */
-                    SpentAmount = expenses
-                        .Where(e => e.Category == c.Name)
-                        .Sum(e => e.Amount),
-                }).ToList(),
+                ByCategory = byCategory,
                 Alerts = alerts,
                 UpcomingBirthdays = birthdays,
             };

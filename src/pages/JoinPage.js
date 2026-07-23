@@ -11,6 +11,7 @@ import { syncInstitutionsFromServer } from "../services/onboardingService";
 import {
   getInstitutions,
   setActiveInstitution,
+  getActiveInstitution,
 } from "../services/institutionsService";
 import "../styles/onboarding.css";
 
@@ -26,6 +27,8 @@ function JoinPage() {
   const navigate = useNavigate();
   const authed = isAuthenticated();
   const next = `/join/${encodeURIComponent(token)}`;
+  // שם הגן הפעיל — לכפתור "כניסה למוסד X" כשהקישור כבר נוצל אך יש למשתמש גישה
+  const activeName = authed ? getActiveInstitution()?.name : null;
 
   const [loading, setLoading] = useState(authed);
   const [error, setError] = useState("");
@@ -112,13 +115,14 @@ function JoinPage() {
       {authed && !loading && error && (
         <Card title="אפשר להיכנס לאפליקציה 🙂">
           <p className="auth-page__hint">
-            הקישור הזה כבר נוצל, או שאינו פעיל יותר. אם כבר יש לך גישה לגן —
-            אפשר פשוט להיכנס לאפליקציה. אם רצית להזמין מישהו, שלח/י לו קישור
-            הזמנה חדש ממסך ניהול הצוות.
+            אין צורך בקישור יותר — כבר יש לך גישה לגן. אפשר פשוט להיכנס
+            לאפליקציה.
           </p>
           <div className="auth-page__actions">
             <Link to="/">
-              <Button>כניסה לאפליקציה</Button>
+              <Button>
+                {activeName ? `כניסה למוסד ${activeName}` : "כניסה לאפליקציה"}
+              </Button>
             </Link>
           </div>
         </Card>

@@ -1,5 +1,5 @@
 import Card from "../../components/Card";
-import { formatShekels } from "../../services/format";
+import { formatShekels, formatNumber } from "../../services/format";
 
 /*
   CategoryList — תשלומים לפי קטגוריות (UI_SPEC ס' 8): הזנה, ועד, חוגים, קלמר.
@@ -23,7 +23,7 @@ function CategoryList({ categories }) {
             <li key={category.name} className="categories__item">
               <span className="categories__name">{category.name}</span>
               <span className="categories__amounts">
-                יצא {formatShekels(spent)} מתוך {formatShekels(target)} · נשאר
+                יצא {formatNumber(spent)} מתוך {formatShekels(target)} · נשאר
                 לתשלום {formatShekels(remaining)}
               </span>
             </li>

@@ -149,6 +149,11 @@ function CalendarPage({ initialDate }) {
     () => monthEvents.filter((event) => event.shareWithParent),
     [monthEvents]
   );
+  // "האירועים שלי" מציג רק אירועים רגילים — אבא/אמא של שבת נמצאים במדור שלהם
+  const regularEvents = useMemo(
+    () => monthEvents.filter((event) => !event.shareWithParent),
+    [monthEvents]
+  );
 
   const eventsByDay = useMemo(() => {
     const map = new Map();
@@ -332,10 +337,10 @@ function CalendarPage({ initialDate }) {
       {/* מדור 3: האירועים שלי */}
       <section className="calendar-list" aria-label="האירועים שלי החודש">
         <h3>האירועים שלי</h3>
-        {monthEvents.length === 0 && (
+        {regularEvents.length === 0 && (
           <p>אין אירועים החודש — אפשר להוסיף את הראשון!</p>
         )}
-        {monthEvents.map((event) => (
+        {regularEvents.map((event) => (
           <div className="calendar-list__item" key={event.id}>
             <span className="calendar-list__date">
               {listDateFormatter.format(event.date)}

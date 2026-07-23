@@ -13,12 +13,11 @@ const TENS = ["", "י", "כ", "ל", "מ", "נ", "ס", "ע", "פ", "צ"];
 const HUNDREDS = ["", "ק", "ר", "ש", "ת"];
 
 /*
-  המרת שנה לועזית לשם שנת הלימודים העברית: 2026 ← "תשפ"ז"
-  (שנת הלימודים שנפתחת בספטמבר 2026 היא ה'תשפ"ז = 5787).
+  שם שנה עברית באותיות (גימטריה) לפי מספר השנה העברית: 5786 ← "תשפ"ו".
   הגרשיים נכנסים לפני האות האחרונה, ו-15/16 נכתבים ט"ו/ט"ז כמקובל.
 */
-export function hebrewSchoolYearName(gregorianYear) {
-  let n = gregorianYear + 3761 - 5000; // השנה העברית בלי האלפים (ה')
+export function hebrewYearName(hebrewYear) {
+  let n = hebrewYear - 5000; // בלי האלפים (ה')
   let letters = "";
 
   while (n >= 400) {
@@ -40,4 +39,26 @@ export function hebrewSchoolYearName(gregorianYear) {
     return letters;
   }
   return `${letters.slice(0, -1)}"${letters.slice(-1)}`;
+}
+
+/*
+  שם שנת הלימודים העברית לפי השנה הלועזית שהיא נפתחת בה (ספטמבר):
+  2026 ← "תשפ"ז" (שנת הלימודים שנפתחת בספטמבר 2026 היא ה'תשפ"ז = 5787).
+*/
+export function hebrewSchoolYearName(gregorianYear) {
+  return hebrewYearName(gregorianYear + 3761);
+}
+
+/*
+  השנה העברית הנוכחית באותיות — מחושבת מהתאריך דרך לוח השנה העברי, ולכן
+  מסתנכרנת מעצמה: היום היא "תשפ"ו", ובראש השנה הבא תתחלף אוטומטית ל"תשפ"ז".
+*/
+const hebrewYearFormatter = new Intl.DateTimeFormat("en-u-ca-hebrew", {
+  year: "numeric",
+});
+export function currentHebrewYearName(today = new Date()) {
+  const hebrewYear = Number(
+    hebrewYearFormatter.format(today).replace(/[^\d]/g, "")
+  );
+  return hebrewYearName(hebrewYear);
 }

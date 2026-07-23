@@ -12,7 +12,7 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from "../services/notificationsService";
-import { hebrewSchoolYearName } from "../services/schoolYear";
+import { currentHebrewYearName } from "../services/schoolYear";
 import { isActiveReadOnly } from "../services/institutionsService";
 import NotificationsPanel from "./home/NotificationsPanel";
 import WelcomePopup from "../components/WelcomePopup";
@@ -108,7 +108,7 @@ function HomePage() {
           >
             {dashboard.ganName}
           </button>{" "}
-          <span className="home__year">{hebrewSchoolYearName(dashboard.year)}</span>
+          <span className="home__year">{currentHebrewYearName()}</span>
         </h2>
         <div className="home__actions">
           <Link to="/assistant" className="home__ai" aria-label="עוזרת AI">

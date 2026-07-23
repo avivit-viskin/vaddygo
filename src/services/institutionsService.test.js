@@ -5,6 +5,9 @@ import {
   setActiveInstitution,
   beginActivation,
   addInstitution,
+  syncServerGroups,
+  getActiveRole,
+  isActiveReadOnly,
 } from "./institutionsService";
 
 /*
@@ -70,6 +73,33 @@ test("הוספת מוסד חדש מוסיפה מוסד לא-מופעל לרשי�
   expect(added.activated).toBe(false);
   // המוסד הפעיל לא השתנה
   expect(getActiveInstitution().name).toBe("גן א");
+});
+
+test("syncServerGroups מוסיף גן מהשרת עם ההרשאה; 'צופה' → isActiveReadOnly", () => {
+  syncServerGroups([{ id: 42, name: "גן שהוזמנתי אליו", role: "viewer" }]);
+  const inst = getInstitutions().find((i) => i.serverGroupId === 42);
+  expect(inst).toBeTruthy();
+  expect(inst.role).toBe("viewer");
+
+  expect(setActiveInstitution(inst.id)).toBe(true);
+  expect(getActiveRole()).toBe("viewer");
+  expect(isActiveReadOnly()).toBe(true);
+});
+
+test("גן בבעלות (manager) אינו לקריאה-בלבד", () => {
+  syncServerGroups([{ id: 7, name: "הגן שלי", role: "manager" }]);
+  const inst = getInstitutions().find((i) => i.serverGroupId === 7);
+  setActiveInstitution(inst.id);
+  expect(getActiveRole()).toBe("manager");
+  expect(isActiveReadOnly()).toBe(false);
+});
+
+test("סנכרון חוזר מעדכן הרשאה של גן קיים (viewer → editor)", () => {
+  syncServerGroups([{ id: 9, name: "גן", role: "viewer" }]);
+  syncServerGroups([{ id: 9, name: "גן", role: "editor" }]);
+  const list = getInstitutions().filter((i) => i.serverGroupId === 9);
+  expect(list).toHaveLength(1); // לא נוצר כפל
+  expect(list[0].role).toBe("editor");
 });
 
 test("מעבר בין שני מוסדות מופעלים טוען את נתוני ההרשמה של הפעיל", () => {

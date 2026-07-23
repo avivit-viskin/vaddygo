@@ -37,7 +37,10 @@ import AccessibilityWidget from "./components/AccessibilityWidget";
 import { applyAnalyticsConsent } from "./services/analytics";
 import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { applyA11ySettings } from "./services/accessibility";
-import { isOnboardingComplete } from "./services/onboardingService";
+import {
+  isOnboardingComplete,
+  syncInstitutionsFromServer,
+} from "./services/onboardingService";
 import {
   isAuthenticated,
   hasVisitedBefore,
@@ -83,12 +86,21 @@ const AUTH_ENTRY_ROUTES = ["/welcome", "/login", "/register"];
 function App() {
   const location = useLocation();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  // מונה שמאלץ רינדור מחדש אחרי סנכרון המוסדות (כדי שההרשאה המעודכנת תיושם)
+  const [, setSyncTick] = useState(0);
 
   // בעליית האפליקציה: מפעילים מעקב רק אם אושרו עוגיות מדידה, ומחילים את
-  // הגדרות הנגישות השמורות (גודל טקסט/ניגודיות וכו').
+  // הגדרות הנגישות השמורות. בנוסף — מסנכרנים את המוסדות וההרשאות מהשרת בכל
+  // טעינה, כך שגם משתמש שכבר מחובר יקבל את ההרשאה העדכנית (למשל "צופה")
+  // בלי צורך להתחבר מחדש, וכפתורי העריכה ייחסמו בהתאם.
   useEffect(() => {
     applyAnalyticsConsent(hasAnalyticsConsent());
     applyA11ySettings();
+    if (isAuthenticated()) {
+      syncInstitutionsFromServer()
+        .then(() => setSyncTick((n) => n + 1))
+        .catch(() => {});
+    }
   }, []);
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");

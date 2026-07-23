@@ -62,5 +62,8 @@ namespace ParentCommitteeAPI.DTOs
         public string GanName { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
         public bool AlreadyMember { get; set; }
+
+        // ההזמנה כבר נוצלה על ידי מישהו אחר (משתמש חדש לא יכול להצטרף איתה)
+        public bool Used { get; set; }
     }
 }

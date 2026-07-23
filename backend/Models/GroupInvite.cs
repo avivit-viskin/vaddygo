@@ -18,6 +18,11 @@ namespace ParentCommitteeAPI.Models
         // שם המוזמן/ת (לתצוגה ברשימת הצוות בלבד)
         public string InviteeName { get; set; } = string.Empty;
 
+        // האם ההזמנה כבר נוצלה (מישהו הצטרף איתה). לא מוחקים אותה — כדי שקישור
+        // שכבר נוצל עדיין ידע לאיזה גן הוא שייך (תצוגה + כניסה). הזמנות שנוצלו
+        // אינן מופיעות ברשימת "הממתינות".
+        public bool Used { get; set; }
+
         public DateTime CreatedAt { get; set; }
     }
 }

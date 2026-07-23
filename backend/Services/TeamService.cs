@@ -46,7 +46,7 @@ namespace ParentCommitteeAPI.Services
                 .ToListAsync();
 
             var invites = await _db.GroupInvites
-                .Where(i => i.GroupId == scoped.Value)
+                .Where(i => i.GroupId == scoped.Value && !i.Used)
                 .Select(i => new PendingInviteDto
                 {
                     Id = i.Id,
@@ -188,6 +188,8 @@ namespace ParentCommitteeAPI.Services
                 GanName = ganName ?? string.Empty,
                 Role = invite.Role,
                 AlreadyMember = already,
+                // נוצלה על ידי מישהו אחר, ואני לא חבר/בעלים → לא ניתן להצטרף איתה
+                Used = invite.Used && !already,
             };
         }
 
@@ -208,29 +210,32 @@ namespace ParentCommitteeAPI.Services
             var existing = await _db.GroupMembers
                 .FirstOrDefaultAsync(m => m.GroupId == invite.GroupId && m.UserId == uid.Value);
 
-            if (!isOwner)
+            // בעלים או חבר קיים שפותח את הקישור — כבר יש לו גישה, רק "נכנס" (בלי שינוי).
+            // כך גם הבעלים שבודק את הקישור וגם המוזמן שכבר הצטרף יכולים לפתוח אותו שוב.
+            if (!isOwner && existing == null)
             {
-                if (existing == null)
+                if (invite.Used)
                 {
-                    _db.GroupMembers.Add(new GroupMember
-                    {
-                        GroupId = invite.GroupId,
-                        UserId = uid.Value,
-                        Role = invite.Role,
-                        JoinedAt = DateTime.UtcNow,
-                    });
+                    // ההזמנה כבר נוצלה על ידי מישהו אחר — משתמש חדש אינו יכול להצטרף איתה
+                    return null;
                 }
-                else
+                _db.GroupMembers.Add(new GroupMember
                 {
-                    existing.Role = invite.Role; // הוזמן מחדש → מעדכנים הרשאה
-                }
-
-                // הזמנה חד-פעמית — "שורפים" אותה רק כשמישהו באמת הצטרף/עודכן.
-                // אם הבעלים פותח את הקישור של עצמו (בדיקה) — לא מוחקים, כדי
-                // שהמוזמן האמיתי עדיין יוכל להשתמש בקישור.
-                _db.GroupInvites.Remove(invite);
+                    GroupId = invite.GroupId,
+                    UserId = uid.Value,
+                    Role = invite.Role,
+                    JoinedAt = DateTime.UtcNow,
+                });
+                // מסמנים "נוצלה" (לא מוחקים) — כדי שהקישור עדיין ידע לאיזה גן הוא שייך
+                invite.Used = true;
+                await _db.SaveChangesAsync();
             }
-            await _db.SaveChangesAsync();
+            else if (!isOwner && existing != null && !invite.Used)
+            {
+                existing.Role = invite.Role; // הוזמן מחדש עם הרשאה חדשה
+                invite.Used = true;
+                await _db.SaveChangesAsync();
+            }
             _logger.LogInformation("Invite accepted (Group: {GroupId}, User: {UserId})", invite.GroupId, uid);
 
             var ganName = await _db.Groups

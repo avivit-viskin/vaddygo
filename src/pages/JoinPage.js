@@ -128,25 +128,45 @@ function JoinPage() {
         </Card>
       )}
 
-      {authed && !loading && !error && preview && (
-        <Card title="הזמנה להצטרפות 🎉">
+      {/* קישור שכבר נוצל על ידי מישהו אחר — אי אפשר להצטרף איתו */}
+      {authed && !loading && !error && preview && preview.used && (
+        <Card title="הקישור כבר נוצל 🙂">
+          <p className="auth-page__hint">
+            הקישור הזה כבר נוצל על ידי מישהו אחר. אם צריך גישה — אפשר לבקש
+            מהמנהל/ת לשלוח קישור הזמנה חדש.
+          </p>
+          <div className="auth-page__actions">
+            <Link to="/">
+              <Button>
+                {activeName ? `כניסה למוסד ${activeName}` : "כניסה לאפליקציה"}
+              </Button>
+            </Link>
+          </div>
+        </Card>
+      )}
+
+      {/* הזמנה תקפה, או שכבר יש גישה (המוזמן/הבעלים פותח שוב) — מציגים את שם הגן */}
+      {authed && !loading && !error && preview && !preview.used && (
+        <Card
+          title={preview.alreadyMember ? "כבר יש לך גישה 🙂" : "הזמנה להצטרפות 🎉"}
+        >
           <p className="join-preview">
-            הוזמנת לנהל את הגן <strong>{preview.ganName}</strong> בתור{" "}
+            {preview.alreadyMember ? "יש לך גישה לגן " : "הוזמנת לנהל את הגן "}
+            <strong>{preview.ganName}</strong> בתור{" "}
             <strong>{roleLabel(preview.role)}</strong>.
           </p>
-          {preview.role === "viewer" && (
+          {preview.role === "viewer" && !preview.alreadyMember && (
             <p className="auth-page__hint">
               כ<strong>צופה</strong> תוכל/י לראות את כל הנתונים של הגן, אך לא
               לערוך אותם.
             </p>
           )}
-          {preview.alreadyMember && (
-            <p className="auth-page__hint">כבר יש לך גישה לגן הזה 🙂</p>
-          )}
           {error && <ErrorMessage message={error} />}
           <div className="auth-page__actions">
             <Button onClick={handleJoin} isLoading={joining}>
-              {preview.alreadyMember ? "כניסה לגן" : "הצטרפות לגן"}
+              {preview.alreadyMember
+                ? `כניסה לגן ${preview.ganName}`
+                : "הצטרפות לגן"}
             </Button>
           </div>
         </Card>

@@ -131,23 +131,24 @@
   min-width: 0;
 }
 
+/* אייקון פח קטן ועדין, בלי מסגרת/רקע — תופס מעט מאוד מקום בשורה */
 .institutions__delete {
   flex-shrink: 0;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: none;
+  background: none;
   cursor: pointer;
-  font-size: 0.8rem;
+  font-size: 0.72rem;
   line-height: 1;
-  min-width: 30px;
-  padding: 0 4px;
-  opacity: 0.55; /* אייקון עדין שלא תופס מקום/תשומת-לב בשורה */
+  min-width: 22px;
+  padding: 0 2px;
+  opacity: 0.4;
 }
 
 .institutions__delete:hover {
   opacity: 1;
-  border-color: var(--color-error);
-  background: #fdecec;
 }
 
 /* "צור קשר" + התנתקות — ישר מתחת להגדרות (לא נדחפים לתחתית המוסתרת) */

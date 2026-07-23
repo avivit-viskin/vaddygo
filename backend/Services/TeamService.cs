@@ -33,38 +33,88 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            var members = await _db.GroupMembers
-                .Where(m => m.GroupId == scoped.Value)
-                .Join(_db.Users, m => m.UserId, u => u.Id,
-                    (m, u) => new TeamMemberDto
-                    {
-                        Id = m.Id,
-                        UserId = u.Id,
-                        Username = u.Username,
-                        Role = m.Role,
-                    })
-                .ToListAsync();
+            var gid = scoped.Value;
 
-            // מחזירים את כל ההזמנות — גם שנוצלו (Approved) — כך שההזמנה נשארת
-            // ברשימה ומשנה סטטוס ל"אושר" במקום להיעלם. הממתינות ראשונות.
+            // חברי הצוות (עם שם המשתמש) — כטאפלים לגישה נוחה
+            var members = (await _db.GroupMembers
+                .Where(m => m.GroupId == gid)
+                .Join(_db.Users, m => m.UserId, u => u.Id,
+                    (m, u) => new { m.Id, m.UserId, u.Username, m.Role })
+                .ToListAsync())
+                .Select(x => (x.Id, x.UserId, x.Username, x.Role))
+                .ToList();
+            var memberByUser = members.ToDictionary(m => m.UserId);
+
+            // כל ההזמנות — ממתינות ראשונות, ואז שנוצלו
             var invites = await _db.GroupInvites
-                .Where(i => i.GroupId == scoped.Value)
+                .Where(i => i.GroupId == gid)
                 .OrderBy(i => i.Used)
                 .ThenByDescending(i => i.Id)
-                .Select(i => new PendingInviteDto
-                {
-                    Id = i.Id,
-                    Token = i.Token,
-                    Role = i.Role,
-                    InviteeName = i.InviteeName,
-                    Approved = i.Used,
-                })
                 .ToListAsync();
+
+            // רשימת "גישות" מאוחדת
+            var accesses = new List<AccessDto>();
+            var linkedMemberIds = new HashSet<int>();
+            foreach (var inv in invites)
+            {
+                if (!inv.Used)
+                {
+                    accesses.Add(new AccessDto
+                    {
+                        Name = string.IsNullOrWhiteSpace(inv.InviteeName) ? "משתמש שהוזמן" : inv.InviteeName,
+                        Role = inv.Role,
+                        Approved = false,
+                        InviteId = inv.Id,
+                        Token = inv.Token,
+                    });
+                    continue;
+                }
+                // הזמנה שנוצלה — מקשרים לחבר הצוות (אם קיים קישור)
+                if (inv.AcceptedByUserId != null)
+                {
+                    if (!memberByUser.TryGetValue(inv.AcceptedByUserId.Value, out var mem))
+                    {
+                        continue; // החבר הוסר — לא מציגים את ההזמנה שנוצלה
+                    }
+                    accesses.Add(new AccessDto
+                    {
+                        Name = string.IsNullOrWhiteSpace(inv.InviteeName) ? mem.Username : inv.InviteeName,
+                        Role = mem.Role,
+                        Approved = true,
+                        MemberId = mem.Id,
+                    });
+                    linkedMemberIds.Add(mem.Id);
+                }
+                else
+                {
+                    // נוצלה ללא קישור (נתונים ישנים) — מציגים לפי ההזמנה
+                    accesses.Add(new AccessDto
+                    {
+                        Name = string.IsNullOrWhiteSpace(inv.InviteeName) ? "משתמש" : inv.InviteeName,
+                        Role = inv.Role,
+                        Approved = true,
+                    });
+                }
+            }
+
+            // חברים ללא הזמנה מקושרת (הצטרפו לפני המנגנון) — מוסיפים בסוף
+            foreach (var mem in members)
+            {
+                if (!linkedMemberIds.Contains(mem.Id))
+                {
+                    accesses.Add(new AccessDto
+                    {
+                        Name = mem.Username,
+                        Role = mem.Role,
+                        Approved = true,
+                        MemberId = mem.Id,
+                    });
+                }
+            }
 
             return new TeamResponseDto
             {
-                Members = members,
-                PendingInvites = invites,
+                Accesses = accesses,
                 CanManage = await _access.CanManageGroupAsync(scoped),
             };
         }
@@ -231,14 +281,16 @@ namespace ParentCommitteeAPI.Services
                     Role = invite.Role,
                     JoinedAt = DateTime.UtcNow,
                 });
-                // מסמנים "נוצלה" (לא מוחקים) — כדי שהקישור עדיין ידע לאיזה גן הוא שייך
+                // מסמנים "נוצלה" (לא מוחקים) ומקשרים למי שהצטרף — לרשימת ה"גישות"
                 invite.Used = true;
+                invite.AcceptedByUserId = uid.Value;
                 await _db.SaveChangesAsync();
             }
             else if (!isOwner && existing != null && !invite.Used)
             {
                 existing.Role = invite.Role; // הוזמן מחדש עם הרשאה חדשה
                 invite.Used = true;
+                invite.AcceptedByUserId = uid.Value;
                 await _db.SaveChangesAsync();
             }
             _logger.LogInformation("Invite accepted (Group: {GroupId}, User: {UserId})", invite.GroupId, uid);

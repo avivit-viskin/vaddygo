@@ -30,30 +30,27 @@ namespace ParentCommitteeAPI.DTOs
         public string InviteeName { get; set; } = string.Empty;
     }
 
-    public class TeamMemberDto
+    /*
+      AccessDto — פריט אחד ברשימת ה"גישות" המאוחדת: אדם שיש לו גישה לגן, או
+      בקשה שנשלחה וטרם אושרה. שדות רלוונטיים לפי המצב:
+      - Approved=false (טרם אושר): Token + InviteId (לשיתוף/ביטול ההזמנה).
+      - Approved=true (אושר/חבר): MemberId (לשינוי הרשאה/הסרה).
+      Name = השם שהוזן בהזמנה, או שם המשתמש (לחבר ללא הזמנה מקושרת).
+    */
+    public class AccessDto
     {
-        public int Id { get; set; }
-        public int UserId { get; set; }
-        public string Username { get; set; } = string.Empty;
+        public string Name { get; set; } = string.Empty;
         public string Role { get; set; } = string.Empty;
-    }
-
-    public class PendingInviteDto
-    {
-        public int Id { get; set; }
-        public string Token { get; set; } = string.Empty;
-        public string Role { get; set; } = string.Empty;
-        public string InviteeName { get; set; } = string.Empty;
-
-        // האם ההזמנה כבר אושרה (מישהו הצטרף איתה). כך היא נשארת ברשימה כ"אושר"
-        // במקום להיעלם — המזמין רואה שהבקשה שלו אושרה.
         public bool Approved { get; set; }
+        public int? InviteId { get; set; }
+        public string? Token { get; set; }
+        public int? MemberId { get; set; }
     }
 
     public class TeamResponseDto
     {
-        public List<TeamMemberDto> Members { get; set; } = new();
-        public List<PendingInviteDto> PendingInvites { get; set; } = new();
+        /* רשימת גישות מאוחדת (חברים + בקשות ממתינות), ממתינות ראשונות. */
+        public List<AccessDto> Accesses { get; set; } = new();
 
         /* האם המשתמש הנוכחי רשאי לנהל את הצוות (מנהל) — לשליטה בכפתורים בצד הלקוח */
         public bool CanManage { get; set; }

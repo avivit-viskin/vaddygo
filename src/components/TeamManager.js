@@ -20,9 +20,10 @@ import { toastSuccess } from "../services/toastBus";
 import "../styles/team.css";
 
 /*
-  TeamManager — ניהול חברי הצוות וההרשאות מול השרת (API אמיתי). מנהל יוצר
-  הזמנה עם טוקן, שולח את הקישור בוואטסאפ/העתקה, והמוזמן מצטרף בעמוד /join.
-  משמש גם באשף ההקמה וגם בהגדרות. האכיפה עצמה בשרת (צופה = בלי עריכה).
+  TeamManager — ניהול הגישות וההרשאות מול השרת (API אמיתי). מנהל יוצר הזמנה עם
+  טוקן, שולח קישור בוואטסאפ/העתקה, והמוזמן מצטרף בעמוד /join. רשימת ה"גישות"
+  מאוחדת: בקשות שנשלחו (⏳ טרם אושר) וחברים שכבר אושרו (✓ אושר) — באותה שורה,
+  כך שההזמנה לא "נעלמת" אלא רק משנה סטטוס. האכיפה עצמה בשרת (צופה = בלי עריכה).
 */
 function inviteMessage(link, role) {
   return (
@@ -32,13 +33,8 @@ function inviteMessage(link, role) {
 }
 
 function TeamManager() {
-  const [team, setTeam] = useState({
-    members: [],
-    pendingInvites: [],
-    canManage: true,
-  });
+  const [team, setTeam] = useState({ accesses: [], canManage: true });
   const [loading, setLoading] = useState(true);
-  const [loadError, setLoadError] = useState("");
 
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
@@ -46,21 +42,20 @@ function TeamManager() {
   const [formError, setFormError] = useState("");
   const [creating, setCreating] = useState(false);
 
-  const [memberToRemove, setMemberToRemove] = useState(null);
-  const [editingId, setEditingId] = useState(null);
+  // הפריט שממתין לאישור הסרה/ביטול (null = אין דיאלוג)
+  const [toRemove, setToRemove] = useState(null);
+  // מזהה החבר שההרשאה שלו נערכת כרגע (null = אף אחד)
+  const [editingMemberId, setEditingMemberId] = useState(null);
 
   const refresh = useCallback(async () => {
     try {
       const data = await getTeam();
       setTeam({
-        members: data.members || [],
-        pendingInvites: data.pendingInvites || [],
+        accesses: data.accesses || [],
         canManage: Boolean(data.canManage),
       });
-      setLoadError("");
     } catch {
       // בדרך כלל כשעדיין אין גן פעיל בשרת (למשל באמצע ההקמה) — לא שגיאה אמיתית
-      setLoadError("");
     } finally {
       setLoading(false);
     }
@@ -81,7 +76,6 @@ function TeamManager() {
     try {
       const invite = await createInvite(role, name.trim());
       const link = inviteLink(invite.token);
-      // פתיחת וואטסאפ עם הקישור האמיתי (אם הוזן טלפון — ישירות למספר)
       const target = phone.includes("@") ? "" : phone;
       window.open(
         whatsappUrlWithText(target, inviteMessage(link, invite.role)),
@@ -108,18 +102,18 @@ function TeamManager() {
   }
 
   async function confirmRemove() {
-    const m = memberToRemove;
-    setMemberToRemove(null);
-    if (m.__invite) {
-      await cancelInvite(m.id);
+    const t = toRemove;
+    setToRemove(null);
+    if (t.invite) {
+      await cancelInvite(t.inviteId);
     } else {
-      await removeMember(m.id);
+      await removeMember(t.memberId);
     }
     await refresh();
   }
 
   async function changeRole(memberId, newRole) {
-    setEditingId(null);
+    setEditingMemberId(null);
     await updateMemberRole(memberId, newRole);
     await refresh();
   }
@@ -178,145 +172,132 @@ function TeamManager() {
 
       {loading && <Spinner />}
 
-      {/* בקשות הגישה שנשלחו — נשארות ברשימה גם אחרי אישור (סטטוס משתנה ל"אושר") */}
-      {team.pendingInvites.length > 0 && (
+      {/* רשימת הגישות המאוחדת — בקשות ממתינות וחברים שאושרו, באותה רשימה */}
+      {team.accesses.length > 0 && (
         <div className="team-section">
-          <h3 className="team-section__title">בקשות גישה שנשלחו</h3>
+          <h3 className="team-section__title">גישות</h3>
           <ul className="team-list">
-            {team.pendingInvites.map((inv) => (
-              <li key={`inv-${inv.id}`} className="team-list__item">
-                <div className="team-list__info">
-                  <span className="team-list__name">
-                    {inv.inviteeName || "משתמש שהוזמן"}
-                  </span>
-                  <span className="team-list__role">
-                    {roleLabel(inv.role)}
-                    {inv.approved ? (
-                      <span className="team-status team-status--approved">
-                        ✓ אושר
-                      </span>
-                    ) : (
-                      <span className="team-status team-status--pending">
-                        ⏳ טרם אושר
-                      </span>
-                    )}
-                  </span>
-                </div>
-                {/* כפתורי שיתוף/ביטול רק כל עוד לא אושר */}
-                {!inv.approved && (
-                  <>
-                    <a
-                      className="team-list__invite"
-                      href={whatsappUrlWithText("", inviteMessage(inviteLink(inv.token), inv.role))}
-                      target="_blank"
-                      rel="noreferrer"
-                      aria-label={`שליחת ההזמנה ל${inv.inviteeName || ""} בוואטסאפ`}
-                    >
-                      <WhatsAppIcon size={16} /> וואטסאפ
-                    </a>
-                    <button
-                      type="button"
-                      className="team-list__invite"
-                      onClick={() => copyLink(inv.token)}
-                      aria-label="העתקת קישור ההזמנה"
-                    >
-                      העתקת קישור 🔗
-                    </button>
-                    {canManage && (
+            {team.accesses.map((a, idx) => {
+              const editable = a.approved && canManage && a.memberId != null;
+              return (
+                <li
+                  key={a.approved ? `m-${a.memberId ?? idx}` : `inv-${a.inviteId}`}
+                  className="team-list__item"
+                >
+                  <div className="team-list__info">
+                    <span className="team-list__name">{a.name}</span>
+                    <span className="team-list__role">
+                      {editable && editingMemberId === a.memberId ? (
+                        <select
+                          className="team-list__role-select"
+                          value={a.role}
+                          onChange={(e) => changeRole(a.memberId, e.target.value)}
+                          aria-label={`שינוי הרשאה ל${a.name}`}
+                        >
+                          {ROLES.map((r) => (
+                            <option key={r.value} value={r.value}>
+                              {r.label}
+                            </option>
+                          ))}
+                        </select>
+                      ) : editable ? (
+                        <button
+                          type="button"
+                          className="team-list__role team-list__role-edit"
+                          onClick={() => setEditingMemberId(a.memberId)}
+                          aria-label={`עריכת הרשאה ל${a.name} (${roleLabel(a.role)})`}
+                        >
+                          {roleLabel(a.role)} ✏️
+                        </button>
+                      ) : (
+                        <span className="team-list__role">{roleLabel(a.role)}</span>
+                      )}
+                      {a.approved ? (
+                        <span className="team-status team-status--approved">
+                          ✓ אושר
+                        </span>
+                      ) : (
+                        <span className="team-status team-status--pending">
+                          ⏳ טרם אושר
+                        </span>
+                      )}
+                    </span>
+                  </div>
+
+                  {/* ממתין — שיתוף/העתקה/ביטול */}
+                  {!a.approved && (
+                    <>
+                      <a
+                        className="team-list__invite"
+                        href={whatsappUrlWithText("", inviteMessage(inviteLink(a.token), a.role))}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`שליחת ההזמנה ל${a.name} בוואטסאפ`}
+                      >
+                        <WhatsAppIcon size={16} /> וואטסאפ
+                      </a>
                       <button
                         type="button"
-                        className="team-list__remove"
-                        aria-label={`ביטול ההזמנה ל${inv.inviteeName || ""}`}
-                        onClick={() => setMemberToRemove({ ...inv, __invite: true })}
+                        className="team-list__invite"
+                        onClick={() => copyLink(a.token)}
+                        aria-label="העתקת קישור ההזמנה"
                       >
-                        ✕
+                        העתקת קישור 🔗
                       </button>
-                    )}
-                  </>
-                )}
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+                      {canManage && (
+                        <button
+                          type="button"
+                          className="team-list__remove"
+                          aria-label={`ביטול ההזמנה ל${a.name}`}
+                          onClick={() =>
+                            setToRemove({ invite: true, inviteId: a.inviteId, name: a.name })
+                          }
+                        >
+                          ✕
+                        </button>
+                      )}
+                    </>
+                  )}
 
-      {/* חברי הצוות שכבר הצטרפו */}
-      {team.members.length > 0 && (
-        <div className="team-section">
-          <h3 className="team-section__title">חברי הצוות</h3>
-          <ul className="team-list">
-            {team.members.map((m) => (
-              <li key={`m-${m.id}`} className="team-list__item">
-                <div className="team-list__info">
-                  <span className="team-list__name">
-                    {m.username}
-                    <span className="team-status team-status--approved">
-                      ✓ אושר
-                    </span>
-                  </span>
-                  {canManage && editingId === m.id ? (
-                    <select
-                      className="team-list__role-select"
-                      value={m.role}
-                      onChange={(e) => changeRole(m.id, e.target.value)}
-                      aria-label={`שינוי הרשאה ל${m.username}`}
-                    >
-                      {ROLES.map((r) => (
-                        <option key={r.value} value={r.value}>
-                          {r.label}
-                        </option>
-                      ))}
-                    </select>
-                  ) : canManage ? (
+                  {/* אושר — הסרת הגישה של החבר */}
+                  {a.approved && canManage && a.memberId != null && (
                     <button
                       type="button"
-                      className="team-list__role team-list__role-edit"
-                      onClick={() => setEditingId(m.id)}
-                      aria-label={`עריכת הרשאה ל${m.username} (${roleLabel(m.role)})`}
+                      className="team-list__remove"
+                      aria-label={`הסרת הגישה של ${a.name}`}
+                      onClick={() =>
+                        setToRemove({ invite: false, memberId: a.memberId, name: a.name })
+                      }
                     >
-                      {roleLabel(m.role)} ✏️
+                      ✕
                     </button>
-                  ) : (
-                    <span className="team-list__role">{roleLabel(m.role)}</span>
                   )}
-                </div>
-                {canManage && (
-                  <button
-                    type="button"
-                    className="team-list__remove"
-                    aria-label={`הסרת ${m.username}`}
-                    onClick={() => setMemberToRemove(m)}
-                  >
-                    ✕
-                  </button>
-                )}
-              </li>
-            ))}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}
 
-      {!loading && !canManage && (
+      {!loading && !canManage && team.accesses.length === 0 && (
         <p className="team-page__subtitle">
-          רק מנהל/ת יכול/ה להזמין או להסיר חברי צוות.
+          רק מנהל/ת יכול/ה להזמין או להסיר גישות.
         </p>
       )}
 
-      {loadError && <p className="team-page__subtitle">{loadError}</p>}
-
       <ConfirmDialog
-        isOpen={memberToRemove !== null}
-        title={memberToRemove?.__invite ? "ביטול הזמנה" : "הסרת חבר צוות"}
+        isOpen={toRemove !== null}
+        title={toRemove?.invite ? "ביטול הזמנה" : "הסרת גישה"}
         message={
-          memberToRemove
-            ? memberToRemove.__invite
-              ? `לבטל את ההזמנה ל${memberToRemove.inviteeName || "משתמש"}?`
-              : `להסיר את ${memberToRemove.username} מהצוות? הגישה שלו/ה לגן תיפסק.`
+          toRemove
+            ? toRemove.invite
+              ? `לבטל את ההזמנה ל${toRemove.name || "משתמש"}?`
+              : `להסיר את הגישה של ${toRemove.name}? הגישה שלו/ה לגן תיפסק.`
             : ""
         }
-        confirmLabel={memberToRemove?.__invite ? "כן, לבטל" : "כן, להסיר"}
+        confirmLabel={toRemove?.invite ? "כן, לבטל" : "כן, להסיר"}
         onConfirm={confirmRemove}
-        onCancel={() => setMemberToRemove(null)}
+        onCancel={() => setToRemove(null)}
       />
     </>
   );

@@ -20,8 +20,7 @@ jest.mock("../services/teamService", () => {
 
 beforeEach(() => {
   teamService.getTeam.mockResolvedValue({
-    members: [],
-    pendingInvites: [],
+    accesses: [],
     canManage: true,
   });
   teamService.createInvite.mockResolvedValue({

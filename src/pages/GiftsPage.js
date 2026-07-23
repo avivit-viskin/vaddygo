@@ -15,6 +15,7 @@ import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
 import { upcomingHolidays } from "../services/upcomingHoliday";
+import { isActiveReadOnly } from "../services/institutionsService";
 import CountdownBanner from "./gifts/CountdownBanner";
 import UpcomingMonth from "./gifts/UpcomingMonth";
 import PendingEventExpenses from "./gifts/PendingEventExpenses";
@@ -32,6 +33,8 @@ import "../styles/gifts.css";
   וספקים עם דף מוצרים וקטלוג. עובד גם בלי שרת (נתונים מקומיים).
 */
 function GiftsPage() {
+  // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של מתנות וספקים
+  const readOnly = isActiveReadOnly();
   const [gifts, setGifts] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [budgets, setBudgets] = useState({});
@@ -138,7 +141,8 @@ function GiftsPage() {
     <div className="gifts">
       <CountdownBanner />
       <UpcomingMonth />
-      <PendingEventExpenses onRecorded={load} />
+      {/* "צופה" — לצפייה בלבד: בלי תזכורת/רישום הוצאה על אירועים שעברו */}
+      {!readOnly && <PendingEventExpenses onRecorded={load} />}
 
       <Card title="המתנות שרכשתי 🎁">
         {gifts.length === 0 ? (
@@ -153,13 +157,16 @@ function GiftsPage() {
                 onEdit={() => setEditingGift(gift)}
                 onDelete={() => setDeletingGift(gift)}
                 onOpenVendor={() => setOpenVendor(vendorsById.get(gift.vendorId))}
+                readOnly={readOnly}
               />
             ))}
           </div>
         )}
-        <Button variant="secondary" onClick={() => setEditingGift({})}>
-          + הוספת מתנה
-        </Button>
+        {!readOnly && (
+          <Button variant="secondary" onClick={() => setEditingGift({})}>
+            + הוספת מתנה
+          </Button>
+        )}
       </Card>
 
       <BudgetAssistant gifts={gifts} holidayBudgets={budgets} />
@@ -189,9 +196,11 @@ function GiftsPage() {
             ))}
           </ul>
         )}
-        <Button variant="secondary" onClick={() => setEditingVendor({})}>
-          + הוספת ספק
-        </Button>
+        {!readOnly && (
+          <Button variant="secondary" onClick={() => setEditingVendor({})}>
+            + הוספת ספק
+          </Button>
+        )}
       </Card>
 
       {/* טופס מתנה */}
@@ -222,6 +231,7 @@ function GiftsPage() {
           <VendorPanel
             vendor={openVendor}
             onEdit={() => setEditingVendor(openVendor)}
+            readOnly={readOnly}
           />
         )}
       </Modal>

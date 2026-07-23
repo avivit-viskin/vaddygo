@@ -13,6 +13,7 @@ import {
   markAllNotificationsRead,
 } from "../services/notificationsService";
 import { hebrewSchoolYearName } from "../services/schoolYear";
+import { isActiveReadOnly } from "../services/institutionsService";
 import NotificationsPanel from "./home/NotificationsPanel";
 import WelcomePopup from "../components/WelcomePopup";
 import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
@@ -31,6 +32,8 @@ import "../styles/home.css";
   הפעמון פותח פאנל עם כל ההתראות (notificationsService); כשיש התראות הוא קופץ.
 */
 function HomePage() {
+  // "צופה" — לצפייה בלבד: מסתירים עדכון יתרה, הוצאות וצוות (השארת הסיכומים לתצוגה)
+  const readOnly = isActiveReadOnly();
   const { data: dashboard, isLoading, error, reload } = useApi(loadDashboard);
   const [panelOpen, setPanelOpen] = useState(false);
   const [accountOpen, setAccountOpen] = useState(false);
@@ -93,7 +96,8 @@ function HomePage() {
   return (
     <div className="home">
       <WelcomePopup />
-      <ExpenseAfterEventPrompt onRecorded={refreshAll} />
+      {/* "צופה" — לצפייה בלבד: בלי פופאפ רישום הוצאה על אירוע שעבר */}
+      {!readOnly && <ExpenseAfterEventPrompt onRecorded={refreshAll} />}
       <div className="home__header">
         <h2 className="home__title">
           <button
@@ -129,10 +133,22 @@ function HomePage() {
       )}
       {error && <p className="home__offline">{error}</p>}
 
-      <CollectionCard dashboard={dashboard} onExpenseChanged={refreshAll} />
+      <CollectionCard
+        dashboard={dashboard}
+        onExpenseChanged={refreshAll}
+        readOnly={readOnly}
+      />
       <CategoryList categories={dashboard.byCategory} />
-      <StaffBirthdays onChanged={refreshAll} totalBudget={dashboard.collectionTarget} />
-      <ExpensesList refreshSignal={expensesVersion} onChanged={reload} />
+      <StaffBirthdays
+        onChanged={refreshAll}
+        totalBudget={dashboard.collectionTarget}
+        readOnly={readOnly}
+      />
+      <ExpensesList
+        refreshSignal={expensesVersion}
+        onChanged={reload}
+        readOnly={readOnly}
+      />
 
       <NotificationsPanel
         isOpen={panelOpen}

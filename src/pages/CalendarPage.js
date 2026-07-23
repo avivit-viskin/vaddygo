@@ -24,6 +24,7 @@ import {
 } from "../services/birthdaysService";
 import { hebrewDateLabel } from "../services/hebrewDate";
 import { whatsappUrl } from "../services/whatsapp";
+import { isActiveReadOnly } from "../services/institutionsService";
 import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
 import HolidaysSection from "./calendar/HolidaysSection";
@@ -65,6 +66,8 @@ function parentWhatsappUrl(event) {
 }
 
 function CalendarPage({ initialDate }) {
+  // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של אירועים ותקציבי חגים
+  const readOnly = isActiveReadOnly();
   const [viewDate, setViewDate] = useState(() => {
     const base = initialDate || new Date();
     return new Date(base.getFullYear(), base.getMonth(), 1, 12);
@@ -271,12 +274,19 @@ function CalendarPage({ initialDate }) {
           />
         </div>
 
-        <aside className="calendar-side">
-          <Button variant="brand" onClick={() => openAddForm(defaultFormDate)}>
-            + הוספת אירוע
-          </Button>
-          <p>אפשר ללחוץ על יום בלוח כדי לראות את האירועים שלו ולהוסיף/לערוך, או על הכפתור להוספה מהירה 🙂</p>
-        </aside>
+        {/* "צופה" — לצפייה בלבד: בלי הוספת אירוע */}
+        {readOnly ? (
+          <aside className="calendar-side">
+            <p>אפשר ללחוץ על יום בלוח כדי לראות את האירועים שלו 🙂</p>
+          </aside>
+        ) : (
+          <aside className="calendar-side">
+            <Button variant="brand" onClick={() => openAddForm(defaultFormDate)}>
+              + הוספת אירוע
+            </Button>
+            <p>אפשר ללחוץ על יום בלוח כדי לראות את האירועים שלו ולהוסיף/לערוך, או על הכפתור להוספה מהירה 🙂</p>
+          </aside>
+        )}
       </div>
 
       {/* מדור 2: חגים החודש + תקציב לכל חג */}
@@ -286,6 +296,7 @@ function CalendarPage({ initialDate }) {
         occurrences={holidayOccurrences}
         budgets={budgets || {}}
         onEditBudget={setBudgetTarget}
+        readOnly={readOnly}
       />
 
       {/* מדור 3: האירועים שלי */}
@@ -318,22 +329,27 @@ function CalendarPage({ initialDate }) {
                 💬
               </a>
             )}
-            <button
-              type="button"
-              className="calendar-list__edit"
-              aria-label={`עריכת האירוע ${event.name}`}
-              onClick={() => setEditTarget(event)}
-            >
-              ✏️
-            </button>
-            <button
-              type="button"
-              className="calendar-list__delete"
-              aria-label={`מחיקת האירוע ${event.name}`}
-              onClick={() => setDeleteTarget(event)}
-            >
-              🗑️
-            </button>
+            {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+            {!readOnly && (
+              <>
+                <button
+                  type="button"
+                  className="calendar-list__edit"
+                  aria-label={`עריכת האירוע ${event.name}`}
+                  onClick={() => setEditTarget(event)}
+                >
+                  ✏️
+                </button>
+                <button
+                  type="button"
+                  className="calendar-list__delete"
+                  aria-label={`מחיקת האירוע ${event.name}`}
+                  onClick={() => setDeleteTarget(event)}
+                >
+                  🗑️
+                </button>
+              </>
+            )}
           </div>
         ))}
       </section>
@@ -451,32 +467,37 @@ function CalendarPage({ initialDate }) {
                       {event.reminder && " 🔔"}
                       {event.shareWithParent && " 👪"}
                     </span>
-                    <span className="calendar-day-view__actions">
-                      <button
-                        type="button"
-                        className="calendar-list__edit"
-                        aria-label={`עריכת ${event.name}`}
-                        onClick={() => editFromDayView(event)}
-                      >
-                        ✏️
-                      </button>
-                      <button
-                        type="button"
-                        className="calendar-list__delete"
-                        aria-label={`מחיקת ${event.name}`}
-                        onClick={() => deleteFromDayView(event)}
-                      >
-                        🗑️
-                      </button>
-                    </span>
+                    {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+                    {!readOnly && (
+                      <span className="calendar-day-view__actions">
+                        <button
+                          type="button"
+                          className="calendar-list__edit"
+                          aria-label={`עריכת ${event.name}`}
+                          onClick={() => editFromDayView(event)}
+                        >
+                          ✏️
+                        </button>
+                        <button
+                          type="button"
+                          className="calendar-list__delete"
+                          aria-label={`מחיקת ${event.name}`}
+                          onClick={() => deleteFromDayView(event)}
+                        >
+                          🗑️
+                        </button>
+                      </span>
+                    )}
                   </li>
                 ))}
               </ul>
             )}
 
-            <Button variant="brand" onClick={addFromDayView}>
-              + הוספת אירוע ליום זה
-            </Button>
+            {!readOnly && (
+              <Button variant="brand" onClick={addFromDayView}>
+                + הוספת אירוע ליום זה
+              </Button>
+            )}
           </div>
         )}
       </Modal>

@@ -10,7 +10,7 @@ import ExpenseModal from "./ExpenseModal";
   מציג את יתרת הקופה (נגבה − הוצאות) לצד החוב הפתוח, כפתור לעדכון היתרה
   (רישום הוצאה), בר התקדמות מול היעד, ופירוק לפי אמצעי תשלום (נטו מהוצאות).
 */
-function CollectionCard({ dashboard, onExpenseChanged }) {
+function CollectionCard({ dashboard, onExpenseChanged, readOnly = false }) {
   const [editOpen, setEditOpen] = useState(false);
 
   return (
@@ -34,13 +34,16 @@ function CollectionCard({ dashboard, onExpenseChanged }) {
             </p>
           </div>
         </div>
-        <button
-          type="button"
-          className="collection__edit"
-          onClick={() => setEditOpen(true)}
-        >
-          ✏️ עדכון יתרה
-        </button>
+        {/* "צופה" — לצפייה בלבד: בלי עדכון יתרה (רישום הוצאה) */}
+        {!readOnly && (
+          <button
+            type="button"
+            className="collection__edit"
+            onClick={() => setEditOpen(true)}
+          >
+            ✏️ עדכון יתרה
+          </button>
+        )}
       </div>
 
       <div

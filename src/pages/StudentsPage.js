@@ -10,7 +10,10 @@ import {
 import { getAllPaymentSummaries } from "../services/paymentsService";
 import { getGroups } from "../services/groupsService";
 import { getOnboarding } from "../services/onboardingService";
-import { getActiveServerGroupId } from "../services/institutionsService";
+import {
+  getActiveServerGroupId,
+  isActiveReadOnly,
+} from "../services/institutionsService";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import Select from "../components/Select";
@@ -35,6 +38,8 @@ function StudentsPage() {
   const navigate = useNavigate();
   const { data: students, isLoading, error, reload } = useApi(getStudents);
   const { data: groups } = useApi(getGroups);
+  // "צופה" — לצפייה בלבד: מסתירים כל פעולה שמשנה נתונים (הוספה/עריכה/מחיקה/ייבוא)
+  const readOnly = isActiveReadOnly();
 
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("");
@@ -271,15 +276,17 @@ function StudentsPage() {
             ? `${totalCount} מתוך ${configuredCount} תלמידים`
             : `${totalCount} תלמידים`}
         </h2>
-        <div className="page-header__actions">
-          <Button variant="brand" onClick={openAddForm}>
-            + הוספת תלמיד
-          </Button>
-          <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
-            📄 ייבוא מקובץ
-          </Button>
-          <BulkPaymentRequestButton students={visibleStudents} />
-        </div>
+        {!readOnly && (
+          <div className="page-header__actions">
+            <Button variant="brand" onClick={openAddForm}>
+              + הוספת תלמיד
+            </Button>
+            <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+              📄 ייבוא מקובץ
+            </Button>
+            <BulkPaymentRequestButton students={visibleStudents} />
+          </div>
+        )}
       </div>
 
       {totalCount === 0 ? (
@@ -316,12 +323,14 @@ function StudentsPage() {
               checked={onlyUnpaid}
               onChange={(event) => setOnlyUnpaid(event.target.checked)}
             />
-            <Checkbox
-              id="students-select-all"
-              label="סמן הכל"
-              checked={allVisibleSelected}
-              onChange={toggleSelectAll}
-            />
+            {!readOnly && (
+              <Checkbox
+                id="students-select-all"
+                label="סמן הכל"
+                checked={allVisibleSelected}
+                onChange={toggleSelectAll}
+              />
+            )}
           </div>
 
           {selectedIds.size > 0 && (
@@ -354,6 +363,7 @@ function StudentsPage() {
                 onPayments={(s) => navigate(`/students/${s.id}/payments`)}
                 onEdit={openEditForm}
                 onDelete={setStudentToDelete}
+                readOnly={readOnly}
               />
             ))
           )}

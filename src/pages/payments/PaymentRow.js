@@ -13,7 +13,7 @@ function installmentsLabel(n) {
   return n === 1 ? "תשלום אחד" : `${n} תשלומים`;
 }
 
-function PaymentRow({ payment, installments = 1, amounts, onChange }) {
+function PaymentRow({ payment, installments = 1, amounts, onChange, readOnly = false }) {
   // סך ששולם = כל שדות האמצעים שנערכים כאן (ביט/פייבוקס/מזומן/אשראי). שדה
   // האשראי מאותחל מהסכום שכבר נגבה (payment.cardAmount) ולכן נספר דרכו.
   const total = COLLECTION_METHODS.reduce(
@@ -55,6 +55,7 @@ function PaymentRow({ payment, installments = 1, amounts, onChange }) {
             onChange={(event) =>
               onChange({ ...amounts, [m.value]: event.target.value })
             }
+            disabled={readOnly}
           />
         ))}
       </div>

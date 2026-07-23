@@ -3,6 +3,7 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getStudent } from "../services/studentsService";
 import { getGroups } from "../services/groupsService";
+import { isActiveReadOnly } from "../services/institutionsService";
 import {
   getStudentPayments,
   saveStudentPayment,
@@ -26,6 +27,8 @@ const EMPTY_ROW = { bit: "", paybox: "", cash: "", card: "" };
 function StudentPaymentsPage() {
   const { studentId } = useParams();
   const navigate = useNavigate();
+  // "צופה" — לצפייה בלבד: מציגים את פירוט התשלומים אך בלי רישום/שמירה/תזכורת
+  const readOnly = isActiveReadOnly();
 
   const load = useCallback(async () => {
     const [student, payments, groups] = await Promise.all([
@@ -121,7 +124,9 @@ function StudentPaymentsPage() {
       <div className="payments__header">
         <h2>תשלומים — {fullName}</h2>
         <p className="payments__summary">
-          יש למלא כמה שולם בכל אמצעי, וללחוץ "אישור" בסוף.
+          {readOnly
+            ? "פירוט התשלומים של התלמיד (לצפייה בלבד)."
+            : 'יש למלא כמה שולם בכל אמצעי, וללחוץ "אישור" בסוף.'}
         </p>
       </div>
 
@@ -144,6 +149,7 @@ function StudentPaymentsPage() {
                   [payment.collectionCategoryId]: next,
                 }))
               }
+              readOnly={readOnly}
             />
           ))}
 
@@ -153,21 +159,24 @@ function StudentPaymentsPage() {
             </p>
           )}
 
-          <div className="form-actions">
-            <Button onClick={confirm} isLoading={isSaving}>
-              אישור
-            </Button>
-            {unpaid.length > 0 && (
-              <a
-                className="payments__whatsapp"
-                href={reminderUrl}
-                target="_blank"
-                rel="noreferrer"
-              >
-                <Button variant="secondary">שליחת תזכורת בוואטסאפ 💬</Button>
-              </a>
-            )}
-          </div>
+          {/* "צופה" — לצפייה בלבד: בלי רישום תשלום ובלי שליחת תזכורת */}
+          {!readOnly && (
+            <div className="form-actions">
+              <Button onClick={confirm} isLoading={isSaving}>
+                אישור
+              </Button>
+              {unpaid.length > 0 && (
+                <a
+                  className="payments__whatsapp"
+                  href={reminderUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Button variant="secondary">שליחת תזכורת בוואטסאפ 💬</Button>
+                </a>
+              )}
+            </div>
+          )}
         </>
       )}
     </div>

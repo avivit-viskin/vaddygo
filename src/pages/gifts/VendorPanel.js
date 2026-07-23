@@ -6,7 +6,7 @@ import { whatsappUrl } from "../../services/whatsapp";
   VendorPanel — דף ספק (UI_SPEC ס' 12): תמונות מוצרים ומחירים, כפתור וואטסאפ,
   קישורים לרשתות חברתיות וקישור לקטלוג. מוצג בתוך מודאל בלחיצה על שם ספק.
 */
-function VendorPanel({ vendor, onEdit }) {
+function VendorPanel({ vendor, onEdit, readOnly = false }) {
   const whatsapp = whatsappUrl(vendor.whatsApp);
 
   return (
@@ -73,9 +73,12 @@ function VendorPanel({ vendor, onEdit }) {
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
       )}
 
-      <button type="button" className="vendor-panel__edit" onClick={onEdit}>
-        ✏️ עריכת פרטי הספק
-      </button>
+      {/* "צופה" — לצפייה בלבד: בלי עריכת פרטי הספק */}
+      {!readOnly && (
+        <button type="button" className="vendor-panel__edit" onClick={onEdit}>
+          ✏️ עריכת פרטי הספק
+        </button>
+      )}
     </div>
   );
 }

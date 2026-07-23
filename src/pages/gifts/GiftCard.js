@@ -5,7 +5,7 @@ import { giftStatusLabel } from "../../services/giftStatus";
   GiftCard — מתנה אחת ברשימה (UI_SPEC ס' 12):
   "מתנת ראש השנה — סה"כ 800 ₪ [בוצע]", עם אירוע, ספק, ועריכה/מחיקה.
 */
-function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor }) {
+function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor, readOnly = false }) {
   return (
     <div className="gift-card">
       <div className="gift-card__main">
@@ -31,24 +31,27 @@ function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor }) {
         )}
       </div>
 
-      <div className="gift-card__actions">
-        <button
-          type="button"
-          className="gift-card__action"
-          aria-label={`עריכת ${gift.name}`}
-          onClick={onEdit}
-        >
-          ✏️
-        </button>
-        <button
-          type="button"
-          className="gift-card__action"
-          aria-label={`מחיקת ${gift.name}`}
-          onClick={onDelete}
-        >
-          🗑️
-        </button>
-      </div>
+      {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+      {!readOnly && (
+        <div className="gift-card__actions">
+          <button
+            type="button"
+            className="gift-card__action"
+            aria-label={`עריכת ${gift.name}`}
+            onClick={onEdit}
+          >
+            ✏️
+          </button>
+          <button
+            type="button"
+            className="gift-card__action"
+            aria-label={`מחיקת ${gift.name}`}
+            onClick={onDelete}
+          >
+            🗑️
+          </button>
+        </div>
+      )}
     </div>
   );
 }

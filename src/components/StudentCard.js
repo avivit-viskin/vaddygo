@@ -27,12 +27,13 @@ function StudentCard({
   onPayments,
   onEdit,
   onDelete,
+  readOnly = false,
 }) {
   return (
     <Card>
       <div className="student-card">
         <div className="student-card__main">
-          {onToggleSelect && (
+          {onToggleSelect && !readOnly && (
             <input
               type="checkbox"
               className="student-card__select"
@@ -94,13 +95,17 @@ function StudentCard({
           <Button variant="brand" onClick={() => onPayments(student)}>
             תשלומים 💰
           </Button>
-          <PaymentRequestButton student={student} />
-          <Button variant="secondary" onClick={() => onEdit(student)}>
-            עריכה
-          </Button>
-          <Button variant="danger" onClick={() => onDelete(student)}>
-            מחיקה
-          </Button>
+          {!readOnly && <PaymentRequestButton student={student} />}
+          {!readOnly && (
+            <Button variant="secondary" onClick={() => onEdit(student)}>
+              עריכה
+            </Button>
+          )}
+          {!readOnly && (
+            <Button variant="danger" onClick={() => onDelete(student)}>
+              מחיקה
+            </Button>
+          )}
         </div>
       </div>
     </Card>

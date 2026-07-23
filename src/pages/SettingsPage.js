@@ -17,6 +17,7 @@ import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
 import TeamManager from "../components/TeamManager";
+import { isActiveReadOnly } from "../services/institutionsService";
 import "../styles/settings.css";
 
 /*
@@ -30,6 +31,9 @@ function SettingsPage() {
   const [prefs, setPrefs] = useState(getNotificationPrefs);
   const [aiFinance, setAiFinance] = useState(isAiFinanceEnabled);
   const [analytics, setAnalytics] = useState(hasAnalyticsConsent);
+  // "צופה" — הגדרות ברמת הגן (שם המוסד, קישורי תשלום/בנק) שייכות לבעלים בלבד;
+  // מסתירים אותן. הגדרות אישיות (התראות/פרטיות/חשבון) וצפייה בצוות נשארות.
+  const readOnly = isActiveReadOnly();
 
   function toggleAnalytics(event) {
     const on = event.target.checked;
@@ -150,7 +154,12 @@ function SettingsPage() {
     },
   ];
 
-  const active = SECTIONS.find((s) => s.key === section);
+  // לצופה — בלי הנושאים ברמת הגן (שם המוסד, תשלומים)
+  const visibleSections = readOnly
+    ? SECTIONS.filter((s) => s.key !== "institution" && s.key !== "payments")
+    : SECTIONS;
+
+  const active = visibleSections.find((s) => s.key === section);
 
   // מסך נושא בודד — עם כפתור חזרה לתפריט
   if (active) {
@@ -180,7 +189,7 @@ function SettingsPage() {
         <h2>הגדרות</h2>
       </div>
       <ul className="settings-menu">
-        {SECTIONS.map((s) => (
+        {visibleSections.map((s) => (
           <li key={s.key}>
             <button
               type="button"

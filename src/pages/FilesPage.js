@@ -16,6 +16,7 @@ import {
 import FolderForm from "./files/FolderForm";
 import WhatsAppIcon from "../components/WhatsAppIcon";
 import { whatsappShareUrl } from "../services/whatsapp";
+import { isActiveReadOnly } from "../services/institutionsService";
 import "../styles/files.css";
 
 /*
@@ -24,6 +25,8 @@ import "../styles/files.css";
   גישה פשוטה בלי OAuth — עובדת כבר עכשיו.
 */
 function FilesPage() {
+  // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של תיקיות
+  const readOnly = isActiveReadOnly();
   const { data: folders, isLoading, error, reload } = useApi(getFolders);
   const [editing, setEditing] = useState(null); // null=סגור, {}=חדש, folder=עריכה
   const [deleting, setDeleting] = useState(null);
@@ -83,31 +86,38 @@ function FilesPage() {
                   >
                     <WhatsAppIcon size={20} />
                   </a>
-                  <button
-                    type="button"
-                    className="folders__action"
-                    aria-label={`עריכת ${folder.name}`}
-                    onClick={() => setEditing(folder)}
-                  >
-                    ✏️
-                  </button>
-                  <button
-                    type="button"
-                    className="folders__action"
-                    aria-label={`מחיקת ${folder.name}`}
-                    onClick={() => setDeleting(folder)}
-                  >
-                    🗑️
-                  </button>
+                  {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+                  {!readOnly && (
+                    <>
+                      <button
+                        type="button"
+                        className="folders__action"
+                        aria-label={`עריכת ${folder.name}`}
+                        onClick={() => setEditing(folder)}
+                      >
+                        ✏️
+                      </button>
+                      <button
+                        type="button"
+                        className="folders__action"
+                        aria-label={`מחיקת ${folder.name}`}
+                        onClick={() => setDeleting(folder)}
+                      >
+                        🗑️
+                      </button>
+                    </>
+                  )}
                 </div>
               </li>
             ))}
           </ul>
         )}
 
-        <Button variant="secondary" onClick={() => setEditing({})}>
-          + הוספת תיקייה
-        </Button>
+        {!readOnly && (
+          <Button variant="secondary" onClick={() => setEditing({})}>
+            + הוספת תיקייה
+          </Button>
+        )}
       </Card>
 
       <Modal

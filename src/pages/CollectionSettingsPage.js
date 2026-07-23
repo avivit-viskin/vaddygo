@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getGroups, updateGroupCategories } from "../services/groupsService";
+import { isActiveReadOnly } from "../services/institutionsService";
 import { formatShekels } from "../services/format";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -32,6 +33,8 @@ const RECOMMENDED_CATEGORIES = [
 */
 function CollectionSettingsPage() {
   const navigate = useNavigate();
+  // "צופה" — לצפייה בלבד: מסתירים הוספה/הסרה/שמירה של קטגוריות (השדות לתצוגה)
+  const readOnly = isActiveReadOnly();
   const { data: groups, isLoading, error, reload } = useApi(getGroups);
 
   const group = groups && groups.length > 0 ? groups[0] : null;
@@ -153,6 +156,7 @@ function CollectionSettingsPage() {
             placeholder="למשל: הזנה"
             value={cat.name}
             onChange={(e) => updateCategory(index, { name: e.target.value })}
+            disabled={readOnly}
           />
           <Input
             id={`cat-amount-${index}`}
@@ -161,6 +165,7 @@ function CollectionSettingsPage() {
             min="0"
             value={cat.amount}
             onChange={(e) => updateCategory(index, { amount: e.target.value })}
+            disabled={readOnly}
           />
           <div className="category-row__installments">
             <span>חלוקה לתשלומים:</span>
@@ -172,21 +177,27 @@ function CollectionSettingsPage() {
                   className={`chip${cat.installments === n ? " chip--active" : ""}`}
                   aria-pressed={cat.installments === n}
                   onClick={() => updateCategory(index, { installments: n })}
+                  disabled={readOnly}
                 >
                   {n === 1 ? "תשלום אחד" : `${n} תשלומים`}
                 </button>
               ))}
             </div>
           </div>
-          <Button variant="danger" onClick={() => setCategoryToRemove(index)}>
-            הסרת קטגוריה
-          </Button>
+          {/* "צופה" — לצפייה בלבד: בלי הסרת קטגוריה */}
+          {!readOnly && (
+            <Button variant="danger" onClick={() => setCategoryToRemove(index)}>
+              הסרת קטגוריה
+            </Button>
+          )}
         </div>
       ))}
 
-      <Button variant="secondary" onClick={addCategory}>
-        + הוספת קטגוריה
-      </Button>
+      {!readOnly && (
+        <Button variant="secondary" onClick={addCategory}>
+          + הוספת קטגוריה
+        </Button>
+      )}
 
       <div className="totals">
         <div>סה"כ לתלמיד: {formatShekels(totalPerChild)}</div>
@@ -207,9 +218,12 @@ function CollectionSettingsPage() {
       )}
 
       <div className="form-actions">
-        <Button onClick={save} isLoading={isSaving}>
-          שמירה
-        </Button>
+        {/* "צופה" — לצפייה בלבד: בלי שמירה */}
+        {!readOnly && (
+          <Button onClick={save} isLoading={isSaving}>
+            שמירה
+          </Button>
+        )}
         <Button variant="secondary" onClick={() => navigate("/")} disabled={isSaving}>
           חזרה למסך הבית
         </Button>

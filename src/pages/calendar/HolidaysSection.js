@@ -20,7 +20,14 @@ function formatOccurrenceDates(year, monthIndex, days) {
   return `${first}–${last}`;
 }
 
-function HolidaysSection({ year, monthIndex, occurrences, budgets, onEditBudget }) {
+function HolidaysSection({
+  year,
+  monthIndex,
+  occurrences,
+  budgets,
+  onEditBudget,
+  readOnly = false,
+}) {
   return (
     <section className="calendar-list" aria-label="חגים החודש">
       <h3>חגים</h3>
@@ -42,7 +49,14 @@ function HolidaysSection({ year, monthIndex, occurrences, budgets, onEditBudget 
             <span className="calendar-list__name">
               {holidayEmoji(occurrence.name)} {occurrence.name}
             </span>
-            {budget != null ? (
+            {/* "צופה" — לצפייה בלבד: מציגים תקציב קיים אך בלי עריכה/הגדרה */}
+            {readOnly ? (
+              budget != null && (
+                <span className="holiday-budget-chip">
+                  תקציב: {budget.toLocaleString("he")} ₪
+                </span>
+              )
+            ) : budget != null ? (
               <button
                 type="button"
                 className="holiday-budget-chip"

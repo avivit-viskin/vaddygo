@@ -24,7 +24,7 @@ import StaffForm from "./StaffForm";
 */
 const GIFT_BUDGET_RATE = 0.03; // חלק התקציב שמומלץ להקצות למתנות הצוות
 
-function StaffBirthdays({ onChanged, totalBudget = 0 }) {
+function StaffBirthdays({ onChanged, totalBudget = 0, readOnly = false }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
   const [deleting, setDeleting] = useState(null); // איש הצוות שממתין לאישור מחיקה
@@ -91,31 +91,38 @@ function StaffBirthdays({ onChanged, totalBudget = 0 }) {
                 <span className="staff__date">
                   {formatDayMonth(nextBirthday(member.birthDate))}
                 </span>
-                <button
-                  type="button"
-                  className="staff__edit"
-                  aria-label={`עריכת ${member.fullName}`}
-                  onClick={() => setEditing(member)}
-                >
-                  ✏️
-                </button>
-                <button
-                  type="button"
-                  className="staff__delete"
-                  aria-label={`מחיקת ${member.fullName}`}
-                  onClick={() => setDeleting(member)}
-                >
-                  🗑️
-                </button>
+                {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+                {!readOnly && (
+                  <>
+                    <button
+                      type="button"
+                      className="staff__edit"
+                      aria-label={`עריכת ${member.fullName}`}
+                      onClick={() => setEditing(member)}
+                    >
+                      ✏️
+                    </button>
+                    <button
+                      type="button"
+                      className="staff__delete"
+                      aria-label={`מחיקת ${member.fullName}`}
+                      onClick={() => setDeleting(member)}
+                    >
+                      🗑️
+                    </button>
+                  </>
+                )}
               </div>
             </li>
           ))}
         </ul>
       )}
 
-      <Button variant="secondary" onClick={() => setEditing({})}>
-        + הוספת איש צוות
-      </Button>
+      {!readOnly && (
+        <Button variant="secondary" onClick={() => setEditing({})}>
+          + הוספת איש צוות
+        </Button>
+      )}
 
       <Modal
         isOpen={editing !== null}

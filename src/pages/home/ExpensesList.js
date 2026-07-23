@@ -11,7 +11,7 @@ import { formatShekels, formatDayMonth } from "../../services/format";
   הוצאה שנרשמה — מהפופאפ, מהתזכורת במסך המתנות או מ"עדכון יתרה" — ואפשר למחוק.
   מתרענן אחרי כל שינוי דרך refreshSignal (מגיע מדף הבית).
 */
-function ExpensesList({ refreshSignal = 0, onChanged }) {
+function ExpensesList({ refreshSignal = 0, onChanged, readOnly = false }) {
   const [expenses, setExpenses] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   // הוצאה שממתינה לאישור מחיקה (null = אין דיאלוג פתוח)
@@ -80,14 +80,17 @@ function ExpensesList({ refreshSignal = 0, onChanged }) {
                 <span className="expenses-list__date">
                   {formatDayMonth(e.date)}
                 </span>
-                <button
-                  type="button"
-                  className="expenses-list__delete"
-                  aria-label="מחיקת הוצאה"
-                  onClick={() => setExpenseToDelete(e)}
-                >
-                  ✕
-                </button>
+                {/* "צופה" — לצפייה בלבד: בלי מחיקת הוצאה */}
+                {!readOnly && (
+                  <button
+                    type="button"
+                    className="expenses-list__delete"
+                    aria-label="מחיקת הוצאה"
+                    onClick={() => setExpenseToDelete(e)}
+                  >
+                    ✕
+                  </button>
+                )}
               </li>
             ))}
           </ul>

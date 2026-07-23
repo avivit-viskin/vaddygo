@@ -3,9 +3,9 @@ import userEvent from "@testing-library/user-event";
 import StaffBirthdays from "./StaffBirthdays";
 
 /*
-  מעל הרשימה מוצגת המלצה כללית אחת: כמה מומלץ להשקיע על מתנות לכל הצוות
-  (3% מסך התקציב הכולל, מגיע כ-prop) — סכום אחד, בלי פירוט אישי ובלי אחוזים.
-  רשימת הצוות מדומה דרך global.fetch.
+  מעל הרשימה מוצגת המלצה כללית אחת: 200 ₪ למתנה לכל איש צוות שהוגדר במספר
+  אנשי הצוות של הגן (בהגדרות ההרשמה) — 3 אנשי צוות → 600 ₪.
+  רשימת הצוות מדומה דרך global.fetch; מספר אנשי הצוות נטען מ-localStorage.
 */
 const ONE = [{ id: 1, fullName: "רותי לוי", role: "גננת", birthDate: "1988-07-12" }];
 const TWO = [
@@ -19,28 +19,36 @@ function mockStaff(list) {
   );
 }
 
+/* מספר אנשי הצוות מוגדר בהרשמת הגן ונשמר ב-localStorage */
+function seedStaffCount(n) {
+  localStorage.setItem(
+    "vaadygo.onboarding",
+    JSON.stringify({ staffCount: String(n) })
+  );
+}
+
 afterEach(() => {
   delete global.fetch;
   localStorage.clear();
 });
 
-test("מציג המלצה כללית אחת (3% מהתקציב), בלי סכום אישי ובלי אחוזים", async () => {
+test("מציג המלצה: 200 ₪ לכל איש צוות (3 → 600), בלי אחוזים", async () => {
+  seedStaffCount(3);
   mockStaff(TWO);
-  render(<StaffBirthdays totalBudget={10000} />);
+  render(<StaffBirthdays />);
 
-  // 3% מ-10,000 = 300 — סכום כללי אחד לכל הצוות
+  // 3 אנשי צוות × 200 ₪ = 600 — סכום כללי אחד לכל הצוות
   expect(
-    await screen.findByText(/מומלץ להשקיע על מתנות לצוות: 300/)
+    await screen.findByText(/מומלץ להשקיע על מתנות לצוות: 600/)
   ).toBeInTheDocument();
-  // בלי סכום אישי לכל אחת, ובלי לכתוב אחוזים
-  expect(screen.queryByText(/מומלץ למתנה/)).not.toBeInTheDocument();
-  expect(screen.queryByText(/לאיש צוות/)).not.toBeInTheDocument();
+  // בלי אחוזים (החישוב קבוע — 200 ₪ לאיש צוות)
   expect(screen.queryByText(/3%/)).not.toBeInTheDocument();
 });
 
-test("בלי תקציב (0) לא מוצגת המלצה", async () => {
+test("בלי אנשי צוות (0) לא מוצגת המלצה", async () => {
+  seedStaffCount(0);
   mockStaff(ONE);
-  render(<StaffBirthdays totalBudget={0} />);
+  render(<StaffBirthdays />);
   await screen.findByText("רותי לוי");
   expect(screen.queryByText(/מומלץ להשקיע/)).not.toBeInTheDocument();
 });
@@ -56,7 +64,7 @@ test("מחיקת איש צוות: אישור מסיר אותו מהרשימה ו
     return Promise.resolve({ ok: true, status: 200, json: () => Promise.resolve(list) });
   });
 
-  render(<StaffBirthdays totalBudget={0} />);
+  render(<StaffBirthdays />);
   await screen.findByText("רותי לוי");
 
   await userEvent.click(screen.getByRole("button", { name: "מחיקת רותי לוי" }));

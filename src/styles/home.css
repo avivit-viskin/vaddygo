@@ -500,6 +500,12 @@
   margin: 0 0 8px;
 }
 
+/* פירוט קטן ליד ההמלצה: "(3 אנשי צוות × 200 ₪)" — עדין, לא מודגש */
+.staff__budget-note {
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
 .staff__side {
   display: flex;
   align-items: center;

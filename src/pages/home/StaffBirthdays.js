@@ -7,6 +7,7 @@ import Modal from "../../components/Modal";
 import Spinner from "../../components/Spinner";
 import useApi from "../../hooks/useApi";
 import { formatDayMonth, formatShekels } from "../../services/format";
+import { getOnboarding } from "../../services/onboardingService";
 import {
   getStaff,
   addStaffMember,
@@ -19,20 +20,22 @@ import StaffForm from "./StaffForm";
 /*
   StaffBirthdays — צוות הגן וימי ההולדת הקרובים (UI_SPEC ס' 8):
   רשימה (שם · תפקיד · תאריך), הוספת איש צוות ועריכה בעיפרון.
-  מעל הרשימה מוצגת המלצה כללית אחת: כמה מומלץ להשקיע על מתנות לכל הצוות
-  (3% מסך התקציב הכולל) — סכום אחד, בלי פירוט אישי לכל איש צוות.
+  מעל הרשימה מוצגת המלצה כללית אחת: כמה מומלץ להשקיע על מתנות לצוות —
+  חישוב פשוט וקבוע: 200 ₪ לכל איש צוות שהוגדר במספר אנשי הצוות של הגן.
+  (3 אנשי צוות → מומלץ 600 ₪.)
 */
-const GIFT_BUDGET_RATE = 0.03; // חלק התקציב שמומלץ להקצות למתנות הצוות
+const GIFT_PER_STAFF = 200; // ₪ מומלצים למתנה לכל איש צוות
 
-function StaffBirthdays({ onChanged, totalBudget = 0, readOnly = false }) {
+function StaffBirthdays({ onChanged, readOnly = false }) {
   const { data: staff, isLoading, error, reload } = useApi(getStaff);
   const [editing, setEditing] = useState(null); // null=סגור, {}=הוספה, member=עריכה
   const [deleting, setDeleting] = useState(null); // איש הצוות שממתין לאישור מחיקה
   const [isDeleting, setIsDeleting] = useState(false);
   const [deleteError, setDeleteError] = useState("");
 
-  // סכום כללי אחד שהמערכת ממליצה להשקיע על מתנות לכל הצוות
-  const totalGiftBudget = Math.round((totalBudget || 0) * GIFT_BUDGET_RATE);
+  // המלצה כללית: 200 ₪ לכל איש צוות, לפי מספר אנשי הצוות שהוגדר בהגדרות הגן
+  const staffCount = Number(getOnboarding()?.staffCount) || 0;
+  const totalGiftBudget = staffCount * GIFT_PER_STAFF;
 
   async function handleSave(values) {
     if (editing?.id) {
@@ -66,17 +69,20 @@ function StaffBirthdays({ onChanged, totalBudget = 0, readOnly = false }) {
 
   return (
     <Card title="ימי הולדת של הצוות 🎂">
+      {totalGiftBudget > 0 && (
+        <p className="staff__budget-total">
+          🎁 מומלץ להשקיע על מתנות לצוות: {formatShekels(totalGiftBudget)}
+          <small className="staff__budget-note">
+            {" "}({staffCount} אנשי צוות × {formatShekels(GIFT_PER_STAFF)})
+          </small>
+        </p>
+      )}
+
       {isLoading && <Spinner />}
       {!isLoading && error && <p className="staff__error">{error}</p>}
 
       {!isLoading && !error && sorted.length === 0 && (
         <EmptyState icon="🎈" message="עדיין אין אנשי צוות — אפשר להוסיף את הראשון!" />
-      )}
-
-      {!isLoading && !error && sorted.length > 0 && totalGiftBudget > 0 && (
-        <p className="staff__budget-total">
-          🎁 מומלץ להשקיע על מתנות לצוות: {formatShekels(totalGiftBudget)}
-        </p>
       )}
 
       {!isLoading && !error && sorted.length > 0 && (

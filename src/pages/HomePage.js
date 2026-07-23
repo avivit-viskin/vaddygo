@@ -139,11 +139,7 @@ function HomePage() {
         readOnly={readOnly}
       />
       <CategoryList categories={dashboard.byCategory} />
-      <StaffBirthdays
-        onChanged={refreshAll}
-        totalBudget={dashboard.collectionTarget}
-        readOnly={readOnly}
-      />
+      <StaffBirthdays onChanged={refreshAll} readOnly={readOnly} />
       <ExpensesList
         refreshSignal={expensesVersion}
         onChanged={reload}

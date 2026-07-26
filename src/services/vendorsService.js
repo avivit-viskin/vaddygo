@@ -72,3 +72,16 @@ export async function getVendorByToken(token) {
 export async function updateVendorByToken(token, vendor) {
   return api.put(`/api/public/vendors/${token}`, vendor);
 }
+
+/*
+  התחברות ספק (שלב 2): הספק מגדיר מייל+סיסמה דרך עמוד העריכה שלו, וכך יוכל
+  לחזור בלי הקישור. ההתחברות מאמתת ומחזירה את טוקן העריכה (הלקוח ממשיך איתו).
+*/
+export async function setVendorCredentials(token, credentials) {
+  return api.put(`/api/public/vendors/${token}/credentials`, credentials);
+}
+
+export async function supplierLogin(credentials) {
+  const { editToken } = await api.post("/api/public/vendors/login", credentials);
+  return editToken;
+}

@@ -586,6 +586,24 @@
   margin: 0 0 14px;
 }
 
+/* מקטע "כניסה מהירה בפעם הבאה" בעמוד עריכת הספק */
+.supplier-edit__login {
+  margin-top: 24px;
+  padding-top: 18px;
+  border-top: 1px dashed var(--color-border);
+  display: flex;
+  flex-direction: column;
+}
+.supplier-edit__login-title {
+  margin: 0 0 4px;
+  font-size: var(--font-size-base);
+}
+.supplier-edit__login-hint {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
 /* ── העלאת תמונת מוצר (מהטלפון) בטופס הספק ── */
 .vendor-form__image {
   flex-basis: 100%;

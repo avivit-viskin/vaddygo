@@ -2,6 +2,7 @@ import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import { FOLDER_PRESETS } from "../../services/vendorFolders";
+import { fileToResizedDataUrl } from "../../services/imageUpload";
 
 /*
   VendorForm — הוספה/עריכה של ספק (UI_SPEC ס' 12). ספקים מנוהלים ידנית ע"י
@@ -25,6 +26,19 @@ function VendorForm({ vendor, onSave, onCancel }) {
 
   function removeItem(setter, index) {
     setter((prev) => prev.filter((_, i) => i !== index));
+  }
+
+  // תמונה שנבחרה מהטלפון (ספרייה/קבצים) — מכווצים ושומרים כתמונה מוטמעת במוצר
+  async function handleProductImage(index, file) {
+    if (!file) {
+      return;
+    }
+    try {
+      const dataUrl = await fileToResizedDataUrl(file);
+      updateItem(setProducts, index, { imageUrl: dataUrl });
+    } catch {
+      // אם ההמרה נכשלה — משאירים כפי שהיה; אפשר לנסות תמונה אחרת
+    }
   }
 
   async function handleSubmit(event) {
@@ -111,16 +125,57 @@ function VendorForm({ vendor, onSave, onCancel }) {
             }
             placeholder="₪"
           />
-          <input
-            className="field__input"
-            aria-label={`קישור תמונה למוצר ${index + 1}`}
-            type="url"
-            value={product.imageUrl || ""}
-            onChange={(e) =>
-              updateItem(setProducts, index, { imageUrl: e.target.value })
-            }
-            placeholder="קישור לתמונה (https://...)"
-          />
+          <div className="vendor-form__image">
+            {product.imageUrl ? (
+              <img
+                className="vendor-form__thumb"
+                src={product.imageUrl}
+                alt={`תמונת ${product.name || "המוצר"}`}
+              />
+            ) : (
+              <span
+                className="vendor-form__thumb vendor-form__thumb--empty"
+                aria-hidden="true"
+              >
+                🖼️
+              </span>
+            )}
+            <label className="vendor-form__upload">
+              📷 העלאת תמונה מהטלפון
+              <input
+                type="file"
+                accept="image/*"
+                className="vendor-form__file"
+                aria-label={`העלאת תמונה למוצר ${index + 1}`}
+                onChange={(e) =>
+                  handleProductImage(index, e.target.files && e.target.files[0])
+                }
+              />
+            </label>
+            {product.imageUrl && (
+              <button
+                type="button"
+                className="vendor-form__img-remove"
+                onClick={() => updateItem(setProducts, index, { imageUrl: "" })}
+              >
+                הסרת תמונה
+              </button>
+            )}
+            <input
+              className="field__input vendor-form__img-url"
+              type="url"
+              value={
+                (product.imageUrl || "").startsWith("data:")
+                  ? ""
+                  : product.imageUrl || ""
+              }
+              onChange={(e) =>
+                updateItem(setProducts, index, { imageUrl: e.target.value })
+              }
+              placeholder="או קישור לתמונה (https://...)"
+              aria-label={`קישור תמונה למוצר ${index + 1}`}
+            />
+          </div>
           <input
             className="field__input"
             aria-label={`תיקייה/חג למוצר ${index + 1}`}

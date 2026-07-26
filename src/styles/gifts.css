@@ -543,3 +543,58 @@
   font-weight: 600;
   margin: 0 0 14px;
 }
+
+/* ── העלאת תמונת מוצר (מהטלפון) בטופס הספק ── */
+.vendor-form__image {
+  flex-basis: 100%;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+.vendor-form__thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  background: var(--color-primary-light);
+}
+.vendor-form__thumb--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.6rem;
+}
+.vendor-form__upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
+.vendor-form__file {
+  display: none;
+}
+.vendor-form__img-remove {
+  border: none;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  min-height: 44px;
+}
+.vendor-form__img-url {
+  flex-basis: 100%;
+  direction: ltr;
+  text-align: left;
+  font-size: var(--font-size-sm);
+}

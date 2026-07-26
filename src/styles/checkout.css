@@ -66,6 +66,9 @@
 .checkout__success-icon {
   font-size: 56px;
   margin-bottom: 8px;
+  display: flex;
+  justify-content: center;
+  color: var(--color-success);
 }
 
 .checkout__paid-amount {

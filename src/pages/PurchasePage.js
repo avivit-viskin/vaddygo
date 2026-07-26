@@ -2,6 +2,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import Icon from "../components/Icon";
 import { getInstitutions, beginActivation } from "../services/institutionsService";
 import { formatShekels } from "../services/format";
 import "../styles/onboarding.css";
@@ -36,7 +37,9 @@ function PurchasePage() {
           בהרשמה הראשונה.
         </p>
         <div className="purchase__trial">
-          <span className="purchase__trial-badge">🎁 חודש ראשון חינם</span>
+          <span className="purchase__trial-badge">
+            <Icon name="gift" size={15} /> חודש ראשון חינם
+          </span>
           <p className="purchase__trial-note">
             תקופת ניסיון של חודש — ללא תשלום. לאחר תקופת הניסיון ייגבה תשלום של
             כ־{formatShekels(SUBSCRIPTION_PRICE)}.

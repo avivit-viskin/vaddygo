@@ -4,6 +4,7 @@ import useForm from "../hooks/useForm";
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import { formatShekels } from "../services/format";
 import { beginActivation } from "../services/institutionsService";
 import "../styles/checkout.css";
@@ -65,7 +66,7 @@ function CheckoutPage() {
         <Card>
           <div className="checkout__success">
             <div className="checkout__success-icon" aria-hidden="true">
-              ✅
+              <Icon name="check-circle" size={56} />
             </div>
             <h2>התשלום התקבל בהצלחה!</h2>
             <p className="checkout__paid-amount">{formatShekels(amount)}</p>

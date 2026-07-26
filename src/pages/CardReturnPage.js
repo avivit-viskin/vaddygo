@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams, Link } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import ErrorMessage from "../components/ErrorMessage";
 import { formatShekels } from "../services/format";
 import { confirmMockPayment } from "../services/cardPaymentService";
@@ -45,7 +46,7 @@ function CardReturnPage() {
         <Card>
           <div className="checkout__success">
             <div className="checkout__success-icon" aria-hidden="true">
-              ✅
+              <Icon name="check-circle" size={56} />
             </div>
             <h2>התשלום התקבל, תודה!</h2>
             <p className="checkout__paid-amount">{formatShekels(amount)}</p>

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../../components/Button";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import {
   parseStudentFile,
@@ -149,7 +150,8 @@ function StudentsImport({ onDone, onCancel }) {
       {needsPassword && (
         <form onSubmit={submitPassword} className="students-import__password">
           <p className="students-import__count">
-            🔒 הקובץ נעול בסיסמה. יש להקליד את הסיסמה שקיבלת כדי לפתוח אותו:
+            <Icon name="lock" size={15} /> הקובץ נעול בסיסמה. יש להקליד את הסיסמה
+            שקיבלת כדי לפתוח אותו:
           </p>
           <div className="students-import__pw-wrap">
             <Input
@@ -194,13 +196,18 @@ function StudentsImport({ onDone, onCancel }) {
 
       {result && (
         <div className="students-import__result" role="status">
-          <p>✅ נוספו {result.added} תלמידים.</p>
+          <p>
+            <Icon name="check" size={15} /> נוספו {result.added} תלמידים.
+          </p>
           {result.skipped > 0 && (
             <p>⏭️ {result.skipped} כבר היו ברשימה ולא נוספו שוב (כפילויות).</p>
           )}
           {result.failed.length > 0 && (
             <>
-              <p>⚠️ {result.failed.length} לא נוספו:</p>
+              <p>
+                <Icon name="warning" size={15} /> {result.failed.length} לא
+                נוספו:
+              </p>
               <ul>
                 {result.failed.slice(0, 10).map((f, i) => (
                   <li key={i}>

@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import Logo from "./components/Logo";
+import Icon from "./components/Icon";
 import InstitutionAvatar from "./components/InstitutionAvatar";
 import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
@@ -182,7 +183,8 @@ function App() {
       )}
       {!isFullScreen && isActiveReadOnly() && (
         <div className="readonly-banner" role="status">
-          👀 מצב צפייה בלבד — יש לך הרשאת צפייה בגן הזה, בלי אפשרות לערוך.
+          <Icon name="eye" size={16} /> מצב צפייה בלבד — יש לך הרשאת צפייה בגן
+          הזה, בלי אפשרות לערוך.
         </div>
       )}
       <main className={`app-main${isLoginRoute ? " app-main--login" : ""}`}>

@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import Icon from "../components/Icon";
 import { logout } from "../services/authService";
 import { whatsappUrl } from "../services/whatsapp";
 import "../styles/onboarding.css";
@@ -43,7 +44,9 @@ function SubscriptionExpiredPage() {
             rel="noreferrer"
             style={{ textDecoration: "none", display: "block" }}
           >
-            <Button>חידוש המנוי בוואטסאפ 💬</Button>
+            <Button>
+              <Icon name="message" size={16} /> חידוש המנוי בוואטסאפ
+            </Button>
           </a>
           <Button variant="secondary" onClick={handleLogout}>
             התנתקות

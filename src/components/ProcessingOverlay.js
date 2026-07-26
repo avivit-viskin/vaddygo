@@ -1,3 +1,4 @@
+import Icon from "./Icon";
 import "../styles/processing.css";
 
 /*
@@ -15,7 +16,8 @@ function ProcessingOverlay({ isOpen, message }) {
         <div className="spinner" aria-hidden="true" />
         <p className="processing-overlay__title">רק רגע, המערכת עובדת…</p>
         <p className="processing-overlay__note">
-          🔒 {message || "אל דאגה — הנתונים שלך שמורים בבטחה."}
+          <Icon name="lock" size={15} />{" "}
+          {message || "אל דאגה — הנתונים שלך שמורים בבטחה."}
         </p>
       </div>
     </div>

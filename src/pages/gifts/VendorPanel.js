@@ -69,6 +69,13 @@ function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
   const whatsapp = whatsappUrl(vendor.whatsApp);
   return (
     <div className="vendor-panel">
+      {(vendor.category || vendor.city) && (
+        <p className="vendor-panel__meta">
+          {vendor.category}
+          {vendor.category && vendor.city ? " · " : ""}
+          {vendor.city}
+        </p>
+      )}
       <div className="vendor-panel__contact">
         {whatsapp && (
           <a

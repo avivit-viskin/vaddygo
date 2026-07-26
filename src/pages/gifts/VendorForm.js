@@ -1,7 +1,9 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
+import Select from "../../components/Select";
 import { FOLDER_PRESETS } from "../../services/vendorFolders";
+import { VENDOR_CATEGORIES } from "../../services/vendorCategories";
 import { fileToResizedDataUrl } from "../../services/imageUpload";
 
 /*
@@ -13,6 +15,8 @@ function VendorForm({ vendor, onSave, onCancel }) {
   const [name, setName] = useState(vendor?.name || "");
   const [catalogUrl, setCatalogUrl] = useState(vendor?.catalogUrl || "");
   const [whatsApp, setWhatsApp] = useState(vendor?.whatsApp || "");
+  const [category, setCategory] = useState(vendor?.category || "");
+  const [city, setCity] = useState(vendor?.city || "");
   const [products, setProducts] = useState(vendor?.products || []);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   const [nameError, setNameError] = useState("");
@@ -53,6 +57,8 @@ function VendorForm({ vendor, onSave, onCancel }) {
         name: name.trim(),
         catalogUrl: catalogUrl.trim(),
         whatsApp: whatsApp.trim(),
+        category: category.trim(),
+        city: city.trim(),
         products: products
           .filter((product) => product.name.trim())
           .map((product) => ({
@@ -92,6 +98,26 @@ function VendorForm({ vendor, onSave, onCancel }) {
         value={whatsApp}
         onChange={(e) => setWhatsApp(e.target.value)}
         placeholder="למשל: 054-1234567"
+      />
+      <Select
+        id="vendor-category"
+        label="קטגוריה (לגילוי ע״י ועדים)"
+        value={category}
+        onChange={(e) => setCategory(e.target.value)}
+      >
+        <option value="">— בחירת קטגוריה —</option>
+        {VENDOR_CATEGORIES.map((c) => (
+          <option key={c} value={c}>
+            {c}
+          </option>
+        ))}
+      </Select>
+      <Input
+        id="vendor-city"
+        label="עיר / אזור פעילות (אופציונלי)"
+        value={city}
+        onChange={(e) => setCity(e.target.value)}
+        placeholder="למשל: תל אביב והמרכז"
       />
       <Input
         id="vendor-catalog"

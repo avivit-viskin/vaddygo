@@ -250,6 +250,48 @@
 .vendors__count {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+/* ── גילוי ספקים: סינון לפי קטגוריה + תווית קטגוריה/עיר ── */
+.vendors__filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+.vendors__filter {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  min-height: 36px;
+}
+.vendors__filter--active {
+  background: var(--color-primary-dark);
+  color: #fff;
+  border-color: var(--color-primary-dark);
+}
+.vendors__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.vendors__name {
+  font-weight: 600;
+}
+.vendors__cat {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.vendor-panel__meta {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-weight: 600;
 }
 
 /* ── דף ספק ─────────────────────────────────────────────── */

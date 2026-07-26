@@ -48,6 +48,8 @@ function GiftsPage() {
   // קישור עריכה אישי שנוצר לספק (לשליחה אליו); null = אין מודאל פתוח
   const [editLink, setEditLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
+  // סינון הספקים לפי קטגוריה (גילוי); "" = הכל
+  const [vendorFilter, setVendorFilter] = useState("");
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -73,6 +75,14 @@ function GiftsPage() {
     () => new Map(vendors.map((vendor) => [vendor.id, vendor])),
     [vendors]
   );
+  // הקטגוריות שקיימות בפועל אצל הספקים — לכפתורי הסינון (גילוי)
+  const vendorCategories = useMemo(
+    () => [...new Set(vendors.map((v) => v.category).filter(Boolean))],
+    [vendors]
+  );
+  const visibleVendors = vendorFilter
+    ? vendors.filter((v) => v.category === vendorFilter)
+    : vendors;
 
   // סך המתנות שכבר בוצעו — כמה כבר הוצא בפועל (לעוזרת התקציב)
   const spentOnGifts = useMemo(
@@ -200,24 +210,55 @@ function GiftsPage() {
         {vendors.length === 0 ? (
           <EmptyState icon="🛍️" message="עדיין אין ספקים — אפשר להוסיף ספק ראשון." />
         ) : (
-          <ul className="vendors">
-            {vendors.map((vendor) => (
-              <li key={vendor.id}>
+          <>
+            {vendorCategories.length > 0 && (
+              <div className="vendors__filters">
                 <button
                   type="button"
-                  className="vendors__item"
-                  onClick={() => setOpenVendor(vendor)}
+                  className={`vendors__filter${!vendorFilter ? " vendors__filter--active" : ""}`}
+                  onClick={() => setVendorFilter("")}
                 >
-                  {vendor.name}
-                  {vendor.products?.length > 0 && (
-                    <span className="vendors__count">
-                      {vendor.products.length} מוצרים
-                    </span>
-                  )}
+                  הכל
                 </button>
-              </li>
-            ))}
-          </ul>
+                {vendorCategories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    className={`vendors__filter${vendorFilter === cat ? " vendors__filter--active" : ""}`}
+                    onClick={() => setVendorFilter(cat)}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+            <ul className="vendors">
+              {visibleVendors.map((vendor) => (
+                <li key={vendor.id}>
+                  <button
+                    type="button"
+                    className="vendors__item"
+                    onClick={() => setOpenVendor(vendor)}
+                  >
+                    <span className="vendors__info">
+                      <span className="vendors__name">{vendor.name}</span>
+                      {vendor.category && (
+                        <span className="vendors__cat">
+                          {vendor.category}
+                          {vendor.city ? ` · ${vendor.city}` : ""}
+                        </span>
+                      )}
+                    </span>
+                    {vendor.products?.length > 0 && (
+                      <span className="vendors__count">
+                        {vendor.products.length} מוצרים
+                      </span>
+                    )}
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </>
         )}
         {!readOnly && (
           <Button variant="secondary" onClick={() => setEditingVendor({})}>

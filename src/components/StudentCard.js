@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Card from "./Card";
 import Button from "./Button";
+import Icon from "./Icon";
 import PaymentRequestButton from "./PaymentRequestButton";
 import { formatShekels, formatBirthday } from "../services/format";
 import { paymentMethodLabel } from "../services/paymentMethods";
@@ -63,7 +64,8 @@ function StudentCard({
           </strong>
           {student.birthDate && (
             <small className="student-card__birthday">
-              🎂 יום הולדת: {formatBirthday(student.birthDate)}
+              <Icon name="cake" size={13} /> יום הולדת:{" "}
+              {formatBirthday(student.birthDate)}
             </small>
           )}
           {student.className && <span>קבוצה: {student.className}</span>}
@@ -75,7 +77,8 @@ function StudentCard({
           )}
           {summary?.lastPaymentDate && (
             <small className="student-card__updated">
-              🕒 תשלום אחרון: {formatBirthday(summary.lastPaymentDate)}
+              <Icon name="clock" size={13} /> תשלום אחרון:{" "}
+              {formatBirthday(summary.lastPaymentDate)}
             </small>
           )}
           <span className="student-card__phone">
@@ -114,14 +117,14 @@ function StudentCard({
           )}
           {student.allergies && (
             <small className="student-card__allergies">
-              ⚠️ אלרגיות: {student.allergies}
+              <Icon name="warning" size={13} /> אלרגיות: {student.allergies}
             </small>
           )}
           </div>
         </div>
         <div className="student-card__actions">
           <Button variant="brand" onClick={() => onPayments(student)}>
-            תשלומים 💰
+            <Icon name="card" size={16} /> תשלומים
           </Button>
           {!readOnly && <PaymentRequestButton student={student} />}
           {!readOnly && (

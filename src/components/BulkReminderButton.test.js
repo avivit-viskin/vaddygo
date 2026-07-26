@@ -15,7 +15,7 @@ test("פותח רשימת חייבים עם קישור וואטסאפ אישי �
   expect(textarea.value).toContain("מעבר על התשלומים לגן");
 
   // קישור וואטסאפ אישי לכל הורה (0 מוביל → 972)
-  const links = screen.getAllByRole("link", { name: /^שליחה/ });
+  const links = screen.getAllByRole("link", { name: "שליחה" });
   expect(links).toHaveLength(2);
   expect(links[0].getAttribute("href")).toContain("wa.me/972501234567");
   expect(links[1].getAttribute("href")).toContain("wa.me/972527654321");
@@ -28,7 +28,7 @@ test("עריכת ההודעה משתקפת בקישורי הוואטסאפ", () 
   fireEvent.change(screen.getByLabelText(/ההודעה שתישלח/), {
     target: { value: "תזכורת קצרה" },
   });
-  const link = screen.getAllByRole("link", { name: /^שליחה/ })[0];
+  const link = screen.getAllByRole("link", { name: "שליחה" })[0];
   expect(link.getAttribute("href")).toContain(encodeURIComponent("תזכורת קצרה"));
 });
 
@@ -37,7 +37,7 @@ test("לחיצה על 'שליחה' מסמנת את ההורה כנשלח ומע�
   fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));
 
   expect(screen.getByText(/נשלחו/).textContent).toContain("0");
-  fireEvent.click(screen.getAllByRole("link", { name: /^שליחה/ })[0]);
+  fireEvent.click(screen.getAllByRole("link", { name: "שליחה" })[0]);
 
   // המונה עלה, והכפתור הראשון הפך ל"שליחה חוזרת"
   expect(screen.getByText(/נשלחו/).textContent).toContain("1");
@@ -52,12 +52,12 @@ test("סינון לפי כיתה מציג רק את הורי הכיתה שנבח
   render(<BulkReminderButton unpaidStudents={withClasses} />);
   fireEvent.click(screen.getByRole("button", { name: /תזכורת לחייבים/ }));
 
-  expect(screen.getAllByRole("link", { name: /^שליחה/ })).toHaveLength(2);
+  expect(screen.getAllByRole("link", { name: "שליחה" })).toHaveLength(2);
 
   fireEvent.change(screen.getByLabelText(/סינון לפי כיתה/), {
     target: { value: "פרפרים" },
   });
-  expect(screen.getAllByRole("link", { name: /^שליחה/ })).toHaveLength(1);
+  expect(screen.getAllByRole("link", { name: "שליחה" })).toHaveLength(1);
   expect(screen.getByText(/דנה כהן/)).toBeInTheDocument();
   expect(screen.queryByText(/יעל לוי/)).not.toBeInTheDocument();
 });

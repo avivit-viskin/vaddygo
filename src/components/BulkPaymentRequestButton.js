@@ -8,6 +8,7 @@ import { getPaymentLinks } from "../services/paymentSettingsService";
 import { getOnboarding } from "../services/onboardingService";
 import Modal from "./Modal";
 import Button from "./Button";
+import Icon from "./Icon";
 import CopyMessageButton from "./CopyMessageButton";
 import WhatsAppIcon from "./WhatsAppIcon";
 import "../styles/payments.css";
@@ -152,7 +153,11 @@ function BulkPaymentRequestButton({ students = [] }) {
                       onChange={() => toggle(student.id)}
                     />
                     <span>
-                      {isSent && "✅ "}
+                      {isSent && (
+                        <>
+                          <Icon name="check" size={13} />{" "}
+                        </>
+                      )}
                       {student.firstName} {student.lastName}
                     </span>
                   </label>
@@ -168,7 +173,13 @@ function BulkPaymentRequestButton({ students = [] }) {
                       onClick={() => markSent(student.id)}
                     >
                       <Button variant="secondary">
-                        {isSent ? "שליחה חוזרת" : "שליחה 💬"}
+                        {isSent ? (
+                          "שליחה חוזרת"
+                        ) : (
+                          <>
+                            <Icon name="message" size={15} /> שליחה
+                          </>
+                        )}
                       </Button>
                     </a>
                   )}
@@ -182,7 +193,8 @@ function BulkPaymentRequestButton({ students = [] }) {
               {/* רשימת תפוצה — שליחה אחת לכל ההורים שנבחרו */}
               <div className="bulk-reminder__group-send">
                 <p className="bulk-reminder__note">
-                  ✅ <strong>ההמלצה שלנו לשליחה לכולם:</strong> להעתיק את מספרי
+                  <Icon name="check" size={15} />{" "}
+                  <strong>ההמלצה שלנו לשליחה לכולם:</strong> להעתיק את מספרי
                   הטלפון וליצור <strong>רשימת תפוצה</strong> בוואטסאפ — כך ההודעה
                   נשלחת לכולם בבת אחת, וכל הורה מקבל אותה בפרטי.
                 </p>
@@ -194,15 +206,17 @@ function BulkPaymentRequestButton({ students = [] }) {
                 <div className="bulk-reminder__group-actions">
                   <CopyMessageButton
                     text={selectedPhones}
-                    label="📋 העתקת המספרים"
+                    label="העתקת המספרים"
                   />
-                  <CopyMessageButton text={message} label="📋 העתקת ההודעה" />
+                  <CopyMessageButton text={message} label="העתקת ההודעה" />
                   <a
                     href={buildWhatsappShareUrl(message)}
                     target="_blank"
                     rel="noreferrer"
                   >
-                    <Button variant="secondary">📲 פתיחת וואטסאפ</Button>
+                    <Button variant="secondary">
+                      <Icon name="message" size={15} /> פתיחת וואטסאפ
+                    </Button>
                   </a>
                 </div>
                 <p className="bulk-reminder__hint">

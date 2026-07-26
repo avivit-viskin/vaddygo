@@ -1,12 +1,13 @@
 import { useState } from "react";
 import Button from "./Button";
+import Icon from "./Icon";
 
 /*
   CopyMessageButton — מעתיק טקסט ללוח, כדי שאפשר יהיה להדביק אותו בקבוצת
   הוואטסאפ של ההורים ולשלוח הודעה אחת לכולם בבת אחת (וואטסאפ לא מאפשר לשלוח
   לכמה מספרים דרך קישור אחד). מציג אישור קצר אחרי ההעתקה.
 */
-function CopyMessageButton({ text, label = "📋 העתקת ההודעה" }) {
+function CopyMessageButton({ text, label = "העתקת ההודעה" }) {
   const [copied, setCopied] = useState(false);
 
   async function copy() {
@@ -34,7 +35,15 @@ function CopyMessageButton({ text, label = "📋 העתקת ההודעה" }) {
 
   return (
     <Button variant="secondary" onClick={copy}>
-      {copied ? "✓ הועתק!" : label}
+      {copied ? (
+        <>
+          <Icon name="check" size={15} /> הועתק!
+        </>
+      ) : (
+        <>
+          <Icon name="copy" size={15} /> {label}
+        </>
+      )}
     </Button>
   );
 }

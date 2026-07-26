@@ -14,6 +14,7 @@ import { paymentMethodIcon } from "../services/paymentMethods";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
+import Icon from "./Icon";
 import Spinner from "./Spinner";
 import ErrorMessage from "./ErrorMessage";
 
@@ -30,7 +31,7 @@ function PaymentRequestButton({ student }) {
   return (
     <>
       <Button variant="secondary" onClick={() => setIsOpen(true)}>
-        בקשת תשלום 💸
+        <Icon name="message" size={16} /> בקשת תשלום
       </Button>
       <Modal
         isOpen={isOpen}
@@ -91,7 +92,11 @@ function PaymentRequestContent({ student, fullName }) {
   // כדי שלא ייכתב בטעות "כל התשלומים שולמו" למי ששילם רק חלק.
   const unpaid = payments.filter((p) => !isCategoryFullyPaid(p));
   if (unpaid.length === 0) {
-    return <p className="pay-request__done">כל התשלומים של {fullName} שולמו ✅</p>;
+    return (
+      <p className="pay-request__done">
+        כל התשלומים של {fullName} שולמו <Icon name="check" size={16} />
+      </p>
+    );
   }
 
   const total = unpaid.reduce((sum, p) => sum + amountRemaining(p), 0);

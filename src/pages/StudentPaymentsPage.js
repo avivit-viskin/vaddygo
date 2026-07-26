@@ -17,6 +17,7 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import PaymentRow from "./payments/PaymentRow";
 import "../styles/payments.css";
 
@@ -180,7 +181,9 @@ function StudentPaymentsPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Button variant="secondary">שליחת תזכורת בוואטסאפ 💬</Button>
+                  <Button variant="secondary">
+                    <Icon name="message" size={16} /> שליחת תזכורת בוואטסאפ
+                  </Button>
                 </a>
               )}
             </div>

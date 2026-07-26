@@ -10,6 +10,7 @@ import { deleteGroup } from "../services/groupsService";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
+import Icon from "./Icon";
 
 /*
   InstitutionSwitcher — רשימת המוסדות של המשתמשת + מעבר ביניהם (UI_SPEC ס' 3.5).
@@ -82,12 +83,14 @@ function InstitutionSwitcher({ onClose }) {
               }`}
               onClick={() => handleClick(institution)}
             >
-              <span className="institutions__name">🏫 {institution.name}</span>
+              <span className="institutions__name">
+                <Icon name="school" size={16} /> {institution.name}
+              </span>
               {institution.id === active?.id ? (
                 <span className="institutions__badge">פעיל</span>
               ) : !institution.activated ? (
                 <span className="institutions__badge institutions__badge--locked">
-                  🔒 להפעלה
+                  <Icon name="lock" size={13} /> להפעלה
                 </span>
               ) : null}
             </button>
@@ -97,7 +100,7 @@ function InstitutionSwitcher({ onClose }) {
               aria-label={`מחיקת המוסד ${institution.name}`}
               onClick={() => openDelete(institution)}
             >
-              🗑️
+              <Icon name="trash" size={16} />
             </button>
           </li>
         ))}

@@ -5,6 +5,7 @@ import {
 } from "../services/paymentsService";
 import Modal from "./Modal";
 import Button from "./Button";
+import Icon from "./Icon";
 import Select from "./Select";
 import CopyMessageButton from "./CopyMessageButton";
 import "../styles/payments.css";
@@ -109,7 +110,9 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Button variant="brand">📲 שליחה לכולם ביחד</Button>
+                  <Button variant="brand">
+                    <Icon name="message" size={16} /> שליחה לכולם ביחד
+                  </Button>
                 </a>
                 <CopyMessageButton text={message} />
               </div>
@@ -117,7 +120,8 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
 
             {/* לחלופין — לכל הורה בנפרד */}
             <p className="bulk-reminder__note">
-              💬 <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם.
+              <Icon name="message" size={15} />{" "}
+              <strong>או לכל הורה בנפרד:</strong> לוחצים "שליחה" ליד כל שם.
               נשלחו <strong>{sentShown}</strong> מתוך{" "}
               <strong>{shownStudents.length}</strong>.
             </p>
@@ -132,7 +136,11 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
                     }`}
                   >
                     <span>
-                      {isSent && "✅ "}
+                      {isSent && (
+                        <>
+                          <Icon name="check" size={13} />{" "}
+                        </>
+                      )}
                       {student.firstName} {student.lastName}
                     </span>
                     <a
@@ -146,7 +154,13 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
                       onClick={() => markSent(student.id)}
                     >
                       <Button variant="secondary">
-                        {isSent ? "שליחה חוזרת" : "שליחה 💬"}
+                        {isSent ? (
+                          "שליחה חוזרת"
+                        ) : (
+                          <>
+                            <Icon name="message" size={15} /> שליחה
+                          </>
+                        )}
                       </Button>
                     </a>
                   </li>

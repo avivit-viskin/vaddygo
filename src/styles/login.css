@@ -1,0 +1,209 @@
+/*
+  login.css — מסך הכניסה של VaddyGo למשתמש חוזר. חוויה מודרנית עם תנועה:
+  רקע פסטל חי עם "בועות" נעות באיטיות, כניסה מונפשת (stagger) של המותג
+  והכרטיס, תג-מותג מרחף עם הילה, ומיקרו-אינטראקציות. שומר על זהות המותג
+  (בז' + ורוד פסטל, פונט Rubik) ומכבד prefers-reduced-motion.
+*/
+
+/* במסך הכניסה מנטרלים את מסגרת ה-app-main (רוחב מקסימלי/ריפוד/כרטיס לבן
+   בדסקטופ) כדי שהרקע המונפש ימלא את כל המסך. חל רק על נתיב /login.
+   סלקטור עם שתי מחלקות — גובר על כלל ה-.app-main גם בתוך media query. */
+.app-main.app-main--login {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  background: transparent;
+  border: 0;
+  box-shadow: none;
+  min-height: 0;
+}
+
+.login-screen {
+  position: relative;
+  min-height: 100vh;
+  min-height: 100dvh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 32px 18px 56px;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+/* ===== רקע חי: בועות פסטל שנעות באיטיות ===== */
+.login-bg {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  overflow: hidden;
+  background:
+    radial-gradient(130% 90% at 50% -20%, #fff7fb 0%, transparent 58%),
+    linear-gradient(180deg, #faf3ea 0%, #f7ecec 100%);
+}
+
+.login-blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(52px);
+  opacity: 0.72;
+  will-change: transform;
+}
+.login-blob--1 {
+  width: 44vmax;
+  height: 44vmax;
+  top: -15vmax;
+  inset-inline-end: -13vmax;
+  background: radial-gradient(circle at 32% 30%, #f9cfe0, #f4b3d0 72%);
+  animation: blob-drift-1 22s ease-in-out infinite alternate;
+}
+.login-blob--2 {
+  width: 36vmax;
+  height: 36vmax;
+  bottom: -13vmax;
+  inset-inline-start: -11vmax;
+  background: radial-gradient(circle at 50% 50%, #f9dae9, #efd9c4 76%);
+  animation: blob-drift-2 27s ease-in-out infinite alternate;
+}
+.login-blob--3 {
+  width: 27vmax;
+  height: 27vmax;
+  top: 40%;
+  inset-inline-start: 10%;
+  background: radial-gradient(circle at 50% 50%, #ffe6f1, transparent 70%);
+  opacity: 0.55;
+  animation: blob-drift-3 19s ease-in-out infinite alternate;
+}
+
+@keyframes blob-drift-1 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(-6vmax, 5vmax) scale(1.14); }
+}
+@keyframes blob-drift-2 {
+  from { transform: translate(0, 0) scale(1); }
+  to   { transform: translate(5vmax, -4vmax) scale(1.1); }
+}
+@keyframes blob-drift-3 {
+  from { transform: translate(0, 0) scale(1); opacity: 0.45; }
+  to   { transform: translate(4vmax, 3vmax) scale(1.22); opacity: 0.8; }
+}
+
+/* ===== תוכן ===== */
+.login-screen__content {
+  width: 100%;
+  max-width: 420px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* ===== גיבור המותג ===== */
+.login-hero {
+  text-align: center;
+  margin-bottom: 22px;
+  animation: login-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.login-hero__badge {
+  position: relative;
+  width: 78px;
+  height: 78px;
+  margin: 0 auto 14px;
+  border-radius: 23px;
+  display: grid;
+  place-items: center;
+  font-family: var(--font-family);
+  font-weight: 800;
+  font-size: 42px;
+  line-height: 1;
+  color: #fff;
+  background: linear-gradient(145deg, #f9cfe0 0%, #f2a9cb 52%, #ea88b7 100%);
+  box-shadow:
+    0 14px 30px rgba(234, 136, 183, 0.45),
+    inset 0 1px 0 rgba(255, 255, 255, 0.55);
+  animation: badge-float 5s ease-in-out infinite;
+}
+/* הילה רכה שפועמת מאחורי התג */
+.login-hero__badge::before {
+  content: "";
+  position: absolute;
+  inset: -26%;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(249, 207, 224, 0.85), transparent 66%);
+  z-index: -1;
+  animation: badge-glow 4s ease-in-out infinite;
+}
+
+.login-hero__brand {
+  margin: 0;
+  font-size: 34px;
+  letter-spacing: 0.4px;
+  color: var(--color-primary-dark);
+}
+.login-hero__brand .brand-name {
+  font-weight: 800;
+}
+
+.login-hero__tagline {
+  margin: 7px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+}
+
+/* ===== הכרטיס ===== */
+.login-card {
+  width: 100%;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.75);
+  border-radius: 24px;
+  padding: 26px 22px 24px;
+  box-shadow: 0 22px 55px -20px rgba(120, 70, 90, 0.38);
+  animation: login-rise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.14s both;
+}
+.login-card__title {
+  margin: 0 0 18px;
+  text-align: center;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary-dark);
+}
+
+/* מיקרו-אינטראקציה: זוהר ורוד עדין על שדה בפוקוס */
+.login-card input:focus {
+  box-shadow: 0 0 0 4px rgba(249, 207, 224, 0.55);
+}
+
+/* כפתור הכניסה — הרמה עדינה וצל רך במעבר עכבר */
+.login-card .auth-page__actions button {
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: 0 10px 22px -8px rgba(234, 136, 183, 0.7);
+}
+.login-card .auth-page__actions button:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 14px 26px -8px rgba(234, 136, 183, 0.8);
+}
+
+/* ===== אנימציות ===== */
+@keyframes login-rise {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes badge-float {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(-7px); }
+}
+@keyframes badge-glow {
+  0%, 100% { opacity: 0.6; transform: scale(1); }
+  50%      { opacity: 1; transform: scale(1.08); }
+}
+
+/* ===== נגישות: כיבוד העדפת "פחות תנועה" ===== */
+@media (prefers-reduced-motion: reduce) {
+  .login-blob,
+  .login-hero,
+  .login-card,
+  .login-hero__badge,
+  .login-hero__badge::before {
+    animation: none;
+  }
+}

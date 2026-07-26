@@ -2,7 +2,6 @@ import { useState, useCallback } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
-import Card from "../components/Card";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
@@ -12,6 +11,7 @@ import {
   syncInstitutionsFromServer,
 } from "../services/onboardingService";
 import "../styles/onboarding.css";
+import "../styles/login.css";
 
 /*
   LoginPage — מסך כניסה למנוי רשום (UI_SPEC ס' 2): שם משתמש/מייל + סיסמה.
@@ -88,12 +88,29 @@ function LoginPage() {
   }
 
   return (
-    <div className="auth-page">
-      <h1 className="auth-page__logo">
-        <BrandName withHeart />
-      </h1>
-      <Card title="שמחים לראות אותך שוב 🙂">
-        <form onSubmit={handleSubmit} noValidate>
+    <div className="login-screen">
+      <div className="login-bg" aria-hidden="true">
+        <span className="login-blob login-blob--1" />
+        <span className="login-blob login-blob--2" />
+        <span className="login-blob login-blob--3" />
+      </div>
+
+      <div className="login-screen__content">
+        <header className="login-hero">
+          <div className="login-hero__badge" aria-hidden="true">
+            V
+          </div>
+          <h1 className="login-hero__brand">
+            <BrandName />
+          </h1>
+          <p className="login-hero__tagline">
+            ניהול הוועד של הגן — פשוט ונעים, במקום אחד ✨
+          </p>
+        </header>
+
+        <div className="login-card">
+          <h2 className="login-card__title">שמחים לראות אותך שוב 🙂</h2>
+          <form onSubmit={handleSubmit} noValidate>
           <Input
             id="login-identifier"
             label="שם משתמש או מייל"
@@ -140,8 +157,9 @@ function LoginPage() {
           <p className="auth-page__hint">
             עדיין אין לך חשבון? <Link to="/register">להרשמה מהירה</Link>
           </p>
-        </form>
-      </Card>
+          </form>
+        </div>
+      </div>
     </div>
   );
 }

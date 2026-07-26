@@ -114,6 +114,8 @@ function App() {
     isPurchase ||
     isJoin ||
     isSupplierEdit;
+  // מסך הכניסה מקבל רקע מונפש במסך מלא — מנטרלים את מסגרת ה-app-main (רוחב/ריפוד)
+  const isLoginRoute = location.pathname === "/login";
   const isPublic =
     PUBLIC_ROUTES.includes(location.pathname) || isJoin || isSupplierEdit;
   const activeInstitution = getActiveInstitution();
@@ -180,7 +182,7 @@ function App() {
           👀 מצב צפייה בלבד — יש לך הרשאת צפייה בגן הזה, בלי אפשרות לערוך.
         </div>
       )}
-      <main className="app-main">
+      <main className={`app-main${isLoginRoute ? " app-main--login" : ""}`}>
         <Routes>
           <Route
             path="/"

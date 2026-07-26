@@ -90,8 +90,14 @@ function StaffBirthdays({ onChanged, readOnly = false }) {
           {sorted.map((member) => (
             <li key={member.id} className="staff__item">
               <div>
-                <span className="staff__name">{member.fullName}</span>
-                <span className="staff__role"> · {member.role}</span>
+                <span className="staff__name">
+                  {member.fullName || member.role}
+                </span>
+                {/* מציגים תפקיד רק אם הוזן ואינו זהה לשם (מונע "גננת · גננת") */}
+                {member.role &&
+                  member.role.trim() !== (member.fullName || "").trim() && (
+                    <span className="staff__role"> · {member.role}</span>
+                  )}
               </div>
               <div className="staff__side">
                 <span className="staff__date">

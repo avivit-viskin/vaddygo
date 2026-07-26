@@ -2,6 +2,13 @@ import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import ExpenseAfterEventPrompt from "./ExpenseAfterEventPrompt";
 
+// ממקמים "אין חגים שעברו" — אחרת הבדיקה שברירית לתאריך: חג אמיתי שהסתיים
+// ב-21 הימים האחרונים היה נכנס לתור ומקפיץ את הפופאפ, ומפיל את הבדיקה.
+jest.mock("../../data/holidays", () => ({
+  ...jest.requireActual("../../data/holidays"),
+  getHolidayOccurrencesForMonth: () => [],
+}));
+
 afterEach(() => {
   delete global.fetch;
   localStorage.clear();

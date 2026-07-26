@@ -12,6 +12,10 @@ namespace ParentCommitteeAPI.Models
         public string Name { get; set; } = string.Empty;
         public string CatalogUrl { get; set; } = string.Empty;
 
+        /* טוקן עריכה אישי — מאפשר לספק לערוך את הכרטיס שלו דרך קישור, בלי חשבון.
+           ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
+        public string EditToken { get; set; } = string.Empty;
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

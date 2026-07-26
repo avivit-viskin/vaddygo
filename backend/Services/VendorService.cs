@@ -58,15 +58,7 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            vendor.Name = dto.Name.Trim();
-            vendor.CatalogUrl = dto.CatalogUrl.Trim();
-            vendor.WhatsApp = dto.WhatsApp.Trim();
-            // מחליפים את רשימות הבנים כולן — פשוט ותואם לעריכה בטופס הלקוח
-            _db.VendorProducts.RemoveRange(vendor.Products);
-            _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
-            vendor.Products = MapProducts(dto.Products);
-            vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
-
+            ApplyWrite(vendor, dto);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor updated (Id: {VendorId})", id);
             return ToResponse(vendor);
@@ -84,6 +76,65 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor deleted (Id: {VendorId})", id);
             return true;
+        }
+
+        public async Task<string?> GenerateEditTokenAsync(int id)
+        {
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return null;
+            }
+            // מייצרים טוקן פעם אחת ומחזירים אותו יציב — כדי שהקישור לא ישתנה בכל בקשה
+            if (string.IsNullOrEmpty(vendor.EditToken))
+            {
+                vendor.EditToken = Guid.NewGuid().ToString("N");
+                await _db.SaveChangesAsync();
+                _logger.LogInformation("Vendor edit link generated (Id: {VendorId})", id);
+            }
+            return vendor.EditToken;
+        }
+
+        public async Task<VendorResponseDto?> GetByEditTokenAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return null;
+            }
+            var vendor = await WithChildren(_db.Vendors)
+                .FirstOrDefaultAsync(v => v.EditToken == token);
+            return vendor == null ? null : ToResponse(vendor);
+        }
+
+        public async Task<VendorResponseDto?> UpdateByEditTokenAsync(string token, VendorUpdateDto dto)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return null;
+            }
+            var vendor = await WithChildren(_db.Vendors)
+                .FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return null;
+            }
+            ApplyWrite(vendor, dto);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor self-updated via edit token (Id: {VendorId})", vendor.Id);
+            return ToResponse(vendor);
+        }
+
+        /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.
+           רשימות הבנים (מוצרים/רשתות) מוחלפות כולן — פשוט ותואם לטופס. */
+        private void ApplyWrite(Vendor vendor, VendorWriteDto dto)
+        {
+            vendor.Name = dto.Name.Trim();
+            vendor.CatalogUrl = dto.CatalogUrl.Trim();
+            vendor.WhatsApp = dto.WhatsApp.Trim();
+            _db.VendorProducts.RemoveRange(vendor.Products);
+            _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
+            vendor.Products = MapProducts(dto.Products);
+            vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
         }
 
         /* ספק נטען תמיד עם המוצרים והקישורים החברתיים שלו */

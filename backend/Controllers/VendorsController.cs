@@ -53,6 +53,16 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // POST: api/vendors/1/edit-link — מייצר (או מחזיר) קישור עריכה אישי לספק
+        [HttpPost("{id}/edit-link")]
+        public async Task<ActionResult> CreateEditLink(int id)
+        {
+            var token = await _vendorService.GenerateEditTokenAsync(id);
+            if (token == null)
+                return NotFound(new { message = "ספק לא נמצא" });
+            return Ok(new { editToken = token });
+        }
+
         // DELETE: api/vendors/1
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVendor(int id)

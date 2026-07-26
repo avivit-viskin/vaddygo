@@ -56,6 +56,29 @@ namespace ParentCommitteeAPI.DTOs
         public string Url { get; set; } = string.Empty;
     }
 
+    /* פרטי התחברות שהספק מגדיר לעצמו (כדי לחזור בלי הקישור) */
+    public class VendorCredentialsDto
+    {
+        [Required(ErrorMessage = "צריך כתובת מייל")]
+        [EmailAddress(ErrorMessage = "כתובת המייל אינה תקינה")]
+        [StringLength(120, ErrorMessage = "כתובת המייל ארוכה מדי")]
+        public string LoginEmail { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך סיסמה")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        public string Password { get; set; } = string.Empty;
+    }
+
+    /* בקשת התחברות ספק — מאמתת מייל+סיסמה ומחזירה את טוקן העריכה */
+    public class VendorLoginDto
+    {
+        [Required(ErrorMessage = "צריך כתובת מייל")]
+        public string LoginEmail { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך סיסמה")]
+        public string Password { get; set; } = string.Empty;
+    }
+
     public class VendorCreateDto : VendorWriteDto
     {
     }

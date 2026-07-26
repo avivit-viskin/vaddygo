@@ -17,5 +17,18 @@ namespace ParentCommitteeAPI.Services
         Task<string?> GenerateEditTokenAsync(int id);
         Task<VendorResponseDto?> GetByEditTokenAsync(string token);
         Task<VendorResponseDto?> UpdateByEditTokenAsync(string token, VendorUpdateDto dto);
+
+        /* התחברות ספק: הגדרת מייל+סיסמה (דרך הטוקן), והתחברות שמחזירה טוקן */
+        Task<CredentialResult> SetCredentialsAsync(string token, string loginEmail, string password);
+        Task<string?> LoginAsync(string loginEmail, string password);
+    }
+
+    /* תוצאת הגדרת פרטי התחברות לספק */
+    public enum CredentialResult
+    {
+        Ok,
+        NotFound,
+        Invalid,
+        EmailTaken,
     }
 }

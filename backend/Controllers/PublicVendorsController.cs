@@ -43,5 +43,35 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
             return Ok(updated);
         }
+
+        // PUT: api/public/vendors/{token}/credentials — הספק מגדיר מייל+סיסמה
+        // כדי שיוכל לחזור בפעם הבאה בלי הקישור.
+        [HttpPut("{token}/credentials")]
+        public async Task<ActionResult> SetCredentials(
+            string token, [FromBody] VendorCredentialsDto dto)
+        {
+            var result = await _vendorService.SetCredentialsAsync(
+                token, dto.LoginEmail, dto.Password);
+            return result switch
+            {
+                CredentialResult.Ok => Ok(new { message = "פרטי ההתחברות נשמרו" }),
+                CredentialResult.EmailTaken =>
+                    Conflict(new { message = "כתובת המייל כבר בשימוש ספק אחר" }),
+                CredentialResult.Invalid =>
+                    BadRequest(new { message = "צריך מייל וסיסמה באורך 6 תווים לפחות" }),
+                _ => NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" }),
+            };
+        }
+
+        // POST: api/public/vendors/login — התחברות ספק; מאמת מייל+סיסמה ומחזיר
+        // את טוקן העריכה (הלקוח ממשיך איתו לעמוד העריכה).
+        [HttpPost("login")]
+        public async Task<ActionResult> Login([FromBody] VendorLoginDto dto)
+        {
+            var token = await _vendorService.LoginAsync(dto.LoginEmail, dto.Password);
+            if (token == null)
+                return Unauthorized(new { message = "מייל או סיסמה שגויים" });
+            return Ok(new { editToken = token });
+        }
     }
 }

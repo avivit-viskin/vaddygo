@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
 
@@ -124,6 +125,62 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor self-updated via edit token (Id: {VendorId})", vendor.Id);
             return ToResponse(vendor);
+        }
+
+        public async Task<CredentialResult> SetCredentialsAsync(
+            string token, string loginEmail, string password)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return CredentialResult.NotFound;
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return CredentialResult.NotFound;
+            }
+            var email = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
+            if (email.Length == 0 || (password ?? string.Empty).Length < 6)
+            {
+                return CredentialResult.Invalid;
+            }
+            // המייל הוא מזהה ההתחברות — חייב להיות ייחודי בין הספקים
+            var taken = await _db.Vendors.AnyAsync(
+                v => v.Id != vendor.Id && v.LoginEmail == email);
+            if (taken)
+            {
+                return CredentialResult.EmailTaken;
+            }
+            vendor.LoginEmail = email;
+            vendor.PasswordHash = PasswordHasher.Hash(password);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor credentials set (Id: {VendorId})", vendor.Id);
+            return CredentialResult.Ok;
+        }
+
+        public async Task<string?> LoginAsync(string loginEmail, string password)
+        {
+            var email = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
+            if (email.Length == 0 || string.IsNullOrEmpty(password))
+            {
+                return null;
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.LoginEmail == email);
+            if (vendor == null || string.IsNullOrEmpty(vendor.PasswordHash))
+            {
+                return null;
+            }
+            if (!PasswordHasher.Verify(password, vendor.PasswordHash))
+            {
+                return null;
+            }
+            // אמור להיות טוקן; ליתר ביטחון מייצרים אם חסר
+            if (string.IsNullOrEmpty(vendor.EditToken))
+            {
+                vendor.EditToken = Guid.NewGuid().ToString("N");
+                await _db.SaveChangesAsync();
+            }
+            return vendor.EditToken;
         }
 
         /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.

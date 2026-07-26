@@ -21,6 +21,11 @@ namespace ParentCommitteeAPI.Models
            ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
         public string EditToken { get; set; } = string.Empty;
 
+        /* התחברות ספק (אופציונלי): הספק מגדיר מייל+סיסמה כדי לחזור בלי הקישור.
+           ההתחברות מאמתת מול אלה ומחזירה את EditToken. PasswordHash = PBKDF2. */
+        public string LoginEmail { get; set; } = string.Empty;
+        public string PasswordHash { get; set; } = string.Empty;
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

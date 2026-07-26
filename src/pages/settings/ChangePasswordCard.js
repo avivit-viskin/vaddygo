@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import PasswordField from "../../components/PasswordField";
 import Button from "../../components/Button";
 import { changePassword, getUser } from "../../services/authService";
@@ -41,7 +42,13 @@ function ChangePasswordCard() {
   }
 
   return (
-    <Card title="🔑 שינוי סיסמה">
+    <Card
+      title={
+        <>
+          <Icon name="key" size={20} /> שינוי סיסמה
+        </>
+      }
+    >
       <form onSubmit={handleSubmit} noValidate>
         {/* שם המשתמש (נסתר) — עוזר למנהל הסיסמאות של הדפדפן לשייך את העדכון לחשבון */}
         <input

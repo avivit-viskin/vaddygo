@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Button from "../../components/Button";
 import Modal from "../../components/Modal";
 import Input from "../../components/Input";
@@ -40,7 +41,13 @@ function DeleteAccountCard() {
   }
 
   return (
-    <Card title="⚠️ מחיקת חשבון">
+    <Card
+      title={
+        <>
+          <Icon name="warning" size={20} /> מחיקת חשבון
+        </>
+      }
+    >
       <p className="settings__hint">
         מחיקת החשבון תמחק <strong>לצמיתות</strong> את כל הנתונים שלך — תלמידים,
         תשלומים, צוות, הוצאות ומתנות. לא ניתן לשחזר.

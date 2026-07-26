@@ -126,6 +126,20 @@ const PATHS = {
     <path d="M6 3h3l2 5-2.5 1.5a11 11 0 0 0 5 5L16 12l5 2v3a2 2 0 0 1-2.2 2A16 16 0 0 1 4 5.2 2 2 0 0 1 6 3Z" />
   ),
   check: <path d="M4 12.5 9 17.5 20 6.5" />,
+  plus: <path d="M12 5v14M5 12h14" />,
+  wallet: (
+    <>
+      <path d="M4 7V6a2 2 0 0 1 2-2h11" />
+      <rect x="3" y="7" width="18" height="12" rx="2" />
+      <path d="M16 12h5v3h-5a1.5 1.5 0 0 1 0-3Z" />
+    </>
+  ),
+  logout: (
+    <>
+      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+      <path d="M16 17l5-5-5-5M21 12H9" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 20, strokeWidth = 1.8, className, title }) {

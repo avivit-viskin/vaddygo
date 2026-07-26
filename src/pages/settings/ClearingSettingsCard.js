@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { getClearing, saveClearing } from "../../services/clearingSettingsService";
@@ -45,7 +46,13 @@ function ClearingSettingsCard() {
   }
 
   return (
-    <Card title="💳 חשבון סליקת אשראי (של הוועד)">
+    <Card
+      title={
+        <>
+          <Icon name="card" size={20} /> חשבון סליקת אשראי (של הוועד)
+        </>
+      }
+    >
       <p className="settings__hint">
         כדי לגבות באשראי, כל ועד מחבר את חשבון הסליקה <strong>שלו</strong> (PayPlus)
         — כך הכסף מגיע ישירות לחשבון הבנק שלכם. את המפתחות מקבלים מהספק אחרי

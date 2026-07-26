@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import {
@@ -21,7 +22,13 @@ function RenameInstitutionCard() {
 
   if (!active) {
     return (
-      <Card title="🏫 שם המוסד">
+      <Card
+        title={
+          <>
+            <Icon name="school" size={20} /> שם המוסד
+          </>
+        }
+      >
         <p className="settings__hint">
           עדיין אין מוסד פעיל. אפשר להגדיר מוסד באשף ההרשמה.
         </p>
@@ -56,7 +63,13 @@ function RenameInstitutionCard() {
   }
 
   return (
-    <Card title="🏫 שם המוסד">
+    <Card
+      title={
+        <>
+          <Icon name="school" size={20} /> שם המוסד
+        </>
+      }
+    >
       <p className="settings__hint">
         כאן אפשר לתקן את שם המוסד אם נפלה טעות בהקלדה. השם החדש יופיע בכל המסכים
         ובהודעות שנשלחות להורים.

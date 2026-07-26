@@ -160,7 +160,9 @@
 
 /* פעולה בתפריט — קישור/כפתור בעיצוב פריט תפריט */
 .sidemenu__action {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   color: #000000;
   text-decoration: none;
   font-weight: 600;
@@ -175,7 +177,9 @@
 }
 
 .sidemenu__logout {
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 10px;
   width: 100%;
   text-align: start;
   border: none;

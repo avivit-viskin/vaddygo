@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import { getBankAccount, saveBankAccount } from "../../services/bankAccountService";
@@ -46,7 +47,13 @@ function BankAccountCard() {
   }
 
   return (
-    <Card title="🏦 חשבון בנק לקבלת תשלומי אשראי">
+    <Card
+      title={
+        <>
+          <Icon name="bank" size={20} /> חשבון בנק לקבלת תשלומי אשראי
+        </>
+      }
+    >
       <p className="settings__hint">
         כדי לקבל תשלומי אשראי מההורים ישירות לחשבון של הוועד — הזינו את פרטי חשבון
         הבנק. אין צורך במפתחות או בקוד; הכסף מהסליקה מגיע ישירות לחשבון הזה.

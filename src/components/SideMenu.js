@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BrandName from "./BrandName";
+import Icon from "./Icon";
 import InstitutionSwitcher from "./InstitutionSwitcher";
 import Modal from "./Modal";
 import Input from "./Input";
@@ -84,7 +85,7 @@ function SideMenu({ isOpen, onClose }) {
             setIsAddOpen(true);
           }}
         >
-          ➕ הוסף מוסד
+          <Icon name="plus" size={18} /> הוסף מוסד
         </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
@@ -93,14 +94,14 @@ function SideMenu({ isOpen, onClose }) {
           className="sidemenu__action"
           onClick={() => go("/collection-settings")}
         >
-          💰 עריכת גבייה
+          <Icon name="wallet" size={18} /> עריכת גבייה
         </button>
         <button
           type="button"
           className="sidemenu__action"
           onClick={() => go("/settings")}
         >
-          🔔 הגדרות התראות
+          <Icon name="bell" size={18} /> הגדרות התראות
         </button>
 
         <div className="sidemenu__footer">
@@ -111,10 +112,10 @@ function SideMenu({ isOpen, onClose }) {
             rel="noreferrer"
             onClick={onClose}
           >
-            📞 צור קשר
+            <Icon name="phone" size={18} /> צור קשר
           </a>
           <button type="button" className="sidemenu__logout" onClick={handleLogout}>
-            🚪 התנתק
+            <Icon name="logout" size={18} /> התנתק
           </button>
         </div>
       </aside>

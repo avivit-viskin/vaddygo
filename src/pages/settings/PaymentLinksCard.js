@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Button from "../../components/Button";
 import {
@@ -47,7 +48,13 @@ function PaymentLinksCard() {
   }
 
   return (
-    <Card title="💳 קישורי תשלום של הוועד">
+    <Card
+      title={
+        <>
+          <Icon name="card" size={20} /> קישורי תשלום של הוועד
+        </>
+      }
+    >
       <p className="settings__hint">
         בביט — מספר הטלפון שאליו משלמים; בפייבוקס — קישור קבוצת התשלום. הם ייכנסו
         אוטומטית להודעות בקשת התשלום שנשלחות להורים בוואטסאפ.

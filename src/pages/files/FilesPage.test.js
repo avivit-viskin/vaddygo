@@ -26,7 +26,9 @@ test("הוספת תיקייה מציגה אותה כקישור שנפתח בדר
   );
   userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 
-  const link = await screen.findByRole("link", { name: /📂.*יום המשפחה/ });
+  // אייקון התיקייה הוא כעת SVG דקורטיבי (aria-hidden), כך שהשם הנגיש הוא שם התיקייה
+  // בלבד. שם מדויק מבדיל אותו מקישור השיתוף בוואטסאפ (ששמו כולל גם הוא את שם התיקייה).
+  const link = await screen.findByRole("link", { name: "יום המשפחה" });
   expect(link).toHaveAttribute(
     "href",
     "https://drive.google.com/drive/folders/abc123"

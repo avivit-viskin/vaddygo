@@ -1,5 +1,6 @@
 import { useEffect, useRef } from "react";
 import Modal from "../../components/Modal";
+import Icon from "../../components/Icon";
 
 /*
   NotificationsPanel — הפאנל שנפתח בלחיצה על הפעמון 🔔 במסך הבית.
@@ -7,14 +8,15 @@ import Modal from "../../components/Modal";
   והן נשמרות מעומעמות. הפעמון סופר רק את מה שעוד לא נקרא.
   אם לא נוגעים בפאנל 2 שניות — הוא נסגר לבד (חוסר פעילות).
 */
+// כל סוג התראה → שם אייקון-קו אחיד (Icon). ברירת מחדל: פעמון.
 const TYPE_ICONS = {
-  payments: "💰",
-  unpaid: "💰",
-  birthday: "🎂",
-  holiday: "🎉",
-  event: "📅",
-  gift: "🎁",
-  team: "👋",
+  payments: "wallet",
+  unpaid: "wallet",
+  birthday: "cake",
+  holiday: "star",
+  event: "calendar",
+  gift: "gift",
+  team: "users",
 };
 
 /* אחרי כמה זמן של חוסר פעילות לסגור את הפאנל לבד. */
@@ -68,7 +70,7 @@ function NotificationsPanel({
   const hasUnread = notifications.some((n) => !n.read);
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="🔔 ההתראות שלך">
+    <Modal isOpen={isOpen} onClose={onClose} title="ההתראות שלך">
       {notifications.length === 0 ? (
         <p className="notifications__empty">אין התראות כרגע — הכל מסודר! 🎉</p>
       ) : (
@@ -91,11 +93,13 @@ function NotificationsPanel({
                 }`}
               >
                 <span className="notifications__icon" aria-hidden="true">
-                  {TYPE_ICONS[n.type] || "🔔"}
+                  <Icon name={TYPE_ICONS[n.type] || "bell"} size={20} />
                 </span>
                 <span className="notifications__message">{n.message}</span>
                 {n.read ? (
-                  <span className="notifications__read-label">✓ נקרא</span>
+                  <span className="notifications__read-label">
+                    <Icon name="check" size={14} /> נקרא
+                  </span>
                 ) : (
                   <button
                     type="button"

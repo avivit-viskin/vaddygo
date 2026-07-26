@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import Icon from "../components/Icon";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
@@ -49,7 +50,13 @@ function FilesPage() {
 
   return (
     <div className="files">
-      <Card title="קבצים ותיקיות 📁">
+      <Card
+        title={
+          <>
+            <Icon name="folder" size={20} /> קבצים ותיקיות
+          </>
+        }
+      >
         <p className="files__hint">
           פותחים תיקייה ב-Google Drive, מעתיקים את קישור השיתוף שלה, ומדביקים
           אותו כאן עם שם. לחיצה על התיקייה תפתח אותה בדרייב.
@@ -72,7 +79,7 @@ function FilesPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  📂 {folder.name}
+                  <Icon name="folder" size={18} /> {folder.name}
                 </a>
                 <div className="folders__actions">
                   <a
@@ -95,7 +102,7 @@ function FilesPage() {
                         aria-label={`עריכת ${folder.name}`}
                         onClick={() => setEditing(folder)}
                       >
-                        ✏️
+                        <Icon name="pencil" size={16} />
                       </button>
                       <button
                         type="button"
@@ -103,7 +110,7 @@ function FilesPage() {
                         aria-label={`מחיקת ${folder.name}`}
                         onClick={() => setDeleting(folder)}
                       >
-                        🗑️
+                        <Icon name="trash" size={16} />
                       </button>
                     </>
                   )}

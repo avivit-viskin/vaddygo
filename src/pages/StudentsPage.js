@@ -15,6 +15,7 @@ import {
   isActiveReadOnly,
 } from "../services/institutionsService";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import Input from "../components/Input";
 import Select from "../components/Select";
 import Checkbox from "../components/Checkbox";
@@ -339,7 +340,7 @@ function StudentsPage() {
                 {selectedIds.size} נבחרו
               </span>
               <Button variant="danger" onClick={() => setShowBulkDelete(true)}>
-                🗑️ מחיקת הנבחרים
+                <Icon name="trash" size={16} /> מחיקת הנבחרים
               </Button>
               <Button
                 variant="secondary"

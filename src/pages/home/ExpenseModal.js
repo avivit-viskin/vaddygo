@@ -3,6 +3,7 @@ import Modal from "../../components/Modal";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Button from "../../components/Button";
+import Icon from "../../components/Icon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { PAYMENT_METHODS, paymentMethodLabel } from "../../services/paymentMethods";
 import { formatShekels, formatDayMonth } from "../../services/format";
@@ -227,7 +228,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
                   aria-label="עריכת הוצאה"
                   onClick={() => startEdit(e)}
                 >
-                  ✏️
+                  <Icon name="pencil" size={16} />
                 </button>
                 <button
                   type="button"

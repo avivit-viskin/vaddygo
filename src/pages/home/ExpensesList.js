@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import EmptyState from "../../components/EmptyState";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import { getExpenses, deleteExpense } from "../../services/expensesService";
@@ -58,7 +59,13 @@ function ExpensesList({ refreshSignal = 0, onChanged, readOnly = false }) {
   const hasCategories = expenses.some((e) => e.category && e.category.trim());
 
   return (
-    <Card title="ההוצאות שלי 🧾">
+    <Card
+      title={
+        <>
+          <Icon name="receipt" size={18} /> ההוצאות שלי
+        </>
+      }
+    >
       {isLoading ? (
         <p className="expenses-list__loading">טוען…</p>
       ) : expenses.length === 0 ? (

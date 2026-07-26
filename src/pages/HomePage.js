@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import useApi from "../hooks/useApi";
 import { loadDashboard } from "../services/dashboardService";
 import {
@@ -121,7 +122,7 @@ function HomePage() {
             aria-label={`התראות (${count})`}
             onClick={() => setPanelOpen(true)}
           >
-            🔔
+            <Icon name="bell" size={22} />
             {count > 0 && <span className="home__badge">{count}</span>}
           </button>
         </div>

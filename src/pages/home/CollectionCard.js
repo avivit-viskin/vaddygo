@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 import { paymentMethodLabel } from "../../services/paymentMethods";
 import PaymentMethodIcon from "../../components/PaymentMethodIcon";
@@ -41,7 +42,7 @@ function CollectionCard({ dashboard, onExpenseChanged, readOnly = false }) {
             className="collection__edit"
             onClick={() => setEditOpen(true)}
           >
-            ✏️ עדכון יתרה
+            <Icon name="pencil" size={15} /> עדכון יתרה
           </button>
         )}
       </div>

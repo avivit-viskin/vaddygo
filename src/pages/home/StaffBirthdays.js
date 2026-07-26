@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import EmptyState from "../../components/EmptyState";
 import Modal from "../../components/Modal";
@@ -68,7 +69,13 @@ function StaffBirthdays({ onChanged, readOnly = false }) {
     .sort((a, b) => nextBirthday(a.birthDate) - nextBirthday(b.birthDate));
 
   return (
-    <Card title="ימי הולדת של הצוות 🎂">
+    <Card
+      title={
+        <>
+          <Icon name="cake" size={18} /> ימי הולדת של הצוות
+        </>
+      }
+    >
       {totalGiftBudget > 0 && (
         <p className="staff__budget-total">
           🎁 מומלץ להשקיע על מתנות לצוות: {formatShekels(totalGiftBudget)}
@@ -112,7 +119,7 @@ function StaffBirthdays({ onChanged, readOnly = false }) {
                       aria-label={`עריכת ${member.fullName}`}
                       onClick={() => setEditing(member)}
                     >
-                      ✏️
+                      <Icon name="pencil" size={16} />
                     </button>
                     <button
                       type="button"
@@ -120,7 +127,7 @@ function StaffBirthdays({ onChanged, readOnly = false }) {
                       aria-label={`מחיקת ${member.fullName}`}
                       onClick={() => setDeleting(member)}
                     >
-                      🗑️
+                      <Icon name="trash" size={16} />
                     </button>
                   </>
                 )}

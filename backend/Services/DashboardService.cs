@@ -124,6 +124,36 @@ namespace ParentCommitteeAPI.Services
                 .OrderByDescending(c => c.SpentAmount);
             byCategory.AddRange(extraCategories);
 
+            // פילוח הגבייה לפי קבוצות הגן: לכל קבוצה מספר הילדים המשויכים אליה
+            // (ClassName == שם הקבוצה), היעד (סכום-לילד × מספר הילדים בקבוצה) וכמה
+            // נגבה. אותו סכום-לילד לכל הקבוצות — ההבדל הוא רק במספר הילדים. ריק אם
+            // לא הוגדרו קבוצות.
+            var subgroupNames = group.Subgroups
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            var bySubgroup = new List<DashboardSubgroupDto>();
+            if (subgroupNames.Length > 0)
+            {
+                var groupStudents = await _db.Students.AsNoTracking()
+                    .Where(s => s.GroupId == group.Id)
+                    .Select(s => new { s.Id, s.ClassName })
+                    .ToListAsync();
+                var collectedByStudent = paidPayments
+                    .GroupBy(p => p.StudentId)
+                    .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
+                foreach (var sub in subgroupNames)
+                {
+                    var kids = groupStudents.Where(s => s.ClassName == sub).ToList();
+                    bySubgroup.Add(new DashboardSubgroupDto
+                    {
+                        Name = sub,
+                        ChildrenCount = kids.Count,
+                        TargetAmount = totalPerChild * kids.Count,
+                        CollectedAmount = kids.Sum(k =>
+                            collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
+                    });
+                }
+            }
+
             return new DashboardResponseDto
             {
                 GanName = group.Name,
@@ -144,6 +174,7 @@ namespace ParentCommitteeAPI.Services
                     new() { Method = "card", Amount = paidPayments.Sum(p => p.CardAmount) - MethodExpenses(expenses, "card") },
                 },
                 ByCategory = byCategory,
+                BySubgroup = bySubgroup,
                 Alerts = alerts,
                 UpcomingBirthdays = birthdays,
             };

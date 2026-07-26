@@ -24,8 +24,25 @@ namespace ParentCommitteeAPI.DTOs
 
         public List<DashboardAmountDto> ByPaymentMethod { get; set; } = new();
         public List<DashboardCategoryDto> ByCategory { get; set; } = new();
+
+        /* פילוח הגבייה לפי קבוצות הגן (תינוקייה/פעוטות/בוגרים); ריק אם אין קבוצות */
+        public List<DashboardSubgroupDto> BySubgroup { get; set; } = new();
+
         public List<DashboardAlertDto> Alerts { get; set; } = new();
         public List<DashboardBirthdayDto> UpcomingBirthdays { get; set; } = new();
+    }
+
+    /*
+      DashboardSubgroupDto — פילוח הגבייה לקבוצה אחת: כמה ילדים משויכים אליה
+      (לפי ClassName של התלמיד), כמה צריך לגבות (סכום-לילד × מספר הילדים בקבוצה)
+      וכמה כבר נגבה. אותו סכום-לילד לכל הקבוצות; ההבדל הוא במספר הילדים.
+    */
+    public class DashboardSubgroupDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public int ChildrenCount { get; set; }
+        public decimal TargetAmount { get; set; }
+        public decimal CollectedAmount { get; set; }
     }
 
     /* סכום לפי אמצעי תשלום: bit / paybox / cash */

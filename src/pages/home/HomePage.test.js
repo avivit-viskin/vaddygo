@@ -70,7 +70,8 @@ test("אפשר לסמן התראה כנקראה, והיא מסומנת ✓ נק�
   });
   userEvent.click(markBtn);
 
-  expect(await screen.findByText("✓ נקרא")).toBeInTheDocument();
+  // תווית ה"נקרא" עברה מ-"✓ נקרא" (טקסט) לאייקון קו + "נקרא" (P3 line-icons)
+  expect(await screen.findByText("נקרא")).toBeInTheDocument();
 });
 
 test("מציג את יתרת הקופה ואת החוב הפתוח, עם כפתור עדכון יתרה", async () => {

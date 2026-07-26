@@ -383,29 +383,30 @@
 }
 
 /* צבע ייעודי לכל אמצעי תשלום (הצבעים של בעלת המוצר) */
+/* בלי רקע מסביב — ההיכר בקו-העליון ובסכום בצבע המותג הבוהק של כל אמצעי */
 .methods__item--bit {
-  background: #fdfaf3; /* רקע חם אחיד — ההיכר נשמר בקו-העליון ובצבע הסכום */
+  background: transparent;
   border-top-color: var(--color-bit);
 }
 .methods__item--bit .methods__amount {
-  color: var(--color-bit-bg);
+  color: var(--color-bit);
 }
 .methods__item--paybox {
-  background: #fdfaf3;
+  background: transparent;
   border-top-color: var(--color-paybox);
 }
 .methods__item--paybox .methods__amount {
-  color: var(--color-paybox-dark);
+  color: var(--color-paybox);
 }
 .methods__item--cash {
-  background: #fdfaf3;
+  background: transparent;
   border-top-color: var(--color-money);
 }
 .methods__item--cash .methods__amount {
   color: var(--color-money-dark);
 }
 .methods__item--card {
-  background: #fdfaf3;
+  background: transparent;
   border-top-color: var(--color-card);
 }
 .methods__item--card .methods__amount {

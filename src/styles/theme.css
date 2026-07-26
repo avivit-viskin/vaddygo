@@ -31,11 +31,11 @@
 
   /* ===== אמצעי תשלום — ביט (טורקיז) ===== */
   --color-bit-bg: #063e45;
-  --color-bit: #55def7;
+  --color-bit: #00c2cb;
   --color-bit-highlight: #8ef0ff;
   --color-bit-tint: #eafbfe; /* רקע בהיר לתג ביט */
   /* ===== אמצעי תשלום — פייבוקס (כחול) ===== */
-  --color-paybox: #4799e4;
+  --color-paybox: #06a9f4;
   --color-paybox-light: #67b5f1;
   --color-paybox-dark: #1f6fbc;
   --color-paybox-tint: #eaf3fd; /* רקע בהיר לתג פייבוקס */

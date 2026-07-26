@@ -33,10 +33,49 @@
       Learn how to configure a non-root public URL by running `npm run build`.
     -->
     <title>VaddyGo</title>
+    <style>
+      /* מסך פתיחה — הלוגו מוצג מיד עם טעינת האתר, ונעלם כשהאפליקציה עולה
+         (React מחליף את תוכן #root ברגע שהוא נטען). */
+      #app-splash {
+        position: fixed;
+        inset: 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: #f7f1e6;
+        z-index: 9999;
+      }
+      #app-splash img {
+        width: 200px;
+        max-width: 55vw;
+        height: auto;
+        animation: splash-pulse 1.5s ease-in-out infinite;
+      }
+      @keyframes splash-pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          opacity: 0.92;
+        }
+        50% {
+          transform: scale(1.07);
+          opacity: 1;
+        }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        #app-splash img {
+          animation: none;
+        }
+      }
+    </style>
   </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>
-    <div id="root"></div>
+    <div id="root">
+      <div id="app-splash">
+        <img src="%PUBLIC_URL%/logo.png" alt="VaddyGo" />
+      </div>
+    </div>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.

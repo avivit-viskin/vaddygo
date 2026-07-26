@@ -31,7 +31,9 @@ namespace ParentCommitteeAPI.DTOs
         [Range(0, 1000000, ErrorMessage = "המחיר חייב להיות בין 0 ל-1,000,000")]
         public decimal Price { get; set; }
 
-        [StringLength(300, ErrorMessage = "קישור התמונה ארוך מדי")]
+        // מכיל קישור (URL) או תמונה מוטמעת (base64 data-URI) שהספק העלה מהטלפון —
+        // ולכן המגבלה גבוהה. התמונה מכווצת בצד הלקוח כדי להישאר קטנה.
+        [StringLength(3_000_000, ErrorMessage = "קובץ התמונה גדול מדי")]
         public string ImageUrl { get; set; } = string.Empty;
 
         [StringLength(40, ErrorMessage = "שם התיקייה ארוך מדי")]

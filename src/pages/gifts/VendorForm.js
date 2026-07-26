@@ -203,9 +203,11 @@ function VendorForm({ vendor, onSave, onCancel }) {
         <Button type="submit" isLoading={isSubmitting}>
           שמירה
         </Button>
-        <Button variant="secondary" onClick={onCancel}>
-          ביטול
-        </Button>
+        {onCancel && (
+          <Button variant="secondary" onClick={onCancel}>
+            ביטול
+          </Button>
+        )}
       </div>
     </form>
   );

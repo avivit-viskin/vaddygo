@@ -479,3 +479,67 @@
 .vendor-panel__folder-title {
   margin: 4px 0 8px;
 }
+
+/* ── כפתורי מנהל בכרטיס הספק (עריכה + שליחת קישור לספק) ── */
+.vendor-panel__admin {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 4px;
+}
+.vendor-panel__share {
+  border: none;
+  background: none;
+  color: var(--color-link);
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-weight: 600;
+  min-height: 44px;
+}
+
+/* ── מודאל "קישור עריכה לספק" ── */
+.vendor-link p {
+  margin: 0 0 12px;
+}
+.vendor-link__url {
+  width: 100%;
+  direction: ltr;
+  text-align: left;
+  font-size: var(--font-size-sm);
+  margin-bottom: 12px;
+}
+.vendor-link__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+/* ── עמוד עריכה עצמית לספק (ציבורי, מסך מלא) ── */
+.supplier-edit {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: 24px 16px 48px;
+}
+.supplier-edit__brand {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 12px;
+}
+.supplier-edit__title {
+  text-align: center;
+  margin: 0 0 8px;
+}
+.supplier-edit__intro {
+  text-align: center;
+  color: var(--color-text);
+  margin: 0 0 18px;
+}
+.supplier-edit__saved {
+  background: var(--color-primary-light);
+  color: var(--color-success);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  text-align: center;
+  font-weight: 600;
+  margin: 0 0 14px;
+}

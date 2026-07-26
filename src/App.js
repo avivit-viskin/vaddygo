@@ -17,6 +17,7 @@ import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import JoinPage from "./pages/JoinPage";
+import SupplierEditPage from "./pages/SupplierEditPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
 import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import TeamSetupPage from "./pages/TeamSetupPage";
@@ -106,9 +107,15 @@ function App() {
   const isPurchase = location.pathname.startsWith("/institutions/");
   // עמוד הצטרפות לגן דרך קישור הזמנה (/join/:token) — ציבורי ובמסך מלא
   const isJoin = location.pathname.startsWith("/join/");
+  // עמוד עריכה עצמית לספק (/supplier/:token) — ציבורי ובמסך מלא, כמו /join
+  const isSupplierEdit = location.pathname.startsWith("/supplier/");
   const isFullScreen =
-    FULL_SCREEN_ROUTES.includes(location.pathname) || isPurchase || isJoin;
-  const isPublic = PUBLIC_ROUTES.includes(location.pathname) || isJoin;
+    FULL_SCREEN_ROUTES.includes(location.pathname) ||
+    isPurchase ||
+    isJoin ||
+    isSupplierEdit;
+  const isPublic =
+    PUBLIC_ROUTES.includes(location.pathname) || isJoin || isSupplierEdit;
   const activeInstitution = getActiveInstitution();
 
   // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות.
@@ -189,6 +196,7 @@ function App() {
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/join/:token" element={<JoinPage />} />
+          <Route path="/supplier/:token" element={<SupplierEditPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route
             path="/subscription-expired"

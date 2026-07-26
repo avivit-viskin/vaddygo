@@ -14,7 +14,7 @@ function folderMessage(folderName) {
   return `היי! ראינו את המוצרים שלכם${suffix} ואנחנו מעוניינים 🙂 אפשר לקבל פרטים ומחירים?`;
 }
 
-function VendorPanel({ vendor, onEdit, readOnly = false }) {
+function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
   const [openFolder, setOpenFolder] = useState(null);
   const folders = groupByFolder(vendor.products || []);
 
@@ -137,9 +137,20 @@ function VendorPanel({ vendor, onEdit, readOnly = false }) {
 
       {/* "צופה" — לצפייה בלבד: בלי עריכת פרטי הספק */}
       {!readOnly && (
-        <button type="button" className="vendor-panel__edit" onClick={onEdit}>
-          ✏️ עריכת פרטי הספק
-        </button>
+        <div className="vendor-panel__admin">
+          <button type="button" className="vendor-panel__edit" onClick={onEdit}>
+            ✏️ עריכת פרטי הספק
+          </button>
+          {onShareEditLink && (
+            <button
+              type="button"
+              className="vendor-panel__share"
+              onClick={onShareEditLink}
+            >
+              🔗 שליחת קישור עריכה לספק
+            </button>
+          )}
+        </div>
       )}
     </div>
   );

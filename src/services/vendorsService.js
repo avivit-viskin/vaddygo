@@ -54,3 +54,21 @@ export async function deleteVendor(id) {
     writeLocal(readLocal().filter((v) => v.id !== id));
   }
 }
+
+/*
+  עריכה עצמית של הספק דרך קישור אישי (פורטל ספקים, שלב 1). המנהל מייצר קישור
+  ושולח לספק; הספק פותח אותו (בלי התחברות), עורך את הכרטיס שלו, וזה מופיע מיד
+  לוועדים — אותו נתון בדיוק. אין נפילה מקומית: אלה פעולות שרת בלבד.
+*/
+export async function generateVendorEditLink(id) {
+  const { editToken } = await api.post(`/api/vendors/${id}/edit-link`);
+  return editToken;
+}
+
+export async function getVendorByToken(token) {
+  return api.get(`/api/public/vendors/${token}`);
+}
+
+export async function updateVendorByToken(token, vendor) {
+  return api.put(`/api/public/vendors/${token}`, vendor);
+}

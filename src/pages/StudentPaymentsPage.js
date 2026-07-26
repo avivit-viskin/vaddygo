@@ -3,7 +3,10 @@ import { useParams, Link, useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getStudent } from "../services/studentsService";
 import { getGroups } from "../services/groupsService";
-import { isActiveReadOnly } from "../services/institutionsService";
+import {
+  isActiveReadOnly,
+  getActiveServerGroupId,
+} from "../services/institutionsService";
 import {
   getStudentPayments,
   saveStudentPayment,
@@ -76,9 +79,14 @@ function StudentPaymentsPage() {
   const { student, payments } = data;
   const fullName = `${student.firstName} ${student.lastName}`;
 
-  // מספר התשלומים לכל קטגוריה — כפי שהמנהל הגדיר ב"עריכת גבייה"
+  // מספר התשלומים לכל קטגוריה — כפי שהמנהל הגדיר ב"עריכת גבייה". חשוב לקחת את
+  // הגן *הפעיל* (לא הראשון ברשימה), אחרת מזהי הקטגוריות לא יתאימו לגן הנוכחי.
+  const activeGroupId = getActiveServerGroupId();
+  const groupsList = Array.isArray(data.groups) ? data.groups : [];
+  const activeGroup =
+    groupsList.find((g) => g.id === activeGroupId) ?? groupsList[0];
   const installmentsByCategory = {};
-  (data.groups?.[0]?.categories ?? []).forEach((c) => {
+  (activeGroup?.categories ?? []).forEach((c) => {
     installmentsByCategory[c.id] = c.installments;
   });
   const unpaid = payments.filter((p) => !p.isPaid);

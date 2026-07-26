@@ -2,7 +2,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getGroups, updateGroupCategories } from "../services/groupsService";
-import { isActiveReadOnly } from "../services/institutionsService";
+import {
+  isActiveReadOnly,
+  getActiveServerGroupId,
+} from "../services/institutionsService";
 import { formatShekels } from "../services/format";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -37,7 +40,13 @@ function CollectionSettingsPage() {
   const readOnly = isActiveReadOnly();
   const { data: groups, isLoading, error, reload } = useApi(getGroups);
 
-  const group = groups && groups.length > 0 ? groups[0] : null;
+  // בוחרים את הגן *הפעיל* (לפי המוסד שנבחר), לא את הראשון ברשימה — אחרת בכל
+  // המוסדות הייתה מוצגת עריכת הגבייה של הגן הראשון שנוצר.
+  const activeId = getActiveServerGroupId();
+  const group =
+    groups && groups.length > 0
+      ? groups.find((g) => g.id === activeId) ?? groups[0]
+      : null;
 
   const [categories, setCategories] = useState([]);
   const [ready, setReady] = useState(false);

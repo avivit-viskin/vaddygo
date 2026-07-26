@@ -1,8 +1,15 @@
+import { useState } from "react";
 import Card from "./Card";
 import Button from "./Button";
 import PaymentRequestButton from "./PaymentRequestButton";
 import { formatShekels, formatBirthday } from "../services/format";
 import { paymentMethodLabel } from "../services/paymentMethods";
+
+// מסתיר את רוב ספרות הטלפון (משאיר 4 אחרונות) — פרטיות מפני מבט מהצד
+function maskPhone(phone) {
+  const s = String(phone || "");
+  return s.length <= 4 ? s : "•••" + s.slice(-4);
+}
 
 // סדר האמצעים בפירוט (כמו קוביות הבית); מציגים רק אמצעי שבו שולם סכום כלשהו.
 // טקסט בלבד, בלי אייקונים — לבקשת בעלת המוצר בכרטיס התלמיד.
@@ -29,6 +36,7 @@ function StudentCard({
   onDelete,
   readOnly = false,
 }) {
+  const [showPhones, setShowPhones] = useState(false);
   return (
     <Card>
       <div className="student-card">
@@ -70,18 +78,38 @@ function StudentCard({
               🕒 תשלום אחרון: {formatBirthday(summary.lastPaymentDate)}
             </small>
           )}
-          <span>
+          <span className="student-card__phone">
             טלפון הורה:{" "}
-            <a href={`tel:${student.parentPhoneNumber}`} dir="ltr">
-              {student.parentPhoneNumber}
-            </a>
+            {showPhones ? (
+              <a href={`tel:${student.parentPhoneNumber}`} dir="ltr">
+                {student.parentPhoneNumber}
+              </a>
+            ) : (
+              <span dir="ltr" className="student-card__masked">
+                {maskPhone(student.parentPhoneNumber)}
+              </span>
+            )}
+            <button
+              type="button"
+              className="student-card__reveal"
+              aria-label={showPhones ? "הסתרת הטלפון" : "הצגת הטלפון"}
+              onClick={() => setShowPhones((v) => !v)}
+            >
+              👁
+            </button>
           </span>
           {student.parentBPhone && (
-            <span>
+            <span className="student-card__phone">
               טלפון הורה ב׳:{" "}
-              <a href={`tel:${student.parentBPhone}`} dir="ltr">
-                {student.parentBPhone}
-              </a>
+              {showPhones ? (
+                <a href={`tel:${student.parentBPhone}`} dir="ltr">
+                  {student.parentBPhone}
+                </a>
+              ) : (
+                <span dir="ltr" className="student-card__masked">
+                  {maskPhone(student.parentBPhone)}
+                </span>
+              )}
             </span>
           )}
           {student.allergies && (
@@ -102,9 +130,11 @@ function StudentCard({
             </Button>
           )}
           {!readOnly && (
-            <Button variant="danger" onClick={() => onDelete(student)}>
-              מחיקה
-            </Button>
+            <span className="student-card__delete-wrap">
+              <Button variant="danger" onClick={() => onDelete(student)}>
+                מחיקה
+              </Button>
+            </span>
           )}
         </div>
       </div>

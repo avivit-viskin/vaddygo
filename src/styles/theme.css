@@ -587,6 +587,40 @@ button.vendor-form__remove {
   justify-content: flex-end;
 }
 
+/* מפרידים את "מחיקה" (פעולה הרסנית) מ"עריכה" — דוחפים אותו לקצה, למניעת
+   לחיצה בטעות (יש גם דיאלוג אישור לפני מחיקה בפועל) */
+.student-card__delete-wrap {
+  margin-inline-start: auto;
+}
+
+/* טלפון הורה — מוסתר כברירת מחדל (פרטיות), עם עין להצגה */
+.student-card__phone {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.student-card__masked {
+  letter-spacing: 1px;
+  color: var(--color-text-muted);
+}
+
+.student-card__reveal {
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-size: 0.85rem;
+  padding: 2px;
+  min-width: 28px;
+  min-height: 28px;
+  opacity: 0.6;
+}
+
+.student-card__reveal:hover {
+  opacity: 1;
+}
+
 /* תג סטטוס תשלום ליד שם התלמיד: אפור=חלקי/אין, ירוק=שולם הכל */
 .pay-badge {
   display: inline-block;

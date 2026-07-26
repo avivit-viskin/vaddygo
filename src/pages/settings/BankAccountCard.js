@@ -14,6 +14,8 @@ function BankAccountCard() {
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
+  // מספר החשבון מוסתר כברירת מחדל (מידע רגיש) — מציגים בלחיצה על העין
+  const [showAccount, setShowAccount] = useState(false);
 
   useEffect(() => {
     getBankAccount()
@@ -69,13 +71,25 @@ function BankAccountCard() {
         onChange={change("branch")}
         inputMode="numeric"
       />
-      <Input
-        id="bank-account"
-        label="מספר חשבון"
-        value={acct.account}
-        onChange={change("account")}
-        inputMode="numeric"
-      />
+      <div className="password-field">
+        <Input
+          id="bank-account"
+          label="מספר חשבון"
+          type={showAccount ? "text" : "password"}
+          value={acct.account}
+          onChange={change("account")}
+          inputMode="numeric"
+          autoComplete="off"
+        />
+        <button
+          type="button"
+          className="password-field__eye"
+          aria-label={showAccount ? "הסתרת מספר החשבון" : "הצגת מספר החשבון"}
+          onClick={() => setShowAccount((s) => !s)}
+        >
+          👁
+        </button>
+      </div>
       <div className="settings__save-row">
         <Button onClick={handleSave} isLoading={isSaving}>
           שמירת פרטי הבנק

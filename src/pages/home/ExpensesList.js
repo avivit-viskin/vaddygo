@@ -77,7 +77,10 @@ function ExpensesList({ refreshSignal = 0, onChanged, readOnly = false }) {
                   {paymentMethodLabel(e.method)}
                   {e.description ? ` · ${e.description}` : ""}
                 </span>
-                <span className="expenses-list__date">
+                <span
+                  className="expenses-list__date"
+                  title="תאריך רישום ההוצאה"
+                >
                   {formatDayMonth(e.date)}
                 </span>
                 {/* "צופה" — לצפייה בלבד: בלי מחיקת הוצאה */}

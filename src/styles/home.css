@@ -330,10 +330,13 @@
   text-align: left;
 }
 
+/* מסלול הפס בצבע נראה על הכרטיס הלבן (היה בז' בהיר שנבלע), עם ניגודיות
+   ברורה מול המילוי הכהה — כדי שרואים בבירור כמה הושלם וכמה נשאר */
 .progress {
   margin-top: 16px;
-  height: 10px;
-  background: var(--color-primary-light);
+  height: 12px;
+  background: #f2d6e4;
+  border: 1px solid #e9c4d6;
   border-radius: 999px;
   overflow: hidden;
 }
@@ -343,6 +346,14 @@
   background: var(--color-primary-dark);
   border-radius: 999px;
   transition: width 0.4s ease;
+}
+
+/* משפט הסבר קצר לקוביות אמצעי התשלום */
+.methods__hint {
+  margin: 14px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
 }
 
 .progress__text {

@@ -39,6 +39,8 @@ namespace ParentCommitteeAPI.Services
                 Name = dto.Name.Trim(),
                 CatalogUrl = dto.CatalogUrl.Trim(),
                 WhatsApp = dto.WhatsApp.Trim(),
+                Category = dto.Category.Trim(),
+                City = dto.City.Trim(),
                 Products = MapProducts(dto.Products),
                 SocialLinks = MapSocialLinks(dto.SocialLinks),
             };
@@ -131,6 +133,8 @@ namespace ParentCommitteeAPI.Services
             vendor.Name = dto.Name.Trim();
             vendor.CatalogUrl = dto.CatalogUrl.Trim();
             vendor.WhatsApp = dto.WhatsApp.Trim();
+            vendor.Category = dto.Category.Trim();
+            vendor.City = dto.City.Trim();
             _db.VendorProducts.RemoveRange(vendor.Products);
             _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
             vendor.Products = MapProducts(dto.Products);
@@ -169,6 +173,8 @@ namespace ParentCommitteeAPI.Services
             Name = vendor.Name,
             CatalogUrl = vendor.CatalogUrl,
             WhatsApp = vendor.WhatsApp,
+            Category = vendor.Category,
+            City = vendor.City,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

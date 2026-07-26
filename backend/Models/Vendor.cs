@@ -12,6 +12,11 @@ namespace ParentCommitteeAPI.Models
         public string Name { get; set; } = string.Empty;
         public string CatalogUrl { get; set; } = string.Empty;
 
+        /* קטגוריה (הזנה/חוגים/מתנות/אירועים/ציוד/אחר) ועיר/אזור פעילות — כדי
+           שוועדים יוכלו לסנן ולמצוא ספקים מתאימים (גילוי). ריק = לא הוגדר. */
+        public string Category { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+
         /* טוקן עריכה אישי — מאפשר לספק לערוך את הכרטיס שלו דרך קישור, בלי חשבון.
            ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
         public string EditToken { get; set; } = string.Empty;

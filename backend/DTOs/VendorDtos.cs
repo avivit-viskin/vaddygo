@@ -18,6 +18,12 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(100, ErrorMessage = "פרטי הוואטסאפ ארוכים מדי")]
         public string WhatsApp { get; set; } = string.Empty;
 
+        [StringLength(40, ErrorMessage = "הקטגוריה ארוכה מדי")]
+        public string Category { get; set; } = string.Empty;
+
+        [StringLength(60, ErrorMessage = "שם העיר/אזור ארוך מדי")]
+        public string City { get; set; } = string.Empty;
+
         public List<VendorProductDto> Products { get; set; } = new();
         public List<VendorSocialLinkDto> SocialLinks { get; set; } = new();
     }
@@ -64,6 +70,8 @@ namespace ParentCommitteeAPI.DTOs
         public string Name { get; set; } = string.Empty;
         public string CatalogUrl { get; set; } = string.Empty;
         public string WhatsApp { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
         public List<VendorProductResponseDto> Products { get; set; } = new();
         public List<VendorSocialLinkResponseDto> SocialLinks { get; set; } = new();
     }

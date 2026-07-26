@@ -19,6 +19,7 @@ import WelcomePopup from "../components/WelcomePopup";
 import ExpenseAfterEventPrompt from "./home/ExpenseAfterEventPrompt";
 import CollectionCard from "./home/CollectionCard";
 import CategoryList from "./home/CategoryList";
+import SubgroupBreakdown from "./home/SubgroupBreakdown";
 import StaffBirthdays from "./home/StaffBirthdays";
 import ExpensesList from "./home/ExpensesList";
 import Modal from "../components/Modal";
@@ -139,6 +140,7 @@ function HomePage() {
         readOnly={readOnly}
       />
       <CategoryList categories={dashboard.byCategory} />
+      <SubgroupBreakdown subgroups={dashboard.bySubgroup} />
       <StaffBirthdays onChanged={refreshAll} readOnly={readOnly} />
       <ExpensesList
         refreshSignal={expensesVersion}

@@ -150,7 +150,8 @@
    (כפתור ה-AI עבר לכותרת מסך הבית, ליד הפעמון.) */
 .whatsapp-fab {
   position: fixed;
-  bottom: calc(var(--bottom-nav-height) + 12px);
+  /* מעל הניווט התחתון כולל אזור-הבטוח של הטלפון — כדי שלא יתנגש בו/יוסתר */
+  bottom: calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
   left: 12px;
   width: 56px;
   height: 56px;

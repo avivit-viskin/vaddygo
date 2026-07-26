@@ -3,6 +3,7 @@ import Input from "../../components/Input";
 import Select from "../../components/Select";
 import Checkbox from "../../components/Checkbox";
 import Button from "../../components/Button";
+import Icon from "../../components/Icon";
 import { roleFromGender } from "../../services/shabbatParents";
 
 /*
@@ -109,13 +110,21 @@ function EventForm({ onSave, defaultDate, initialEvent, students = [] }) {
       />
       <Checkbox
         id="event-reminder"
-        label="🔔 תזכורת לאירוע"
+        label={
+          <>
+            <Icon name="bell" size={16} /> תזכורת לאירוע
+          </>
+        }
         checked={reminder}
         onChange={(e) => setReminder(e.target.checked)}
       />
       <Checkbox
         id="event-share-parent"
-        label="👪 אבא/אמא של שבת (שליחת הודעה להורה)"
+        label={
+          <>
+            <Icon name="users" size={16} /> אבא/אמא של שבת (שליחת הודעה להורה)
+          </>
+        }
         checked={shareWithParent}
         onChange={(e) => setShareWithParent(e.target.checked)}
       />

@@ -235,6 +235,8 @@ button.expenses-history__edit,
 button.expenses-history__delete,
 button.staff__edit,
 button.staff__delete,
+button.calendar-list__edit,
+button.calendar-list__delete,
 button.vendor-panel__edit,
 button.vendor-form__remove {
   display: inline-flex;

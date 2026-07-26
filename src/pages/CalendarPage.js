@@ -38,6 +38,7 @@ import HolidaysSection from "./calendar/HolidaysSection";
 import HolidayBudgetDialog from "./calendar/HolidayBudgetDialog";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import WhatsAppIcon from "../components/WhatsAppIcon";
@@ -337,7 +338,9 @@ function CalendarPage({ initialDate }) {
 
       {/* מדור 3: האירועים שלי */}
       <section className="calendar-list" aria-label="האירועים שלי החודש">
-        <h3>האירועים שלי</h3>
+        <h3>
+          <Icon name="calendar" size={18} /> האירועים שלי
+        </h3>
         {regularEvents.length === 0 && (
           <p>אין אירועים החודש — אפשר להוסיף את הראשון!</p>
         )}
@@ -351,8 +354,18 @@ function CalendarPage({ initialDate }) {
             </span>
             <span className="calendar-list__name">
               {event.name}
-              {event.reminder && " 🔔"}
-              {event.shareWithParent && " 👪"}
+              {event.reminder && (
+                <>
+                  {" "}
+                  <Icon name="bell" size={13} title="תזכורת" />
+                </>
+              )}
+              {event.shareWithParent && (
+                <>
+                  {" "}
+                  <Icon name="users" size={13} title="אבא/אמא של שבת" />
+                </>
+              )}
             </span>
             {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
             {!readOnly && (
@@ -363,7 +376,7 @@ function CalendarPage({ initialDate }) {
                   aria-label={`עריכת האירוע ${event.name}`}
                   onClick={() => setEditTarget(event)}
                 >
-                  ✏️
+                  <Icon name="pencil" size={16} />
                 </button>
                 <button
                   type="button"
@@ -371,7 +384,7 @@ function CalendarPage({ initialDate }) {
                   aria-label={`מחיקת האירוע ${event.name}`}
                   onClick={() => setDeleteTarget(event)}
                 >
-                  🗑️
+                  <Icon name="trash" size={16} />
                 </button>
               </>
             )}
@@ -381,7 +394,9 @@ function CalendarPage({ initialDate }) {
 
       {/* מדור 4: ימי הולדת החודש — צוות ותלמידים (מסונכרן אוטומטית) */}
       <section className="calendar-list" aria-label="ימי הולדת החודש">
-        <h3>ימי הולדת החודש 🎂</h3>
+        <h3>
+          <Icon name="cake" size={18} /> ימי הולדת החודש
+        </h3>
         {monthBirthdays.length === 0 ? (
           <p>
             אין ימי הולדת בחודש זה. ימי ההולדת מופיעים בלוח בתאריך שלהם — אפשר
@@ -397,7 +412,7 @@ function CalendarPage({ initialDate }) {
                 {b.day}.{monthIndex + 1}
               </span>
               <span className="calendar-list__name">
-                🎂 {b.name}
+                <Icon name="cake" size={14} /> {b.name}
                 {b.type === "staff" && " · צוות"}
               </span>
             </div>
@@ -407,7 +422,9 @@ function CalendarPage({ initialDate }) {
 
       {/* מדור: אבא ואמא של שבת — לפי אירועים שסומנו */}
       <section className="calendar-list" aria-label="אבא ואמא של שבת">
-        <h3>אבא ואמא של שבת 👪</h3>
+        <h3>
+          <Icon name="users" size={18} /> אבא ואמא של שבת
+        </h3>
         <p className="calendar-list__hint">
           אפשר להוסיף אבא ואמא של שבת לפי ההוספה באירוע — מסמנים אירוע כ"אבא/אמא
           של שבת", והוא מופיע כאן עם כפתור לשליחת הודעה להורה 🙂
@@ -423,7 +440,8 @@ function CalendarPage({ initialDate }) {
                 {listDateFormatter.format(event.date)}
               </span>
               <span className="calendar-list__name">
-                👪 {event.name?.trim() || roleLabel(event.shabbatRole)}
+                <Icon name="users" size={14} />{" "}
+                {event.name?.trim() || roleLabel(event.shabbatRole)}
               </span>
               {event.parentPhone && (
                 <a
@@ -523,7 +541,9 @@ function CalendarPage({ initialDate }) {
                     key={`bday-${b.type}-${b.name}`}
                     className="calendar-day-view__item calendar-day-view__item--birthday"
                   >
-                    <span className="calendar-day-view__name">🎂 {b.name}</span>
+                    <span className="calendar-day-view__name">
+                      <Icon name="cake" size={14} /> {b.name}
+                    </span>
                     <span className="calendar-day-view__tag">
                       {b.type === "staff" ? "יום הולדת · צוות" : "יום הולדת"}
                     </span>
@@ -535,8 +555,18 @@ function CalendarPage({ initialDate }) {
                   <li key={event.id} className="calendar-day-view__item">
                     <span className="calendar-day-view__name">
                       {event.name}
-                      {event.reminder && " 🔔"}
-                      {event.shareWithParent && " 👪"}
+                      {event.reminder && (
+                        <>
+                          {" "}
+                          <Icon name="bell" size={13} title="תזכורת" />
+                        </>
+                      )}
+                      {event.shareWithParent && (
+                        <>
+                          {" "}
+                          <Icon name="users" size={13} title="אבא/אמא של שבת" />
+                        </>
+                      )}
                     </span>
                     {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
                     {!readOnly && (
@@ -547,7 +577,7 @@ function CalendarPage({ initialDate }) {
                           aria-label={`עריכת ${event.name}`}
                           onClick={() => editFromDayView(event)}
                         >
-                          ✏️
+                          <Icon name="pencil" size={16} />
                         </button>
                         <button
                           type="button"
@@ -555,7 +585,7 @@ function CalendarPage({ initialDate }) {
                           aria-label={`מחיקת ${event.name}`}
                           onClick={() => deleteFromDayView(event)}
                         >
-                          🗑️
+                          <Icon name="trash" size={16} />
                         </button>
                       </span>
                     )}

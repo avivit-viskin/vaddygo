@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
 import Card from "../components/Card";
 import Checkbox from "../components/Checkbox";
+import Icon from "../components/Icon";
 import {
   getNotificationPrefs,
   setNotificationPref,
@@ -56,14 +57,14 @@ function SettingsPage() {
   const SECTIONS = [
     {
       key: "institution",
-      icon: "🏫",
+      icon: "school",
       title: "שם המוסד",
       subtitle: "תיקון שם המוסד אם נפלה טעות",
       render: () => <RenameInstitutionCard />,
     },
     {
       key: "notifications",
-      icon: "🔔",
+      icon: "bell",
       title: "התראות",
       subtitle: "אילו התראות יופיעו בפעמון",
       render: () => (
@@ -88,7 +89,7 @@ function SettingsPage() {
     },
     {
       key: "privacy",
-      icon: "🔒",
+      icon: "lock",
       // "צופה" — ההגדרה ששולחת את נתוני הגן ל-AI שמורה למנהל/בעלים; לצופה
       // נשארת רק הסכמת עוגיות המדידה (אישית, ברמת הדפדפן).
       title: "פרטיות",
@@ -132,7 +133,7 @@ function SettingsPage() {
     },
     {
       key: "team",
-      icon: "👥",
+      icon: "users",
       title: "חברי ועד והרשאות",
       subtitle: "הוספה, עריכת הרשאה והסרה",
       render: () => (
@@ -146,7 +147,7 @@ function SettingsPage() {
     },
     {
       key: "payments",
-      icon: "💳",
+      icon: "card",
       title: "תשלומים",
       subtitle: "קישורי ביט/פייבוקס וחשבון בנק",
       render: () => (
@@ -158,7 +159,7 @@ function SettingsPage() {
     },
     {
       key: "account",
-      icon: "🔐",
+      icon: "key",
       title: "חשבון וסיסמה",
       subtitle: "שינוי סיסמה ומחיקת חשבון",
       render: () => (
@@ -190,7 +191,7 @@ function SettingsPage() {
             חזרה
           </button>
           <h2>
-            {active.icon} {active.title}
+            <Icon name={active.icon} size={24} /> {active.title}
           </h2>
         </div>
         {active.render()}
@@ -213,7 +214,7 @@ function SettingsPage() {
               onClick={() => openSection(s.key)}
             >
               <span className="settings-menu__icon" aria-hidden="true">
-                {s.icon}
+                <Icon name={s.icon} size={24} />
               </span>
               <span className="settings-menu__text">
                 <span className="settings-menu__label">{s.title}</span>

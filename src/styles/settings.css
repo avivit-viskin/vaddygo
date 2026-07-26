@@ -31,7 +31,8 @@
 }
 
 .settings-menu__icon {
-  font-size: 1.5rem;
+  display: inline-flex;
+  color: var(--color-primary-dark);
   flex-shrink: 0;
 }
 

@@ -33,6 +33,9 @@ namespace ParentCommitteeAPI.DTOs
 
         [StringLength(300, ErrorMessage = "קישור התמונה ארוך מדי")]
         public string ImageUrl { get; set; } = string.Empty;
+
+        [StringLength(40, ErrorMessage = "שם התיקייה ארוך מדי")]
+        public string Folder { get; set; } = string.Empty;
     }
 
     public class VendorSocialLinkDto
@@ -69,6 +72,7 @@ namespace ParentCommitteeAPI.DTOs
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
+        public string Folder { get; set; } = string.Empty;
     }
 
     public class VendorSocialLinkResponseDto

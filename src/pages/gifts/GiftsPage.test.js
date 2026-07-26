@@ -93,6 +93,9 @@ test("פתיחת דף ספק מציגה את המוצרים והמחירים", a
   });
   userEvent.click(vendorButton);
 
+  // המוצרים נמצאים בתוך תיקייה — מוצר בלי תיקייה מקובץ תחת "כללי"
+  userEvent.click(await screen.findByRole("button", { name: /כללי/ }));
+
   expect(await screen.findByText("כוס מעוצבת")).toBeInTheDocument();
   expect(screen.getByText("30 ₪")).toBeInTheDocument();
 });
@@ -120,6 +123,7 @@ test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמ
 
   userEvent.click(await screen.findByRole("button", { name: /מתנות בלב/ }));
 
+  // וואטסאפ + רשת חברתית מוצגים ברמת רשימת התיקיות
   // כפתור וואטסאפ בונה קישור wa.me עם קידומת בינלאומית (0 מוביל → 972)
   const whatsapp = await screen.findByRole("link", { name: /וואטסאפ/ });
   expect(whatsapp).toHaveAttribute("href", "https://wa.me/972541234567");
@@ -128,8 +132,10 @@ test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמ
     "href",
     "https://instagram.com/matanotbalev"
   );
-  // תמונת מוצר
-  expect(screen.getByAltText("כוס מעוצבת")).toHaveAttribute(
+
+  // תמונת המוצר נמצאת בתוך התיקייה
+  userEvent.click(screen.getByRole("button", { name: /כללי/ }));
+  expect(await screen.findByAltText("כוס מעוצבת")).toHaveAttribute(
     "src",
     "https://x.test/cup.jpg"
   );

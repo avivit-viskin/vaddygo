@@ -98,6 +98,7 @@ namespace ParentCommitteeAPI.Services
                     Name = p.Name.Trim(),
                     Price = p.Price,
                     ImageUrl = p.ImageUrl.Trim(),
+                    Folder = (p.Folder ?? string.Empty).Trim(),
                 })
                 .ToList();
 
@@ -123,6 +124,7 @@ namespace ParentCommitteeAPI.Services
                 Name = p.Name,
                 Price = p.Price,
                 ImageUrl = p.ImageUrl,
+                Folder = p.Folder,
             }).ToList(),
             SocialLinks = vendor.SocialLinks.Select(l => new VendorSocialLinkResponseDto
             {

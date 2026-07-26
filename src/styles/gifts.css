@@ -412,3 +412,70 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
+
+/* ===== תיקיות הספק (חג/אירוע) ===== */
+.vendor-folders {
+  list-style: none;
+  margin: 12px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.vendor-folders__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  cursor: pointer;
+  text-align: right;
+  transition: background-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.vendor-folders__item:hover {
+  background-color: var(--color-primary-light);
+  box-shadow: var(--shadow-sm);
+}
+
+.vendor-folders__icon {
+  font-size: 1.3rem;
+}
+
+.vendor-folders__name {
+  flex: 1;
+  font-weight: 600;
+}
+
+.vendor-folders__count {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.vendor-folders__chevron {
+  color: var(--color-text-muted);
+  font-size: 1.3rem;
+}
+
+/* חזרה מרשימת המוצרים לרשימת התיקיות */
+.vendor-panel__back {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  padding: 4px 0;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-link);
+  cursor: pointer;
+}
+
+.vendor-panel__folder-title {
+  margin: 4px 0 8px;
+}

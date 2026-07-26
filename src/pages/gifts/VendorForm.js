@@ -1,11 +1,12 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
+import { FOLDER_PRESETS } from "../../services/vendorFolders";
 
 /*
   VendorForm — הוספה/עריכה של ספק (UI_SPEC ס' 12). ספקים מנוהלים ידנית ע"י
   מנהלת VaddyGo (ערוץ הכנסה). לכל ספק: שם, קישור לקטלוג, וואטסאפ, מוצרים
-  (שם + מחיר + תמונה) וקישורים לרשתות חברתיות. הרשימות הדינמיות נערכות בשורות.
+  (שם + מחיר + תמונה + תיקייה/חג) וקישורים לרשתות חברתיות.
 */
 function VendorForm({ vendor, onSave, onCancel }) {
   const [name, setName] = useState(vendor?.name || "");
@@ -44,6 +45,7 @@ function VendorForm({ vendor, onSave, onCancel }) {
             name: product.name.trim(),
             price: Number(product.price) || 0,
             imageUrl: (product.imageUrl || "").trim(),
+            folder: (product.folder || "").trim(),
           })),
         socialLinks: socialLinks
           .filter((link) => (link.url || "").trim())
@@ -119,6 +121,16 @@ function VendorForm({ vendor, onSave, onCancel }) {
             }
             placeholder="קישור לתמונה (https://...)"
           />
+          <input
+            className="field__input"
+            aria-label={`תיקייה/חג למוצר ${index + 1}`}
+            list="vendor-folder-presets"
+            value={product.folder || ""}
+            onChange={(e) =>
+              updateItem(setProducts, index, { folder: e.target.value })
+            }
+            placeholder="תיקייה/חג (למשל: ראש השנה)"
+          />
           <button
             type="button"
             className="vendor-form__remove"
@@ -129,10 +141,18 @@ function VendorForm({ vendor, onSave, onCancel }) {
           </button>
         </div>
       ))}
+      <datalist id="vendor-folder-presets">
+        {FOLDER_PRESETS.map((f) => (
+          <option key={f} value={f} />
+        ))}
+      </datalist>
       <Button
         variant="secondary"
         onClick={() =>
-          setProducts((prev) => [...prev, { name: "", price: "", imageUrl: "" }])
+          setProducts((prev) => [
+            ...prev,
+            { name: "", price: "", imageUrl: "", folder: "" },
+          ])
         }
       >
         + הוספת מוצר

@@ -17,6 +17,12 @@ namespace ParentCommitteeAPI.Models
         public string Category { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
 
+        /* אמצעי התשלום של הספק — לתשלום ישיר מהוועד אליו (VaddyGo לא מחזיקה כסף).
+           כולם אופציונליים: קישור תשלום (GROW/פייבוקס/כל קישור), ביט, והעברה בנקאית. */
+        public string PaymentLink { get; set; } = string.Empty;
+        public string PaymentBit { get; set; } = string.Empty;
+        public string PaymentBankInfo { get; set; } = string.Empty;
+
         /* טוקן עריכה אישי — מאפשר לספק לערוך את הכרטיס שלו דרך קישור, בלי חשבון.
            ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
         public string EditToken { get; set; } = string.Empty;

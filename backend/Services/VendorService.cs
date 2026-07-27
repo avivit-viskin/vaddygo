@@ -42,6 +42,9 @@ namespace ParentCommitteeAPI.Services
                 WhatsApp = dto.WhatsApp.Trim(),
                 Category = dto.Category.Trim(),
                 City = dto.City.Trim(),
+                PaymentLink = dto.PaymentLink.Trim(),
+                PaymentBit = dto.PaymentBit.Trim(),
+                PaymentBankInfo = dto.PaymentBankInfo.Trim(),
                 Products = MapProducts(dto.Products),
                 SocialLinks = MapSocialLinks(dto.SocialLinks),
             };
@@ -192,6 +195,9 @@ namespace ParentCommitteeAPI.Services
             vendor.WhatsApp = dto.WhatsApp.Trim();
             vendor.Category = dto.Category.Trim();
             vendor.City = dto.City.Trim();
+            vendor.PaymentLink = dto.PaymentLink.Trim();
+            vendor.PaymentBit = dto.PaymentBit.Trim();
+            vendor.PaymentBankInfo = dto.PaymentBankInfo.Trim();
             _db.VendorProducts.RemoveRange(vendor.Products);
             _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
             vendor.Products = MapProducts(dto.Products);
@@ -232,6 +238,9 @@ namespace ParentCommitteeAPI.Services
             WhatsApp = vendor.WhatsApp,
             Category = vendor.Category,
             City = vendor.City,
+            PaymentLink = vendor.PaymentLink,
+            PaymentBit = vendor.PaymentBit,
+            PaymentBankInfo = vendor.PaymentBankInfo,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

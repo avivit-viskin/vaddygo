@@ -24,6 +24,15 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(60, ErrorMessage = "שם העיר/אזור ארוך מדי")]
         public string City { get; set; } = string.Empty;
 
+        [StringLength(300, ErrorMessage = "קישור התשלום ארוך מדי")]
+        public string PaymentLink { get; set; } = string.Empty;
+
+        [StringLength(40, ErrorMessage = "מספר הביט ארוך מדי")]
+        public string PaymentBit { get; set; } = string.Empty;
+
+        [StringLength(200, ErrorMessage = "פרטי ההעברה ארוכים מדי")]
+        public string PaymentBankInfo { get; set; } = string.Empty;
+
         public List<VendorProductDto> Products { get; set; } = new();
         public List<VendorSocialLinkDto> SocialLinks { get; set; } = new();
     }
@@ -95,6 +104,9 @@ namespace ParentCommitteeAPI.DTOs
         public string WhatsApp { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public string City { get; set; } = string.Empty;
+        public string PaymentLink { get; set; } = string.Empty;
+        public string PaymentBit { get; set; } = string.Empty;
+        public string PaymentBankInfo { get; set; } = string.Empty;
         public List<VendorProductResponseDto> Products { get; set; } = new();
         public List<VendorSocialLinkResponseDto> SocialLinks { get; set; } = new();
     }

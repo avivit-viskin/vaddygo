@@ -3,6 +3,7 @@ import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Input from "../components/Input";
+import logo from "../assets/vaddygo-logo.png";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import { login, loginWithGoogle } from "../services/authService";
@@ -97,8 +98,8 @@ function LoginPage() {
 
       <div className="login-screen__content">
         <header className="login-hero">
-          <div className="login-hero__badge" aria-hidden="true">
-            V
+          <div className="login-hero__logo">
+            <img src={logo} alt="" />
           </div>
           <h1 className="login-hero__brand">
             <BrandName />

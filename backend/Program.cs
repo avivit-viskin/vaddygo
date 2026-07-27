@@ -116,10 +116,27 @@ builder.Services.AddHttpClient<IAiService, AiService>();
 
 var app = builder.Build();
 
-// הרצת מיגרציות בעלייה — המסד תמיד קיים ותואם למודל, גם בהתקנה נקייה
+// הרצת מיגרציות בעלייה — המסד תמיד קיים ותואם למודל, גם בהתקנה נקייה.
+// בנוסף: קידום מנהלת VaddyGo לתפקיד SuperAdmin לפי המייל שמוגדר ב-
+// Admin:SuperAdminEmail (משתנה סביבה Admin__SuperAdminEmail), כדי שתוכל לנהל
+// ספקים. אידמפוטנטי — רץ בכל עלייה ומקדם רק אם המשתמש קיים ועדיין לא SuperAdmin.
 using (var scope = app.Services.CreateScope())
 {
-    scope.ServiceProvider.GetRequiredService<AppDbContext>().Database.Migrate();
+    var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+    db.Database.Migrate();
+
+    var adminEmail = (app.Configuration["Admin:SuperAdminEmail"] ?? string.Empty)
+        .Trim().ToLowerInvariant();
+    if (adminEmail.Length > 0)
+    {
+        var admin = db.Users.FirstOrDefault(u => u.Email.ToLower() == adminEmail);
+        if (admin != null && admin.Role != "SuperAdmin")
+        {
+            admin.Role = "SuperAdmin";
+            db.SaveChanges();
+            app.Logger.LogInformation("Promoted {Email} to SuperAdmin", adminEmail);
+        }
+    }
 }
 
 // טיפול שגיאות מרכזי — עוטף את כל הבקשות, ראשון ב-pipeline

@@ -98,7 +98,7 @@ function LoginPage() {
       <div className="login-screen__content">
         <header className="login-hero">
           <div className="login-hero__logo">
-            <img src={`${process.env.PUBLIC_URL}/logo.png`} alt="" />
+            <img src={`${process.env.PUBLIC_URL}/logo512.png`} alt="" />
           </div>
           <h1 className="login-hero__brand">
             <BrandName />

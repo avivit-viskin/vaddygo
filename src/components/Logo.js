@@ -14,8 +14,10 @@ function Logo() {
   }
 
   return (
+    // logo512 (512px) ולא logo.png (256px) — כדי שהלוגו יישאר חד גם במסכי
+    // רזולוציה גבוהה (רטינה/נייד), במיוחד כשמוצג בגדול (טעינה/כניסה)
     <img
-      src={`${process.env.PUBLIC_URL}/logo.png`}
+      src={`${process.env.PUBLIC_URL}/logo512.png`}
       alt="VaddyGo"
       className="app-logo"
       onError={() => setFailed(true)}

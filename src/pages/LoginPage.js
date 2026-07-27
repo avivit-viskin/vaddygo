@@ -153,6 +153,9 @@ function LoginPage() {
           <p className="auth-page__hint">
             עדיין אין לך חשבון? <Link to="/register">להרשמה מהירה</Link>
           </p>
+          <p className="auth-page__hint">
+            ספק/ית? <Link to="/suppliers">לכניסת ספקים 🏷️</Link>
+          </p>
           </form>
         </div>
         <SupportLink />

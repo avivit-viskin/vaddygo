@@ -16,6 +16,9 @@ function Footer() {
         <span aria-hidden="true">·</span>
         <Link to="/cookies">עוגיות</Link>
       </nav>
+      <nav className="app-footer__links" aria-label="פורטל ספקים">
+        <Link to="/suppliers">🏷️ כניסת ספקים</Link>
+      </nav>
       <p className="app-footer__copy">© VaddyGo</p>
     </footer>
   );

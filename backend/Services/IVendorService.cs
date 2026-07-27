@@ -21,6 +21,12 @@ namespace ParentCommitteeAPI.Services
         /* התחברות ספק: הגדרת מייל+סיסמה (דרך הטוקן), והתחברות שמחזירה טוקן */
         Task<CredentialResult> SetCredentialsAsync(string token, string loginEmail, string password);
         Task<string?> LoginAsync(string loginEmail, string password);
+
+        /* איפוס סיסמה לספק (כמו למנוי): בקשת קוד חד-פעמי למייל, ואיפוס עם הקוד.
+           Request תמיד "מצליח" (לא חושפים אם המייל קיים). Reset מחזיר null בהצלחה
+           או הודעת שגיאה אחידה כשהקוד שגוי/פג. */
+        Task RequestPasswordResetAsync(string email);
+        Task<string?> ResetPasswordAsync(string loginEmail, string code, string newPassword);
     }
 
     /* תוצאת הגדרת פרטי התחברות לספק */

@@ -36,6 +36,12 @@ namespace ParentCommitteeAPI.Models
         public string LoginEmail { get; set; } = string.Empty;
         public string PasswordHash { get; set; } = string.Empty;
 
+        /* איפוס סיסמה לספק (כמו למנוי) — קוד חד-פעמי מגובב, תוקף, ומונה ניסיונות.
+           null כשאין תהליך איפוס פעיל; מתאפס אחרי איפוס מוצלח או 5 ניסיונות שגויים. */
+        public string? ResetCodeHash { get; set; }
+        public DateTime? ResetCodeExpiresAt { get; set; }
+        public int ResetCodeAttempts { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

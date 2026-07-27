@@ -85,3 +85,19 @@ export async function supplierLogin(credentials) {
   const { editToken } = await api.post("/api/public/vendors/login", credentials);
   return editToken;
 }
+
+/*
+  איפוס סיסמה לספק (כמו למנוי): שלב 1 — בקשת קוד חד-פעמי למייל שהספק הגדיר;
+  שלב 2 — הזנת הקוד + סיסמה חדשה. מטעמי אבטחה השרת לא חושף אם המייל קיים.
+*/
+export async function requestVendorPasswordReset(email) {
+  return api.post("/api/public/vendors/forgot-password", { email });
+}
+
+export async function resetVendorPassword({ loginEmail, code, newPassword }) {
+  return api.post("/api/public/vendors/reset-password", {
+    loginEmail,
+    code,
+    newPassword,
+  });
+}

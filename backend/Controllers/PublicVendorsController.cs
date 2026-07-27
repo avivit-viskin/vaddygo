@@ -73,5 +73,25 @@ namespace ParentCommitteeAPI.Controllers
                 return Unauthorized(new { message = "מייל או סיסמה שגויים" });
             return Ok(new { editToken = token });
         }
+
+        // POST: api/public/vendors/forgot-password — שולח קוד איפוס למייל שהספק הגדיר.
+        // תמיד מחזיר הצלחה כללית (לא חושף אם המייל רשום) — מונע enumeration.
+        [HttpPost("forgot-password")]
+        public async Task<ActionResult> ForgotPassword([FromBody] VendorForgotPasswordDto dto)
+        {
+            await _vendorService.RequestPasswordResetAsync(dto.Email);
+            return Ok(new { message = "אם המייל רשום אצלנו, שלחנו אליו קוד לאיפוס" });
+        }
+
+        // POST: api/public/vendors/reset-password — איפוס הסיסמה עם הקוד שהתקבל במייל.
+        [HttpPost("reset-password")]
+        public async Task<ActionResult> ResetPassword([FromBody] VendorResetPasswordDto dto)
+        {
+            var error = await _vendorService.ResetPasswordAsync(
+                dto.LoginEmail, dto.Code, dto.NewPassword);
+            if (error != null)
+                return BadRequest(new { message = error });
+            return Ok(new { message = "הסיסמה אופסה בהצלחה" });
+        }
     }
 }

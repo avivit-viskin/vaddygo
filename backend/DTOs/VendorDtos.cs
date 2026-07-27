@@ -91,6 +91,28 @@ namespace ParentCommitteeAPI.DTOs
         public string Password { get; set; } = string.Empty;
     }
 
+    /* בקשת קוד איפוס סיסמה לספק — הקוד נשלח למייל שהספק הגדיר */
+    public class VendorForgotPasswordDto
+    {
+        [Required(ErrorMessage = "צריך כתובת מייל")]
+        [EmailAddress(ErrorMessage = "כתובת המייל אינה תקינה")]
+        public string Email { get; set; } = string.Empty;
+    }
+
+    /* איפוס סיסמה לספק — הקוד מהמייל + סיסמה חדשה */
+    public class VendorResetPasswordDto
+    {
+        [Required(ErrorMessage = "צריך כתובת מייל")]
+        public string LoginEmail { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך את הקוד מהמייל")]
+        public string Code { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך סיסמה חדשה")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        public string NewPassword { get; set; } = string.Empty;
+    }
+
     public class VendorCreateDto : VendorWriteDto
     {
     }

@@ -1,3 +1,4 @@
+using System.Security.Cryptography;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
@@ -13,11 +14,13 @@ namespace ParentCommitteeAPI.Services
     public class VendorService : IVendorService
     {
         private readonly AppDbContext _db;
+        private readonly IEmailSender _email;
         private readonly ILogger<VendorService> _logger;
 
-        public VendorService(AppDbContext db, ILogger<VendorService> logger)
+        public VendorService(AppDbContext db, IEmailSender email, ILogger<VendorService> logger)
         {
             _db = db;
+            _email = email;
             _logger = logger;
         }
 
@@ -185,6 +188,90 @@ namespace ParentCommitteeAPI.Services
                 await _db.SaveChangesAsync();
             }
             return vendor.EditToken;
+        }
+
+        public async Task RequestPasswordResetAsync(string email)
+        {
+            var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();
+            if (normalized.Length == 0)
+            {
+                return; // לא חושפים דבר — "מצליח" בשקט
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.LoginEmail == normalized);
+            // מייל לא רשום, או ספק שלא הגדיר סיסמה — לא חושפים (מונע enumeration)
+            if (vendor == null || string.IsNullOrEmpty(vendor.PasswordHash))
+            {
+                return;
+            }
+
+            // קוד בן 6 ספרות (קריפטוגרפי). נשמר מגובב בלבד; תקף ל-5 דקות.
+            var code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+            vendor.ResetCodeHash = PasswordHasher.Hash(code);
+            vendor.ResetCodeExpiresAt = DateTime.UtcNow.AddMinutes(5);
+            vendor.ResetCodeAttempts = 0; // קוד חדש — מאתחלים את מונה הניסיונות
+            await _db.SaveChangesAsync();
+
+            var body =
+                "שלום 🙂\n\n" +
+                $"הקוד שלך לאיפוס סיסמת הספק ב-VaddyGo הוא: {code}\n\n" +
+                "הקוד תקף ל-5 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
+                "בהצלחה,\nצוות VaddyGo 💜";
+            try
+            {
+                await _email.SendAsync(vendor.LoginEmail, "קוד לאיפוס סיסמת ספק — VaddyGo", body);
+                _logger.LogInformation("Vendor password reset code issued (Id: {VendorId})", vendor.Id);
+            }
+            catch (Exception ex)
+            {
+                // כשל שליחה לא נחשף לספק (עדיין מחזירים הצלחה כללית) — רק נרשם ללוג.
+                _logger.LogError(ex, "Failed to send vendor reset email (Id: {VendorId})", vendor.Id);
+            }
+        }
+
+        public async Task<string?> ResetPasswordAsync(string loginEmail, string code, string newPassword)
+        {
+            const string genericError = "הקוד שגוי או שפג תוקפו. אפשר לבקש קוד חדש.";
+            var normalized = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.LoginEmail == normalized);
+
+            // אין תהליך איפוס פעיל / פג תוקף — כשל אחיד (לא חושפים פרטים)
+            if (vendor == null
+                || string.IsNullOrEmpty(vendor.ResetCodeHash)
+                || vendor.ResetCodeExpiresAt == null
+                || vendor.ResetCodeExpiresAt.Value < DateTime.UtcNow)
+            {
+                return genericError;
+            }
+
+            // קוד שגוי — סופרים ניסיון; אחרי 5 שגויים מבטלים את הקוד (מונע ניחוש גס)
+            if (!PasswordHasher.Verify((code ?? string.Empty).Trim(), vendor.ResetCodeHash))
+            {
+                vendor.ResetCodeAttempts += 1;
+                if (vendor.ResetCodeAttempts >= 5)
+                {
+                    vendor.ResetCodeHash = null;
+                    vendor.ResetCodeExpiresAt = null;
+                    vendor.ResetCodeAttempts = 0;
+                    _logger.LogWarning(
+                        "Vendor reset code invalidated after too many attempts (Id: {VendorId})", vendor.Id);
+                }
+                await _db.SaveChangesAsync();
+                return genericError;
+            }
+
+            if ((newPassword ?? string.Empty).Length < 6)
+            {
+                return "הסיסמה חייבת להכיל 6 תווים לפחות";
+            }
+
+            // קוד תקין — מאפסים סיסמה ומנקים את מצב האיפוס
+            vendor.PasswordHash = PasswordHasher.Hash(newPassword);
+            vendor.ResetCodeHash = null;      // קוד חד-פעמי — נמחק אחרי שימוש
+            vendor.ResetCodeExpiresAt = null;
+            vendor.ResetCodeAttempts = 0;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor password reset via code (Id: {VendorId})", vendor.Id);
+            return null;
         }
 
         /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import Icon from "./Icon";
 import { getA11ySettings, saveA11ySettings } from "../services/accessibility";
 import "../styles/accessibility.css";
 
@@ -111,7 +112,7 @@ function AccessibilityWidget() {
             aria-pressed={settings.contrast}
             onClick={() => update({ contrast: !settings.contrast })}
           >
-            🌓 ניגודיות גבוהה (רקע שחור)
+            <Icon name="contrast" size={16} /> ניגודיות גבוהה (רקע שחור)
           </button>
           <button
             type="button"
@@ -119,7 +120,7 @@ function AccessibilityWidget() {
             aria-pressed={settings.links}
             onClick={() => update({ links: !settings.links })}
           >
-            🔗 הדגשת קישורים
+            <Icon name="link" size={16} /> הדגשת קישורים
           </button>
           <button
             type="button"
@@ -127,7 +128,7 @@ function AccessibilityWidget() {
             aria-pressed={settings.readable}
             onClick={() => update({ readable: !settings.readable })}
           >
-            🔤 גופן קריא
+            <Icon name="type" size={16} /> גופן קריא
           </button>
 
           <button type="button" className="a11y-reset" onClick={reset}>

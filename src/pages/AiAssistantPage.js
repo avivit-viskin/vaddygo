@@ -6,6 +6,7 @@ import { isActiveReadOnly } from "../services/institutionsService";
 import { whatsappShareUrl, extractShareMessage } from "../services/whatsapp";
 import Card from "../components/Card";
 import Button from "../components/Button";
+import Icon from "../components/Icon";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
@@ -142,7 +143,7 @@ function AiAssistantPage() {
                     target="_blank"
                     rel="noreferrer"
                   >
-                    שיתוף בוואטסאפ 💬
+                    <Icon name="message" size={15} /> שיתוף בוואטסאפ
                   </a>
                 )}
               </li>

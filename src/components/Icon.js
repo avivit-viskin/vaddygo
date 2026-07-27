@@ -155,6 +155,24 @@ const PATHS = {
       <path d="M8.5 12.5l2.5 2.5 4.5-5" />
     </>
   ),
+  contrast: (
+    <>
+      <circle cx="12" cy="12" r="9" />
+      <path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M10 13a5 5 0 0 0 7.5.5l3-3a5 5 0 0 0-7-7l-1.6 1.5" />
+      <path d="M14 11a5 5 0 0 0-7.5-.5l-3 3a5 5 0 0 0 7 7l1.6-1.5" />
+    </>
+  ),
+  type: (
+    <>
+      <path d="M6 6V4h12v2" />
+      <path d="M12 4v16M9 20h6" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 20, strokeWidth = 1.8, className, title }) {

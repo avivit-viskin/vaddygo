@@ -292,7 +292,7 @@ function VendorForm({ vendor, onSave, onCancel }) {
 
       <p className="vendor-form__products-title">רשתות חברתיות</p>
       {socialLinks.map((link, index) => (
-        <div className="vendor-form__product" key={index}>
+        <div className="vendor-form__linkrow" key={index}>
           <input
             className="field__input vendor-form__social-label"
             aria-label={`שם רשת ${index + 1}`}

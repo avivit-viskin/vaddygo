@@ -148,6 +148,14 @@
   margin: 8px 0 16px;
 }
 
+/* סלוגן המותג מתחת לשם (במסך ההרשמה) — בלי לוגו, רק שם + סלוגן */
+.auth-page__slogan {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-base);
+  margin: -8px 0 20px;
+}
+
 .auth-page__hint {
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);

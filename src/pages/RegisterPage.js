@@ -51,8 +51,9 @@ function RegisterPage() {
   return (
     <div className="auth-page">
       <h1 className="auth-page__logo">
-        <BrandName withHeart />
+        <BrandName />
       </h1>
+      <p className="auth-page__slogan">ארגון חכם. ניהול מנצח</p>
       <Card title="נעים להכיר! נפתח לך חשבון">
         <form onSubmit={onSubmit} noValidate>
           <Input

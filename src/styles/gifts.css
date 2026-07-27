@@ -294,6 +294,37 @@
   font-weight: 600;
 }
 
+/* ── מקטע "תשלום לספק" בכרטיס הספק ── */
+.vendor-panel__pay {
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vendor-panel__pay-title {
+  margin: 0;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.vendor-panel__pay-btn {
+  align-self: flex-start;
+  background: var(--color-primary-dark);
+  color: #fff;
+  padding: 8px 16px;
+  border-radius: 999px;
+  font-weight: 600;
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+.vendor-panel__pay-row {
+  margin: 0;
+  font-size: var(--font-size-sm);
+}
+
 /* ── דף ספק ─────────────────────────────────────────────── */
 
 .vendor-panel {

@@ -17,6 +17,11 @@ function VendorForm({ vendor, onSave, onCancel }) {
   const [whatsApp, setWhatsApp] = useState(vendor?.whatsApp || "");
   const [category, setCategory] = useState(vendor?.category || "");
   const [city, setCity] = useState(vendor?.city || "");
+  const [paymentLink, setPaymentLink] = useState(vendor?.paymentLink || "");
+  const [paymentBit, setPaymentBit] = useState(vendor?.paymentBit || "");
+  const [paymentBankInfo, setPaymentBankInfo] = useState(
+    vendor?.paymentBankInfo || ""
+  );
   const [products, setProducts] = useState(vendor?.products || []);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   const [nameError, setNameError] = useState("");
@@ -59,6 +64,9 @@ function VendorForm({ vendor, onSave, onCancel }) {
         whatsApp: whatsApp.trim(),
         category: category.trim(),
         city: city.trim(),
+        paymentLink: paymentLink.trim(),
+        paymentBit: paymentBit.trim(),
+        paymentBankInfo: paymentBankInfo.trim(),
         products: products
           .filter((product) => product.name.trim())
           .map((product) => ({
@@ -119,6 +127,30 @@ function VendorForm({ vendor, onSave, onCancel }) {
         onChange={(e) => setCity(e.target.value)}
         placeholder="למשל: תל אביב והמרכז"
       />
+
+      <p className="vendor-form__products-title">אמצעי תשלום (לא חובה)</p>
+      <Input
+        id="vendor-pay-link"
+        label="קישור תשלום (GROW / פייבוקס / כל קישור)"
+        type="url"
+        value={paymentLink}
+        onChange={(e) => setPaymentLink(e.target.value)}
+        placeholder="https://..."
+      />
+      <Input
+        id="vendor-pay-bit"
+        label="ביט (מספר טלפון)"
+        value={paymentBit}
+        onChange={(e) => setPaymentBit(e.target.value)}
+        placeholder="למשל: 054-1234567"
+      />
+      <Input
+        id="vendor-pay-bank"
+        label="פרטי העברה בנקאית"
+        value={paymentBankInfo}
+        onChange={(e) => setPaymentBankInfo(e.target.value)}
+        placeholder="בנק · סניף · חשבון · שם המוטב"
+      />
       <Input
         id="vendor-catalog"
         label="קישור לקטלוג (אופציונלי)"
@@ -131,6 +163,18 @@ function VendorForm({ vendor, onSave, onCancel }) {
       <p className="vendor-form__products-title">מוצרים</p>
       {products.map((product, index) => (
         <div className="vendor-form__product" key={index}>
+          <div className="vendor-form__product-head">
+            <span className="vendor-form__product-num">מוצר {index + 1}</span>
+            <button
+              type="button"
+              className="vendor-form__remove"
+              aria-label={`הסרת מוצר ${index + 1}`}
+              onClick={() => removeItem(setProducts, index)}
+            >
+              ✕
+            </button>
+          </div>
+
           <input
             className="field__input"
             aria-label={`שם מוצר ${index + 1}`}
@@ -140,17 +184,31 @@ function VendorForm({ vendor, onSave, onCancel }) {
             }
             placeholder="שם המוצר"
           />
-          <input
-            className="field__input vendor-form__price"
-            aria-label={`מחיר מוצר ${index + 1}`}
-            type="number"
-            min="0"
-            value={product.price}
-            onChange={(e) =>
-              updateItem(setProducts, index, { price: e.target.value })
-            }
-            placeholder="₪"
-          />
+
+          <div className="vendor-form__row">
+            <input
+              className="field__input vendor-form__price"
+              aria-label={`מחיר מוצר ${index + 1}`}
+              type="number"
+              min="0"
+              value={product.price}
+              onChange={(e) =>
+                updateItem(setProducts, index, { price: e.target.value })
+              }
+              placeholder="מחיר ₪"
+            />
+            <input
+              className="field__input vendor-form__folder"
+              aria-label={`תיקייה/חג למוצר ${index + 1}`}
+              list="vendor-folder-presets"
+              value={product.folder || ""}
+              onChange={(e) =>
+                updateItem(setProducts, index, { folder: e.target.value })
+              }
+              placeholder="תיקייה/חג (ראש השנה, פסח...)"
+            />
+          </div>
+
           <div className="vendor-form__image">
             {product.imageUrl ? (
               <img
@@ -166,63 +224,53 @@ function VendorForm({ vendor, onSave, onCancel }) {
                 🖼️
               </span>
             )}
-            <label className="vendor-form__upload">
-              📁 ייבוא קובץ
-              <input
-                type="file"
-                accept="image/*"
-                className="vendor-form__file"
-                aria-label={`ייבוא תמונה למוצר ${index + 1}`}
-                onChange={(e) =>
-                  handleProductImage(index, e.target.files && e.target.files[0])
-                }
-              />
-            </label>
-            <span className="vendor-form__upload-hint">
-              לצילום תמונה, מספריית התמונות או מהקבצים
-            </span>
-            {product.imageUrl && (
-              <button
-                type="button"
-                className="vendor-form__img-remove"
-                onClick={() => updateItem(setProducts, index, { imageUrl: "" })}
-              >
-                הסרת תמונה
-              </button>
-            )}
-            <input
-              className="field__input vendor-form__img-url"
-              type="url"
-              value={
-                (product.imageUrl || "").startsWith("data:")
-                  ? ""
-                  : product.imageUrl || ""
-              }
-              onChange={(e) =>
-                updateItem(setProducts, index, { imageUrl: e.target.value })
-              }
-              placeholder="או קישור לתמונה (https://...)"
-              aria-label={`קישור תמונה למוצר ${index + 1}`}
-            />
+            <div className="vendor-form__image-controls">
+              <label className="vendor-form__upload">
+                📁 ייבוא קובץ
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="vendor-form__file"
+                  aria-label={`ייבוא תמונה למוצר ${index + 1}`}
+                  onChange={(e) =>
+                    handleProductImage(
+                      index,
+                      e.target.files && e.target.files[0]
+                    )
+                  }
+                />
+              </label>
+              <span className="vendor-form__upload-hint">
+                לצילום, מספריית התמונות או מהקבצים
+              </span>
+              {product.imageUrl && (
+                <button
+                  type="button"
+                  className="vendor-form__img-remove"
+                  onClick={() =>
+                    updateItem(setProducts, index, { imageUrl: "" })
+                  }
+                >
+                  הסרת תמונה
+                </button>
+              )}
+            </div>
           </div>
+
           <input
-            className="field__input"
-            aria-label={`תיקייה/חג למוצר ${index + 1}`}
-            list="vendor-folder-presets"
-            value={product.folder || ""}
-            onChange={(e) =>
-              updateItem(setProducts, index, { folder: e.target.value })
+            className="field__input vendor-form__img-url"
+            type="url"
+            value={
+              (product.imageUrl || "").startsWith("data:")
+                ? ""
+                : product.imageUrl || ""
             }
-            placeholder="תיקייה/חג (למשל: ראש השנה)"
+            onChange={(e) =>
+              updateItem(setProducts, index, { imageUrl: e.target.value })
+            }
+            placeholder="או קישור לתמונה (https://...)"
+            aria-label={`קישור תמונה למוצר ${index + 1}`}
           />
-          <button
-            type="button"
-            className="vendor-form__remove"
-            aria-label={`הסרת מוצר ${index + 1}`}
-            onClick={() => removeItem(setProducts, index)}
-          >
-            ✕
-          </button>
         </div>
       ))}
       <datalist id="vendor-folder-presets">

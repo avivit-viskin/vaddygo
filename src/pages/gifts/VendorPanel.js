@@ -99,6 +99,32 @@ function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
         )}
       </div>
 
+      {(vendor.paymentLink || vendor.paymentBit || vendor.paymentBankInfo) && (
+        <div className="vendor-panel__pay">
+          <p className="vendor-panel__pay-title">תשלום לספק 💳</p>
+          {vendor.paymentLink && (
+            <a
+              className="vendor-panel__pay-btn"
+              href={vendor.paymentLink}
+              target="_blank"
+              rel="noreferrer"
+            >
+              💳 תשלום מאובטח
+            </a>
+          )}
+          {vendor.paymentBit && (
+            <p className="vendor-panel__pay-row">
+              ביט: <strong dir="ltr">{vendor.paymentBit}</strong>
+            </p>
+          )}
+          {vendor.paymentBankInfo && (
+            <p className="vendor-panel__pay-row">
+              העברה בנקאית: <strong>{vendor.paymentBankInfo}</strong>
+            </p>
+          )}
+        </div>
+      )}
+
       {vendor.socialLinks && vendor.socialLinks.length > 0 && (
         <div className="vendor-panel__socials">
           {vendor.socialLinks.map((link, index) => (

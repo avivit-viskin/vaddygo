@@ -23,5 +23,8 @@ namespace ParentCommitteeAPI.Models
 
         // המוסד שאליו שייכת ההוצאה (ריבוי מוסדות) — null = ישן ללא שיוך
         public int? GroupId { get; set; }
+
+        // הספק שאליו שולם (אם ההוצאה היא תשלום לספק דרך הפורטל) — null = הוצאה רגילה
+        public int? VendorId { get; set; }
     }
 }

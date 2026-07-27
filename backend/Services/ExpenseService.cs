@@ -53,6 +53,7 @@ namespace ParentCommitteeAPI.Services
                 Category = (dto.Category ?? string.Empty).Trim(),
                 Date = DateTime.UtcNow,
                 GroupId = scoped,
+                VendorId = dto.VendorId,
             };
             await _expenses.AddAsync(expense);
             _logger.LogInformation("Expense created (Id: {ExpenseId}, Group: {GroupId})",
@@ -90,6 +91,7 @@ namespace ParentCommitteeAPI.Services
             Description = e.Description,
             Category = e.Category,
             Date = e.Date,
+            VendorId = e.VendorId,
         };
     }
 }

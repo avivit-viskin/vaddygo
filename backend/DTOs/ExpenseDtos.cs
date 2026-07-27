@@ -20,6 +20,9 @@ namespace ParentCommitteeAPI.DTOs
         // על מה יורד הכסף (קטגוריית גבייה או סוג הוצאה) — אופציונלי
         [StringLength(60, ErrorMessage = "שם הקטגוריה יכול להכיל עד 60 תווים")]
         public string? Category { get; set; }
+
+        // אם ההוצאה היא תשלום לספק מהפורטל — מזהה הספק (אופציונלי)
+        public int? VendorId { get; set; }
     }
 
     public class ExpenseResponseDto
@@ -30,5 +33,6 @@ namespace ParentCommitteeAPI.DTOs
         public string Description { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
         public DateTime Date { get; set; }
+        public int? VendorId { get; set; }
     }
 }

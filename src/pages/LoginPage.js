@@ -103,9 +103,7 @@ function LoginPage() {
           <h1 className="login-hero__brand">
             <BrandName />
           </h1>
-          <p className="login-hero__tagline">
-            ניהול הוועד של הגן — פשוט ונעים, במקום אחד ✨
-          </p>
+          <p className="login-hero__tagline">ארגון חכם. ניהול מנצח</p>
         </header>
 
         <div className="login-card">

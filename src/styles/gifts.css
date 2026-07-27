@@ -324,6 +324,18 @@
   margin: 0;
   font-size: var(--font-size-sm);
 }
+.vendor-panel__pay-record {
+  align-self: flex-start;
+  border: 1px solid var(--color-primary-dark);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 8px 16px;
+  font-family: var(--font-family);
+  font-weight: 600;
+  cursor: pointer;
+  min-height: 44px;
+}
 
 /* ── דף ספק ─────────────────────────────────────────────── */
 
@@ -649,6 +661,43 @@
   text-align: center;
   font-weight: 600;
   margin: 0 0 14px;
+}
+
+/* מעבר בין "עריכה" ל"כך הוועד רואה" (תצוגה מקדימה) בעמוד הספק */
+.supplier-edit__tabs {
+  display: flex;
+  gap: 8px;
+  margin: 4px 0 16px;
+}
+.supplier-edit__tab {
+  flex: 1;
+  min-height: var(--touch-target);
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+}
+.supplier-edit__tab--active {
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  border-color: var(--color-primary);
+}
+.supplier-edit__preview {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  padding: 14px;
+  background: var(--color-surface);
+}
+.supplier-edit__preview-hint {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
 }
 
 /* מקטע "כניסה מהירה בפעם הבאה" בעמוד עריכת הספק */

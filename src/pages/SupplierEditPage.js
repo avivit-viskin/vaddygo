@@ -7,6 +7,7 @@ import {
   setVendorCredentials,
 } from "../services/vendorsService";
 import VendorForm from "./gifts/VendorForm";
+import VendorPanel from "./gifts/VendorPanel";
 import Logo from "../components/Logo";
 import Input from "../components/Input";
 import Button from "../components/Button";
@@ -25,6 +26,10 @@ function SupplierEditPage() {
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
+  // "edit" = טופס העריכה; "preview" = תצוגה כמו שהוועד רואה באפליקציה
+  const [mode, setMode] = useState("edit");
+  // הנתונים לתצוגה המקדימה (מתעדכנים בכל שמירה); לפני שמירה — מה שנטען
+  const [previewVendor, setPreviewVendor] = useState(null);
   // הגדרת התחברות (אופציונלי) — מייל+סיסמה כדי לחזור בלי הקישור
   const [credEmail, setCredEmail] = useState("");
   const [credPassword, setCredPassword] = useState("");
@@ -36,6 +41,7 @@ function SupplierEditPage() {
     setSaved(false);
     try {
       await updateVendorByToken(token, payload);
+      setPreviewVendor(payload); // התצוגה המקדימה תשקף את מה שנשמר
       setSaved(true);
       window.scrollTo({ top: 0, behavior: "smooth" });
     } catch (err) {
@@ -101,44 +107,85 @@ function SupplierEditPage() {
         </p>
       )}
 
-      <VendorForm vendor={vendor} onSave={handleSave} />
+      <div className="supplier-edit__tabs" role="tablist">
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "edit"}
+          className={`supplier-edit__tab${
+            mode === "edit" ? " supplier-edit__tab--active" : ""
+          }`}
+          onClick={() => setMode("edit")}
+        >
+          ✏️ עריכה
+        </button>
+        <button
+          type="button"
+          role="tab"
+          aria-selected={mode === "preview"}
+          className={`supplier-edit__tab${
+            mode === "preview" ? " supplier-edit__tab--active" : ""
+          }`}
+          onClick={() => setMode("preview")}
+        >
+          👁 כך הוועד רואה
+        </button>
+      </div>
 
-      <form className="supplier-edit__login" onSubmit={saveCredentials} noValidate>
-        <h2 className="supplier-edit__login-title">
-          כניסה מהירה בפעם הבאה (לא חובה)
-        </h2>
-        <p className="supplier-edit__login-hint">
-          הגדירו מייל וסיסמה — וכך תוכלו לחזור ולעדכן בלי הקישור, דרך עמוד כניסת
-          הספקים.
-        </p>
-        <Input
-          id="cred-email"
-          label="מייל"
-          type="email"
-          value={credEmail}
-          onChange={(e) => setCredEmail(e.target.value)}
-          placeholder="you@example.com"
-        />
-        <Input
-          id="cred-password"
-          label="סיסמה (6 תווים לפחות)"
-          type="password"
-          value={credPassword}
-          onChange={(e) => setCredPassword(e.target.value)}
-        />
-        {credMsg && (
-          <p
-            className={credMsg.ok ? "supplier-edit__saved" : "field__error"}
-            role={credMsg.ok ? "status" : "alert"}
-          >
-            {credMsg.ok ? "✓ " : ""}
-            {credMsg.text}
+      {mode === "preview" ? (
+        <div className="supplier-edit__preview">
+          <p className="supplier-edit__preview-hint">
+            כך נראה הכרטיס שלך לוועדים באפליקציה (לפי מה שכבר נשמר). אפשר ללחוץ
+            על תיקייה כדי לראות את המוצרים שבתוכה.
           </p>
-        )}
-        <Button type="submit" variant="secondary" isLoading={credSaving}>
-          שמירת פרטי התחברות
-        </Button>
-      </form>
+          <VendorPanel vendor={previewVendor || vendor} readOnly />
+        </div>
+      ) : (
+        <>
+          <VendorForm vendor={vendor} onSave={handleSave} />
+
+          <form
+            className="supplier-edit__login"
+            onSubmit={saveCredentials}
+            noValidate
+          >
+            <h2 className="supplier-edit__login-title">
+              כניסה מהירה בפעם הבאה (לא חובה)
+            </h2>
+            <p className="supplier-edit__login-hint">
+              הגדירו מייל וסיסמה — וכך תוכלו לחזור ולעדכן בלי הקישור, דרך עמוד
+              כניסת הספקים.
+            </p>
+            <Input
+              id="cred-email"
+              label="מייל"
+              type="email"
+              value={credEmail}
+              onChange={(e) => setCredEmail(e.target.value)}
+              placeholder="you@example.com"
+            />
+            <Input
+              id="cred-password"
+              label="סיסמה (6 תווים לפחות)"
+              type="password"
+              value={credPassword}
+              onChange={(e) => setCredPassword(e.target.value)}
+            />
+            {credMsg && (
+              <p
+                className={credMsg.ok ? "supplier-edit__saved" : "field__error"}
+                role={credMsg.ok ? "status" : "alert"}
+              >
+                {credMsg.ok ? "✓ " : ""}
+                {credMsg.text}
+              </p>
+            )}
+            <Button type="submit" variant="secondary" isLoading={credSaving}>
+              שמירת פרטי התחברות
+            </Button>
+          </form>
+        </>
+      )}
     </div>
   );
 }

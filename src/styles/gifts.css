@@ -628,21 +628,35 @@
   font-size: 1.6rem;
 }
 .vendor-form__upload {
+  flex-basis: 100%;
   display: inline-flex;
   align-items: center;
-  gap: 6px;
-  background: var(--color-primary-light);
+  justify-content: center;
+  gap: 8px;
+  background: var(--color-primary);
   color: var(--color-primary-dark);
-  border: 1px solid var(--color-primary-dark);
+  border: none;
   border-radius: 999px;
-  padding: 8px 14px;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
+  padding: 12px 18px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
   cursor: pointer;
-  min-height: 44px;
+  min-height: var(--touch-target);
+  box-shadow: var(--shadow-sm);
+}
+.vendor-form__upload:hover {
+  background: var(--color-primary-muted);
+  box-shadow: var(--shadow-md);
 }
 .vendor-form__file {
   display: none;
+}
+/* משפט הסבר קטן מתחת לכפתור ה"ייבוא קובץ" */
+.vendor-form__upload-hint {
+  flex-basis: 100%;
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 .vendor-form__img-remove {
   border: none;

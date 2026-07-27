@@ -167,17 +167,20 @@ function VendorForm({ vendor, onSave, onCancel }) {
               </span>
             )}
             <label className="vendor-form__upload">
-              📷 העלאת תמונה מהטלפון
+              📁 ייבוא קובץ
               <input
                 type="file"
                 accept="image/*"
                 className="vendor-form__file"
-                aria-label={`העלאת תמונה למוצר ${index + 1}`}
+                aria-label={`ייבוא תמונה למוצר ${index + 1}`}
                 onChange={(e) =>
                   handleProductImage(index, e.target.files && e.target.files[0])
                 }
               />
             </label>
+            <span className="vendor-form__upload-hint">
+              לצילום תמונה, מספריית התמונות או מהקבצים
+            </span>
             {product.imageUrl && (
               <button
                 type="button"

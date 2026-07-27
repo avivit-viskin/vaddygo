@@ -16,9 +16,9 @@ import ErrorMessage from "../components/ErrorMessage";
 import "../styles/gifts.css";
 
 /*
-  SupplierEditPage — עמוד עריכה עצמית לספק (פורטל ספקים, שלב 1). ציבורי ובמסך
-  מלא (בלי התחברות): הספק פותח את הקישור האישי שקיבל, עורך את הכרטיס והמוצרים
-  שלו, וזה נשמר לאותה רשומה שהוועדים רואים ב-VaddyGo. הטוקן שבכתובת הוא ההרשאה.
+  SupplierEditPage — עמוד עריכה עצמית לספק (פורטל ספקים). ציבורי ובמסך מלא.
+  בראש העמוד — הגדרת כניסה קבועה (מייל+סיסמה), כדי שהספק יוכל לחזור בלי הקישור.
+  מתחת — עריכת הכרטיס והמוצרים שהוועדים רואים ב-VaddyGo. הטוקן שבכתובת הוא ההרשאה.
 */
 function SupplierEditPage() {
   const { token } = useParams();
@@ -30,7 +30,7 @@ function SupplierEditPage() {
   const [mode, setMode] = useState("edit");
   // הנתונים לתצוגה המקדימה (מתעדכנים בכל שמירה); לפני שמירה — מה שנטען
   const [previewVendor, setPreviewVendor] = useState(null);
-  // הגדרת התחברות (אופציונלי) — מייל+סיסמה כדי לחזור בלי הקישור
+  // הגדרת התחברות — מייל+סיסמה כדי לחזור בלי הקישור
   const [credEmail, setCredEmail] = useState("");
   const [credPassword, setCredPassword] = useState("");
   const [credMsg, setCredMsg] = useState(null);
@@ -90,11 +90,8 @@ function SupplierEditPage() {
       <div className="supplier-edit__brand">
         <Logo />
       </div>
-      <h1 className="supplier-edit__title">עריכת כרטיס הספק שלך</h1>
-      <p className="supplier-edit__intro">
-        שלום {vendor.name || "ספק יקר"} 👋 כאן אפשר לעדכן את הפרטים והמוצרים שלך.
-        כל שינוי שתשמרו יופיע <strong>מיד</strong> לוועדים ב-VaddyGo.
-      </p>
+      <h1 className="supplier-edit__title">אזור הספק שלך</h1>
+      <p className="supplier-edit__intro">שלום {vendor.name || "ספק יקר"} 👋</p>
 
       {saved && (
         <p className="supplier-edit__saved" role="status">
@@ -106,6 +103,70 @@ function SupplierEditPage() {
           {saveError}
         </p>
       )}
+
+      {/* ── כניסה קבועה — בראש העמוד, ככרטיס בולט ── */}
+      <form
+        className="supplier-edit__login"
+        onSubmit={saveCredentials}
+        noValidate
+        style={{
+          marginTop: 4,
+          paddingTop: 16,
+          border: "1px solid var(--color-primary)",
+          borderRadius: "var(--radius-md)",
+          padding: 16,
+          background: "var(--color-primary-light)",
+        }}
+      >
+        <h2 className="supplier-edit__login-title">
+          🔑 הגדרת כניסה קבועה — מייל וסיסמה
+        </h2>
+        <p className="supplier-edit__login-hint">
+          קבעו מייל וסיסמה, וכך תוכלו לחזור ולעדכן בכל עת דרך עמוד כניסת הספקים —
+          בלי הקישור.
+        </p>
+        <Input
+          id="cred-email"
+          label="מייל"
+          type="email"
+          value={credEmail}
+          onChange={(e) => setCredEmail(e.target.value)}
+          placeholder="you@example.com"
+        />
+        <Input
+          id="cred-password"
+          label="סיסמה (6 תווים לפחות)"
+          type="password"
+          value={credPassword}
+          onChange={(e) => setCredPassword(e.target.value)}
+        />
+        {credMsg && (
+          <p
+            className={credMsg.ok ? "supplier-edit__saved" : "field__error"}
+            role={credMsg.ok ? "status" : "alert"}
+          >
+            {credMsg.ok ? "✓ " : ""}
+            {credMsg.text}
+          </p>
+        )}
+        <Button type="submit" isLoading={credSaving}>
+          שמירת פרטי כניסה
+        </Button>
+        <p className="supplier-edit__login-link">
+          כבר הגדרתם? <Link to="/supplier-login">כניסת ספקים ←</Link>
+        </p>
+      </form>
+
+      {/* ── עריכת הכרטיס והמוצרים ── */}
+      <h2
+        className="supplier-edit__title"
+        style={{ margin: "28px 0 4px", fontSize: "var(--font-size-lg)" }}
+      >
+        הכרטיס והמוצרים שלך
+      </h2>
+      <p className="supplier-edit__intro" style={{ margin: "0 0 14px" }}>
+        כל שינוי שתשמרו יופיע <strong>מיד</strong> לוועדים ב-VaddyGo.
+      </p>
 
       <div className="supplier-edit__tabs" role="tablist">
         <button
@@ -141,54 +202,7 @@ function SupplierEditPage() {
           <VendorPanel vendor={previewVendor || vendor} readOnly />
         </div>
       ) : (
-        <>
-          <VendorForm vendor={vendor} onSave={handleSave} />
-
-          <form
-            className="supplier-edit__login"
-            onSubmit={saveCredentials}
-            noValidate
-          >
-            <h2 className="supplier-edit__login-title">
-              כניסה מהירה בפעם הבאה (לא חובה)
-            </h2>
-            <p className="supplier-edit__login-hint">
-              הגדירו מייל וסיסמה — וכך תוכלו לחזור ולעדכן בלי הקישור, דרך עמוד
-              כניסת הספקים.
-            </p>
-            <Input
-              id="cred-email"
-              label="מייל"
-              type="email"
-              value={credEmail}
-              onChange={(e) => setCredEmail(e.target.value)}
-              placeholder="you@example.com"
-            />
-            <Input
-              id="cred-password"
-              label="סיסמה (6 תווים לפחות)"
-              type="password"
-              value={credPassword}
-              onChange={(e) => setCredPassword(e.target.value)}
-            />
-            {credMsg && (
-              <p
-                className={credMsg.ok ? "supplier-edit__saved" : "field__error"}
-                role={credMsg.ok ? "status" : "alert"}
-              >
-                {credMsg.ok ? "✓ " : ""}
-                {credMsg.text}
-              </p>
-            )}
-            <Button type="submit" variant="secondary" isLoading={credSaving}>
-              שמירת פרטי התחברות
-            </Button>
-            <p className="supplier-edit__login-link">
-              כבר הגדרתם מייל וסיסמה?{" "}
-              <Link to="/supplier-login">כניסת ספקים ←</Link>
-            </p>
-          </form>
-        </>
+        <VendorForm vendor={vendor} onSave={handleSave} />
       )}
     </div>
   );

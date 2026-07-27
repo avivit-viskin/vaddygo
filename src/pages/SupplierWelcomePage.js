@@ -36,6 +36,9 @@ function SupplierWelcomePage() {
           <Button onClick={() => navigate("/supplier-login")}>
             כניסה עם מייל וסיסמה
           </Button>
+          <Button variant="secondary" onClick={() => navigate("/login")}>
+            חבר/ת ועד? לכניסת הוועד
+          </Button>
         </div>
         <p className="welcome__text">
           קיבלתם קישור אישי מהוועד? פשוט פִּתחו אותו כדי לערוך — ותוכלו להגדיר שם

@@ -108,6 +108,9 @@ function SupplierLoginPage() {
                 שכחת סיסמה? נשלח לך קוד למייל
               </Link>
             </p>
+            <p className="auth-page__hint">
+              חבר/ת ועד? <Link to="/login">לכניסת הוועד</Link>
+            </p>
           </form>
         </div>
         <SupportLink />

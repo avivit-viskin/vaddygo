@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
   getVendorByToken,
@@ -183,6 +183,10 @@ function SupplierEditPage() {
             <Button type="submit" variant="secondary" isLoading={credSaving}>
               שמירת פרטי התחברות
             </Button>
+            <p className="supplier-edit__login-link">
+              כבר הגדרתם מייל וסיסמה?{" "}
+              <Link to="/supplier-login">כניסת ספקים ←</Link>
+            </p>
           </form>
         </>
       )}

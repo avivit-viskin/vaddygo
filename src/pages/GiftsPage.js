@@ -21,6 +21,7 @@ import { PAYMENT_METHODS } from "../services/paymentMethods";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
 import { upcomingHolidays } from "../services/upcomingHoliday";
 import { isActiveReadOnly } from "../services/institutionsService";
+import { isSuperAdmin } from "../services/authService";
 import CountdownBanner from "./gifts/CountdownBanner";
 import UpcomingMonth from "./gifts/UpcomingMonth";
 import PendingEventExpenses from "./gifts/PendingEventExpenses";
@@ -39,6 +40,9 @@ import "../styles/gifts.css";
 function GiftsPage() {
   // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של מתנות וספקים
   const readOnly = isActiveReadOnly();
+  // שליחת קישור עריכה לספק שמורה למנהלת VaddyGo (SuperAdmin) בלבד — לא לכל
+  // וועד. ספקים הם ערוץ מנוהל מרכזית, ולא כל וועד מזמין ספקים בעצמו.
+  const canShareEditLink = isSuperAdmin();
   const [gifts, setGifts] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [budgets, setBudgets] = useState({});
@@ -350,7 +354,7 @@ function GiftsPage() {
             vendor={openVendor}
             onEdit={() => setEditingVendor(openVendor)}
             onShareEditLink={
-              readOnly ? undefined : () => handleShareEditLink(openVendor)
+              canShareEditLink ? () => handleShareEditLink(openVendor) : undefined
             }
             onRecordPayment={
               readOnly ? undefined : () => startRecordPayment(openVendor)

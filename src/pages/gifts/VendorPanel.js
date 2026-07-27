@@ -23,7 +23,13 @@ function VendorPanel({
   readOnly = false,
 }) {
   const [openFolder, setOpenFolder] = useState(null);
+  // פרטי התשלום של הספק אינם מוצגים לוועד עד שלוחצים "תשלום לספק" (רק אז נחשפים)
+  const [showPay, setShowPay] = useState(false);
   const folders = groupByFolder(vendor.products || []);
+  const hasPayInfo =
+    vendor.paymentLink || vendor.paymentBit || vendor.paymentBankInfo;
+  // מספר התשלומים שהספק מאפשר (0/1 = תשלום אחד; גדול מ-1 = ניתן לפרוס)
+  const installments = Number(vendor.paymentInstallments) || 0;
 
   // ── תצוגת תיקייה פתוחה: מוצרים + וואטסאפ עם הודעה מוכנה ──
   if (openFolder) {
@@ -106,32 +112,48 @@ function VendorPanel({
         )}
       </div>
 
-      {(vendor.paymentLink ||
-        vendor.paymentBit ||
-        vendor.paymentBankInfo ||
-        onRecordPayment) && (
+      {(hasPayInfo || onRecordPayment) && (
         <div className="vendor-panel__pay">
-          <p className="vendor-panel__pay-title">תשלום לספק 💳</p>
-          {vendor.paymentLink && (
-            <a
-              className="vendor-panel__pay-btn"
-              href={vendor.paymentLink}
-              target="_blank"
-              rel="noreferrer"
-            >
-              💳 תשלום מאובטח
-            </a>
-          )}
-          {vendor.paymentBit && (
-            <p className="vendor-panel__pay-row">
-              ביט: <strong dir="ltr">{vendor.paymentBit}</strong>
-            </p>
-          )}
-          {vendor.paymentBankInfo && (
-            <p className="vendor-panel__pay-row">
-              העברה בנקאית: <strong>{vendor.paymentBankInfo}</strong>
-            </p>
-          )}
+          {/* פרטי התשלום מוסתרים כברירת מחדל — נחשפים רק כשהוועד רוצה לשלם */}
+          {hasPayInfo &&
+            (!showPay ? (
+              <button
+                type="button"
+                className="vendor-panel__pay-btn"
+                onClick={() => setShowPay(true)}
+              >
+                💳 תשלום לספק
+              </button>
+            ) : (
+              <div className="vendor-panel__pay-open">
+                <p className="vendor-panel__pay-title">אפשרויות תשלום לספק</p>
+                {installments > 1 && (
+                  <p className="vendor-panel__pay-installments">
+                    ניתן לפרוס עד {installments} תשלומים
+                  </p>
+                )}
+                {vendor.paymentLink && (
+                  <a
+                    className="vendor-panel__pay-btn"
+                    href={vendor.paymentLink}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    💳 מעבר לתשלום מאובטח
+                  </a>
+                )}
+                {vendor.paymentBit && (
+                  <p className="vendor-panel__pay-row">
+                    ביט: <strong dir="ltr">{vendor.paymentBit}</strong>
+                  </p>
+                )}
+                {vendor.paymentBankInfo && (
+                  <p className="vendor-panel__pay-row">
+                    העברה בנקאית: <strong>{vendor.paymentBankInfo}</strong>
+                  </p>
+                )}
+              </div>
+            ))}
           {paidTotal > 0 && (
             <p className="vendor-panel__pay-row">
               שולם לספק זה עד כה: <strong>{formatShekels(paidTotal)}</strong>

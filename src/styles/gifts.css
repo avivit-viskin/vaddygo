@@ -320,6 +320,21 @@
   align-items: center;
   text-decoration: none;
 }
+.vendor-panel__pay-open {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vendor-panel__pay-installments {
+  margin: 0;
+  align-self: flex-start;
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 4px 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
 .vendor-panel__pay-row {
   margin: 0;
   font-size: var(--font-size-sm);
@@ -716,6 +731,15 @@
   margin: 0 0 12px;
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
+}
+.supplier-edit__login-link {
+  margin: 12px 0 0;
+  text-align: center;
+  font-size: var(--font-size-sm);
+}
+.supplier-edit__login-link a {
+  color: var(--color-primary-dark);
+  font-weight: 700;
 }
 
 /* ── העלאת תמונת מוצר (מהטלפון) בטופס הספק ── */

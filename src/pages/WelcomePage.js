@@ -25,11 +25,6 @@ function WelcomePage() {
       </div>
 
       <div className="welcome__content">
-        <img
-          className="welcome__logo-img"
-          src={`${process.env.PUBLIC_URL}/logo512.png`}
-          alt=""
-        />
         <h1 className="welcome__logo">
           <BrandName />
         </h1>

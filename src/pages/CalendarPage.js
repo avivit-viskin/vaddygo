@@ -63,6 +63,13 @@ const listDateFormatter = new Intl.DateTimeFormat("he", {
   month: "numeric",
 });
 
+// הודעת תזכורת ראש חודש להורים (וואטסאפ) — הנוסח לבקשת בעלת המוצר.
+// שורות קצרות + אימוג'ים עדינים כדי שייראה יפה בוואטסאפ.
+const ROSH_CHODESH_REMINDER =
+  "🌙 היום ראש חודש!\n" +
+  "מזכירים לך לשלוח מחר את היל/ה עם חולצה לבנה 🤍\n\n" +
+  "חודש טוב ומבורך 🌷";
+
 function toDateInputValue(date) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -117,21 +124,15 @@ function CalendarPage({ initialDate }) {
       .sort((a, b) => a - b)
       .map((day) => {
         const date = new Date(year, monthIndex, day);
-        const monthName = hebrewMonthName(date);
-        const dateLabel = listDateFormatter.format(date);
-        const from = ganName ? `ועד ההורים של ${ganName}` : "ועד ההורים";
-        const message =
-          `שלום להורים 🙂 תזכורת מ${from}: ביום ${dateLabel} יחול ראש חודש ` +
-          `${monthName}. חודש טוב ומבורך! 🌙`;
         return {
           day,
-          dateLabel,
+          dateLabel: listDateFormatter.format(date),
           hebrewLabel: hebrewDateLabel(date),
-          monthName,
-          message,
+          monthName: hebrewMonthName(date),
+          message: ROSH_CHODESH_REMINDER,
         };
       });
-  }, [roshChodeshDays, year, monthIndex, ganName]);
+  }, [roshChodeshDays, year, monthIndex]);
 
   // יום ההולדת חוזר כל שנה — הפילוח לפי חודש בלבד (בלי שנת הלידה)
   const birthdaysByDay = useMemo(

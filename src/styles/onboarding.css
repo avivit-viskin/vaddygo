@@ -6,6 +6,8 @@
 /* ===== מסך פתיחה ===== */
 
 .welcome {
+  position: relative;
+  overflow: hidden;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -16,14 +18,101 @@
   background: linear-gradient(
     180deg,
     var(--color-primary-light) 0%,
-    var(--color-bg) 60%
+    var(--color-bg) 55%,
+    #fbeef4 100%
   );
+}
+
+/* התוכן מעל הבועות */
+.welcome__content {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 100%;
+}
+
+/* בועות שקופות עדינות שעולות לאט ברקע — נגיעת ורוד עדינה */
+.welcome__bubbles {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+  z-index: 0;
+}
+.welcome__bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(
+    circle at 32% 30%,
+    rgba(255, 255, 255, 0.6),
+    rgba(249, 207, 224, 0.28)
+  );
+  animation: welcome-bubble linear infinite;
+}
+.welcome__bubble--1 { width: 90px; height: 90px; left: 10%; animation-duration: 20s; animation-delay: 0s; }
+.welcome__bubble--2 { width: 54px; height: 54px; left: 32%; animation-duration: 24s; animation-delay: 4s; }
+.welcome__bubble--3 { width: 120px; height: 120px; left: 60%; animation-duration: 28s; animation-delay: 1s; }
+.welcome__bubble--4 { width: 40px; height: 40px; left: 80%; animation-duration: 17s; animation-delay: 6s; }
+.welcome__bubble--5 { width: 70px; height: 70px; left: 46%; animation-duration: 22s; animation-delay: 9s; }
+.welcome__bubble--6 { width: 30px; height: 30px; left: 22%; animation-duration: 15s; animation-delay: 3s; }
+
+@keyframes welcome-bubble {
+  0% {
+    transform: translateY(105vh) scale(0.9);
+    opacity: 0;
+  }
+  12% {
+    opacity: 0.45;
+  }
+  88% {
+    opacity: 0.45;
+  }
+  100% {
+    transform: translateY(-20vh) scale(1.1);
+    opacity: 0;
+  }
+}
+
+/* לוגו המותג (תמונה) — מרחף עדין */
+.welcome__logo-img {
+  width: 120px;
+  max-width: 38vw;
+  height: auto;
+  margin-bottom: 6px;
+  animation: welcome-float 4.5s ease-in-out infinite;
+}
+
+@keyframes welcome-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-7px);
+  }
 }
 
 .welcome__logo {
   font-size: 40px;
-  margin: 0 0 24px;
+  margin: 0 0 4px;
   color: var(--color-primary-dark);
+}
+
+/* הסלוגן — בנגיעת ורוד */
+.welcome__tagline {
+  margin: 2px 0 8px;
+  font-size: var(--font-size-lg);
+  color: var(--color-link);
+  font-weight: 500;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .welcome__bubble,
+  .welcome__logo-img {
+    animation: none;
+  }
 }
 
 .welcome__text {

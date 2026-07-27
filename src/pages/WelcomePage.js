@@ -14,14 +14,32 @@ function WelcomePage() {
 
   return (
     <div className="welcome">
-      <h1 className="welcome__logo">
-        <BrandName />
-      </h1>
-      <div className="welcome__actions">
-        <Button onClick={() => navigate("/register")}>שנתחיל?</Button>
-        <Button variant="secondary" onClick={() => navigate("/login")}>
-          כבר יש לי חשבון — כניסה
-        </Button>
+      {/* בועות שקופות עדינות שעולות ברקע — תנועה עדינה עדינה */}
+      <div className="welcome__bubbles" aria-hidden="true">
+        <span className="welcome__bubble welcome__bubble--1" />
+        <span className="welcome__bubble welcome__bubble--2" />
+        <span className="welcome__bubble welcome__bubble--3" />
+        <span className="welcome__bubble welcome__bubble--4" />
+        <span className="welcome__bubble welcome__bubble--5" />
+        <span className="welcome__bubble welcome__bubble--6" />
+      </div>
+
+      <div className="welcome__content">
+        <img
+          className="welcome__logo-img"
+          src={`${process.env.PUBLIC_URL}/logo.png`}
+          alt=""
+        />
+        <h1 className="welcome__logo">
+          <BrandName />
+        </h1>
+        <p className="welcome__tagline">ארגון חכם. ניהול מנצח.</p>
+        <div className="welcome__actions">
+          <Button onClick={() => navigate("/register")}>שנתחיל?</Button>
+          <Button variant="secondary" onClick={() => navigate("/login")}>
+            כבר יש לי חשבון — כניסה
+          </Button>
+        </div>
       </div>
     </div>
   );

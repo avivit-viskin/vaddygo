@@ -67,7 +67,7 @@ const listDateFormatter = new Intl.DateTimeFormat("he", {
 // נוסח גנרי בלי ציון מין (בלי "ילד/ה"): הפועל "לשלוח" בצורת מקור, ו"לך" זהה
 // בכתיב לשני המינים — כך ההודעה מתאימה לכולם.
 const ROSH_CHODESH_REMINDER =
-  "🌙 היום ראש חודש!\n" +
+  "היום ראש חודש!\n" +
   "מזכירים לך לשלוח מחר עם חולצה לבנה 🤍\n\n" +
   "חודש טוב ומבורך 🌷";
 
@@ -504,7 +504,7 @@ function CalendarPage({ initialDate }) {
                 <span className="calendar-list__hebrew">{rc.hebrewLabel}</span>
               </span>
               <span className="calendar-list__name">
-                🌙 ראש חודש {rc.monthName}
+                ראש חודש {rc.monthName}
               </span>
               <a
                 className="calendar-list__send"

@@ -44,12 +44,16 @@
 .welcome__bubble {
   position: absolute;
   border-radius: 50%;
+  /* בועה זכוכיתית שקופה — מילוי עדין, שפה מוארת וזוהר פנימי כדי שתיראה מעט */
   background: radial-gradient(
-    circle at 32% 30%,
-    rgba(255, 255, 255, 0.6),
-    rgba(249, 207, 224, 0.28)
+    circle at 30% 28%,
+    rgba(255, 255, 255, 0.72),
+    rgba(249, 207, 224, 0.22) 66%,
+    transparent 72%
   );
-  animation: welcome-bubble linear infinite;
+  border: 1px solid rgba(255, 255, 255, 0.55);
+  box-shadow: inset 0 0 14px rgba(255, 255, 255, 0.4);
+  animation: welcome-bubble ease-in-out infinite;
 }
 .welcome__bubble--1 { width: 90px; height: 90px; left: 10%; animation-duration: 20s; animation-delay: 0s; }
 .welcome__bubble--2 { width: 54px; height: 54px; left: 32%; animation-duration: 24s; animation-delay: 4s; }
@@ -58,19 +62,29 @@
 .welcome__bubble--5 { width: 70px; height: 70px; left: 46%; animation-duration: 22s; animation-delay: 9s; }
 .welcome__bubble--6 { width: 30px; height: 30px; left: 22%; animation-duration: 15s; animation-delay: 3s; }
 
+/* עולה מלמטה עם נדנוד שמאלה-ימינה ופעימת סקייל עדינה — תחושת "קפיצה" רכה */
 @keyframes welcome-bubble {
   0% {
-    transform: translateY(105vh) scale(0.9);
+    transform: translate(0, 105vh) scale(0.85);
     opacity: 0;
   }
   12% {
-    opacity: 0.45;
+    opacity: 0.6;
+  }
+  30% {
+    transform: translate(18px, 74vh) scale(1.05);
+  }
+  55% {
+    transform: translate(-16px, 48vh) scale(0.97);
+  }
+  80% {
+    transform: translate(14px, 22vh) scale(1.06);
   }
   88% {
-    opacity: 0.45;
+    opacity: 0.55;
   }
   100% {
-    transform: translateY(-20vh) scale(1.1);
+    transform: translate(0, -18vh) scale(0.9);
     opacity: 0;
   }
 }

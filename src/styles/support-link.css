@@ -1,39 +1,36 @@
 /*
-  support-link — כפתור "שירות לקוחות" (וואטסאפ) למסכי הכניסה/הרשמה.
-  גלולה עדינה עם לוגו וואטסאפ ירוק וטקסט כהה — בולט מספיק, לא צועק.
+  support-link — קישור "שירות לקוחות" (וואטסאפ) למסכי הכניסה/הרשמה. עוצב כמו
+  קישור "מדיניות הפרטיות": טקסט קטן, אותו גופן, קישור עדין — לא כפתור בולט.
 */
 .support-link-wrap {
   display: flex;
-  flex-direction: column;
   align-items: center;
-  gap: 6px;
-  margin-top: 20px;
+  justify-content: center;
+  gap: 5px;
+  margin-top: 16px;
+  font-size: var(--font-size-sm);
 }
 
 .support-link__label {
-  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
 
 .support-link {
   display: inline-flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 44px;
-  padding: 8px 20px;
-  border-radius: 999px;
-  background: var(--color-surface);
-  border: 1px solid #bfe6cf;
-  color: var(--color-primary-dark);
-  font-weight: 600;
+  gap: 4px;
+  color: var(--color-link);
   font-size: var(--font-size-sm);
+  font-weight: 600;
   text-decoration: none;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .support-link:hover {
-  background: #eafaf0;
-  border-color: var(--color-success);
+  text-decoration: underline;
+}
+
+/* אייקון וואטסאפ קטן שמתאים לגודל הטקסט (הקישור עדין, לא כפתור) */
+.support-link svg {
+  width: 14px;
+  height: 14px;
 }

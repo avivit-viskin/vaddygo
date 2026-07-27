@@ -20,6 +20,7 @@ import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
 import JoinPage from "./pages/JoinPage";
 import SupplierEditPage from "./pages/SupplierEditPage";
+import SupplierWelcomePage from "./pages/SupplierWelcomePage";
 import SupplierLoginPage from "./pages/SupplierLoginPage";
 import SupplierForgotPasswordPage from "./pages/SupplierForgotPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -74,6 +75,7 @@ const FULL_SCREEN_ROUTES = [
   "/pay/return",
   "/supplier-login",
   "/supplier-forgot-password",
+  "/suppliers",
   ...LEGAL_ROUTES,
 ];
 // נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token, העמודים המשפטיים,
@@ -87,6 +89,7 @@ const PUBLIC_ROUTES = [
   "/pay/return",
   "/supplier-login",
   "/supplier-forgot-password",
+  "/suppliers",
   ...LEGAL_ROUTES,
 ];
 // מסכי הזדהות — משתמשת שכבר מחוברת לא צריכה לראות אותם שוב (נשלחת הביתה)
@@ -210,6 +213,7 @@ function App() {
           <Route path="/join/:token" element={<JoinPage />} />
           <Route path="/supplier/:token" element={<SupplierEditPage />} />
           <Route path="/supplier-login" element={<SupplierLoginPage />} />
+          <Route path="/suppliers" element={<SupplierWelcomePage />} />
           <Route
             path="/supplier-forgot-password"
             element={<SupplierForgotPasswordPage />}

@@ -16,9 +16,7 @@ function folderMessage(folderName) {
 
 function VendorPanel({
   vendor,
-  onEdit,
   onShareEditLink,
-  onRecordPayment,
   paidTotal = 0,
   readOnly = false,
 }) {
@@ -47,7 +45,7 @@ function VendorPanel({
 
         {waHref && (
           <a
-            className="vendor-panel__whatsapp"
+            className="btn btn--secondary vendor-panel__wa"
             href={waHref}
             target="_blank"
             rel="noreferrer"
@@ -92,7 +90,7 @@ function VendorPanel({
       <div className="vendor-panel__contact">
         {whatsapp && (
           <a
-            className="vendor-panel__whatsapp"
+            className="btn btn--secondary vendor-panel__wa"
             href={whatsapp}
             target="_blank"
             rel="noreferrer"
@@ -112,14 +110,14 @@ function VendorPanel({
         )}
       </div>
 
-      {(hasPayInfo || onRecordPayment) && (
+      {hasPayInfo && (
         <div className="vendor-panel__pay">
           {/* פרטי התשלום מוסתרים כברירת מחדל — נחשפים רק כשהוועד רוצה לשלם */}
           {hasPayInfo &&
             (!showPay ? (
               <button
                 type="button"
-                className="vendor-panel__pay-btn"
+                className="btn btn--primary vendor-panel__pay-cta"
                 onClick={() => setShowPay(true)}
               >
                 💳 תשלום לספק
@@ -134,7 +132,7 @@ function VendorPanel({
                 )}
                 {vendor.paymentLink && (
                   <a
-                    className="vendor-panel__pay-btn"
+                    className="btn btn--primary vendor-panel__pay-cta"
                     href={vendor.paymentLink}
                     target="_blank"
                     rel="noreferrer"
@@ -158,15 +156,6 @@ function VendorPanel({
             <p className="vendor-panel__pay-row">
               שולם לספק זה עד כה: <strong>{formatShekels(paidTotal)}</strong>
             </p>
-          )}
-          {onRecordPayment && (
-            <button
-              type="button"
-              className="vendor-panel__pay-record"
-              onClick={onRecordPayment}
-            >
-              💰 רשום שהתשלום בוצע
-            </button>
           )}
         </div>
       )}
@@ -214,21 +203,17 @@ function VendorPanel({
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
       )}
 
-      {/* "צופה" — לצפייה בלבד: בלי עריכת פרטי הספק */}
-      {!readOnly && (
+      {/* עריכת פרטי הספק נעשית אך ורק בעמוד של הספק עצמו (בקישור האישי) —
+          הוועד לא עורך ספקים. כאן רק המנהלת שולחת לספק קישור עריכה. */}
+      {!readOnly && onShareEditLink && (
         <div className="vendor-panel__admin">
-          <button type="button" className="vendor-panel__edit" onClick={onEdit}>
-            ✏️ עריכת פרטי הספק
+          <button
+            type="button"
+            className="vendor-panel__share"
+            onClick={onShareEditLink}
+          >
+            🔗 שליחת קישור עריכה לספק
           </button>
-          {onShareEditLink && (
-            <button
-              type="button"
-              className="vendor-panel__share"
-              onClick={onShareEditLink}
-            >
-              🔗 שליחת קישור עריכה לספק
-            </button>
-          )}
         </div>
       )}
     </div>

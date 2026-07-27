@@ -5,8 +5,6 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
-import Input from "../components/Input";
-import Select from "../components/Select";
 import { getGifts, addGift, updateGift, deleteGift } from "../services/giftsService";
 import {
   getVendors,
@@ -16,8 +14,7 @@ import {
 } from "../services/vendorsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
-import { getExpenses, createExpense } from "../services/expensesService";
-import { PAYMENT_METHODS } from "../services/paymentMethods";
+import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
 import { upcomingHolidays } from "../services/upcomingHoliday";
 import { isActiveReadOnly } from "../services/institutionsService";
@@ -57,12 +54,6 @@ function GiftsPage() {
   const [linkCopied, setLinkCopied] = useState(false);
   // סינון הספקים לפי קטגוריה (גילוי); "" = הכל
   const [vendorFilter, setVendorFilter] = useState("");
-  // רישום תשלום לספק (מודאל); null = סגור
-  const [payingVendor, setPayingVendor] = useState(null);
-  const [payAmount, setPayAmount] = useState("");
-  const [payMethod, setPayMethod] = useState("bit");
-  const [paySaving, setPaySaving] = useState(false);
-  const [payError, setPayError] = useState("");
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -188,41 +179,6 @@ function GiftsPage() {
   function copyEditLink() {
     if (editLink?.url && navigator.clipboard) {
       navigator.clipboard.writeText(editLink.url).then(() => setLinkCopied(true));
-    }
-  }
-
-  // פותח מודאל רישום תשלום לספק
-  function startRecordPayment(vendor) {
-    setPayError("");
-    setPayAmount("");
-    setPayMethod("bit");
-    setPayingVendor(vendor);
-  }
-
-  // רושם תשלום לספק כהוצאה מקושרת — יורד מהיתרה ומופיע במעקב "שולם לספק זה"
-  async function submitPayment(event) {
-    event.preventDefault();
-    const amount = Number(payAmount);
-    if (!amount || amount <= 0) {
-      setPayError("יש להזין סכום גדול מ-0");
-      return;
-    }
-    setPaySaving(true);
-    setPayError("");
-    try {
-      await createExpense({
-        amount,
-        method: payMethod,
-        category: "ספקים",
-        description: `תשלום לספק: ${payingVendor.name}`,
-        vendorId: payingVendor.id,
-      });
-      setPayingVendor(null);
-      load();
-    } catch (err) {
-      setPayError(err.message);
-    } finally {
-      setPaySaving(false);
     }
   }
 
@@ -352,12 +308,8 @@ function GiftsPage() {
         {openVendor != null && (
           <VendorPanel
             vendor={openVendor}
-            onEdit={() => setEditingVendor(openVendor)}
             onShareEditLink={
               canShareEditLink ? () => handleShareEditLink(openVendor) : undefined
-            }
-            onRecordPayment={
-              readOnly ? undefined : () => startRecordPayment(openVendor)
             }
             paidTotal={vendorPaidById[openVendor.id] || 0}
             readOnly={readOnly}
@@ -416,55 +368,6 @@ function GiftsPage() {
             onSave={handleSaveVendor}
             onCancel={() => setEditingVendor(null)}
           />
-        )}
-      </Modal>
-
-      {/* רישום תשלום לספק — נרשם כהוצאה מהקופה ומשויך לספק */}
-      <Modal
-        isOpen={payingVendor !== null}
-        onClose={() => setPayingVendor(null)}
-        title={payingVendor ? `תשלום לספק — ${payingVendor.name}` : "תשלום לספק"}
-      >
-        {payingVendor && (
-          <form onSubmit={submitPayment} noValidate>
-            <Input
-              id="pay-amount"
-              label="כמה שולם? (₪)"
-              type="number"
-              min="0"
-              inputMode="decimal"
-              value={payAmount}
-              onChange={(e) => setPayAmount(e.target.value)}
-              error={payError}
-            />
-            <Select
-              id="pay-method"
-              label="מאיזה אמצעי יצא הכסף"
-              value={payMethod}
-              onChange={(e) => setPayMethod(e.target.value)}
-            >
-              {PAYMENT_METHODS.map((m) => (
-                <option key={m.value} value={m.value}>
-                  {m.label}
-                </option>
-              ))}
-            </Select>
-            <p className="vendor-panel__pay-row">
-              💡 התשלום יירשם כהוצאה מהקופה ויוצמד לספק זה.
-            </p>
-            <div className="gift-form__actions">
-              <Button type="submit" isLoading={paySaving}>
-                רישום התשלום
-              </Button>
-              <Button
-                type="button"
-                variant="secondary"
-                onClick={() => setPayingVendor(null)}
-              >
-                ביטול
-              </Button>
-            </div>
-          </form>
         )}
       </Modal>
 

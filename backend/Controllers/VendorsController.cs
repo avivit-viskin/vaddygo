@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
@@ -7,6 +8,10 @@ namespace ParentCommitteeAPI.Controllers
     /*
       VendorsController — קונטרולר דק לספקים (UI_SPEC ס' 12). כל הלוגיקה ב-IVendorService.
     */
+    // ניהול ספקים (הוספה/עריכה/מחיקה/הפקת קישור) שמור למנהלת VaddyGo בלבד —
+    // נאכף בשרת ב-[Authorize(Roles = "SuperAdmin")] על פעולות הכתיבה. הצפייה
+    // (GET) פתוחה לכל משתמש מזוהה, כדי שכל וועד יוכל לראות ספקים ולשלם.
+    // עריכה עצמית של הספק מתבצעת ב-PublicVendorsController (טוקן, AllowAnonymous).
     [ApiController]
     [Route("api/[controller]")]
     public class VendorsController : ControllerBase
@@ -36,6 +41,7 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         // POST: api/vendors
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost]
         public async Task<ActionResult<VendorResponseDto>> CreateVendor([FromBody] VendorCreateDto dto)
         {
@@ -44,6 +50,7 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         // PUT: api/vendors/1
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPut("{id}")]
         public async Task<ActionResult<VendorResponseDto>> UpdateVendor(int id, [FromBody] VendorUpdateDto dto)
         {
@@ -54,6 +61,7 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         // POST: api/vendors/1/edit-link — מייצר (או מחזיר) קישור עריכה אישי לספק
+        [Authorize(Roles = "SuperAdmin")]
         [HttpPost("{id}/edit-link")]
         public async Task<ActionResult> CreateEditLink(int id)
         {
@@ -64,6 +72,7 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         // DELETE: api/vendors/1
+        [Authorize(Roles = "SuperAdmin")]
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteVendor(int id)
         {

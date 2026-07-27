@@ -368,6 +368,7 @@ namespace ParentCommitteeAPI.Services
             PaymentBit = vendor.PaymentBit,
             PaymentBankInfo = vendor.PaymentBankInfo,
             PaymentInstallments = vendor.PaymentInstallments,
+            HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

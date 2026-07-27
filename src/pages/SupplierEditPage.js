@@ -104,7 +104,9 @@ function SupplierEditPage() {
         </p>
       )}
 
-      {/* ── כניסה קבועה — בראש העמוד, ככרטיס בולט ── */}
+      {/* ── כניסה קבועה — מוצג רק כשעדיין לא הוגדרו פרטי כניסה (הקישור הראשון
+          ששולחים לספק). אחרי שהספק הגדיר/התחבר (hasLogin) — הכרטיס מוסתר. ── */}
+      {!vendor?.hasLogin && (
       <form
         className="supplier-edit__login"
         onSubmit={saveCredentials}
@@ -156,6 +158,7 @@ function SupplierEditPage() {
           כבר הגדרתם? <Link to="/supplier-login">כניסת ספקים ←</Link>
         </p>
       </form>
+      )}
 
       {/* ── עריכת הכרטיס והמוצרים ── */}
       <h2

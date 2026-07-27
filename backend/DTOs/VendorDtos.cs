@@ -153,6 +153,9 @@ namespace ParentCommitteeAPI.DTOs
         public int PaymentInstallments { get; set; }
         public List<VendorProductResponseDto> Products { get; set; } = new();
         public List<VendorSocialLinkResponseDto> SocialLinks { get; set; } = new();
+        /* האם הספק כבר הגדיר מייל+סיסמה לכניסה — כדי להציג את כרטיס "הגדרת כניסה"
+           רק בקישור הראשון (לפני שהוגדרו), ולהסתירו אחרי שהספק כבר הגדיר/התחבר. */
+        public bool HasLogin { get; set; }
     }
 
     public class VendorProductResponseDto

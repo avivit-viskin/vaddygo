@@ -1,10 +1,32 @@
 import { NavLink } from "react-router-dom";
+import { useEffect, useState } from "react";
 
 /*
   BottomNav — ניווט תחתון קבוע (Mobile-First), חמשת מסכי הליבה.
   אייקונים קוויים אחידים (SVG) שיורשים את צבע הקישור (currentColor) — מסודר
   ונקי יותר מאמוג'ים מעורבבים. כל פריט הוא אזור מגע של 44px לפחות.
+
+  כשנפתחת מקלדת (מיקוד בשדה טקסט) — במובייל סרגל position:fixed "מטפס" מעל
+  התוכן. לכן מסתירים אותו כל עוד מקלידים, והוא חוזר ברגע שסוגרים את המקלדת.
 */
+// האם האלמנט הוא שדה שפותח מקלדת (טקסט/מספר/textarea/עריכה חופשית)?
+function opensKeyboard(el) {
+  if (!el) return false;
+  if (el.tagName === "TEXTAREA" || el.isContentEditable) return true;
+  if (el.tagName !== "INPUT") return false;
+  const type = (el.getAttribute("type") || "text").toLowerCase();
+  return ![
+    "checkbox",
+    "radio",
+    "button",
+    "submit",
+    "reset",
+    "file",
+    "range",
+    "color",
+    "image",
+  ].includes(type);
+}
 const ICONS = {
   home: (
     <>
@@ -50,8 +72,29 @@ const NAV_ITEMS = [
 ];
 
 function BottomNav() {
+  const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+  useEffect(() => {
+    const onFocusIn = (e) => {
+      if (opensKeyboard(e.target)) setKeyboardOpen(true);
+    };
+    // אם המיקוד עובר לשדה-טקסט אחר — נשארים מוסתרים (מונע הבהוב בין שדות)
+    const onFocusOut = (e) => {
+      if (!opensKeyboard(e.relatedTarget)) setKeyboardOpen(false);
+    };
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("focusout", onFocusOut);
+    return () => {
+      document.removeEventListener("focusin", onFocusIn);
+      document.removeEventListener("focusout", onFocusOut);
+    };
+  }, []);
+
   return (
-    <nav className="bottom-nav" aria-label="ניווט ראשי">
+    <nav
+      className={`bottom-nav${keyboardOpen ? " bottom-nav--hidden" : ""}`}
+      aria-label="ניווט ראשי"
+    >
       {NAV_ITEMS.map((item) => (
         <NavLink
           key={item.to}

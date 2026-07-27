@@ -31,3 +31,8 @@ export function hebrewDateLabel(date) {
   const month = hebrewMonthFormatter.format(date);
   return `${day} ב${month}`;
 }
+
+/* שם החודש העברי בלבד ("חשוון", "כסלו"...) — לתזכורת ראש חודש. */
+export function hebrewMonthName(date) {
+  return hebrewMonthFormatter.format(date);
+}

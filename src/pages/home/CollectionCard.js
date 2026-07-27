@@ -62,10 +62,6 @@ function CollectionCard({ dashboard, onExpenseChanged, readOnly = false }) {
       </div>
       <p className="progress__text">{dashboard.progressPercent}% מהיעד נגבה</p>
 
-      <p className="methods__hint">
-        לפי אמצעי תשלום — כמה נשאר בקופה מכל אמצעי (מה שנכנס פחות הוצאות ששולמו
-        ממנו). סכום שלילי = יצא יותר משנכנס באמצעי הזה.
-      </p>
       <ul className="methods">
         {dashboard.byPaymentMethod.map((m) => (
           <li key={m.method} className={`methods__item methods__item--${m.method}`}>

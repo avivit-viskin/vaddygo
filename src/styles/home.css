@@ -578,6 +578,8 @@
   font-size: 1rem;
   min-width: 44px;
   min-height: 44px;
+  /* צבע פחם אחיד לאייקוני העיפרון/פח (כמו במחיקת מוסד) — מונע גוון כחול במובייל */
+  color: var(--color-primary-dark);
 }
 
 .staff__error {

@@ -204,6 +204,7 @@
   background: none;
   cursor: pointer;
   font-size: var(--font-size-base);
+  color: var(--color-primary-dark);
 }
 
 .calendar-list__tag {
@@ -222,7 +223,7 @@
   background: none;
   cursor: pointer;
   font-size: var(--font-size-base);
-  color: var(--color-text-muted);
+  color: var(--color-primary-dark);
 }
 
 /* וואטסאפ להורה (אירוע שמשתף הורה) */

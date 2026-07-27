@@ -22,7 +22,8 @@ import {
   getBirthdays,
   birthdaysByDayForMonth,
 } from "../services/birthdaysService";
-import { hebrewDateLabel } from "../services/hebrewDate";
+import { hebrewDateLabel, hebrewMonthName } from "../services/hebrewDate";
+import { whatsappShareUrl } from "../services/whatsapp";
 import { getStudents } from "../services/studentsService";
 import { getOnboarding } from "../services/onboardingService";
 import {
@@ -108,6 +109,29 @@ function CalendarPage({ initialDate }) {
     () => getRoshChodeshForMonth(year, monthIndex),
     [year, monthIndex]
   );
+
+  // רשימת ראשי-החודש בחודש המוצג + הודעת תזכורת מוכנה להורים (וואטסאפ), כמו
+  // ב"אבא/אמא של שבת" — כאן ההודעה כללית (רשימת תפוצה/קבוצת ההורים), לא לנמען יחיד.
+  const roshChodeshList = useMemo(() => {
+    return [...roshChodeshDays]
+      .sort((a, b) => a - b)
+      .map((day) => {
+        const date = new Date(year, monthIndex, day);
+        const monthName = hebrewMonthName(date);
+        const dateLabel = listDateFormatter.format(date);
+        const from = ganName ? `ועד ההורים של ${ganName}` : "ועד ההורים";
+        const message =
+          `שלום להורים 🙂 תזכורת מ${from}: ביום ${dateLabel} יחול ראש חודש ` +
+          `${monthName}. חודש טוב ומבורך! 🌙`;
+        return {
+          day,
+          dateLabel,
+          hebrewLabel: hebrewDateLabel(date),
+          monthName,
+          message,
+        };
+      });
+  }, [roshChodeshDays, year, monthIndex, ganName]);
 
   // יום ההולדת חוזר כל שנה — הפילוח לפי חודש בלבד (בלי שנת הלידה)
   const birthdaysByDay = useMemo(
@@ -460,6 +484,39 @@ function CalendarPage({ initialDate }) {
           ))
         )}
       </section>
+
+      {/* מדור: ראש חודש — תזכורת להורים בוואטסאפ (כמו אבא/אמא של שבת) */}
+      {roshChodeshList.length > 0 && (
+        <section className="calendar-list" aria-label="ראש חודש">
+          <h3>
+            <Icon name="calendar" size={18} /> ראש חודש
+          </h3>
+          <p className="calendar-list__hint">
+            אפשר לשלוח להורים תזכורת על ראש החודש בוואטסאפ — בדיוק כמו ב"אבא/אמא
+            של שבת" 🙂 (נפתחת הודעה מוכנה, ובוחרים לאיזו קבוצה/הורים לשלוח).
+          </p>
+          {roshChodeshList.map((rc) => (
+            <div className="calendar-list__item" key={`rc-${rc.day}`}>
+              <span className="calendar-list__date">
+                {rc.dateLabel}
+                <span className="calendar-list__hebrew">{rc.hebrewLabel}</span>
+              </span>
+              <span className="calendar-list__name">
+                🌙 ראש חודש {rc.monthName}
+              </span>
+              <a
+                className="calendar-list__send"
+                href={whatsappShareUrl(rc.message)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`שליחת תזכורת להורים על ראש חודש ${rc.monthName}`}
+              >
+                <WhatsAppIcon size={18} /> שליחת תזכורת
+              </a>
+            </div>
+          ))}
+        </section>
+      )}
 
       <Modal
         isOpen={isFormOpen}

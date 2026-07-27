@@ -469,6 +469,11 @@ button.vendor-form__remove {
   z-index: 50;
 }
 
+/* מוסתר בזמן הקלדה (מקלדת פתוחה) — כדי שלא "יטפס" מעל התוכן במובייל */
+.bottom-nav--hidden {
+  display: none;
+}
+
 .bottom-nav__link {
   flex: 1;
   display: flex;

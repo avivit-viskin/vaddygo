@@ -14,7 +14,14 @@ function folderMessage(folderName) {
   return `היי! ראינו את המוצרים שלכם${suffix} ואנחנו מעוניינים 🙂 אפשר לקבל פרטים ומחירים?`;
 }
 
-function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
+function VendorPanel({
+  vendor,
+  onEdit,
+  onShareEditLink,
+  onRecordPayment,
+  paidTotal = 0,
+  readOnly = false,
+}) {
   const [openFolder, setOpenFolder] = useState(null);
   const folders = groupByFolder(vendor.products || []);
 
@@ -99,7 +106,10 @@ function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
         )}
       </div>
 
-      {(vendor.paymentLink || vendor.paymentBit || vendor.paymentBankInfo) && (
+      {(vendor.paymentLink ||
+        vendor.paymentBit ||
+        vendor.paymentBankInfo ||
+        onRecordPayment) && (
         <div className="vendor-panel__pay">
           <p className="vendor-panel__pay-title">תשלום לספק 💳</p>
           {vendor.paymentLink && (
@@ -121,6 +131,20 @@ function VendorPanel({ vendor, onEdit, onShareEditLink, readOnly = false }) {
             <p className="vendor-panel__pay-row">
               העברה בנקאית: <strong>{vendor.paymentBankInfo}</strong>
             </p>
+          )}
+          {paidTotal > 0 && (
+            <p className="vendor-panel__pay-row">
+              שולם לספק זה עד כה: <strong>{formatShekels(paidTotal)}</strong>
+            </p>
+          )}
+          {onRecordPayment && (
+            <button
+              type="button"
+              className="vendor-panel__pay-record"
+              onClick={onRecordPayment}
+            >
+              💰 רשום שהתשלום בוצע
+            </button>
           )}
         </div>
       )}

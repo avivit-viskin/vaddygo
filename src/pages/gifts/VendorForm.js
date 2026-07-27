@@ -5,6 +5,14 @@ import Select from "../../components/Select";
 import { FOLDER_PRESETS } from "../../services/vendorFolders";
 import { VENDOR_CATEGORIES } from "../../services/vendorCategories";
 import { fileToResizedDataUrl } from "../../services/imageUpload";
+import {
+  parseProductFile,
+  PRODUCTS_IMPORT_TEMPLATE,
+} from "../../services/productsImport";
+
+/* תבנית להורדה כקובץ CSV (data-URI) — נפתח באקסל עם עברית תקינה (BOM) */
+const TEMPLATE_HREF =
+  "data:text/csv;charset=utf-8," + encodeURIComponent(PRODUCTS_IMPORT_TEMPLATE);
 
 /*
   VendorForm — הוספה/עריכה של ספק (UI_SPEC ס' 12). ספקים מנוהלים ידנית ע"י
@@ -26,6 +34,7 @@ function VendorForm({ vendor, onSave, onCancel }) {
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [importMsg, setImportMsg] = useState("");
 
   function updateItem(setter, index, patch) {
     setter((prev) =>
@@ -47,6 +56,33 @@ function VendorForm({ vendor, onSave, onCancel }) {
       updateItem(setProducts, index, { imageUrl: dataUrl });
     } catch {
       // אם ההמרה נכשלה — משאירים כפי שהיה; אפשר לנסות תמונה אחרת
+    }
+  }
+
+  // ייבוא מרוכז של מוצרים מקובץ Excel/CSV — מתווספים לרשימה, והספק שומר אחר כך
+  async function handleImportFile(file) {
+    if (!file) {
+      return;
+    }
+    setImportMsg("מייבא...");
+    try {
+      const imported = await parseProductFile(file);
+      if (imported.length === 0) {
+        setImportMsg("לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'.");
+        return;
+      }
+      setProducts((prev) => [
+        ...prev,
+        ...imported.map((p) => ({
+          name: p.name,
+          price: p.price,
+          imageUrl: p.imageUrl || "",
+          folder: "",
+        })),
+      ]);
+      setImportMsg(`נוספו ${imported.length} מוצרים ✓ — אפשר לבדוק וללחוץ שמירה`);
+    } catch {
+      setImportMsg("לא הצלחנו לקרוא את הקובץ. נסו Excel או CSV.");
     }
   }
 
@@ -161,6 +197,46 @@ function VendorForm({ vendor, onSave, onCancel }) {
       />
 
       <p className="vendor-form__products-title">מוצרים</p>
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          gap: "10px",
+          marginBottom: "10px",
+        }}
+      >
+        <label className="vendor-form__upload">
+          📥 ייבוא מקובץ (Excel/CSV)
+          <input
+            type="file"
+            accept=".csv,.txt,.xlsx,.xls"
+            className="vendor-form__file"
+            aria-label="ייבוא מוצרים מקובץ"
+            onChange={(e) =>
+              handleImportFile(e.target.files && e.target.files[0])
+            }
+          />
+        </label>
+        <a
+          style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}
+          href={TEMPLATE_HREF}
+          download="מוצרים-תבנית.csv"
+        >
+          הורדת תבנית
+        </a>
+        {importMsg && (
+          <span
+            style={{
+              flexBasis: "100%",
+              fontSize: "var(--font-size-sm)",
+              color: "var(--color-success)",
+            }}
+          >
+            {importMsg}
+          </span>
+        )}
+      </div>
       {products.map((product, index) => (
         <div className="vendor-form__product" key={index}>
           <div className="vendor-form__product-head">

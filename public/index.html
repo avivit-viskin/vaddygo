@@ -34,8 +34,8 @@
     -->
     <title>VaddyGo</title>
     <style>
-      /* מסך פתיחה — הלוגו מוצג מיד עם טעינת האתר, ונעלם כשהאפליקציה עולה
-         (React מחליף את תוכן #root ברגע שהוא נטען). */
+      /* מסך פתיחה (טעינה) — לוגו + שם + סלוגן, לפי המוקאפ של בעלת המוצר.
+         מוצג מיד עם טעינת האתר, ונעלם כשהאפליקציה עולה (React מחליף את #root). */
       #app-splash {
         position: fixed;
         inset: 0;
@@ -45,25 +45,60 @@
         background-color: #f7f1e6;
         z-index: 9999;
       }
+      #app-splash .splash-box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+        text-align: center;
+        padding: 24px;
+        animation: splash-in 0.7s ease both;
+      }
       #app-splash img {
-        width: 200px;
-        max-width: 55vw;
+        width: 150px;
+        max-width: 42vw;
         height: auto;
-        animation: splash-pulse 1.5s ease-in-out infinite;
+        animation: splash-pulse 1.9s ease-in-out infinite;
+      }
+      #app-splash .splash-name {
+        font-family: "Rubik", -apple-system, "Segoe UI", Arial, sans-serif;
+        font-weight: 700;
+        font-size: 42px;
+        color: #234058;
+        letter-spacing: 0.5px;
+        margin-top: 4px;
+      }
+      #app-splash .splash-tag {
+        font-family: "Rubik", -apple-system, "Segoe UI", "Noto Sans Hebrew",
+          Arial, sans-serif;
+        font-size: 17px;
+        color: #46617a;
+        direction: rtl;
       }
       @keyframes splash-pulse {
         0%,
         100% {
           transform: scale(1);
-          opacity: 0.92;
+          opacity: 0.95;
         }
         50% {
-          transform: scale(1.07);
+          transform: scale(1.05);
           opacity: 1;
         }
       }
+      @keyframes splash-in {
+        from {
+          opacity: 0;
+          transform: translateY(8px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
       @media (prefers-reduced-motion: reduce) {
-        #app-splash img {
+        #app-splash img,
+        #app-splash .splash-box {
           animation: none;
         }
       }
@@ -73,7 +108,11 @@
     <noscript>You need to enable JavaScript to run this app.</noscript>
     <div id="root">
       <div id="app-splash">
-        <img src="%PUBLIC_URL%/logo.png" alt="VaddyGo" />
+        <div class="splash-box">
+          <img src="%PUBLIC_URL%/logo.png" alt="" />
+          <div class="splash-name">VaddyGo</div>
+          <div class="splash-tag">ארגון חכם. ניהול מנצח.</div>
+        </div>
       </div>
     </div>
     <!--

@@ -2,9 +2,9 @@ import { useState } from "react";
 import BrandName from "./BrandName";
 
 /*
-  Logo — הלוגו של VaddyGo בכותרת. מציג את תמונת הלוגו (public/logo.png);
-  כל עוד הקובץ לא הועלה, נופל אלגנטית לכיתוב "VaddyGo" — כך אין תמונה שבורה.
-  ברגע שמעלים public/logo.png, הוא מופיע אוטומטית.
+  Logo — הלוגו של VaddyGo בכותרת. מציג את תמונת הלוגו (public/logo512.png —
+  גרסה חדה 512px); כל עוד הקובץ לא הועלה, נופל אלגנטית לכיתוב "VaddyGo" — כך
+  אין תמונה שבורה. ברגע שמעלים את הקובץ, הוא מופיע אוטומטית.
 */
 function Logo() {
   const [failed, setFailed] = useState(false);

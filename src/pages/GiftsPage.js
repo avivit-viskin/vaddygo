@@ -37,9 +37,9 @@ import "../styles/gifts.css";
 function GiftsPage() {
   // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של מתנות וספקים
   const readOnly = isActiveReadOnly();
-  // שליחת קישור עריכה לספק שמורה למנהלת VaddyGo (SuperAdmin) בלבד — לא לכל
-  // וועד. ספקים הם ערוץ מנוהל מרכזית, ולא כל וועד מזמין ספקים בעצמו.
-  const canShareEditLink = isSuperAdmin();
+  // ניהול ספקים (הוספה ושליחת קישור עריכה) שמור למנהלת VaddyGo (SuperAdmin)
+  // בלבד — לא לכל וועד. ספקים הם ערוץ מנוהל מרכזית; וועד רגיל רק צופה ומשלם.
+  const canManageVendors = isSuperAdmin();
   const [gifts, setGifts] = useState(null);
   const [vendors, setVendors] = useState([]);
   const [budgets, setBudgets] = useState({});
@@ -274,7 +274,7 @@ function GiftsPage() {
             </ul>
           </>
         )}
-        {!readOnly && (
+        {canManageVendors && (
           <Button variant="secondary" onClick={() => setEditingVendor({})}>
             + הוספת ספק
           </Button>
@@ -309,7 +309,7 @@ function GiftsPage() {
           <VendorPanel
             vendor={openVendor}
             onShareEditLink={
-              canShareEditLink ? () => handleShareEditLink(openVendor) : undefined
+              canManageVendors ? () => handleShareEditLink(openVendor) : undefined
             }
             paidTotal={vendorPaidById[openVendor.id] || 0}
             readOnly={readOnly}

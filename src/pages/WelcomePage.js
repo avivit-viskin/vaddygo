@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
+import SupportLink from "../components/SupportLink";
 import "../styles/onboarding.css";
 
 /*
@@ -35,6 +36,7 @@ function WelcomePage() {
             כבר יש לי חשבון — כניסה
           </Button>
         </div>
+        <SupportLink />
       </div>
     </div>
   );

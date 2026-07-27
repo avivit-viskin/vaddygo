@@ -5,6 +5,7 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import PasswordField from "../components/PasswordField";
 import ErrorMessage from "../components/ErrorMessage";
+import SupportLink from "../components/SupportLink";
 import useForm from "../hooks/useForm";
 import { register } from "../services/authService";
 import "../styles/onboarding.css";
@@ -99,6 +100,7 @@ function RegisterPage() {
           </p>
         </form>
       </Card>
+      <SupportLink />
     </div>
   );
 }

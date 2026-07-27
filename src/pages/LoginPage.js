@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
+import SupportLink from "../components/SupportLink";
 import { login, loginWithGoogle } from "../services/authService";
 import {
   restoreOnboardingFromServer,
@@ -157,6 +158,7 @@ function LoginPage() {
           </p>
           </form>
         </div>
+        <SupportLink />
       </div>
     </div>
   );

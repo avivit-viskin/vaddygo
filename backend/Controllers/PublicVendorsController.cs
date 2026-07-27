@@ -74,6 +74,18 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(new { editToken = token });
         }
 
+        // POST: api/public/vendors/register — הרשמת ספק חדש בעצמו (שם+מייל+סיסמה).
+        // נוצר ספק חדש עם טוקן עריכה, והלקוח ממשיך איתו לעמוד מילוי הכרטיס.
+        [HttpPost("register")]
+        public async Task<ActionResult> Register([FromBody] VendorRegisterDto dto)
+        {
+            var (token, error) = await _vendorService.RegisterAsync(
+                dto.Name, dto.LoginEmail, dto.Password);
+            if (token == null)
+                return BadRequest(new { message = error });
+            return Ok(new { editToken = token });
+        }
+
         // POST: api/public/vendors/forgot-password — שולח קוד איפוס למייל שהספק הגדיר.
         // תמיד מחזיר הצלחה כללית (לא חושף אם המייל רשום) — מונע enumeration.
         [HttpPost("forgot-password")]

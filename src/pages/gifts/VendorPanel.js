@@ -20,6 +20,7 @@ function supplierMessage(folderName) {
 function VendorPanel({
   vendor,
   onEdit,
+  onShareEditLink,
   paidTotal = 0,
   readOnly = false,
 }) {
@@ -263,12 +264,23 @@ function VendorPanel({
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
       )}
 
-      {/* עריכת פרטי הספק — רק לבעלת האפליקציה (SuperAdmin); וועד רגיל רק צופה */}
-      {!readOnly && onEdit && (
+      {/* ניהול הספק — רק לבעלת האפליקציה (SuperAdmin); וועד רגיל רק צופה */}
+      {!readOnly && (onEdit || onShareEditLink) && (
         <div className="vendor-panel__admin">
-          <button type="button" className="vendor-panel__edit" onClick={onEdit}>
-            ✏️ עריכת פרטי הספק
-          </button>
+          {onEdit && (
+            <button type="button" className="vendor-panel__edit" onClick={onEdit}>
+              ✏️ עריכת פרטי הספק
+            </button>
+          )}
+          {onShareEditLink && (
+            <button
+              type="button"
+              className="vendor-panel__share"
+              onClick={onShareEditLink}
+            >
+              🔗 שליחת קישור עריכה לספק
+            </button>
+          )}
         </div>
       )}
     </div>

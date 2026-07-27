@@ -6,7 +6,13 @@ import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import { getGifts, addGift, updateGift, deleteGift } from "../services/giftsService";
-import { getVendors, addVendor, updateVendor } from "../services/vendorsService";
+import {
+  getVendors,
+  addVendor,
+  updateVendor,
+  generateVendorEditLink,
+} from "../services/vendorsService";
+import { whatsappUrl } from "../services/whatsapp";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
@@ -43,6 +49,9 @@ function GiftsPage() {
   const [deletingGift, setDeletingGift] = useState(null);
   const [openVendor, setOpenVendor] = useState(null);
   const [editingVendor, setEditingVendor] = useState(null);
+  // קישור עריכה אישי שנוצר לספק (לשליחה אליו); null = אין מודאל פתוח
+  const [editLink, setEditLink] = useState(null);
+  const [linkCopied, setLinkCopied] = useState(false);
   // סינון הספקים לפי קטגוריה (גילוי); "" = הכל
   const [vendorFilter, setVendorFilter] = useState("");
 
@@ -150,6 +159,27 @@ function GiftsPage() {
       setOpenVendor(saved);
     }
     load();
+  }
+
+  // יוצר (או מחזיר) קישור עריכה אישי לספק, לשליחה אליו — הוא יעדכן את הכרטיס
+  // שלו בעצמו, וזה יופיע כאן אוטומטית. שמור לבעלת האפליקציה (SuperAdmin).
+  async function handleShareEditLink(vendor) {
+    if (!vendor?.id) {
+      return;
+    }
+    const token = await generateVendorEditLink(vendor.id);
+    setLinkCopied(false);
+    setEditLink({
+      url: `${window.location.origin}/supplier/${token}`,
+      vendorName: vendor.name,
+      whatsApp: vendor.whatsApp,
+    });
+  }
+
+  function copyEditLink() {
+    if (editLink?.url && navigator.clipboard) {
+      navigator.clipboard.writeText(editLink.url).then(() => setLinkCopied(true));
+    }
   }
 
   if (isLoading) {
@@ -281,9 +311,51 @@ function GiftsPage() {
             onEdit={
               canManageVendors ? () => setEditingVendor(openVendor) : undefined
             }
+            onShareEditLink={
+              canManageVendors ? () => handleShareEditLink(openVendor) : undefined
+            }
             paidTotal={vendorPaidById[openVendor.id] || 0}
             readOnly={readOnly}
           />
+        )}
+      </Modal>
+
+      {/* קישור עריכה אישי לספק — לשליחה אליו כדי שיעדכן את הכרטיס שלו */}
+      <Modal
+        isOpen={editLink !== null}
+        onClose={() => setEditLink(null)}
+        title="קישור עריכה לספק 🔗"
+      >
+        {editLink && (
+          <div className="vendor-link">
+            <p>
+              שלחו ל<strong>{editLink.vendorName}</strong> את הקישור הזה. הספק
+              יעדכן בעצמו את הפרטים והמוצרים שלו — וזה יופיע כאן אוטומטית.
+            </p>
+            <input
+              className="field__input vendor-link__url"
+              value={editLink.url}
+              readOnly
+              onFocus={(e) => e.target.select()}
+              aria-label="קישור העריכה לספק"
+            />
+            <div className="vendor-link__actions">
+              <Button onClick={copyEditLink}>
+                {linkCopied ? "הועתק ✓" : "העתקת הקישור"}
+              </Button>
+              {editLink.whatsApp && (
+                <a
+                  href={`${whatsappUrl(editLink.whatsApp)}?text=${encodeURIComponent(
+                    `שלום 🙂 אפשר לעדכן כאן את הכרטיס והמוצרים שלך שמוצגים לוועדי ההורים ב-VaddyGo: ${editLink.url}`
+                  )}`}
+                  target="_blank"
+                  rel="noreferrer"
+                >
+                  <Button variant="secondary">שליחה בוואטסאפ 💬</Button>
+                </a>
+              )}
+            </div>
+          </div>
         )}
       </Modal>
 

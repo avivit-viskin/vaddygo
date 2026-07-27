@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import SupportLink from "../components/SupportLink";
@@ -33,13 +33,16 @@ function SupplierWelcomePage() {
           כאן מעדכנים את הכרטיס והמוצרים שמוצגים לוועדי ההורים ב-VaddyGo.
         </p>
         <div className="welcome__actions">
-          <Button onClick={() => navigate("/supplier-login")}>
-            כניסה עם מייל וסיסמה
+          <Button onClick={() => navigate("/supplier-register")}>
+            הרשמת ספק חדש
           </Button>
-          <Button variant="secondary" onClick={() => navigate("/login")}>
-            חבר/ת ועד? לכניסת הוועד
+          <Button variant="secondary" onClick={() => navigate("/supplier-login")}>
+            כבר רשומים? כניסה
           </Button>
         </div>
+        <p className="welcome__text" style={{ margin: "6px 0 0" }}>
+          חבר/ת ועד? <Link to="/login">לכניסת הוועד</Link>
+        </p>
         <p className="welcome__text">
           קיבלתם קישור אישי מהוועד? פשוט פִּתחו אותו כדי לערוך — ותוכלו להגדיר שם
           מייל וסיסמה לכניסה מהירה בפעם הבאה.

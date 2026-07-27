@@ -190,6 +190,43 @@ namespace ParentCommitteeAPI.Services
             return vendor.EditToken;
         }
 
+        public async Task<(string? Token, string? Error)> RegisterAsync(
+            string name, string loginEmail, string password)
+        {
+            var vendorName = (name ?? string.Empty).Trim();
+            var email = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
+            if (vendorName.Length == 0)
+            {
+                return (null, "צריך שם עסק/ספק");
+            }
+            if (email.Length == 0 || !email.Contains('@'))
+            {
+                return (null, "צריך כתובת מייל תקינה");
+            }
+            if ((password ?? string.Empty).Length < 6)
+            {
+                return (null, "הסיסמה חייבת להכיל 6 תווים לפחות");
+            }
+            // המייל הוא מזהה ההתחברות — חייב להיות ייחודי בין הספקים
+            var taken = await _db.Vendors.AnyAsync(v => v.LoginEmail == email);
+            if (taken)
+            {
+                return (null, "כתובת המייל כבר רשומה. אפשר להתחבר או לאפס סיסמה.");
+            }
+
+            var vendor = new Vendor
+            {
+                Name = vendorName,
+                LoginEmail = email,
+                PasswordHash = PasswordHasher.Hash(password),
+                EditToken = Guid.NewGuid().ToString("N"),
+            };
+            _db.Vendors.Add(vendor);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor self-registered (Id: {VendorId})", vendor.Id);
+            return (vendor.EditToken, null);
+        }
+
         public async Task RequestPasswordResetAsync(string email)
         {
             var normalized = (email ?? string.Empty).Trim().ToLowerInvariant();

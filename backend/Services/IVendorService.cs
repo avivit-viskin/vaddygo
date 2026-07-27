@@ -22,6 +22,11 @@ namespace ParentCommitteeAPI.Services
         Task<CredentialResult> SetCredentialsAsync(string token, string loginEmail, string password);
         Task<string?> LoginAsync(string loginEmail, string password);
 
+        /* הרשמת ספק חדש בעצמו (שם + מייל + סיסמה). מחזיר את טוקן העריכה בהצלחה,
+           או הודעת שגיאה (מייל תפוס/לא תקין). */
+        Task<(string? Token, string? Error)> RegisterAsync(
+            string name, string loginEmail, string password);
+
         /* איפוס סיסמה לספק (כמו למנוי): בקשת קוד חד-פעמי למייל, ואיפוס עם הקוד.
            Request תמיד "מצליח" (לא חושפים אם המייל קיים). Reset מחזיר null בהצלחה
            או הודעת שגיאה אחידה כשהקוד שגוי/פג. */

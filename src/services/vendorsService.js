@@ -87,6 +87,19 @@ export async function supplierLogin(credentials) {
 }
 
 /*
+  הרשמת ספק חדש בעצמו (שם עסק + מייל + סיסמה). מחזיר את טוקן העריכה, והלקוח
+  ממשיך איתו לעמוד מילוי הכרטיס והמוצרים.
+*/
+export async function registerVendor({ name, loginEmail, password }) {
+  const { editToken } = await api.post("/api/public/vendors/register", {
+    name,
+    loginEmail,
+    password,
+  });
+  return editToken;
+}
+
+/*
   איפוס סיסמה לספק (כמו למנוי): שלב 1 — בקשת קוד חד-פעמי למייל שהספק הגדיר;
   שלב 2 — הזנת הקוד + סיסמה חדשה. מטעמי אבטחה השרת לא חושף אם המייל קיים.
 */

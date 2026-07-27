@@ -5,16 +5,17 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
-import { supplierLogin } from "../services/vendorsService";
+import { registerVendor } from "../services/vendorsService";
 import "../styles/login.css";
 
 /*
-  SupplierLoginPage — כניסת ספקים (פורטל ספקים). ציבורי ובמסך מלא, בעיצוב זהה
-  למסך הכניסה הראשי של האתר: מייל + סיסמה שהספק הגדיר בעמוד העריכה, עם אפשרות
-  "שכחתי סיסמה". התחברות מוצלחת מחזירה את טוקן העריכה ומפנה לעמוד העריכה של הספק.
+  SupplierRegisterPage — הרשמת ספק חדש בעצמו (פורטל ספקים). ציבורי ובמסך מלא,
+  בעיצוב מסך הכניסה: שם עסק + מייל + סיסמה. אחרי הרשמה מוצלחת ממשיכים ישר
+  לעמוד העריכה של הספק כדי למלא את הכרטיס והמוצרים.
 */
-function SupplierLoginPage() {
+function SupplierRegisterPage() {
   const navigate = useNavigate();
+  const [name, setName] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -26,21 +27,25 @@ function SupplierLoginPage() {
     event.preventDefault();
     setSubmitError("");
     const next = {};
-    if (!loginEmail.trim()) next.loginEmail = "צריך למלא מייל";
-    if (!password) next.password = "צריך למלא סיסמה";
+    if (!name.trim()) next.name = "צריך שם עסק/ספק";
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail.trim()))
+      next.loginEmail = "כתובת המייל אינה תקינה";
+    if (!password || password.length < 6)
+      next.password = "הסיסמה חייבת להכיל לפחות 6 תווים";
     setErrors(next);
     if (Object.keys(next).length > 0) {
       return;
     }
     setIsSubmitting(true);
     try {
-      const token = await supplierLogin({
+      const token = await registerVendor({
+        name: name.trim(),
         loginEmail: loginEmail.trim(),
         password,
       });
       navigate(`/supplier/${token}`);
     } catch (err) {
-      setSubmitError(err.message || "מייל או סיסמה שגויים");
+      setSubmitError(err.message || "לא הצלחנו להשלים את ההרשמה. אפשר לנסות שוב.");
       setIsSubmitting(false);
     }
   }
@@ -62,17 +67,25 @@ function SupplierLoginPage() {
         </header>
 
         <div className="login-card">
-          <h2 className="login-card__title">כניסת ספקים 🙂</h2>
+          <h2 className="login-card__title">הרשמת ספק חדש 🙂</h2>
           <p className="auth-page__hint" style={{ margin: "0 0 14px" }}>
-            התחברו עם המייל והסיסמה שהגדרתם בעמוד העריכה, כדי לעדכן את הכרטיס
-            והמוצרים שלכם.
+            פותחים חשבון עם מייל וסיסמה, וממשיכים למלא את הכרטיס והמוצרים שלכם —
+            והם יופיעו מיד לוועדי ההורים ב-VaddyGo.
           </p>
           <form onSubmit={handleSubmit} noValidate>
             <Input
-              id="supplier-email"
+              id="reg-name"
+              label="שם העסק / הספק"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              error={errors.name}
+              placeholder="למשל: מתנות בלב"
+            />
+            <Input
+              id="reg-email"
               label="מייל"
               type="email"
-              autoComplete="username"
+              autoComplete="email"
               value={loginEmail}
               onChange={(e) => setLoginEmail(e.target.value)}
               error={errors.loginEmail}
@@ -80,10 +93,10 @@ function SupplierLoginPage() {
             />
             <div className="password-field">
               <Input
-                id="supplier-password"
-                label="סיסמה"
+                id="reg-password"
+                label="סיסמה (6 תווים לפחות)"
                 type={showPassword ? "text" : "password"}
-                autoComplete="current-password"
+                autoComplete="new-password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 error={errors.password}
@@ -100,19 +113,11 @@ function SupplierLoginPage() {
             {submitError && <ErrorMessage message={submitError} />}
             <div className="auth-page__actions">
               <Button type="submit" isLoading={isSubmitting}>
-                כניסה
+                הרשמה והמשך למילוי הכרטיס
               </Button>
             </div>
             <p className="auth-page__hint">
-              <Link to="/supplier-forgot-password">
-                שכחת סיסמה? נשלח לך קוד למייל
-              </Link>
-            </p>
-            <p className="auth-page__hint">
-              ספק חדש? <Link to="/supplier-register">להרשמה מהירה</Link>
-            </p>
-            <p className="auth-page__hint">
-              חבר/ת ועד? <Link to="/login">לכניסת הוועד</Link>
+              כבר יש לך חשבון? <Link to="/supplier-login">לכניסת ספקים</Link>
             </p>
           </form>
         </div>
@@ -122,4 +127,4 @@ function SupplierLoginPage() {
   );
 }
 
-export default SupplierLoginPage;
+export default SupplierRegisterPage;

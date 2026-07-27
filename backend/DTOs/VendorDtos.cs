@@ -113,6 +113,24 @@ namespace ParentCommitteeAPI.DTOs
         public string NewPassword { get; set; } = string.Empty;
     }
 
+    /* הרשמת ספק חדש בעצמו — שם עסק + מייל + סיסמה. נוצרת רשומת ספק חדשה עם
+       טוקן עריכה, והספק ממשיך למלא את הכרטיס והמוצרים שלו. */
+    public class VendorRegisterDto
+    {
+        [Required(ErrorMessage = "צריך שם עסק/ספק")]
+        [StringLength(80, ErrorMessage = "שם העסק ארוך מדי")]
+        public string Name { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך כתובת מייל")]
+        [EmailAddress(ErrorMessage = "כתובת המייל אינה תקינה")]
+        [StringLength(120, ErrorMessage = "כתובת המייל ארוכה מדי")]
+        public string LoginEmail { get; set; } = string.Empty;
+
+        [Required(ErrorMessage = "צריך סיסמה")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        public string Password { get; set; } = string.Empty;
+    }
+
     public class VendorCreateDto : VendorWriteDto
     {
     }

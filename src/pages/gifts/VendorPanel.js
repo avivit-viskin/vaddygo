@@ -2,7 +2,7 @@ import { useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import WhatsAppIcon from "../../components/WhatsAppIcon";
 import { formatShekels } from "../../services/format";
-import { whatsappUrl, whatsappUrlWithText } from "../../services/whatsapp";
+import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 
 /*
@@ -10,14 +10,16 @@ import { groupByFolder } from "../../services/vendorFolders";
   לחיצה על תיקייה פותחת את המוצרים (תמונה + מחיר) עם קישור וואטסאפ לספק
   ובו הודעה מוכנה. מוצג בתוך מודאל בלחיצה על שם ספק. מציגים רק תיקיות עם מוצרים.
 */
-function folderMessage(folderName) {
+// הודעת וואטסאפ מוכנה לספק — מציינת שהוועד הגיע דרך VaddyGo, כדי שהספק ידע
+// מאיפה הפנייה. אם נפתחה תיקיית חג ספציפית — מוסיפים את שמה להקשר.
+function supplierMessage(folderName) {
   const suffix = folderName && folderName !== "כללי" ? ` ל${folderName}` : "";
-  return `היי! ראינו את המוצרים שלכם${suffix} ואנחנו מעוניינים 🙂 אפשר לקבל פרטים ומחירים?`;
+  return `היי! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix}, אפשר לקבל פרטים ומחירים?`;
 }
 
 function VendorPanel({
   vendor,
-  onShareEditLink,
+  onEdit,
   paidTotal = 0,
   readOnly = false,
 }) {
@@ -34,7 +36,7 @@ function VendorPanel({
 
   // ── תצוגת תיקייה פתוחה: מוצרים + וואטסאפ עם הודעה מוכנה ──
   if (openFolder) {
-    const waHref = whatsappUrlWithText(vendor.whatsApp, folderMessage(openFolder.name));
+    const waHref = whatsappUrlWithText(vendor.whatsApp, supplierMessage(openFolder.name));
     return (
       <div className="vendor-panel">
         <button
@@ -132,7 +134,7 @@ function VendorPanel({
   }
 
   // ── רשימת התיקיות (רמה ראשונה) ──
-  const whatsapp = whatsappUrl(vendor.whatsApp);
+  const whatsapp = whatsappUrlWithText(vendor.whatsApp, supplierMessage(null));
   return (
     <div className="vendor-panel">
       {(vendor.category || vendor.city) && (
@@ -261,16 +263,11 @@ function VendorPanel({
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
       )}
 
-      {/* עריכת פרטי הספק נעשית אך ורק בעמוד של הספק עצמו (בקישור האישי) —
-          הוועד לא עורך ספקים. כאן רק המנהלת שולחת לספק קישור עריכה. */}
-      {!readOnly && onShareEditLink && (
+      {/* עריכת פרטי הספק — רק לבעלת האפליקציה (SuperAdmin); וועד רגיל רק צופה */}
+      {!readOnly && onEdit && (
         <div className="vendor-panel__admin">
-          <button
-            type="button"
-            className="vendor-panel__share"
-            onClick={onShareEditLink}
-          >
-            🔗 שליחת קישור עריכה לספק
+          <button type="button" className="vendor-panel__edit" onClick={onEdit}>
+            ✏️ עריכת פרטי הספק
           </button>
         </div>
       )}

@@ -76,6 +76,25 @@
   flex: 1;
 }
 
+/* חריגה — הוזן סכום גבוה מהמוגדר לגבייה */
+.payment-row__total--over {
+  color: var(--color-error);
+  font-weight: 600;
+}
+
+/* הודעת "הסכום כבר מלא" (חלון קופץ) */
+.payments__overlimit-hint {
+  margin: 0 0 8px;
+  line-height: 1.5;
+}
+
+.payments__overlimit-list {
+  margin: 0 0 8px;
+  padding-inline-start: 18px;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
 /* כפתור "שלם באשראי" בשורת קטגוריה שטרם שולמה */
 .payment-row__card-btn {
   border: 1px solid var(--color-primary);

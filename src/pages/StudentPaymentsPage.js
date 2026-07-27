@@ -17,7 +17,9 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 import Icon from "../components/Icon";
+import { formatShekels } from "../services/format";
 import PaymentRow from "./payments/PaymentRow";
 import "../styles/payments.css";
 
@@ -50,6 +52,8 @@ function StudentPaymentsPage() {
   const [amounts, setAmounts] = useState({});
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState("");
+  // קטגוריות שבהן הוזן סכום גבוה מהמוגדר — פותח הודעה ידידותית וחוסם שמירה
+  const [overLimit, setOverLimit] = useState(null);
 
   // אתחול הסכומים מהנתונים שנטענו
   useEffect(() => {
@@ -99,6 +103,24 @@ function StudentPaymentsPage() {
   // שמירת כל הקטגוריות יחד; קטגוריה עם סכום כלשהו מסומנת "שולם".
   async function confirm() {
     setSaveError("");
+
+    // ולידציה: אין לרשום סכום כולל גבוה מהסכום שהוגדר לגבייה בקטגוריה.
+    const over = payments
+      .map((p) => {
+        const a = amounts[p.collectionCategoryId] ?? EMPTY_ROW;
+        const total =
+          (Number(a.bit) || 0) +
+          (Number(a.paybox) || 0) +
+          (Number(a.cash) || 0) +
+          (Number(a.card) || 0);
+        return { name: p.categoryName, target: Number(p.amount) || 0, total };
+      })
+      .filter((c) => c.target > 0 && c.total > c.target);
+    if (over.length > 0) {
+      setOverLimit(over); // פותח הודעה, לא שומר
+      return;
+    }
+
     setIsSaving(true);
     try {
       await Promise.all(
@@ -190,6 +212,30 @@ function StudentPaymentsPage() {
           )}
         </>
       )}
+
+      <Modal
+        isOpen={overLimit !== null}
+        onClose={() => setOverLimit(null)}
+        title="רק רגע — הסכום כבר מלא 🙂"
+      >
+        <p className="payments__overlimit-hint">
+          לא ניתן לרשום סכום גבוה מהסכום שהוגדר לגבייה. הסכום כבר שולם במלואו:
+        </p>
+        <ul className="payments__overlimit-list">
+          {(overLimit ?? []).map((c) => (
+            <li key={c.name}>
+              <strong>{c.name}</strong> — הוגדר {formatShekels(c.target)}, הוזן{" "}
+              {formatShekels(c.total)}
+            </li>
+          ))}
+        </ul>
+        <p className="payments__overlimit-hint">
+          אפשר לעדכן את הסכום כך שלא יעלה על המוגדר. תודה! 🌸
+        </p>
+        <div style={{ marginTop: 12 }}>
+          <Button onClick={() => setOverLimit(null)}>הבנתי, נעדכן</Button>
+        </div>
+      </Modal>
     </div>
   );
 }

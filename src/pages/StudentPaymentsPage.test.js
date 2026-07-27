@@ -124,6 +124,28 @@ test("מילוי סכום ולחיצה על 'אישור' שומרת (PUT) ומח
   );
 });
 
+test("סכום גבוה מהמוגדר לגבייה — חוסם שמירה ומציג הודעה ידידותית", async () => {
+  mockServer();
+  renderPage();
+  await screen.findByText(/תשלומים — הילי לוי/);
+
+  // "הזנה" מוגדרת ל-1200; מזינים 1300 בביט — מעל היעד
+  const bitFields = screen.getAllByLabelText("BIT");
+  await userEvent.type(bitFields[0], "1300");
+  await userEvent.click(screen.getByRole("button", { name: "אישור" }));
+
+  // הודעה קופצת, ולא עוברים למסך התלמידים
+  expect(
+    await screen.findByText(/הסכום כבר שולם במלואו/)
+  ).toBeInTheDocument();
+  expect(screen.queryByText("מסך התלמידים")).not.toBeInTheDocument();
+  // לא נשלחה שום שמירה (PUT)
+  const putCalls = global.fetch.mock.calls.filter(
+    ([, opt]) => opt?.method === "PUT"
+  );
+  expect(putCalls).toHaveLength(0);
+});
+
 test("כפתור תזכורת וואטסאפ מקשר למספר ההורה עם הודעה מוכנה", async () => {
   mockServer();
   renderPage();

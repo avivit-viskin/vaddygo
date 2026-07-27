@@ -31,6 +31,8 @@ function PaymentRow({ payment, installments = 1, amounts, onChange, readOnly = f
   // הרגיל — כדי שלא ייראה כאילו שולם הכל.
   const target = Number(payment.amount) || 0;
   const isFullyPaid = target > 0 ? total >= target : total > 0;
+  // חריגה — הוזן סכום גבוה מהסכום שהוגדר לגבייה בקטגוריה (מסומן באדום)
+  const isOverLimit = target > 0 && total > target;
 
   return (
     <div className={`payment-row${isFullyPaid ? " payment-row--paid" : ""}`}>
@@ -61,8 +63,13 @@ function PaymentRow({ payment, installments = 1, amounts, onChange, readOnly = f
       </div>
 
       <div className="payment-row__actions">
-        <span className="payment-row__total">
+        <span
+          className={`payment-row__total${
+            isOverLimit ? " payment-row__total--over" : ""
+          }`}
+        >
           שולם {formatShekels(total)} מתוך {formatShekels(payment.amount)}
+          {isOverLimit && " · חריגה מהסכום שהוגדר"}
           {installments > 1 && ` · תשלום ${installmentsPaid} מתוך ${installments}`}
         </span>
       </div>

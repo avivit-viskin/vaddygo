@@ -7,6 +7,7 @@ import BottomNav from "./components/BottomNav";
 import SideMenu from "./components/SideMenu";
 import WhatsAppFab from "./components/WhatsAppFab";
 import PullToRefresh from "./components/PullToRefresh";
+import PageTransition from "./components/PageTransition";
 import ToastContainer from "./components/Toast";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
@@ -157,6 +158,7 @@ function App() {
   return (
     <div dir="rtl">
       <ToastContainer />
+      <PageTransition disabled={isFullScreen} />
       {!isFullScreen && <PullToRefresh />}
       {!isFullScreen && (
         <header className="app-header">

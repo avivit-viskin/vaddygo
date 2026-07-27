@@ -1,0 +1,92 @@
+/*
+  page-transition — שכבת הטעינה עם הלוגו בין עמודים (PageTransition).
+  צבעים רכים לפי המותג: רקע בז' בהיר עם זוהר ורוד עדין, טבעת בוורוד/פחם.
+*/
+.page-transition {
+  position: fixed;
+  inset: 0;
+  z-index: 900;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(circle at 50% 44%, #fbe3ee 0%, rgba(251, 227, 238, 0) 62%),
+    var(--color-bg);
+  animation: page-transition-fade 600ms ease forwards;
+}
+
+.page-transition__stage {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 128px;
+  height: 128px;
+}
+
+/* טבעת טעינה — מסלול בוורוד רך, קשת פעילה בפחם-חם, מסתובבת */
+.page-transition__ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 3px solid var(--color-primary);
+  border-top-color: var(--color-primary-dark);
+  animation: page-transition-spin 900ms linear infinite;
+}
+
+/* הלוגו במרכז — נשימה עדינה */
+.page-transition__logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: page-transition-breathe 1400ms ease-in-out infinite;
+}
+
+.page-transition .app-logo {
+  height: 68px;
+  max-width: 92px;
+}
+
+/* מצב נפילה לכיתוב VaddyGo (כשאין logo.png) — מגדילים את הטקסט */
+.page-transition__logo :not(.app-logo) {
+  font-size: 1.6rem;
+}
+
+@keyframes page-transition-fade {
+  0% {
+    opacity: 0;
+  }
+  18% {
+    opacity: 1;
+  }
+  78% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes page-transition-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes page-transition-breathe {
+  0%,
+  100% {
+    transform: scale(0.94);
+  }
+  50% {
+    transform: scale(1.06);
+  }
+}
+
+/* נגישות — ללא תנועה: רק הופעה/היעלמות עדינה, בלי סיבוב/נשימה */
+@media (prefers-reduced-motion: reduce) {
+  .page-transition__ring,
+  .page-transition__logo {
+    animation: none;
+  }
+}

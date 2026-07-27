@@ -81,8 +81,6 @@ function VendorPanel({
         {zoomImage && (
           <div
             onClick={() => setZoomImage(null)}
-            role="button"
-            aria-label="סגירת התמונה"
             style={{
               position: "fixed",
               inset: 0,
@@ -95,6 +93,27 @@ function VendorPanel({
               cursor: "zoom-out",
             }}
           >
+            <button
+              type="button"
+              aria-label="סגירת התמונה"
+              onClick={() => setZoomImage(null)}
+              style={{
+                position: "absolute",
+                top: 16,
+                insetInlineEnd: 16,
+                width: 44,
+                height: 44,
+                borderRadius: "50%",
+                border: "none",
+                background: "rgba(255, 255, 255, 0.92)",
+                color: "#000",
+                fontSize: 22,
+                lineHeight: 1,
+                cursor: "pointer",
+              }}
+            >
+              ✕
+            </button>
             <img
               src={zoomImage}
               alt="תמונת המוצר בהגדלה"

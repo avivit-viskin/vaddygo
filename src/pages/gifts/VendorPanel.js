@@ -1,5 +1,6 @@
 import { useState } from "react";
 import EmptyState from "../../components/EmptyState";
+import WhatsAppIcon from "../../components/WhatsAppIcon";
 import { formatShekels } from "../../services/format";
 import { whatsappUrl, whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
@@ -21,6 +22,8 @@ function VendorPanel({
   readOnly = false,
 }) {
   const [openFolder, setOpenFolder] = useState(null);
+  // תמונת מוצר להגדלה (לייטבוקס); null = סגור
+  const [zoomImage, setZoomImage] = useState(null);
   // פרטי התשלום של הספק אינם מוצגים לוועד עד שלוחצים "תשלום לספק" (רק אז נחשפים)
   const [showPay, setShowPay] = useState(false);
   const folders = groupByFolder(vendor.products || []);
@@ -50,7 +53,7 @@ function VendorPanel({
             target="_blank"
             rel="noreferrer"
           >
-            💬 וואטסאפ לספק
+            <WhatsAppIcon color="#25d366" size={18} /> WhatsApp
           </a>
         )}
 
@@ -63,6 +66,8 @@ function VendorPanel({
                   src={product.imageUrl}
                   alt={product.name}
                   loading="lazy"
+                  onClick={() => setZoomImage(product.imageUrl)}
+                  style={{ cursor: "zoom-in" }}
                 />
               )}
               <span className="vendor-panel__product-name">{product.name}</span>
@@ -72,6 +77,36 @@ function VendorPanel({
             </li>
           ))}
         </ul>
+
+        {zoomImage && (
+          <div
+            onClick={() => setZoomImage(null)}
+            role="button"
+            aria-label="סגירת התמונה"
+            style={{
+              position: "fixed",
+              inset: 0,
+              background: "rgba(0, 0, 0, 0.85)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              zIndex: 200,
+              padding: 16,
+              cursor: "zoom-out",
+            }}
+          >
+            <img
+              src={zoomImage}
+              alt="תמונת המוצר בהגדלה"
+              style={{
+                maxWidth: "100%",
+                maxHeight: "100%",
+                objectFit: "contain",
+                borderRadius: 12,
+              }}
+            />
+          </div>
+        )}
       </div>
     );
   }
@@ -95,7 +130,7 @@ function VendorPanel({
             target="_blank"
             rel="noreferrer"
           >
-            💬 וואטסאפ
+            <WhatsAppIcon color="#25d366" size={18} /> WhatsApp
           </a>
         )}
         {vendor.catalogUrl && (
@@ -111,7 +146,10 @@ function VendorPanel({
       </div>
 
       {hasPayInfo && (
-        <div className="vendor-panel__pay">
+        <div
+          className="vendor-panel__pay"
+          style={{ background: "none", padding: 0 }}
+        >
           {/* פרטי התשלום מוסתרים כברירת מחדל — נחשפים רק כשהוועד רוצה לשלם */}
           {hasPayInfo &&
             (!showPay ? (

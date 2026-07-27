@@ -126,7 +126,10 @@ test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמ
   // וואטסאפ + רשת חברתית מוצגים ברמת רשימת התיקיות
   // כפתור וואטסאפ בונה קישור wa.me עם קידומת בינלאומית (0 מוביל → 972)
   const whatsapp = await screen.findByRole("link", { name: /WhatsApp/i });
-  expect(whatsapp).toHaveAttribute("href", "https://wa.me/972541234567");
+  // הקישור מוביל למספר הבינלאומי; יכול לכלול ?text=... (הודעה מוכנה) — בודקים תחילית
+  expect(whatsapp.getAttribute("href")).toMatch(
+    /^https:\/\/wa\.me\/972541234567(\?|$)/
+  );
   // רשת חברתית
   expect(screen.getByRole("link", { name: "אינסטגרם" })).toHaveAttribute(
     "href",

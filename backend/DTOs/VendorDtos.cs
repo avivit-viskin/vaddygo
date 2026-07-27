@@ -33,6 +33,9 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(200, ErrorMessage = "פרטי ההעברה ארוכים מדי")]
         public string PaymentBankInfo { get; set; } = string.Empty;
 
+        [Range(0, 24, ErrorMessage = "מספר התשלומים חייב להיות בין 0 ל-24")]
+        public int PaymentInstallments { get; set; }
+
         public List<VendorProductDto> Products { get; set; } = new();
         public List<VendorSocialLinkDto> SocialLinks { get; set; } = new();
     }
@@ -107,6 +110,7 @@ namespace ParentCommitteeAPI.DTOs
         public string PaymentLink { get; set; } = string.Empty;
         public string PaymentBit { get; set; } = string.Empty;
         public string PaymentBankInfo { get; set; } = string.Empty;
+        public int PaymentInstallments { get; set; }
         public List<VendorProductResponseDto> Products { get; set; } = new();
         public List<VendorSocialLinkResponseDto> SocialLinks { get; set; } = new();
     }

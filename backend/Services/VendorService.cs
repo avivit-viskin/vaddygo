@@ -45,6 +45,7 @@ namespace ParentCommitteeAPI.Services
                 PaymentLink = dto.PaymentLink.Trim(),
                 PaymentBit = dto.PaymentBit.Trim(),
                 PaymentBankInfo = dto.PaymentBankInfo.Trim(),
+                PaymentInstallments = dto.PaymentInstallments,
                 Products = MapProducts(dto.Products),
                 SocialLinks = MapSocialLinks(dto.SocialLinks),
             };
@@ -198,6 +199,7 @@ namespace ParentCommitteeAPI.Services
             vendor.PaymentLink = dto.PaymentLink.Trim();
             vendor.PaymentBit = dto.PaymentBit.Trim();
             vendor.PaymentBankInfo = dto.PaymentBankInfo.Trim();
+            vendor.PaymentInstallments = dto.PaymentInstallments;
             _db.VendorProducts.RemoveRange(vendor.Products);
             _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
             vendor.Products = MapProducts(dto.Products);
@@ -241,6 +243,7 @@ namespace ParentCommitteeAPI.Services
             PaymentLink = vendor.PaymentLink,
             PaymentBit = vendor.PaymentBit,
             PaymentBankInfo = vendor.PaymentBankInfo,
+            PaymentInstallments = vendor.PaymentInstallments,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

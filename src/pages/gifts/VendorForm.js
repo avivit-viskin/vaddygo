@@ -30,6 +30,9 @@ function VendorForm({ vendor, onSave, onCancel }) {
   const [paymentBankInfo, setPaymentBankInfo] = useState(
     vendor?.paymentBankInfo || ""
   );
+  const [paymentInstallments, setPaymentInstallments] = useState(
+    vendor?.paymentInstallments || 0
+  );
   const [products, setProducts] = useState(vendor?.products || []);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   const [nameError, setNameError] = useState("");
@@ -103,6 +106,7 @@ function VendorForm({ vendor, onSave, onCancel }) {
         paymentLink: paymentLink.trim(),
         paymentBit: paymentBit.trim(),
         paymentBankInfo: paymentBankInfo.trim(),
+        paymentInstallments: Number(paymentInstallments) || 0,
         products: products
           .filter((product) => product.name.trim())
           .map((product) => ({
@@ -187,6 +191,19 @@ function VendorForm({ vendor, onSave, onCancel }) {
         onChange={(e) => setPaymentBankInfo(e.target.value)}
         placeholder="בנק · סניף · חשבון · שם המוטב"
       />
+      <Select
+        id="vendor-pay-installments"
+        label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"
+        value={paymentInstallments}
+        onChange={(e) => setPaymentInstallments(e.target.value)}
+      >
+        <option value={0}>תשלום אחד (בלי פריסה)</option>
+        {[2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
+          <option key={n} value={n}>
+            עד {n} תשלומים
+          </option>
+        ))}
+      </Select>
       <Input
         id="vendor-catalog"
         label="קישור לקטלוג (אופציונלי)"

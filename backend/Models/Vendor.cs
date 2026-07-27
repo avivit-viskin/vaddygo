@@ -23,6 +23,10 @@ namespace ParentCommitteeAPI.Models
         public string PaymentBit { get; set; } = string.Empty;
         public string PaymentBankInfo { get; set; } = string.Empty;
 
+        /* עד כמה תשלומים הספק מאפשר לפרוס (0/1 = תשלום אחד). הוועד רואה זאת
+           ליד כפתור התשלום; הפריסה בפועל מתבצעת בעמוד התשלום של הספק. */
+        public int PaymentInstallments { get; set; }
+
         /* טוקן עריכה אישי — מאפשר לספק לערוך את הכרטיס שלו דרך קישור, בלי חשבון.
            ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
         public string EditToken { get; set; } = string.Empty;

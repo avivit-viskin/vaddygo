@@ -59,6 +59,19 @@ function VendorForm({ vendor, onSave, onCancel }) {
     });
   }
 
+  // הזזת פריט מעלה/מטה (dir = -1/1) — לסדר את המוצרים כפי שהלקוח יראה אותם
+  function moveItem(setter, index, dir) {
+    setter((prev) => {
+      const target = index + dir;
+      if (target < 0 || target >= prev.length) {
+        return prev;
+      }
+      const next = [...prev];
+      [next[index], next[target]] = [next[target], next[index]];
+      return next;
+    });
+  }
+
   // תמונה שנבחרה מהטלפון (ספרייה/קבצים) — מכווצים ושומרים כתמונה מוטמעת במוצר
   async function handleProductImage(index, file) {
     if (!file) {
@@ -270,6 +283,46 @@ function VendorForm({ vendor, onSave, onCancel }) {
             <span className="vendor-form__product-num">מוצר {index + 1}</span>
             <button
               type="button"
+              aria-label={`העברת מוצר ${index + 1} למעלה`}
+              disabled={index === 0}
+              onClick={() => moveItem(setProducts, index, -1)}
+              style={{
+                marginInlineStart: 6,
+                width: 28,
+                height: 28,
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                borderRadius: 6,
+                cursor: index === 0 ? "default" : "pointer",
+                opacity: index === 0 ? 0.35 : 1,
+                fontSize: 15,
+                lineHeight: 1,
+              }}
+            >
+              ↑
+            </button>
+            <button
+              type="button"
+              aria-label={`העברת מוצר ${index + 1} למטה`}
+              disabled={index === products.length - 1}
+              onClick={() => moveItem(setProducts, index, 1)}
+              style={{
+                marginInlineStart: 4,
+                width: 28,
+                height: 28,
+                border: "1px solid var(--color-border)",
+                background: "var(--color-surface)",
+                borderRadius: 6,
+                cursor: index === products.length - 1 ? "default" : "pointer",
+                opacity: index === products.length - 1 ? 0.35 : 1,
+                fontSize: 15,
+                lineHeight: 1,
+              }}
+            >
+              ↓
+            </button>
+            <button
+              type="button"
               aria-label={`שכפול מוצר ${index + 1}`}
               onClick={() => duplicateItem(setProducts, index)}
               style={{
@@ -331,6 +384,50 @@ function VendorForm({ vendor, onSave, onCancel }) {
               }
               placeholder="תיקייה/חג (ראש השנה, פסח...)"
             />
+          </div>
+
+          {/* קטגוריות בלחיצה — שיוך מהיר לתיקייה בלי להקליד (טוגל) */}
+          <div
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 6,
+              margin: "2px 0 6px",
+            }}
+          >
+            {FOLDER_PRESETS.map((preset) => {
+              const active = (product.folder || "") === preset;
+              return (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() =>
+                    updateItem(setProducts, index, {
+                      folder: active ? "" : preset,
+                    })
+                  }
+                  style={{
+                    border: active
+                      ? "1px solid var(--color-primary-dark)"
+                      : "1px solid var(--color-border)",
+                    background: active
+                      ? "var(--color-primary-light)"
+                      : "var(--color-surface)",
+                    color: active
+                      ? "var(--color-primary-dark)"
+                      : "var(--color-text)",
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    fontSize: "var(--font-size-sm)",
+                    fontFamily: "var(--font-family)",
+                    fontWeight: active ? 700 : 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {preset}
+                </button>
+              );
+            })}
           </div>
 
           <div className="vendor-form__image">

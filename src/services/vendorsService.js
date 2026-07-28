@@ -114,3 +114,8 @@ export async function resetVendorPassword({ loginEmail, code, newPassword }) {
     newPassword,
   });
 }
+
+/* שינוי סיסמה של ספק מחובר (דרך הטוקן) — מאזור "חשבון וסיסמה" בתפריט הספק. */
+export async function changeVendorPassword(token, newPassword) {
+  return api.put(`/api/public/vendors/${token}/password`, { newPassword });
+}

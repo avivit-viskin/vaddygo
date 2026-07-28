@@ -105,5 +105,17 @@ namespace ParentCommitteeAPI.Controllers
                 return BadRequest(new { message = error });
             return Ok(new { message = "הסיסמה אופסה בהצלחה" });
         }
+
+        // PUT: api/public/vendors/{token}/password — שינוי סיסמה של ספק מחובר
+        // (הטוקן הוא ההרשאה, בלי צורך בקוד מייל).
+        [HttpPut("{token}/password")]
+        public async Task<ActionResult> ChangePassword(
+            string token, [FromBody] VendorChangePasswordDto dto)
+        {
+            var ok = await _vendorService.ChangePasswordAsync(token, dto.NewPassword);
+            if (!ok)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            return Ok(new { message = "הסיסמה עודכנה" });
+        }
     }
 }

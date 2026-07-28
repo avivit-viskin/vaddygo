@@ -18,7 +18,13 @@ function scrollToId(id) {
   }
 }
 
-function SupplierSideMenu({ isOpen, onClose, onDeleteRequest, onLogout }) {
+function SupplierSideMenu({
+  isOpen,
+  onClose,
+  onChangePassword,
+  onDeleteRequest,
+  onLogout,
+}) {
   if (!isOpen) {
     return null;
   }
@@ -73,7 +79,10 @@ function SupplierSideMenu({ isOpen, onClose, onDeleteRequest, onLogout }) {
         <button
           type="button"
           className="sidemenu__action"
-          onClick={() => goTo("supplier-account")}
+          onClick={() => {
+            onClose();
+            onChangePassword();
+          }}
         >
           <Icon name="key" size={18} /> חשבון וסיסמה
         </button>

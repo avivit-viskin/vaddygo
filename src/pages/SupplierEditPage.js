@@ -5,12 +5,14 @@ import {
   getVendorByToken,
   updateVendorByToken,
   setVendorCredentials,
+  changeVendorPassword,
 } from "../services/vendorsService";
 import VendorForm from "./gifts/VendorForm";
 import VendorPanel from "./gifts/VendorPanel";
 import Logo from "../components/Logo";
 import Input from "../components/Input";
 import Button from "../components/Button";
+import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -43,9 +45,33 @@ function SupplierEditPage() {
   // תפריט הצד של אזור הספק, ובקשת מחיקת חשבון (דורשת אישור VaddyGo)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteAsking, setDeleteAsking] = useState(false);
+  // שינוי סיסמה (מודאל "חשבון וסיסמה" בתפריט)
+  const [pwModalOpen, setPwModalOpen] = useState(false);
+  const [newPw, setNewPw] = useState("");
+  const [pwMsg, setPwMsg] = useState(null);
+  const [pwSaving, setPwSaving] = useState(false);
 
   function handleLogout() {
     navigate("/supplier-login");
+  }
+
+  async function changePassword(event) {
+    event.preventDefault();
+    setPwMsg(null);
+    if (newPw.length < 6) {
+      setPwMsg({ ok: false, text: "הסיסמה חייבת להכיל לפחות 6 תווים" });
+      return;
+    }
+    setPwSaving(true);
+    try {
+      await changeVendorPassword(token, newPw);
+      setPwMsg({ ok: true, text: "הסיסמה עודכנה בהצלחה" });
+      setNewPw("");
+    } catch (err) {
+      setPwMsg({ ok: false, text: err.message || "לא הצלחנו לעדכן את הסיסמה" });
+    } finally {
+      setPwSaving(false);
+    }
   }
 
   // בקשת מחיקת חשבון — לא מוחקים מיד. שולחים ל-VaddyGo הודעת וואטסאפ עם הבקשה,
@@ -265,10 +291,49 @@ function SupplierEditPage() {
       <SupplierSideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
+        onChangePassword={() => {
+          setPwMsg(null);
+          setNewPw("");
+          setPwModalOpen(true);
+        }}
         onDeleteRequest={() => setDeleteAsking(true)}
         onLogout={handleLogout}
       />
       <WhatsAppFab />
+
+      <Modal
+        isOpen={pwModalOpen}
+        onClose={() => setPwModalOpen(false)}
+        title="חשבון וסיסמה 🔑"
+      >
+        <form onSubmit={changePassword} noValidate>
+          <p className="supplier-edit__login-hint">
+            כאן אפשר לעדכן את הסיסמה שלך לכניסה לפורטל הספקים.
+          </p>
+          <Input
+            id="change-pw"
+            label="סיסמה חדשה (6 תווים לפחות)"
+            type="password"
+            autoComplete="new-password"
+            value={newPw}
+            onChange={(e) => setNewPw(e.target.value)}
+          />
+          {pwMsg && (
+            <p
+              className={pwMsg.ok ? "supplier-edit__saved" : "field__error"}
+              role={pwMsg.ok ? "status" : "alert"}
+            >
+              {pwMsg.ok ? "✓ " : ""}
+              {pwMsg.text}
+            </p>
+          )}
+          <div className="gift-form__actions">
+            <Button type="submit" isLoading={pwSaving}>
+              עדכון סיסמה
+            </Button>
+          </div>
+        </form>
+      </Modal>
       <ConfirmDialog
         isOpen={deleteAsking}
         title="בקשת מחיקת חשבון"

@@ -32,6 +32,9 @@ namespace ParentCommitteeAPI.Services
            או הודעת שגיאה אחידה כשהקוד שגוי/פג. */
         Task RequestPasswordResetAsync(string email);
         Task<string?> ResetPasswordAsync(string loginEmail, string code, string newPassword);
+
+        /* שינוי סיסמה של ספק מחובר (דרך הטוקן, בלי הקוד). false אם הטוקן לא נמצא. */
+        Task<bool> ChangePasswordAsync(string token, string newPassword);
     }
 
     /* תוצאת הגדרת פרטי התחברות לספק */

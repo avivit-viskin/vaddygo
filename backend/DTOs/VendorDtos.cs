@@ -113,6 +113,14 @@ namespace ParentCommitteeAPI.DTOs
         public string NewPassword { get; set; } = string.Empty;
     }
 
+    /* שינוי סיסמה של ספק מחובר דרך הטוקן — סיסמה חדשה בלבד (הטוקן הוא ההרשאה) */
+    public class VendorChangePasswordDto
+    {
+        [Required(ErrorMessage = "צריך סיסמה חדשה")]
+        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        public string NewPassword { get; set; } = string.Empty;
+    }
+
     /* הרשמת ספק חדש בעצמו — שם עסק + מייל + סיסמה. נוצרת רשומת ספק חדשה עם
        טוקן עריכה, והספק ממשיך למלא את הכרטיס והמוצרים שלו. */
     public class VendorRegisterDto

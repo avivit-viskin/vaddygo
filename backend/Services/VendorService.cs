@@ -311,6 +311,23 @@ namespace ParentCommitteeAPI.Services
             return null;
         }
 
+        public async Task<bool> ChangePasswordAsync(string token, string newPassword)
+        {
+            if (string.IsNullOrWhiteSpace(token) || (newPassword ?? string.Empty).Length < 6)
+            {
+                return false;
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return false;
+            }
+            vendor.PasswordHash = PasswordHasher.Hash(newPassword);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor password changed via token (Id: {VendorId})", vendor.Id);
+            return true;
+        }
+
         /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.
            רשימות הבנים (מוצרים/רשתות) מוחלפות כולן — פשוט ותואם לטופס. */
         private void ApplyWrite(Vendor vendor, VendorWriteDto dto)

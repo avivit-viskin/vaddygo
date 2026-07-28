@@ -7,6 +7,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
 import PullToRefresh from "../components/PullToRefresh";
 import { supplierLogin } from "../services/vendorsService";
+import { setSupplierSession } from "../services/supplierSession";
 import "../styles/login.css";
 
 /*
@@ -39,6 +40,8 @@ function SupplierLoginPage() {
         loginEmail: loginEmail.trim(),
         password,
       });
+      // פותחים סשן קצר כדי שעמוד העריכה לא יבקש שוב שם משתמש+סיסמה (כניסה כפולה)
+      setSupplierSession(token);
       navigate(`/supplier/${token}`);
     } catch (err) {
       setSubmitError(err.message || "מייל או סיסמה שגויים");

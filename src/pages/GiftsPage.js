@@ -230,9 +230,11 @@ function GiftsPage() {
 
       <Card
         title={
-          <>
+          // צבע שחור-פחם מפורש (inline) — כדי שהכותרת תישאר שחורה בוודאות, בלי
+          // תלות בקובץ העיצוב של אזור הספקים (שנמצא כרגע בעריכה של תהליך אחר).
+          <span style={{ color: "var(--color-primary-dark)" }}>
             <Icon name="tag" size={20} /> ספקים
-          </>
+          </span>
         }
       >
         {vendors.length === 0 ? (

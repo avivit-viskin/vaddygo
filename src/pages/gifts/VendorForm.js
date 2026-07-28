@@ -28,6 +28,7 @@ function VendorForm({
   hidePayments = false,
   hideSocials = false,
   initialFolder = "",
+  initialStatus = "",
   showFab = false,
 }) {
   const [name, setName] = useState(vendor?.name || "");
@@ -57,6 +58,9 @@ function VendorForm({
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   // סינון המוצרים לפי תיקייה (קטגוריה) בעריכה — כדי לא לגלול מוצר-מוצר. "" = הכל.
   const [folderFilter, setFolderFilter] = useState(initialFolder || "");
+  // סינון לפי סטטוס מוכנות: "" = הכל, "ready" = מוכנים, "attention" = דורש טיפול.
+  // מגיע מלחיצה על אריח בדאשבורד (מוכנים / דורש טיפול).
+  const [statusFilter, setStatusFilter] = useState(initialStatus || "");
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
@@ -190,6 +194,13 @@ function VendorForm({
     if (filter === "כללי") return f === "" || f === "כללי";
     return f === filter;
   }
+  // מוצר "חסר מידע" = בלי מחיר או בלי תמונה. מוכן = ההפך.
+  function matchesStatus(product, status) {
+    if (!status) return true;
+    const missing =
+      !(Number(product.price) > 0) || !(product.imageUrl || "").trim();
+    return status === "attention" ? missing : !missing;
+  }
   const usedFolders = [
     ...FOLDER_PRESETS.filter((f) =>
       products.some((p) => (p.folder || "").trim() === f)
@@ -206,7 +217,8 @@ function VendorForm({
   const folderChips = [...usedFolders, ...(hasUncategorized ? ["כללי"] : [])];
   const visibleProducts = products
     .map((product, index) => ({ product, index }))
-    .filter(({ product }) => inFolder(product, folderFilter));
+    .filter(({ product }) => inFolder(product, folderFilter))
+    .filter(({ product }) => matchesStatus(product, statusFilter));
   const chipStyle = (active) => ({
     flexShrink: 0,
     border: active
@@ -398,7 +410,51 @@ function VendorForm({
           ))}
         </div>
       )}
-      {folderFilter && visibleProducts.length === 0 && (
+      {statusFilter && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            flexWrap: "wrap",
+            background:
+              statusFilter === "attention" ? "#fdf1e7" : "#eafaf1",
+            border: `1px solid ${
+              statusFilter === "attention" ? "#f0c9a3" : "#b7e6cd"
+            }`,
+            borderRadius: 12,
+            padding: "8px 12px",
+            margin: "0 0 12px",
+            fontSize: "var(--font-size-sm)",
+            fontWeight: 600,
+            color: statusFilter === "attention" ? "#c05a17" : "#1d8a55",
+          }}
+        >
+          <span>
+            מציג רק:{" "}
+            {statusFilter === "attention"
+              ? "מוצרים שדורשים טיפול ⚠️"
+              : "מוצרים מוכנים ✅"}
+          </span>
+          <button
+            type="button"
+            onClick={() => setStatusFilter("")}
+            style={{
+              marginInlineStart: "auto",
+              border: "none",
+              background: "none",
+              color: "var(--color-link)",
+              fontFamily: "var(--font-family)",
+              fontWeight: 700,
+              fontSize: "var(--font-size-sm)",
+              cursor: "pointer",
+            }}
+          >
+            הצג את כל המוצרים ✕
+          </button>
+        </div>
+      )}
+      {(folderFilter || statusFilter) && visibleProducts.length === 0 && (
         <p
           style={{
             color: "var(--color-text-muted)",
@@ -406,7 +462,7 @@ function VendorForm({
             margin: "0 0 10px",
           }}
         >
-          אין מוצרים בתיקייה הזו — אפשר להוסיף מוצר חדש למטה.
+          אין מוצרים בתצוגה הזו — אפשר להוסיף מוצר חדש למטה.
         </p>
       )}
       {visibleProducts.map(({ product, index }, vi) => (
@@ -614,21 +670,6 @@ function VendorForm({
               )}
             </div>
           </div>
-
-          <input
-            className="field__input vendor-form__img-url"
-            type="url"
-            value={
-              (product.imageUrl || "").startsWith("data:")
-                ? ""
-                : product.imageUrl || ""
-            }
-            onChange={(e) =>
-              updateItem(setProducts, index, { imageUrl: e.target.value })
-            }
-            placeholder="או קישור לתמונה (https://...)"
-            aria-label={`קישור תמונה למוצר ${index + 1}`}
-          />
         </div>
       ))}
       <datalist id="vendor-folder-presets">
@@ -636,11 +677,9 @@ function VendorForm({
           <option key={f} value={f} />
         ))}
       </datalist>
-      <Button variant="secondary" onClick={addProduct}>
-        + הוספת מוצר
-        {folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
-      </Button>
-      {showFab && (
+      {/* הוספת מוצר — כפתור צף (＋) באזור הספק, או כפתור רגיל בעריכת מנהלת.
+          מציגים רק אחד מהם כדי לא לכפול את האופציה. */}
+      {showFab ? (
         <button
           type="button"
           className="sup-fab"
@@ -649,6 +688,11 @@ function VendorForm({
         >
           ＋
         </button>
+      ) : (
+        <Button variant="secondary" onClick={addProduct}>
+          + הוספת מוצר
+          {folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
+        </Button>
       )}
 
       {!hideSocials && (

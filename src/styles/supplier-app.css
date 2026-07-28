@@ -4,6 +4,12 @@
   פעולה צף. רדיוסים מתונים (14px), היררכיית טיפוגרפיה, וצבעי פעולה (ירוק/כתום).
 */
 
+/* ── מיכל דק ונקי לאזור הספק (מצמצם את הרוחב והריווח מול ברירת gifts.css) ── */
+.supplier-edit {
+  max-width: 500px;
+  padding: 12px 14px 44px;
+}
+
 /* ── הדר קומפקטי ── */
 .sup-head {
   display: flex;
@@ -80,9 +86,19 @@
   text-align: center;
   background: var(--color-surface);
 }
-.sup-stat__icon {
-  font-size: 19px;
-  line-height: 1;
+/* אריח לחיץ (מוצרים / מוכנים / דורש טיפול) — נראה ומתנהג ככפתור */
+.sup-stat--link {
+  cursor: pointer;
+  font-family: var(--font-family);
+  transition: border-color 0.15s ease, background 0.15s ease,
+    transform 0.1s ease;
+}
+.sup-stat--link:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.sup-stat--link:active {
+  transform: scale(0.97);
 }
 .sup-stat__num {
   font-size: 22px;
@@ -232,7 +248,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .sup-tab {
+  .sup-tab,
+  .sup-stat--link {
     transition: none;
   }
 }

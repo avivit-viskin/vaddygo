@@ -68,30 +68,40 @@ function SupplierHome({ vendor, onGoTo }) {
   const folders = groupByFolder(products);
 
   const goToProducts = (folder) => onGoTo && onGoTo("products", folder);
+  // אריח שנלחץ → דף המוצרים מסונן לפי הסטטוס (מוכנים / דורש טיפול / הכל)
+  const goToStatus = (status) => onGoTo && onGoTo("products", "", status);
 
   return (
     <div>
-      {/* דאשבורד */}
+      {/* דאשבורד — אריחים לחיצים: מובילים לדף המוצרים מסונן לפי הסטטוס */}
       <div className="sup-stats">
-        <div className="sup-stat">
-          <div className="sup-stat__icon">📦</div>
+        <button
+          type="button"
+          className="sup-stat sup-stat--link"
+          onClick={() => goToStatus("")}
+        >
           <div className="sup-stat__num">{products.length}</div>
           <div className="sup-stat__label">מוצרים</div>
-        </div>
-        <div className="sup-stat">
-          <div className="sup-stat__icon">✅</div>
+        </button>
+        <button
+          type="button"
+          className="sup-stat sup-stat--link"
+          onClick={() => goToStatus("ready")}
+        >
           <div className="sup-stat__num">{ready.length}</div>
           <div className="sup-stat__label">מוכנים</div>
-        </div>
-        <div
-          className={`sup-stat${needsAttention.length ? " sup-stat--warn" : ""}`}
+        </button>
+        <button
+          type="button"
+          className={`sup-stat sup-stat--link${
+            needsAttention.length ? " sup-stat--warn" : ""
+          }`}
+          onClick={() => goToStatus("attention")}
         >
-          <div className="sup-stat__icon">⚠️</div>
           <div className="sup-stat__num">{needsAttention.length}</div>
           <div className="sup-stat__label">דורש טיפול</div>
-        </div>
+        </button>
         <div className="sup-stat">
-          <div className="sup-stat__icon">👀</div>
           <div className="sup-stat__num">{views}</div>
           <div className="sup-stat__label">צפיות</div>
         </div>

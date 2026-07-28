@@ -4,26 +4,17 @@ import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/sidemenu.css";
 
 /*
-  SupplierSideMenu — תפריט צד לאזור הספק (פורטל ספקים). נפתח מכפתור ☰ ומנווט
-  בין דפי אזור הספק (בית / מוצרים / תשלומים / רשתות / תצוגה), ומרכז את ההגדרות:
-  חשבון וסיסמה, עוגיות, מחיקת חשבון, צור קשר והתנתקות. בעיצוב תפריט הצד הראשי.
+  SupplierSideMenu — תפריט צד לאזור הספק: חשבון והגדרות בלבד (הניווט בין הדפים
+  נעשה בטאבים למעלה). כולל: שם העסק, חשבון וסיסמה, הגדרות עוגיות, מחיקת חשבון,
+  צור קשר והתנתקות. בעיצוב תפריט הצד הראשי.
 */
 // מספר הוואטסאפ/תמיכה של VaddyGo (ציבורי — לא סוד)
 const SUPPORT_PHONE = "054-4579179";
 
-const NAV = [
-  { key: "home", label: "בית", icon: "home" },
-  { key: "products", label: "המוצרים שלי", icon: "package" },
-  { key: "payments", label: "תשלומים", icon: "card" },
-  { key: "socials", label: "רשתות חברתיות", icon: "link" },
-  { key: "preview", label: "כך הוועד רואה", icon: "eye" },
-];
-
 function SupplierSideMenu({
   isOpen,
   onClose,
-  onNavigate,
-  onShareCatalog,
+  onChangeName,
   onChangePassword,
   onCookies,
   onDeleteRequest,
@@ -57,32 +48,17 @@ function SupplierSideMenu({
           </button>
         </div>
 
-        <h3 className="sidemenu__title">הכרטיס שלי</h3>
-        {NAV.map((item) => (
-          <button
-            key={item.key}
-            type="button"
-            className="sidemenu__action"
-            onClick={() => {
-              onClose();
-              onNavigate(item.key);
-            }}
-          >
-            <Icon name={item.icon} size={18} /> {item.label}
-          </button>
-        ))}
+        <h3 className="sidemenu__title">החשבון וההגדרות</h3>
         <button
           type="button"
           className="sidemenu__action"
           onClick={() => {
             onClose();
-            onShareCatalog();
+            onChangeName();
           }}
         >
-          <Icon name="copy" size={18} /> שיתוף הקטלוג
+          <Icon name="pencil" size={18} /> שם העסק
         </button>
-
-        <h3 className="sidemenu__title">החשבון וההגדרות</h3>
         <button
           type="button"
           className="sidemenu__action"

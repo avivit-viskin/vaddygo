@@ -72,8 +72,14 @@ function SupplierEditPage() {
   const [cookiesOpen, setCookiesOpen] = useState(false);
   const [shareCatalogOpen, setShareCatalogOpen] = useState(false);
   const [catalogCopied, setCatalogCopied] = useState(false);
-  // תיקייה שאליה לפתוח את דף המוצרים (בלחיצה על תיקייה בדף הבית)
+  // שינוי שם העסק (מתוך התפריט הצדדי)
+  const [nameModalOpen, setNameModalOpen] = useState(false);
+  const [bizName, setBizName] = useState("");
+  const [nameMsg, setNameMsg] = useState(null);
+  const [nameSaving, setNameSaving] = useState(false);
+  // תיקייה + סטטוס שאליהם לפתוח את דף המוצרים (בלחיצה על תיקייה/אריח בדף הבית)
   const [productsFolder, setProductsFolder] = useState("");
+  const [productsStatus, setProductsStatus] = useState("");
   // שער כניסה: אם הספק כבר הגדיר מייל+סיסמה — דורשים התחברות (עם זיכרון קצר)
   const [sessionOk, setSessionOk] = useState(() =>
     hasValidSupplierSession(token)
@@ -110,11 +116,12 @@ function SupplierEditPage() {
     };
   }
 
-  function goTo(nextView, folder) {
+  function goTo(nextView, folder, status) {
     setSaved(false);
     setSaveError("");
     if (nextView === "products") {
       setProductsFolder(folder || "");
+      setProductsStatus(status || "");
     }
     setView(nextView);
     window.scrollTo({ top: 0, behavior: "smooth" });
@@ -200,6 +207,26 @@ function SupplierEditPage() {
       setPwMsg({ ok: false, text: err.message || "לא הצלחנו לעדכן את הסיסמה" });
     } finally {
       setPwSaving(false);
+    }
+  }
+
+  // שינוי שם העסק — שומר את הכרטיס המלא עם השם החדש (כדי לא לדרוס שאר הפרטים).
+  async function saveBizName(event) {
+    event.preventDefault();
+    setNameMsg(null);
+    if (!bizName.trim()) {
+      setNameMsg({ ok: false, text: "צריך למלא שם עסק" });
+      return;
+    }
+    setNameSaving(true);
+    try {
+      await updateVendorByToken(token, fullVendorPayload({ name: bizName.trim() }));
+      setNameMsg({ ok: true, text: "שם העסק עודכן" });
+      reload();
+    } catch (err) {
+      setNameMsg({ ok: false, text: err.message || "לא הצלחנו לעדכן את השם" });
+    } finally {
+      setNameSaving(false);
     }
   }
 
@@ -432,6 +459,17 @@ function SupplierEditPage() {
           <div style={{ marginTop: 16 }}>
             <SupplierHome vendor={vendor} onGoTo={goTo} />
           </div>
+          <div style={{ marginTop: 16 }}>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setCatalogCopied(false);
+                setShareCatalogOpen(true);
+              }}
+            >
+              🔗 שיתוף הקטלוג
+            </Button>
+          </div>
         </>
       )}
 
@@ -442,12 +480,13 @@ function SupplierEditPage() {
             <strong>מיד</strong> לוועדים.
           </p>
           <VendorForm
-            key={`products-${productsFolder}`}
+            key={`products-${productsFolder}-${productsStatus}`}
             vendor={vendor}
             onSave={handleSaveProducts}
             hidePayments
             hideSocials
             initialFolder={productsFolder}
+            initialStatus={productsStatus}
             showFab
           />
         </>
@@ -480,10 +519,10 @@ function SupplierEditPage() {
       <SupplierSideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
-        onNavigate={goTo}
-        onShareCatalog={() => {
-          setCatalogCopied(false);
-          setShareCatalogOpen(true);
+        onChangeName={() => {
+          setBizName(vendor?.name || "");
+          setNameMsg(null);
+          setNameModalOpen(true);
         }}
         onChangePassword={() => {
           setPwMsg(null);
@@ -525,6 +564,39 @@ function SupplierEditPage() {
           <div className="gift-form__actions">
             <Button type="submit" isLoading={pwSaving}>
               עדכון סיסמה
+            </Button>
+          </div>
+        </form>
+      </Modal>
+
+      <Modal
+        isOpen={nameModalOpen}
+        onClose={() => setNameModalOpen(false)}
+        title="שם העסק ✏️"
+      >
+        <form onSubmit={saveBizName} noValidate>
+          <p className="supplier-edit__login-hint">
+            זה השם שהוועדים רואים בכרטיס שלך. אפשר לעדכן אותו כאן בכל עת.
+          </p>
+          <Input
+            id="biz-name"
+            label="שם העסק"
+            value={bizName}
+            onChange={(e) => setBizName(e.target.value)}
+            placeholder="למשל: מתוק שלי — עוגות בהזמנה"
+          />
+          {nameMsg && (
+            <p
+              className={nameMsg.ok ? "supplier-edit__saved" : "field__error"}
+              role={nameMsg.ok ? "status" : "alert"}
+            >
+              {nameMsg.ok ? "✓ " : ""}
+              {nameMsg.text}
+            </p>
+          )}
+          <div className="gift-form__actions">
+            <Button type="submit" isLoading={nameSaving}>
+              שמירת השם
             </Button>
           </div>
         </form>

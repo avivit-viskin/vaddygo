@@ -31,6 +31,7 @@ import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
 import WhatsAppFab from "../components/WhatsAppFab";
 import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
+import PullToRefresh from "../components/PullToRefresh";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
 import "../styles/supplier-app.css";
@@ -294,6 +295,8 @@ function SupplierEditPage() {
   if (vendor?.hasLogin && !sessionOk) {
     return (
       <div className="supplier-edit" dir="rtl">
+        {/* משיכה למטה לרענון (נייד/מסך-בית) — אין רענון דפדפן במצב אפליקציה */}
+        <PullToRefresh />
         <div className="supplier-edit__brand">
           <Logo />
         </div>
@@ -340,6 +343,8 @@ function SupplierEditPage() {
 
   return (
     <div className="supplier-edit" dir="rtl">
+      {/* משיכה למטה לרענון (נייד/מסך-בית) — אין רענון דפדפן במצב אפליקציה */}
+      <PullToRefresh />
       {/* אזהרה לפני יציאה אם יש שינויים שלא נשמרו בטופס העריכה/מוצרים */}
       <UnsavedChangesGuard />
       <div className="sup-head">

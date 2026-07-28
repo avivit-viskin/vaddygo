@@ -53,6 +53,7 @@ namespace ParentCommitteeAPI.Services
                 City = dto.City.Trim(),
                 PaymentLink = dto.PaymentLink.Trim(),
                 PaymentBit = dto.PaymentBit.Trim(),
+                PaymentPaybox = (dto.PaymentPaybox ?? string.Empty).Trim(),
                 PaymentBankInfo = dto.PaymentBankInfo.Trim(),
                 PaymentInstallments = dto.PaymentInstallments,
                 Products = MapProducts(dto.Products),
@@ -403,6 +404,7 @@ namespace ParentCommitteeAPI.Services
             // בקטלוג הציבורי לא חושפים פרטי תשלום פרטיים
             dto.PaymentLink = string.Empty;
             dto.PaymentBit = string.Empty;
+            dto.PaymentPaybox = string.Empty;
             dto.PaymentBankInfo = string.Empty;
             dto.PaymentInstallments = 0;
             return dto;
@@ -435,6 +437,8 @@ namespace ParentCommitteeAPI.Services
             vendor.City = dto.City.Trim();
             vendor.PaymentLink = dto.PaymentLink.Trim();
             vendor.PaymentBit = dto.PaymentBit.Trim();
+            // פייבוקס: null = השדה לא נשלח (שמירה כללית) → משאירים כמו שהוא, לא מוחקים.
+            if (dto.PaymentPaybox != null) vendor.PaymentPaybox = dto.PaymentPaybox.Trim();
             vendor.PaymentBankInfo = dto.PaymentBankInfo.Trim();
             vendor.PaymentInstallments = dto.PaymentInstallments;
             _db.VendorProducts.RemoveRange(vendor.Products);
@@ -479,6 +483,7 @@ namespace ParentCommitteeAPI.Services
             City = vendor.City,
             PaymentLink = vendor.PaymentLink,
             PaymentBit = vendor.PaymentBit,
+            PaymentPaybox = vendor.PaymentPaybox,
             PaymentBankInfo = vendor.PaymentBankInfo,
             PaymentInstallments = vendor.PaymentInstallments,
             HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),

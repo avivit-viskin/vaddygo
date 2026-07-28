@@ -30,6 +30,11 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(40, ErrorMessage = "מספר הביט ארוך מדי")]
         public string PaymentBit { get; set; } = string.Empty;
 
+        // פייבוקס — מספר טלפון או קישור. nullable בכוונה: כשמטען שמירה כללי (מוצרים/
+        // רשתות/שם) לא כולל את השדה, הוא מגיע null והשרת משאיר את הערך הקיים ולא מוחק.
+        [StringLength(300, ErrorMessage = "פרטי הפייבוקס ארוכים מדי")]
+        public string? PaymentPaybox { get; set; }
+
         [StringLength(200, ErrorMessage = "פרטי ההעברה ארוכים מדי")]
         public string PaymentBankInfo { get; set; } = string.Empty;
 
@@ -157,6 +162,7 @@ namespace ParentCommitteeAPI.DTOs
         public string City { get; set; } = string.Empty;
         public string PaymentLink { get; set; } = string.Empty;
         public string PaymentBit { get; set; } = string.Empty;
+        public string PaymentPaybox { get; set; } = string.Empty;
         public string PaymentBankInfo { get; set; } = string.Empty;
         public int PaymentInstallments { get; set; }
         public List<VendorProductResponseDto> Products { get; set; } = new();

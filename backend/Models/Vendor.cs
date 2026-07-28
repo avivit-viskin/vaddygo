@@ -18,9 +18,11 @@ namespace ParentCommitteeAPI.Models
         public string City { get; set; } = string.Empty;
 
         /* אמצעי התשלום של הספק — לתשלום ישיר מהוועד אליו (VaddyGo לא מחזיקה כסף).
-           כולם אופציונליים: קישור תשלום (GROW/פייבוקס/כל קישור), ביט, והעברה בנקאית. */
+           כולם אופציונליים: קישור תשלום/אשראי (GROW/סליקה), ביט, פייבוקס, והעברה בנקאית.
+           הוועד רואה אותם כאייקונים ממותגים (ביט/פייבוקס/אשראי) בכרטיס הספק. */
         public string PaymentLink { get; set; } = string.Empty;
         public string PaymentBit { get; set; } = string.Empty;
+        public string PaymentPaybox { get; set; } = string.Empty;
         public string PaymentBankInfo { get; set; } = string.Empty;
 
         /* עד כמה תשלומים הספק מאפשר לפרוס (0/1 = תשלום אחד). הוועד רואה זאת

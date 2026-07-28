@@ -7,7 +7,13 @@ import {
   setVendorCredentials,
   changeVendorPassword,
   requestVendorDeletion,
+  supplierLogin,
 } from "../services/vendorsService";
+import {
+  setSupplierSession,
+  hasValidSupplierSession,
+  clearSupplierSession,
+} from "../services/supplierSession";
 import VendorForm from "./gifts/VendorForm";
 import VendorPanel from "./gifts/VendorPanel";
 import Logo from "../components/Logo";
@@ -65,6 +71,14 @@ function SupplierEditPage() {
   const [cookiesOpen, setCookiesOpen] = useState(false);
   // תיקייה שאליה לפתוח את דף המוצרים (בלחיצה על תיקייה בדף הבית)
   const [productsFolder, setProductsFolder] = useState("");
+  // שער כניסה: אם הספק כבר הגדיר מייל+סיסמה — דורשים התחברות (עם זיכרון קצר)
+  const [sessionOk, setSessionOk] = useState(() =>
+    hasValidSupplierSession(token)
+  );
+  const [gateEmail, setGateEmail] = useState("");
+  const [gatePassword, setGatePassword] = useState("");
+  const [gateError, setGateError] = useState("");
+  const [gateLoading, setGateLoading] = useState(false);
 
   // בונה מטען כתיבה מלא מהכרטיס העדכני, עם דריסת השדות שהשתנו — כדי ששמירה של
   // חלק אחד (למשל תשלומים) לא תמחק חלק אחר (מוצרים/רשתות). זה מה שמסנכרן הכל.
@@ -104,7 +118,33 @@ function SupplierEditPage() {
   }
 
   function handleLogout() {
+    clearSupplierSession();
     navigate("/supplier-login");
+  }
+
+  // שער הכניסה — מאמת מייל+סיסמה מול הכרטיס הזה ופותח סשן קצר
+  async function handleGateLogin(event) {
+    event.preventDefault();
+    setGateError("");
+    setGateLoading(true);
+    try {
+      const t = await supplierLogin({
+        loginEmail: gateEmail.trim(),
+        password: gatePassword,
+      });
+      if (t !== token) {
+        setGateError(
+          "הפרטים אינם תואמים לכרטיס הזה. אפשר להיכנס דרך 'כניסת ספקים'."
+        );
+        setGateLoading(false);
+        return;
+      }
+      setSupplierSession(token);
+      setSessionOk(true);
+    } catch (err) {
+      setGateError(err.message || "מייל או סיסמה שגויים");
+      setGateLoading(false);
+    }
   }
 
   // מוצרים ופרטי העסק (VendorForm) — משמרים את התשלומים והרשתות מהעדכני
@@ -190,6 +230,9 @@ function SupplierEditPage() {
       });
       setCredMsg({ ok: true, text: "מעכשיו אפשר להתחבר עם המייל והסיסמה האלה" });
       setCredPassword("");
+      // הרגע הגדירו כניסה — פותחים סשן כדי שלא ינעלו אותם מיד אחרי השמירה
+      setSupplierSession(token);
+      setSessionOk(true);
       reload();
     } catch (err) {
       setCredMsg({
@@ -212,6 +255,54 @@ function SupplierEditPage() {
           message="הקישור אינו תקין או שכבר אינו בתוקף. אפשר לבקש קישור חדש מהוועד."
           onRetry={reload}
         />
+      </div>
+    );
+  }
+
+  // שער כניסה — הספק כבר הגדיר מייל+סיסמה ואין סשן בתוקף: מבקשים התחברות
+  if (vendor?.hasLogin && !sessionOk) {
+    return (
+      <div className="supplier-edit" dir="rtl">
+        <div className="supplier-edit__brand">
+          <Logo />
+        </div>
+        <h1 className="supplier-edit__title">כניסת ספק</h1>
+        <p className="supplier-edit__intro">
+          שלום {vendor.name || "ספק יקר"} 👋 להמשך אל הכרטיס שלך, התחברו עם המייל
+          והסיסמה שהגדרתם.
+        </p>
+        <form
+          onSubmit={handleGateLogin}
+          noValidate
+          style={{ maxWidth: 380, margin: "0 auto" }}
+        >
+          <Input
+            id="gate-email"
+            label="מייל"
+            type="email"
+            autoComplete="username"
+            value={gateEmail}
+            onChange={(e) => setGateEmail(e.target.value)}
+            placeholder="you@example.com"
+          />
+          <Input
+            id="gate-pw"
+            label="סיסמה"
+            type="password"
+            autoComplete="current-password"
+            value={gatePassword}
+            onChange={(e) => setGatePassword(e.target.value)}
+          />
+          {gateError && <ErrorMessage message={gateError} />}
+          <div className="gift-form__actions">
+            <Button type="submit" isLoading={gateLoading}>
+              כניסה
+            </Button>
+          </div>
+          <p className="supplier-edit__login-link">
+            שכחת סיסמה? <Link to="/supplier-forgot-password">איפוס במייל</Link>
+          </p>
+        </form>
       </div>
     );
   }

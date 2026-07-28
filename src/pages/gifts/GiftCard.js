@@ -1,3 +1,4 @@
+import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 import { giftStatusLabel } from "../../services/giftStatus";
 
@@ -26,7 +27,7 @@ function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor, readOnly =
             className="gift-card__vendor"
             onClick={onOpenVendor}
           >
-            🏷️ {vendorName}
+            <Icon name="tag" size={14} /> {vendorName}
           </button>
         )}
       </div>
@@ -40,7 +41,7 @@ function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor, readOnly =
             aria-label={`עריכת ${gift.name}`}
             onClick={onEdit}
           >
-            ✏️
+            <Icon name="pencil" size={16} />
           </button>
           <button
             type="button"
@@ -48,7 +49,7 @@ function GiftCard({ gift, vendorName, onEdit, onDelete, onOpenVendor, readOnly =
             aria-label={`מחיקת ${gift.name}`}
             onClick={onDelete}
           >
-            🗑️
+            <Icon name="trash" size={16} />
           </button>
         </div>
       )}

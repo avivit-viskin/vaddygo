@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import { formatShekels } from "../../services/format";
 import {
@@ -26,7 +27,13 @@ function BudgetRecommendation({ holidayBudgets, spent = 0 }) {
   }
 
   return (
-    <Card title="עוזרת תקציב 🤖">
+    <Card
+      title={
+        <>
+          <Icon name="robot" size={20} /> עוזרת תקציב
+        </>
+      }
+    >
       <p className="budget-rec__hint">
         המלצה לחלוקת התקציב, מחושבת לפי מספר הילדים והצוות. הכל משוער — אפשר
         להתאים את הסכומים.
@@ -67,7 +74,7 @@ function BudgetRecommendation({ holidayBudgets, spent = 0 }) {
         className="budget-rec__toggle"
         onClick={() => setShowRates((v) => !v)}
       >
-        ⚙️ התאמת הסכומים
+        <Icon name="settings" size={16} /> התאמת הסכומים
       </button>
       {showRates && (
         <div className="budget-rec__rates">

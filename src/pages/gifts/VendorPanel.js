@@ -1,6 +1,7 @@
 import { useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import WhatsAppIcon from "../../components/WhatsAppIcon";
+import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
@@ -47,7 +48,9 @@ function VendorPanel({
         >
           → חזרה לתיקיות
         </button>
-        <h3 className="vendor-panel__folder-title">📁 {openFolder.name}</h3>
+        <h3 className="vendor-panel__folder-title">
+          <Icon name="folder" size={18} /> {openFolder.name}
+        </h3>
 
         {waHref && (
           <a
@@ -181,7 +184,7 @@ function VendorPanel({
                 className="btn btn--primary vendor-panel__pay-cta"
                 onClick={() => setShowPay(true)}
               >
-                💳 תשלום לספק
+                <Icon name="card" size={16} /> תשלום לספק
               </button>
             ) : (
               <div className="vendor-panel__pay-open">
@@ -198,7 +201,7 @@ function VendorPanel({
                     target="_blank"
                     rel="noreferrer"
                   >
-                    💳 מעבר לתשלום מאובטח
+                    <Icon name="card" size={16} /> מעבר לתשלום מאובטח
                   </a>
                 )}
                 {vendor.paymentBit && (
@@ -247,7 +250,7 @@ function VendorPanel({
                 onClick={() => setOpenFolder(f)}
               >
                 <span className="vendor-folders__icon" aria-hidden="true">
-                  📁
+                  <Icon name="folder" size={18} />
                 </span>
                 <span className="vendor-folders__name">{f.name}</span>
                 <span className="vendor-folders__count">
@@ -269,7 +272,7 @@ function VendorPanel({
         <div className="vendor-panel__admin">
           {onEdit && (
             <button type="button" className="vendor-panel__edit" onClick={onEdit}>
-              ✏️ עריכת פרטי הספק
+              <Icon name="pencil" size={16} /> עריכת פרטי הספק
             </button>
           )}
           {onShareEditLink && (
@@ -278,7 +281,7 @@ function VendorPanel({
               className="vendor-panel__share"
               onClick={onShareEditLink}
             >
-              🔗 שליחת קישור עריכה לספק
+              <Icon name="link" size={16} /> שליחת קישור עריכה לספק
             </button>
           )}
         </div>

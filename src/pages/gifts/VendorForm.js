@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "../../components/Button";
+import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import { FOLDER_PRESETS } from "../../services/vendorFolders";
@@ -314,12 +315,12 @@ function VendorForm({ vendor, onSave, onCancel }) {
                 className="vendor-form__thumb vendor-form__thumb--empty"
                 aria-hidden="true"
               >
-                🖼️
+                <Icon name="image" size={22} />
               </span>
             )}
             <div className="vendor-form__image-controls">
               <label className="vendor-form__upload">
-                📁 ייבוא קובץ
+                <Icon name="folder" size={16} /> ייבוא קובץ
                 <input
                   type="file"
                   accept="image/*"

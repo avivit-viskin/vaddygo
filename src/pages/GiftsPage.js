@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
+import Icon from "../components/Icon";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
@@ -193,7 +194,13 @@ function GiftsPage() {
       {/* "צופה" — לצפייה בלבד: בלי תזכורת/רישום הוצאה על אירועים שעברו */}
       {!readOnly && <PendingEventExpenses onRecorded={load} />}
 
-      <Card title="המתנות שרכשתי 🎁">
+      <Card
+        title={
+          <>
+            <Icon name="gift" size={20} /> המתנות שרכשתי
+          </>
+        }
+      >
         {gifts.length === 0 ? (
           <EmptyState icon="🎁" message="עדיין אין מתנות — נוסיף את הראשונה?" />
         ) : (
@@ -220,7 +227,13 @@ function GiftsPage() {
 
       <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
 
-      <Card title="ספקים 🏷️">
+      <Card
+        title={
+          <>
+            <Icon name="tag" size={20} /> ספקים
+          </>
+        }
+      >
         {vendors.length === 0 ? (
           <EmptyState icon="🛍️" message="עדיין אין ספקים — אפשר להוסיף ספק ראשון." />
         ) : (
@@ -324,7 +337,7 @@ function GiftsPage() {
       <Modal
         isOpen={editLink !== null}
         onClose={() => setEditLink(null)}
-        title="קישור עריכה לספק 🔗"
+        title="קישור עריכה לספק"
       >
         {editLink && (
           <div className="vendor-link">
@@ -351,7 +364,9 @@ function GiftsPage() {
                   target="_blank"
                   rel="noreferrer"
                 >
-                  <Button variant="secondary">שליחה בוואטסאפ 💬</Button>
+                  <Button variant="secondary">
+                    <Icon name="message" size={16} /> שליחה בוואטסאפ
+                  </Button>
                 </a>
               )}
             </div>

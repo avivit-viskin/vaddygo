@@ -173,6 +173,31 @@ const PATHS = {
       <path d="M12 4v16M9 20h6" />
     </>
   ),
+  tag: (
+    <>
+      <path d="M3 12V4.5A1.5 1.5 0 0 1 4.5 3H12l8.5 8.5a1.5 1.5 0 0 1 0 2.1l-6.9 6.9a1.5 1.5 0 0 1-2.1 0L3 12Z" />
+      <circle cx="7.5" cy="7.5" r="1.4" />
+    </>
+  ),
+  image: (
+    <>
+      <rect x="3" y="4" width="18" height="16" rx="2" />
+      <circle cx="8.5" cy="9.5" r="1.5" />
+      <path d="M21 15.5 16 11l-8 8" />
+    </>
+  ),
+  package: (
+    <>
+      <path d="M12 3 3 7.5v9L12 21l9-4.5v-9L12 3Z" />
+      <path d="M3 7.5 12 12l9-4.5M12 12v9" />
+    </>
+  ),
+  settings: (
+    <>
+      <circle cx="12" cy="12" r="3" />
+      <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 20, strokeWidth = 1.8, className, title }) {

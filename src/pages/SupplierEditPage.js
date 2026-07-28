@@ -488,6 +488,7 @@ function SupplierEditPage() {
             onSave={handleSaveProducts}
             hidePayments
             hideSocials
+            hideBusinessDetails
             initialFolder={productsFolder}
             initialStatus={productsStatus}
             showFab
@@ -519,9 +520,28 @@ function SupplierEditPage() {
         </div>
       )}
 
+      {view === "settings" && (
+        <>
+          <h2 className="sup-section-title">⚙️ הגדרות משתמש</h2>
+          <p className="supplier-edit__intro" style={{ margin: "0 0 14px" }}>
+            פרטי העסק והמידע הנוסף שהוועדים רואים בכרטיס שלך. כל שינוי שתשמרו
+            יופיע <strong>מיד</strong> לוועדים.
+          </p>
+          <VendorForm
+            key="settings"
+            vendor={vendor}
+            onSave={handleSaveProducts}
+            hideProducts
+            hidePayments
+            hideSocials
+          />
+        </>
+      )}
+
       <SupplierSideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
+        onSettings={() => goTo("settings")}
         onChangeName={() => {
           setBizName(vendor?.name || "");
           setNameMsg(null);

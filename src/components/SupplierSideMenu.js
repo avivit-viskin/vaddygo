@@ -14,6 +14,7 @@ const SUPPORT_PHONE = "054-4579179";
 function SupplierSideMenu({
   isOpen,
   onClose,
+  onSettings,
   onChangeName,
   onChangePassword,
   onCookies,
@@ -49,6 +50,16 @@ function SupplierSideMenu({
         </div>
 
         <h3 className="sidemenu__title">החשבון וההגדרות</h3>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => {
+            onClose();
+            onSettings();
+          }}
+        >
+          <Icon name="settings" size={18} /> הגדרות משתמש
+        </button>
         <button
           type="button"
           className="sidemenu__action"

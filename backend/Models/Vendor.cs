@@ -46,6 +46,9 @@ namespace ParentCommitteeAPI.Models
            null = אין בקשה. המחיקה בפועל מתבצעת רק אחרי אישור המנהלת (SuperAdmin). */
         public DateTime? DeletionRequestedAt { get; set; }
 
+        /* מונה צפיות בקטלוג הציבורי — עולה בכל פתיחה של /catalog/{id}. לדאשבורד הספק. */
+        public int Views { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

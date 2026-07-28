@@ -396,6 +396,9 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // כל פתיחה של הקטלוג הציבורי סופרת צפייה (לדאשבורד הספק)
+            vendor.Views += 1;
+            await _db.SaveChangesAsync();
             var dto = ToResponse(vendor);
             // בקטלוג הציבורי לא חושפים פרטי תשלום פרטיים
             dto.PaymentLink = string.Empty;
@@ -480,6 +483,7 @@ namespace ParentCommitteeAPI.Services
             PaymentInstallments = vendor.PaymentInstallments,
             HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),
             DeletionRequested = vendor.DeletionRequestedAt != null,
+            Views = vendor.Views,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

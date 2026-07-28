@@ -167,6 +167,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* האם הספק ביקש למחוק את החשבון (ממתין לאישור VaddyGo) — לתצוגת המנהלת */
         public bool DeletionRequested { get; set; }
+
+        /* מספר צפיות בקטלוג הציבורי — לדאשבורד הספק */
+        public int Views { get; set; }
     }
 
     public class VendorProductResponseDto

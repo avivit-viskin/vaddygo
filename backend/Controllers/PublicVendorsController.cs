@@ -128,5 +128,23 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
             return Ok(new { message = "בקשת המחיקה נשלחה לאישור VaddyGo" });
         }
+
+        // GET: api/public/vendors/directory — מדריך ספקים ציבורי (מרקטפלייס).
+        // literal "directory" גובר בניתוב על "{token}".
+        [HttpGet("directory")]
+        public async Task<ActionResult<IEnumerable<VendorDirectoryDto>>> Directory()
+        {
+            return Ok(await _vendorService.GetDirectoryAsync());
+        }
+
+        // GET: api/public/vendors/catalog/{id} — קטלוג ציבורי של ספק, לשיתוף (בלי תשלום).
+        [HttpGet("catalog/{id:int}")]
+        public async Task<ActionResult<VendorResponseDto>> Catalog(int id)
+        {
+            var vendor = await _vendorService.GetPublicCatalogAsync(id);
+            if (vendor == null)
+                return NotFound(new { message = "הקטלוג לא נמצא" });
+            return Ok(vendor);
+        }
     }
 }

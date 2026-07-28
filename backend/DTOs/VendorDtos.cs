@@ -184,4 +184,15 @@ namespace ParentCommitteeAPI.DTOs
         public string Label { get; set; } = string.Empty;
         public string Url { get; set; } = string.Empty;
     }
+
+    /* פריט קליל למדריך הספקים הציבורי (מרקטפלייס) — בלי מוצרים/תשלום, לרשימה מהירה */
+    public class VendorDirectoryDto
+    {
+        public int Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Category { get; set; } = string.Empty;
+        public string City { get; set; } = string.Empty;
+        public int ProductCount { get; set; }
+        public string WhatsApp { get; set; } = string.Empty;
+    }
 }

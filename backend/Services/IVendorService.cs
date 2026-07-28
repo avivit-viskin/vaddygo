@@ -40,6 +40,11 @@ namespace ParentCommitteeAPI.Services
         Task<bool> RequestDeletionAsync(string token);
         /* ביטול בקשת מחיקה ע"י המנהלת (SuperAdmin) — מנקה את הדגל. */
         Task<bool> DismissDeletionAsync(int id);
+
+        /* קטלוג ציבורי לקריאה בלבד (לשיתוף) — כרטיס הספק בלי פרטי תשלום/כניסה. */
+        Task<VendorResponseDto?> GetPublicCatalogAsync(int id);
+        /* מדריך הספקים הציבורי — רשימה קלילה לגלישה/סינון. */
+        Task<List<VendorDirectoryDto>> GetDirectoryAsync();
     }
 
     /* תוצאת הגדרת פרטי התחברות לספק */

@@ -389,6 +389,38 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        public async Task<VendorResponseDto?> GetPublicCatalogAsync(int id)
+        {
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return null;
+            }
+            var dto = ToResponse(vendor);
+            // בקטלוג הציבורי לא חושפים פרטי תשלום פרטיים
+            dto.PaymentLink = string.Empty;
+            dto.PaymentBit = string.Empty;
+            dto.PaymentBankInfo = string.Empty;
+            dto.PaymentInstallments = 0;
+            return dto;
+        }
+
+        public async Task<List<VendorDirectoryDto>> GetDirectoryAsync()
+        {
+            return await _db.Vendors
+                .OrderBy(v => v.Name)
+                .Select(v => new VendorDirectoryDto
+                {
+                    Id = v.Id,
+                    Name = v.Name,
+                    Category = v.Category,
+                    City = v.City,
+                    ProductCount = v.Products.Count,
+                    WhatsApp = v.WhatsApp,
+                })
+                .ToListAsync();
+        }
+
         /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.
            רשימות הבנים (מוצרים/רשתות) מוחלפות כולן — פשוט ותואם לטופס. */
         private void ApplyWrite(Vendor vendor, VendorWriteDto dto)

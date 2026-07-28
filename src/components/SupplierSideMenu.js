@@ -23,6 +23,7 @@ function SupplierSideMenu({
   isOpen,
   onClose,
   onNavigate,
+  onShareCatalog,
   onChangePassword,
   onCookies,
   onDeleteRequest,
@@ -70,6 +71,16 @@ function SupplierSideMenu({
             <Icon name={item.icon} size={18} /> {item.label}
           </button>
         ))}
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => {
+            onClose();
+            onShareCatalog();
+          }}
+        >
+          <Icon name="copy" size={18} /> שיתוף הקטלוג
+        </button>
 
         <h3 className="sidemenu__title">החשבון וההגדרות</h3>
         <button

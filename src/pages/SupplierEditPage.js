@@ -69,6 +69,8 @@ function SupplierEditPage() {
   const [pwMsg, setPwMsg] = useState(null);
   const [pwSaving, setPwSaving] = useState(false);
   const [cookiesOpen, setCookiesOpen] = useState(false);
+  const [shareCatalogOpen, setShareCatalogOpen] = useState(false);
+  const [catalogCopied, setCatalogCopied] = useState(false);
   // תיקייה שאליה לפתוח את דף המוצרים (בלחיצה על תיקייה בדף הבית)
   const [productsFolder, setProductsFolder] = useState("");
   // שער כניסה: אם הספק כבר הגדיר מייל+סיסמה — דורשים התחברות (עם זיכרון קצר)
@@ -517,6 +519,10 @@ function SupplierEditPage() {
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
         onNavigate={goTo}
+        onShareCatalog={() => {
+          setCatalogCopied(false);
+          setShareCatalogOpen(true);
+        }}
         onChangePassword={() => {
           setPwMsg(null);
           setNewPw("");
@@ -568,6 +574,54 @@ function SupplierEditPage() {
         title="הגדרות עוגיות 🍪"
       >
         <SupplierCookies />
+      </Modal>
+
+      <Modal
+        isOpen={shareCatalogOpen}
+        onClose={() => setShareCatalogOpen(false)}
+        title="שיתוף הקטלוג 🔗"
+      >
+        <p className="supplier-edit__login-hint">
+          שלחו את הקישור הזה לכל אחד — הוא יראה קטלוג יפה של המוצרים שלכם, בלי
+          אפשרות עריכה.
+        </p>
+        <input
+          className="field__input vendor-link__url"
+          value={`${window.location.origin}/catalog/${vendor.id}`}
+          readOnly
+          onFocus={(e) => e.target.select()}
+          aria-label="קישור הקטלוג"
+        />
+        <div className="vendor-link__actions">
+          <Button
+            onClick={() => {
+              const url = `${window.location.origin}/catalog/${vendor.id}`;
+              if (navigator.clipboard) {
+                navigator.clipboard
+                  .writeText(url)
+                  .then(() => setCatalogCopied(true));
+              }
+            }}
+          >
+            {catalogCopied ? "הועתק ✓" : "העתקת הקישור"}
+          </Button>
+          <a
+            href={`https://wa.me/?text=${encodeURIComponent(
+              `הנה הקטלוג שלנו ב-VaddyGo: ${window.location.origin}/catalog/${vendor.id}`
+            )}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button variant="secondary">שיתוף בוואטסאפ 💬</Button>
+          </a>
+          <a
+            href={`${window.location.origin}/catalog/${vendor.id}`}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Button variant="secondary">פתיחת הקטלוג</Button>
+          </a>
+        </div>
       </Modal>
 
       <ConfirmDialog

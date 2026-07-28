@@ -129,3 +129,13 @@ export async function requestVendorDeletion(token) {
 export async function dismissVendorDeletion(id) {
   return api.post(`/api/vendors/${id}/dismiss-deletion`);
 }
+
+/* קטלוג ציבורי לקריאה של ספק (לשיתוף) — בלי פרטי תשלום/כניסה. */
+export async function getPublicCatalog(id) {
+  return api.get(`/api/public/vendors/catalog/${id}`);
+}
+
+/* מדריך הספקים הציבורי (מרקטפלייס) — רשימה קלילה לגלישה/סינון. */
+export async function getSupplierDirectory() {
+  return api.get("/api/public/vendors/directory");
+}

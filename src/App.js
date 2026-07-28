@@ -22,6 +22,8 @@ import JoinPage from "./pages/JoinPage";
 import SupplierEditPage from "./pages/SupplierEditPage";
 import SupplierWelcomePage from "./pages/SupplierWelcomePage";
 import SupplierRegisterPage from "./pages/SupplierRegisterPage";
+import CatalogPage from "./pages/CatalogPage";
+import DirectoryPage from "./pages/DirectoryPage";
 import SupplierLoginPage from "./pages/SupplierLoginPage";
 import SupplierForgotPasswordPage from "./pages/SupplierForgotPasswordPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -78,6 +80,7 @@ const FULL_SCREEN_ROUTES = [
   "/supplier-forgot-password",
   "/suppliers",
   "/supplier-register",
+  "/directory",
   ...LEGAL_ROUTES,
 ];
 // נתיבים פתוחים ללא הזדהות (כאן מקבלים/מפיקים את ה-token, העמודים המשפטיים,
@@ -93,6 +96,7 @@ const PUBLIC_ROUTES = [
   "/supplier-forgot-password",
   "/suppliers",
   "/supplier-register",
+  "/directory",
   ...LEGAL_ROUTES,
 ];
 // מסכי הזדהות — משתמשת שכבר מחוברת לא צריכה לראות אותם שוב (נשלחת הביתה)
@@ -123,15 +127,21 @@ function App() {
   const isJoin = location.pathname.startsWith("/join/");
   // עמוד עריכה עצמית לספק (/supplier/:token) — ציבורי ובמסך מלא, כמו /join
   const isSupplierEdit = location.pathname.startsWith("/supplier/");
+  // קטלוג ציבורי של ספק (/catalog/:id) — ציבורי ובמסך מלא
+  const isCatalog = location.pathname.startsWith("/catalog/");
   const isFullScreen =
     FULL_SCREEN_ROUTES.includes(location.pathname) ||
     isPurchase ||
     isJoin ||
-    isSupplierEdit;
+    isSupplierEdit ||
+    isCatalog;
   // מסך הכניסה מקבל רקע מונפש במסך מלא — מנטרלים את מסגרת ה-app-main (רוחב/ריפוד)
   const isLoginRoute = location.pathname === "/login";
   const isPublic =
-    PUBLIC_ROUTES.includes(location.pathname) || isJoin || isSupplierEdit;
+    PUBLIC_ROUTES.includes(location.pathname) ||
+    isJoin ||
+    isSupplierEdit ||
+    isCatalog;
   const activeInstitution = getActiveInstitution();
 
   // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות.
@@ -215,6 +225,8 @@ function App() {
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/join/:token" element={<JoinPage />} />
           <Route path="/supplier/:token" element={<SupplierEditPage />} />
+          <Route path="/catalog/:id" element={<CatalogPage />} />
+          <Route path="/directory" element={<DirectoryPage />} />
           <Route path="/supplier-login" element={<SupplierLoginPage />} />
           <Route path="/suppliers" element={<SupplierWelcomePage />} />
           <Route

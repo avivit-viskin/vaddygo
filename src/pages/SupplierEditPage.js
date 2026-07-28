@@ -305,7 +305,7 @@ function SupplierEditPage() {
 
       {view === "home" && (
         <>
-          <SupplierChecklist vendor={vendor} />
+          <SupplierChecklist vendor={vendor} onGoTo={goTo} />
           {!vendor?.hasLogin && (
             <form
               className="supplier-edit__login"

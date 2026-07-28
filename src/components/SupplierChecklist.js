@@ -5,30 +5,36 @@ import Icon from "./Icon";
   מלא ומזמין ללקוח (וואטסאפ, מוצר, תמונה, אמצעי תשלום, כניסה קבועה). מבוסס על
   מה שכבר נשמר; כשהכל הושלם — נעלם. עוזר לספק חדש לדעת בדיוק מה לעשות.
 */
-function SupplierChecklist({ vendor }) {
+function SupplierChecklist({ vendor, onGoTo }) {
   const products = vendor?.products || [];
+  // view = לאיזה דף הקישור "מילוי »" מוביל כדי להשלים את הפריט
   const items = [
     {
       done: Boolean(vendor?.whatsApp),
       label: "מספר וואטסאפ ליצירת קשר",
+      view: "products",
     },
     {
       done: products.some((p) => (p.name || "").trim()),
       label: "מוצר ראשון",
+      view: "products",
     },
     {
       done: products.some((p) => (p.imageUrl || "").trim()),
       label: "תמונה לפחות למוצר אחד",
+      view: "products",
     },
     {
       done: Boolean(
         vendor?.paymentLink || vendor?.paymentBit || vendor?.paymentBankInfo
       ),
       label: "אמצעי תשלום",
+      view: "payments",
     },
     {
       done: Boolean(vendor?.hasLogin),
       label: "הגדרת כניסה קבועה (מייל וסיסמה)",
+      view: "home",
     },
   ];
   const doneCount = items.filter((i) => i.done).length;
@@ -91,7 +97,27 @@ function SupplierChecklist({ vendor }) {
             >
               {item.done && <Icon name="check" size={14} />}
             </span>
-            {item.label}
+            <span>{item.label}</span>
+            {!item.done && onGoTo && (
+              <button
+                type="button"
+                onClick={() => onGoTo(item.view)}
+                style={{
+                  marginInlineStart: "auto",
+                  flexShrink: 0,
+                  border: "none",
+                  background: "none",
+                  color: "var(--color-link)",
+                  fontFamily: "var(--font-family)",
+                  fontSize: "var(--font-size-sm)",
+                  fontWeight: 700,
+                  cursor: "pointer",
+                  whiteSpace: "nowrap",
+                }}
+              >
+                מילוי »
+              </button>
+            )}
           </li>
         ))}
       </ul>

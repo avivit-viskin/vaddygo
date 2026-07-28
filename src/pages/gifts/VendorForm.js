@@ -61,6 +61,10 @@ function VendorForm({
   // סינון לפי סטטוס מוכנות: "" = הכל, "ready" = מוכנים, "attention" = דורש טיפול.
   // מגיע מלחיצה על אריח בדאשבורד (מוכנים / דורש טיפול).
   const [statusFilter, setStatusFilter] = useState(initialStatus || "");
+  // בחירה מרובה למחיקה/העברה קבוצתית — קבוצת אינדקסים של מוצרים שסומנו.
+  const [selected, setSelected] = useState(() => new Set());
+  const [moveOpen, setMoveOpen] = useState(false);
+  const [moveTarget, setMoveTarget] = useState("");
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
@@ -73,6 +77,10 @@ function VendorForm({
 
   function removeItem(setter, index) {
     setter((prev) => prev.filter((_, i) => i !== index));
+    // שינוי מבנה הרשימה מזיז אינדקסים — מנקים בחירה קבוצתית כדי שלא תתבלבל
+    if (setter === setProducts) {
+      setSelected(new Set());
+    }
   }
 
   // שכפול פריט — מוסיף עותק מיד אחרי המקור, כדי להוסיף מוצרים דומים במהירות
@@ -82,6 +90,9 @@ function VendorForm({
       next.splice(index + 1, 0, { ...prev[index] });
       return next;
     });
+    if (setter === setProducts) {
+      setSelected(new Set());
+    }
   }
 
   // החלפת שני פריטים במקומם (לפי אינדקסים בפועל) — לסידור, גם בתצוגה מסוננת
@@ -94,6 +105,60 @@ function VendorForm({
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
+    if (setter === setProducts) {
+      setSelected(new Set());
+    }
+  }
+
+  // ── בחירה מרובה: סימון מוצר, סימון הכל (בתצוגה הנוכחית), מחיקה והעברה ──
+  function toggleSelected(index) {
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) {
+        next.delete(index);
+      } else {
+        next.add(index);
+      }
+      return next;
+    });
+  }
+
+  function toggleSelectAllVisible() {
+    setSelected((prev) => {
+      const idx = visibleProducts.map(({ index }) => index);
+      const allSel = idx.length > 0 && idx.every((i) => prev.has(i));
+      const next = new Set(prev);
+      idx.forEach((i) => (allSel ? next.delete(i) : next.add(i)));
+      return next;
+    });
+  }
+
+  function deleteSelected() {
+    if (selected.size === 0) {
+      return;
+    }
+    const ok = window.confirm(
+      `למחוק את ${selected.size} המוצרים שסומנו? המחיקה תיכנס לתוקף בשמירה.`
+    );
+    if (!ok) {
+      return;
+    }
+    setProducts((prev) => prev.filter((_, i) => !selected.has(i)));
+    setSelected(new Set());
+    setMoveOpen(false);
+  }
+
+  // העברת כל הנבחרים לתיקייה (או "כללי" = בלי תיקייה). משמש גם לשינוי שם תיקייה:
+  // בוחרים את כל התיקייה ומעבירים לשם חדש.
+  function moveSelectedToFolder(folder) {
+    const f = (folder || "").trim();
+    const normalized = f === "כללי" ? "" : f;
+    setProducts((prev) =>
+      prev.map((p, i) => (selected.has(i) ? { ...p, folder: normalized } : p))
+    );
+    setSelected(new Set());
+    setMoveOpen(false);
+    setMoveTarget("");
   }
 
   // הוספת מוצר חדש — לתיקייה המסוננת כרגע (אם נבחרה)
@@ -219,6 +284,9 @@ function VendorForm({
     .map((product, index) => ({ product, index }))
     .filter(({ product }) => inFolder(product, folderFilter))
     .filter(({ product }) => matchesStatus(product, statusFilter));
+  const visibleIndices = visibleProducts.map(({ index }) => index);
+  const allVisibleSelected =
+    visibleIndices.length > 0 && visibleIndices.every((i) => selected.has(i));
   const chipStyle = (active) => ({
     flexShrink: 0,
     border: active
@@ -465,9 +533,196 @@ function VendorForm({
           אין מוצרים בתצוגה הזו — אפשר להוסיף מוצר חדש למטה.
         </p>
       )}
+      {visibleProducts.length >= 2 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            alignItems: "center",
+            gap: 10,
+            padding: "8px 12px",
+            marginBottom: 12,
+            border: "1px solid var(--color-border)",
+            borderRadius: 12,
+            background: selected.size
+              ? "var(--color-primary-light)"
+              : "var(--color-surface)",
+          }}
+        >
+          <label
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+              cursor: "pointer",
+              fontWeight: 600,
+              fontSize: "var(--font-size-sm)",
+            }}
+          >
+            <input
+              type="checkbox"
+              checked={allVisibleSelected}
+              onChange={toggleSelectAllVisible}
+              style={{ width: 18, height: 18, cursor: "pointer" }}
+            />
+            סימון הכל{folderFilter ? " בתיקייה" : ""} ({visibleProducts.length})
+          </label>
+
+          {selected.size > 0 && (
+            <>
+              <span
+                style={{
+                  fontWeight: 700,
+                  color: "var(--color-primary-dark)",
+                  fontSize: "var(--font-size-sm)",
+                }}
+              >
+                {selected.size} נבחרו
+              </span>
+              <button
+                type="button"
+                onClick={deleteSelected}
+                style={{
+                  border: "1px solid #e3b7b7",
+                  background: "#fdecec",
+                  color: "#c0392b",
+                  borderRadius: 10,
+                  padding: "6px 12px",
+                  fontFamily: "var(--font-family)",
+                  fontWeight: 700,
+                  fontSize: "var(--font-size-sm)",
+                  cursor: "pointer",
+                }}
+              >
+                🗑️ מחיקה
+              </button>
+              <button
+                type="button"
+                onClick={() => setMoveOpen((o) => !o)}
+                style={{
+                  border: "1px solid var(--color-primary-dark)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-primary-dark)",
+                  borderRadius: 10,
+                  padding: "6px 12px",
+                  fontFamily: "var(--font-family)",
+                  fontWeight: 700,
+                  fontSize: "var(--font-size-sm)",
+                  cursor: "pointer",
+                }}
+              >
+                📁 העברה לתיקייה
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setSelected(new Set());
+                  setMoveOpen(false);
+                }}
+                style={{
+                  border: "none",
+                  background: "none",
+                  color: "var(--color-text-muted)",
+                  fontFamily: "var(--font-family)",
+                  fontSize: "var(--font-size-sm)",
+                  cursor: "pointer",
+                }}
+              >
+                ביטול בחירה
+              </button>
+            </>
+          )}
+
+          {moveOpen && selected.size > 0 && (
+            <div
+              style={{
+                flexBasis: "100%",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                alignItems: "center",
+                marginTop: 4,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                העברת הנבחרים ל:
+              </span>
+              {FOLDER_PRESETS.map((preset) => (
+                <button
+                  key={preset}
+                  type="button"
+                  onClick={() => moveSelectedToFolder(preset)}
+                  style={chipStyle(false)}
+                >
+                  {preset}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => moveSelectedToFolder("")}
+                style={chipStyle(false)}
+              >
+                כללי (בלי תיקייה)
+              </button>
+              <input
+                className="field__input"
+                value={moveTarget}
+                onChange={(e) => setMoveTarget(e.target.value)}
+                placeholder="או שם תיקייה חדש"
+                style={{ width: 150, flexShrink: 0 }}
+              />
+              <button
+                type="button"
+                onClick={() => moveSelectedToFolder(moveTarget)}
+                disabled={!moveTarget.trim()}
+                style={{
+                  border: "none",
+                  background: "var(--color-primary)",
+                  color: "var(--color-primary-dark)",
+                  borderRadius: 10,
+                  padding: "6px 14px",
+                  fontFamily: "var(--font-family)",
+                  fontWeight: 700,
+                  fontSize: "var(--font-size-sm)",
+                  cursor: moveTarget.trim() ? "pointer" : "default",
+                  opacity: moveTarget.trim() ? 1 : 0.5,
+                }}
+              >
+                העברה
+              </button>
+            </div>
+          )}
+        </div>
+      )}
       {visibleProducts.map(({ product, index }, vi) => (
-        <div className="vendor-form__product" key={index}>
+        <div
+          className="vendor-form__product"
+          key={index}
+          style={
+            selected.has(index)
+              ? { outline: "2px solid var(--color-primary)", outlineOffset: 2 }
+              : undefined
+          }
+        >
           <div className="vendor-form__product-head">
+            <input
+              type="checkbox"
+              checked={selected.has(index)}
+              onChange={() => toggleSelected(index)}
+              aria-label={`בחירת מוצר ${index + 1}`}
+              style={{
+                width: 18,
+                height: 18,
+                marginInlineEnd: 6,
+                flexShrink: 0,
+                cursor: "pointer",
+              }}
+            />
             <span className="vendor-form__product-num">מוצר {index + 1}</span>
             <button
               type="button"

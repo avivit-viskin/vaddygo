@@ -42,6 +42,10 @@ namespace ParentCommitteeAPI.Models
         public DateTime? ResetCodeExpiresAt { get; set; }
         public int ResetCodeAttempts { get; set; }
 
+        /* בקשת מחיקת חשבון מצד הספק — נרשם כאן זמן הבקשה, וממתין לאישור VaddyGo.
+           null = אין בקשה. המחיקה בפועל מתבצעת רק אחרי אישור המנהלת (SuperAdmin). */
+        public DateTime? DeletionRequestedAt { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

@@ -6,6 +6,7 @@ import {
   updateVendorByToken,
   setVendorCredentials,
   changeVendorPassword,
+  requestVendorDeletion,
 } from "../services/vendorsService";
 import VendorForm from "./gifts/VendorForm";
 import VendorPanel from "./gifts/VendorPanel";
@@ -45,6 +46,7 @@ function SupplierEditPage() {
   // תפריט הצד של אזור הספק, ובקשת מחיקת חשבון (דורשת אישור VaddyGo)
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [deleteAsking, setDeleteAsking] = useState(false);
+  const [deleteSent, setDeleteSent] = useState(false);
   // שינוי סיסמה (מודאל "חשבון וסיסמה" בתפריט)
   const [pwModalOpen, setPwModalOpen] = useState(false);
   const [newPw, setNewPw] = useState("");
@@ -76,8 +78,13 @@ function SupplierEditPage() {
 
   // בקשת מחיקת חשבון — לא מוחקים מיד. שולחים ל-VaddyGo הודעת וואטסאפ עם הבקשה,
   // והמחיקה מתבצעת רק אחרי אישור מצד VaddyGo.
-  function confirmDeleteRequest() {
+  async function confirmDeleteRequest() {
     setDeleteAsking(false);
+    try {
+      await requestVendorDeletion(token); // נרשם בשרת + מייל למנהלת VaddyGo
+    } catch {
+      // גם אם הרישום נכשל — פותחים וואטסאפ כדי שהבקשה תגיע בכל זאת
+    }
     const msg = `בקשת מחיקת חשבון ספק ב-VaddyGo: "${
       vendor?.name || ""
     }". אנא אשרו את המחיקה.`;
@@ -86,6 +93,7 @@ function SupplierEditPage() {
       "_blank",
       "noopener,noreferrer"
     );
+    setDeleteSent(true);
   }
 
   async function handleSave(payload) {
@@ -179,6 +187,11 @@ function SupplierEditPage() {
       {saveError && (
         <p className="field__error" role="alert">
           {saveError}
+        </p>
+      )}
+      {deleteSent && (
+        <p className="supplier-edit__saved" role="status">
+          ✓ בקשת המחיקה נשלחה ל-VaddyGo. ניצור קשר לאישור.
         </p>
       )}
 

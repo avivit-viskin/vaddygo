@@ -12,7 +12,9 @@ import {
   getVendors,
   addVendor,
   updateVendor,
+  deleteVendor,
   generateVendorEditLink,
+  dismissVendorDeletion,
 } from "../services/vendorsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
@@ -56,6 +58,8 @@ function GiftsPage() {
   const [linkCopied, setLinkCopied] = useState(false);
   // סינון הספקים לפי קטגוריה (גילוי); "" = הכל
   const [vendorFilter, setVendorFilter] = useState("");
+  // ספק שממתין לאישור מחיקה (מודאל אישור); null = סגור
+  const [approvingVendor, setApprovingVendor] = useState(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -184,6 +188,29 @@ function GiftsPage() {
     }
   }
 
+  // אישור מחיקת ספק שביקש להימחק — מוחק לצמיתות (SuperAdmin), דרך ConfirmDialog.
+  async function handleApproveDelete() {
+    if (!approvingVendor?.id) {
+      return;
+    }
+    await deleteVendor(approvingVendor.id);
+    setApprovingVendor(null);
+    setOpenVendor(null);
+    load();
+  }
+
+  // דחיית בקשת מחיקה — משאירים את הספק ומנקים את הדגל.
+  async function handleDismissDelete(vendor) {
+    if (!vendor?.id) {
+      return;
+    }
+    await dismissVendorDeletion(vendor.id);
+    if (openVendor && openVendor.id === vendor.id) {
+      setOpenVendor({ ...vendor, deletionRequested: false });
+    }
+    load();
+  }
+
   if (isLoading) {
     return <Spinner text="טוען מתנות וספקים..." />;
   }
@@ -289,6 +316,19 @@ function GiftsPage() {
                       </span>
                     )}
                   </button>
+                  {canManageVendors && vendor.deletionRequested && (
+                    <span
+                      title="הספק ביקש למחוק את החשבון"
+                      style={{
+                        flexShrink: 0,
+                        fontSize: "var(--font-size-sm)",
+                        color: "#c0392b",
+                        fontWeight: 700,
+                      }}
+                    >
+                      🗑️ ביקש מחיקה
+                    </span>
+                  )}
                   {/* כפתור וואטסאפ ירוק ליד שם הספק — פנייה ישירה + קצת צבע לדף */}
                   {vendor.whatsApp && (
                     <a
@@ -356,6 +396,16 @@ function GiftsPage() {
             }
             onShareEditLink={
               canManageVendors ? () => handleShareEditLink(openVendor) : undefined
+            }
+            onApproveDelete={
+              canManageVendors && openVendor.deletionRequested
+                ? () => setApprovingVendor(openVendor)
+                : undefined
+            }
+            onDismissDelete={
+              canManageVendors && openVendor.deletionRequested
+                ? () => handleDismissDelete(openVendor)
+                : undefined
             }
             paidTotal={vendorPaidById[openVendor.id] || 0}
             readOnly={readOnly}
@@ -427,6 +477,18 @@ function GiftsPage() {
         }
         onConfirm={handleDeleteGift}
         onCancel={() => setDeletingGift(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={approvingVendor !== null}
+        title="אישור מחיקת ספק"
+        message={
+          approvingVendor
+            ? `הספק "${approvingVendor.name}" ביקש למחוק את החשבון. למחוק אותו ואת כל המוצרים לצמיתות? אי אפשר לבטל.`
+            : ""
+        }
+        onConfirm={handleApproveDelete}
+        onCancel={() => setApprovingVendor(null)}
       />
     </div>
   );

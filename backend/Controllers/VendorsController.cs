@@ -81,5 +81,17 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "ספק לא נמצא" });
             return NoContent();
         }
+
+        // POST: api/vendors/1/dismiss-deletion — דחיית בקשת מחיקה שהגיש הספק
+        // (בלי למחוק). שמור למנהלת VaddyGo בלבד.
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPost("{id}/dismiss-deletion")]
+        public async Task<IActionResult> DismissDeletion(int id)
+        {
+            var ok = await _vendorService.DismissDeletionAsync(id);
+            if (!ok)
+                return NotFound(new { message = "ספק לא נמצא" });
+            return NoContent();
+        }
     }
 }

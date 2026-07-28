@@ -117,5 +117,16 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
             return Ok(new { message = "הסיסמה עודכנה" });
         }
+
+        // POST: api/public/vendors/{token}/request-deletion — הספק מבקש למחוק את
+        // חשבונו. נרשם וממתין לאישור VaddyGo; המחיקה בפועל נעשית ע"י המנהלת.
+        [HttpPost("{token}/request-deletion")]
+        public async Task<ActionResult> RequestDeletion(string token)
+        {
+            var ok = await _vendorService.RequestDeletionAsync(token);
+            if (!ok)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            return Ok(new { message = "בקשת המחיקה נשלחה לאישור VaddyGo" });
+        }
     }
 }

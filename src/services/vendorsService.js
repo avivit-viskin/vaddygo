@@ -119,3 +119,13 @@ export async function resetVendorPassword({ loginEmail, code, newPassword }) {
 export async function changeVendorPassword(token, newPassword) {
   return api.put(`/api/public/vendors/${token}/password`, { newPassword });
 }
+
+/* בקשת מחיקת חשבון מצד הספק (דרך הטוקן) — נרשמת בשרת וממתינה לאישור VaddyGo. */
+export async function requestVendorDeletion(token) {
+  return api.post(`/api/public/vendors/${token}/request-deletion`);
+}
+
+/* ביטול בקשת מחיקה ע"י המנהלת (SuperAdmin) — בלי למחוק את הספק. */
+export async function dismissVendorDeletion(id) {
+  return api.post(`/api/vendors/${id}/dismiss-deletion`);
+}

@@ -35,6 +35,11 @@ namespace ParentCommitteeAPI.Services
 
         /* שינוי סיסמה של ספק מחובר (דרך הטוקן, בלי הקוד). false אם הטוקן לא נמצא. */
         Task<bool> ChangePasswordAsync(string token, string newPassword);
+
+        /* בקשת מחיקת חשבון מצד הספק (דרך הטוקן) — נרשמת וממתינה לאישור VaddyGo. */
+        Task<bool> RequestDeletionAsync(string token);
+        /* ביטול בקשת מחיקה ע"י המנהלת (SuperAdmin) — מנקה את הדגל. */
+        Task<bool> DismissDeletionAsync(int id);
     }
 
     /* תוצאת הגדרת פרטי התחברות לספק */

@@ -164,6 +164,9 @@ namespace ParentCommitteeAPI.DTOs
         /* האם הספק כבר הגדיר מייל+סיסמה לכניסה — כדי להציג את כרטיס "הגדרת כניסה"
            רק בקישור הראשון (לפני שהוגדרו), ולהסתירו אחרי שהספק כבר הגדיר/התחבר. */
         public bool HasLogin { get; set; }
+
+        /* האם הספק ביקש למחוק את החשבון (ממתין לאישור VaddyGo) — לתצוגת המנהלת */
+        public bool DeletionRequested { get; set; }
     }
 
     public class VendorProductResponseDto

@@ -22,6 +22,8 @@ function VendorPanel({
   vendor,
   onEdit,
   onShareEditLink,
+  onApproveDelete,
+  onDismissDelete,
   paidTotal = 0,
   readOnly = false,
 }) {
@@ -265,6 +267,46 @@ function VendorPanel({
         </ul>
       ) : (
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
+      )}
+
+      {/* בקשת מחיקת חשבון מהספק — לאישור/דחייה ע"י המנהלת */}
+      {!readOnly && (onApproveDelete || onDismissDelete) && (
+        <div
+          className="vendor-panel__admin"
+          style={{
+            background: "#fdecea",
+            border: "1px solid #f5b7b1",
+            borderRadius: "var(--radius-md)",
+            padding: 12,
+            flexDirection: "column",
+            alignItems: "stretch",
+          }}
+        >
+          <p style={{ margin: "0 0 8px", fontWeight: 700, color: "#c0392b" }}>
+            🗑️ הספק ביקש למחוק את החשבון
+          </p>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {onApproveDelete && (
+              <button
+                type="button"
+                className="vendor-panel__edit"
+                style={{ color: "#c0392b" }}
+                onClick={onApproveDelete}
+              >
+                <Icon name="trash" size={16} /> אישור מחיקה
+              </button>
+            )}
+            {onDismissDelete && (
+              <button
+                type="button"
+                className="vendor-panel__share"
+                onClick={onDismissDelete}
+              >
+                ביטול הבקשה
+              </button>
+            )}
+          </div>
+        </div>
       )}
 
       {/* ניהול הספק — רק לבעלת האפליקציה (SuperAdmin); וועד רגיל רק צופה */}

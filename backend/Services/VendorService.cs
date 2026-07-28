@@ -15,12 +15,18 @@ namespace ParentCommitteeAPI.Services
     {
         private readonly AppDbContext _db;
         private readonly IEmailSender _email;
+        private readonly IConfiguration _config;
         private readonly ILogger<VendorService> _logger;
 
-        public VendorService(AppDbContext db, IEmailSender email, ILogger<VendorService> logger)
+        public VendorService(
+            AppDbContext db,
+            IEmailSender email,
+            IConfiguration config,
+            ILogger<VendorService> logger)
         {
             _db = db;
             _email = email;
+            _config = config;
             _logger = logger;
         }
 
@@ -328,6 +334,61 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        public async Task<bool> RequestDeletionAsync(string token)
+        {
+            if (string.IsNullOrWhiteSpace(token))
+            {
+                return false;
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return false;
+            }
+            // רק אם עוד לא ביקש — רושמים ומודיעים למנהלת (מונע ספאם על לחיצות חוזרות)
+            if (vendor.DeletionRequestedAt == null)
+            {
+                vendor.DeletionRequestedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync();
+                _logger.LogInformation("Vendor requested deletion (Id: {VendorId})", vendor.Id);
+
+                // מייל למנהלת VaddyGo (Resend עובד לכתובת הבעלים) — שתדע גם אם
+                // הודעת הוואטסאפ מהספק לא נשלחה בפועל.
+                var adminEmail = (_config["Admin:SuperAdminEmail"] ?? string.Empty).Trim();
+                if (adminEmail.Length > 0)
+                {
+                    var body =
+                        "שלום 🙂\n\n" +
+                        $"הספק \"{vendor.Name}\" ביקש למחוק את חשבונו ב-VaddyGo.\n" +
+                        "אפשר לאשר או לדחות את הבקשה במסך הספקים באפליקציה.\n\n" +
+                        "צוות VaddyGo 💜";
+                    try
+                    {
+                        await _email.SendAsync(
+                            adminEmail, "בקשת מחיקת חשבון ספק — VaddyGo", body);
+                    }
+                    catch (Exception ex)
+                    {
+                        _logger.LogError(ex, "Failed to send deletion-request email");
+                    }
+                }
+            }
+            return true;
+        }
+
+        public async Task<bool> DismissDeletionAsync(int id)
+        {
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return false;
+            }
+            vendor.DeletionRequestedAt = null;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Vendor deletion request dismissed (Id: {VendorId})", id);
+            return true;
+        }
+
         /* החלת שדות הכתיבה על ספק — משותף לעריכת המנהל ולעריכה העצמית בטוקן.
            רשימות הבנים (מוצרים/רשתות) מוחלפות כולן — פשוט ותואם לטופס. */
         private void ApplyWrite(Vendor vendor, VendorWriteDto dto)
@@ -386,6 +447,7 @@ namespace ParentCommitteeAPI.Services
             PaymentBankInfo = vendor.PaymentBankInfo,
             PaymentInstallments = vendor.PaymentInstallments,
             HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),
+            DeletionRequested = vendor.DeletionRequestedAt != null,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

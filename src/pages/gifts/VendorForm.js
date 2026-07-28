@@ -10,6 +10,7 @@ import {
   parseProductFile,
   PRODUCTS_IMPORT_TEMPLATE,
 } from "../../services/productsImport";
+import "../../styles/supplier-app.css";
 
 /* תבנית להורדה כקובץ CSV (data-URI) — נפתח באקסל עם עברית תקינה (BOM) */
 const TEMPLATE_HREF =
@@ -27,6 +28,7 @@ function VendorForm({
   hidePayments = false,
   hideSocials = false,
   initialFolder = "",
+  showFab = false,
 }) {
   const [name, setName] = useState(vendor?.name || "");
   const [catalogUrl, setCatalogUrl] = useState(vendor?.catalogUrl || "");
@@ -88,6 +90,19 @@ function VendorForm({
       [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
+  }
+
+  // הוספת מוצר חדש — לתיקייה המסוננת כרגע (אם נבחרה)
+  function addProduct() {
+    setProducts((prev) => [
+      ...prev,
+      {
+        name: "",
+        price: "",
+        imageUrl: "",
+        folder: folderFilter && folderFilter !== "כללי" ? folderFilter : "",
+      },
+    ]);
   }
 
   // תמונה שנבחרה מהטלפון (ספרייה/קבצים) — מכווצים ושומרים כתמונה מוטמעת במוצר
@@ -210,53 +225,68 @@ function VendorForm({
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <Input
-        id="vendor-name"
-        label="שם הספק"
-        value={name}
-        error={nameError}
-        onChange={(e) => {
-          setName(e.target.value);
-          setNameError("");
-        }}
-        placeholder="למשל: מתנות בלב"
-      />
-      <Input
-        id="vendor-whatsapp"
-        label="וואטסאפ (מספר או קישור)"
-        value={whatsApp}
-        onChange={(e) => setWhatsApp(e.target.value)}
-        placeholder="למשל: 054-1234567"
-      />
-      <Select
-        id="vendor-category"
-        label="קטגוריה (לגילוי ע״י ועדים)"
-        value={category}
-        onChange={(e) => setCategory(e.target.value)}
-      >
-        <option value="">— בחירת קטגוריה —</option>
-        {VENDOR_CATEGORIES.map((c) => (
-          <option key={c} value={c}>
-            {c}
-          </option>
-        ))}
-      </Select>
-      {category === "אחר" && (
+      <div className="sup-card">
+        <h3 className="sup-card__title">🏢 פרטי העסק</h3>
         <Input
-          id="vendor-category-custom"
-          label="פירוט הקטגוריה (איזה סוג מוצרים)"
-          value={customCategory}
-          onChange={(e) => setCustomCategory(e.target.value)}
-          placeholder="הקלידו את סוג המוצרים"
+          id="vendor-name"
+          label="🏢 שם העסק"
+          value={name}
+          error={nameError}
+          onChange={(e) => {
+            setName(e.target.value);
+            setNameError("");
+          }}
+          placeholder="למשל: מתנות בלב"
         />
-      )}
-      <Input
-        id="vendor-city"
-        label="עיר / אזור פעילות (אופציונלי)"
-        value={city}
-        onChange={(e) => setCity(e.target.value)}
-        placeholder="למשל: תל אביב והמרכז"
-      />
+        <Input
+          id="vendor-whatsapp"
+          label="📱 וואטסאפ (מספר או קישור)"
+          value={whatsApp}
+          onChange={(e) => setWhatsApp(e.target.value)}
+          placeholder="למשל: 054-1234567"
+        />
+        <Select
+          id="vendor-category"
+          label="🏷️ קטגוריה (לגילוי ע״י ועדים)"
+          value={category}
+          onChange={(e) => setCategory(e.target.value)}
+        >
+          <option value="">— בחירת קטגוריה —</option>
+          {VENDOR_CATEGORIES.map((c) => (
+            <option key={c} value={c}>
+              {c}
+            </option>
+          ))}
+        </Select>
+        {category === "אחר" && (
+          <Input
+            id="vendor-category-custom"
+            label="פירוט הקטגוריה (איזה סוג מוצרים)"
+            value={customCategory}
+            onChange={(e) => setCustomCategory(e.target.value)}
+            placeholder="הקלידו את סוג המוצרים"
+          />
+        )}
+      </div>
+
+      <div className="sup-card">
+        <h3 className="sup-card__title">🌍 מידע נוסף</h3>
+        <Input
+          id="vendor-city"
+          label="🌍 עיר / אזור פעילות (אופציונלי)"
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="למשל: תל אביב והמרכז"
+        />
+        <Input
+          id="vendor-catalog"
+          label="🔗 קישור לקטלוג (אופציונלי)"
+          type="url"
+          value={catalogUrl}
+          onChange={(e) => setCatalogUrl(e.target.value)}
+          placeholder="https://..."
+        />
+      </div>
 
       {!hidePayments && (
         <>
@@ -298,14 +328,6 @@ function VendorForm({
           </Select>
         </>
       )}
-      <Input
-        id="vendor-catalog"
-        label="קישור לקטלוג (אופציונלי)"
-        type="url"
-        value={catalogUrl}
-        onChange={(e) => setCatalogUrl(e.target.value)}
-        placeholder="https://..."
-      />
 
       <p className="vendor-form__products-title">מוצרים</p>
       <div
@@ -614,24 +636,20 @@ function VendorForm({
           <option key={f} value={f} />
         ))}
       </datalist>
-      <Button
-        variant="secondary"
-        onClick={() =>
-          setProducts((prev) => [
-            ...prev,
-            {
-              name: "",
-              price: "",
-              imageUrl: "",
-              // מוסיפים לתיקייה שמסוננת כרגע (חוץ מ"הכל"/"כללי"), כדי להישאר בהקשר
-              folder:
-                folderFilter && folderFilter !== "כללי" ? folderFilter : "",
-            },
-          ])
-        }
-      >
-        + הוספת מוצר{folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
+      <Button variant="secondary" onClick={addProduct}>
+        + הוספת מוצר
+        {folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
       </Button>
+      {showFab && (
+        <button
+          type="button"
+          className="sup-fab"
+          aria-label="הוספת מוצר"
+          onClick={addProduct}
+        >
+          ＋
+        </button>
+      )}
 
       {!hideSocials && (
         <>

@@ -448,6 +448,7 @@ function SupplierEditPage() {
             hidePayments
             hideSocials
             initialFolder={productsFolder}
+            showFab
           />
         </>
       )}

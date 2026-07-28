@@ -2,11 +2,12 @@ import { useState } from "react";
 import Input from "./Input";
 import Select from "./Select";
 import Button from "./Button";
+import "../styles/supplier-app.css";
 
 /*
-  SupplierPayments — דף התשלומים של הספק: קישור לביט/פייבוקס/GROW, מספר ביט,
-  פרטי העברה בנקאית, ומספר תשלומים אפשרי. הוועד משתמש באלה כדי לשלם לספק.
-  onSave מקבל רק את שדות התשלום; ההורה ממזג אותם לכרטיס המלא ושומר.
+  SupplierPayments — דף התשלומים של הספק, מחולק לשלושה כרטיסים: תשלום מהיר
+  (קישור ביט/פייבוקס/GROW + ביט), העברה בנקאית, והגדרות (פריסה לתשלומים +
+  שמירה). onSave מקבל רק את שדות התשלום; ההורה ממזג לכרטיס המלא ושומר.
 */
 function SupplierPayments({ vendor, onSave }) {
   const [paymentLink, setPaymentLink] = useState(vendor?.paymentLink || "");
@@ -41,58 +42,69 @@ function SupplierPayments({ vendor, onSave }) {
 
   return (
     <form onSubmit={handleSubmit} noValidate>
-      <p className="supplier-edit__login-hint">
-        כך הוועד ישלם לכם. אפשר למלא אחת או יותר מהאפשרויות — ומה שתמלאו יוצג
-        לוועד בכפתור התשלום.
-      </p>
-      <Input
-        id="pay-link"
-        label="קישור תשלום (ביט / פייבוקס / GROW / כל קישור)"
-        type="url"
-        value={paymentLink}
-        onChange={(e) => setPaymentLink(e.target.value)}
-        placeholder="https://..."
-      />
-      <Input
-        id="pay-bit"
-        label="ביט (מספר טלפון)"
-        value={paymentBit}
-        onChange={(e) => setPaymentBit(e.target.value)}
-        placeholder="למשל: 054-1234567"
-      />
-      <Input
-        id="pay-bank"
-        label="פרטי העברה בנקאית"
-        value={paymentBankInfo}
-        onChange={(e) => setPaymentBankInfo(e.target.value)}
-        placeholder="בנק · סניף · חשבון · שם המוטב"
-      />
-      <Select
-        id="pay-installments"
-        label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"
-        value={paymentInstallments}
-        onChange={(e) => setPaymentInstallments(e.target.value)}
-      >
-        <option value={0}>תשלום אחד (בלי פריסה)</option>
-        {[2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
-          <option key={n} value={n}>
-            עד {n} תשלומים
-          </option>
-        ))}
-      </Select>
-      {msg && (
-        <p
-          className={msg.ok ? "supplier-edit__saved" : "field__error"}
-          role={msg.ok ? "status" : "alert"}
-        >
-          {msg.ok ? "✓ " : ""}
-          {msg.text}
+      <div className="sup-card">
+        <h3 className="sup-card__title">⚡ תשלום מהיר</h3>
+        <p className="sup-card__hint">
+          קישור ישיר לתשלום (ביט / פייבוקס / GROW) — הכי נוח לוועד.
         </p>
-      )}
-      <div className="gift-form__actions">
-        <Button type="submit" isLoading={saving}>
-          שמירת אמצעי תשלום
-        </Button>
+        <Input
+          id="pay-link"
+          label="קישור תשלום"
+          type="url"
+          value={paymentLink}
+          onChange={(e) => setPaymentLink(e.target.value)}
+          placeholder="https://..."
+        />
+        <Input
+          id="pay-bit"
+          label="ביט (מספר טלפון)"
+          value={paymentBit}
+          onChange={(e) => setPaymentBit(e.target.value)}
+          placeholder="למשל: 054-1234567"
+        />
+      </div>
+
+      <div className="sup-card">
+        <h3 className="sup-card__title">🏦 העברה בנקאית</h3>
+        <p className="sup-card__hint">אופציונלי — למי שמעדיף להעביר לחשבון.</p>
+        <Input
+          id="pay-bank"
+          label="פרטי העברה בנקאית"
+          value={paymentBankInfo}
+          onChange={(e) => setPaymentBankInfo(e.target.value)}
+          placeholder="בנק · סניף · חשבון · שם המוטב"
+        />
+      </div>
+
+      <div className="sup-card">
+        <h3 className="sup-card__title">⚙️ הגדרות</h3>
+        <Select
+          id="pay-installments"
+          label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"
+          value={paymentInstallments}
+          onChange={(e) => setPaymentInstallments(e.target.value)}
+        >
+          <option value={0}>תשלום אחד (בלי פריסה)</option>
+          {[2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
+            <option key={n} value={n}>
+              עד {n} תשלומים
+            </option>
+          ))}
+        </Select>
+        {msg && (
+          <p
+            className={msg.ok ? "sup-saved" : "field__error"}
+            role={msg.ok ? "status" : "alert"}
+          >
+            {msg.ok ? "✔️ " : ""}
+            {msg.text}
+          </p>
+        )}
+        <div className="gift-form__actions">
+          <Button type="submit" isLoading={saving}>
+            שמירת אמצעי תשלום
+          </Button>
+        </div>
       </div>
     </form>
   );

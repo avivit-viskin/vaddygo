@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
+import PullToRefresh from "../components/PullToRefresh";
 import { supplierLogin } from "../services/vendorsService";
 import "../styles/login.css";
 
@@ -47,6 +48,8 @@ function SupplierLoginPage() {
 
   return (
     <div className="login-screen">
+      {/* משיכה למטה לרענון הדף (נייד) — לבקשת בעלת המוצר */}
+      <PullToRefresh />
       <div className="login-bg" aria-hidden="true">
         <span className="login-blob login-blob--1" />
         <span className="login-blob login-blob--2" />

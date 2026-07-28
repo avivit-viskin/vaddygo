@@ -18,6 +18,14 @@ function supplierMessage(folderName) {
   return `היי! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix}, אפשר לקבל פרטים ומחירים?`;
 }
 
+// הודעת התעניינות לתשלום בביט — נפתחת בוואטסאפ של מספר הביט. אם הוועד גלש
+// בתיקייה מסוימת, ההודעה מציינת אותה ("מתיקיית ...") כדי שהספק ידע על מה מדובר.
+function bitMessage(folderName) {
+  const suffix =
+    folderName && folderName !== "כללי" ? ` מתיקיית «${folderName}»` : "";
+  return `היי! 🙂 הגענו אליכם דרך VaddyGo. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix} — נשמח לתאם רכישה ותשלום בביט. אפשר פרטים?`;
+}
+
 // האם הערך הוא קישור (ואז לוחצים ועוברים ישירות) או מספר טלפון (מציגים אותו)
 const isPayUrl = (s) => /^https?:\/\//i.test((s || "").trim());
 
@@ -68,6 +76,8 @@ function VendorPanel({
   readOnly = false,
 }) {
   const [openFolder, setOpenFolder] = useState(null);
+  // התיקייה האחרונה שהוועד פתח — משמשת להודעת הביט ("מתיקיית ...") גם אחרי חזרה
+  const [lastFolder, setLastFolder] = useState(null);
   // תמונת מוצר להגדלה (לייטבוקס); null = סגור
   const [zoomImage, setZoomImage] = useState(null);
   // פרטי התשלום של הספק אינם מוצגים לוועד עד שלוחצים "תשלום לספק" (רק אז נחשפים)
@@ -249,18 +259,26 @@ function VendorPanel({
                 {/* אייקוני אמצעי התשלום — קטנים וממותגים, כמו בדף הבית. ביט נפתח
                     ישירות; פייבוקס/אשראי/בנק פותחים את הפרטים בלחיצה. */}
                 <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
-                  {payMethods.map((m) =>
-                    m.key === "bit" && isPayUrl(m.value) ? (
-                      <a
-                        key={m.key}
-                        href={m.value}
-                        target="_blank"
-                        rel="noreferrer"
-                        style={payChipStyle(false)}
-                      >
-                        <PayBrandMark method={m} /> <span>{m.label}</span>
-                      </a>
-                    ) : (
+                  {payMethods.map((m) => {
+                    // ביט: פותח וואטסאפ של מספר הביט עם הודעת התעניינות (כולל
+                    // התיקייה שגלשו בה). אם הספק שם קישור ביט — פותחים אותו ישירות.
+                    if (m.key === "bit") {
+                      const href = isPayUrl(m.value)
+                        ? m.value
+                        : whatsappUrlWithText(m.value, bitMessage(lastFolder));
+                      return (
+                        <a
+                          key={m.key}
+                          href={href}
+                          target="_blank"
+                          rel="noreferrer"
+                          style={payChipStyle(false)}
+                        >
+                          <PayBrandMark method={m} /> <span>{m.label}</span>
+                        </a>
+                      );
+                    }
+                    return (
                       <button
                         key={m.key}
                         type="button"
@@ -273,8 +291,8 @@ function VendorPanel({
                       >
                         <PayBrandMark method={m} /> <span>{m.label}</span>
                       </button>
-                    )
-                  )}
+                    );
+                  })}
                 </div>
 
                 {/* פרטי האמצעי שנבחר */}
@@ -316,11 +334,6 @@ function VendorPanel({
                             מספר payBox: <strong dir="ltr">{m.value}</strong>
                           </p>
                         ))}
-                      {m.key === "bit" && (
-                        <p className="vendor-panel__pay-row">
-                          מספר ביט: <strong dir="ltr">{m.value}</strong>
-                        </p>
-                      )}
                       {m.key === "bank" && (
                         <div>
                           <p
@@ -409,7 +422,10 @@ function VendorPanel({
               <button
                 type="button"
                 className="vendor-folders__item"
-                onClick={() => setOpenFolder(f)}
+                onClick={() => {
+                  setOpenFolder(f);
+                  setLastFolder(f.name);
+                }}
               >
                 <span className="vendor-folders__icon" aria-hidden="true">
                   <Icon name="folder" size={18} />

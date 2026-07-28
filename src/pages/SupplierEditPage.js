@@ -32,6 +32,7 @@ import SupplierCookies from "../components/SupplierCookies";
 import WhatsAppFab from "../components/WhatsAppFab";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
+import "../styles/supplier-app.css";
 
 /*
   SupplierEditPage — אזור הספק (פורטל ספקים), ציבורי ובמסך מלא. אפליקציה קטנה
@@ -359,46 +360,18 @@ function SupplierEditPage() {
         </p>
       )}
 
-      {/* פס ניווט בין הדפים */}
-      <div
-        style={{
-          display: "flex",
-          gap: 8,
-          overflowX: "auto",
-          padding: "8px 0 14px",
-        }}
-      >
-        {TABS.map((tab) => {
-          const active = view === tab.key;
-          return (
-            <button
-              key={tab.key}
-              type="button"
-              onClick={() => goTo(tab.key)}
-              style={{
-                flexShrink: 0,
-                padding: "8px 14px",
-                borderRadius: 999,
-                border: active
-                  ? "1px solid var(--color-primary)"
-                  : "1px solid var(--color-border)",
-                background: active
-                  ? "var(--color-primary)"
-                  : "var(--color-surface)",
-                color: active
-                  ? "var(--color-primary-dark)"
-                  : "var(--color-text)",
-                fontWeight: active ? 700 : 500,
-                fontFamily: "var(--font-family)",
-                fontSize: "var(--font-size-sm)",
-                cursor: "pointer",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {tab.icon} {tab.label}
-            </button>
-          );
-        })}
+      {/* פס ניווט בין הדפים — דביק ומוקפד */}
+      <div className="sup-tabs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            type="button"
+            onClick={() => goTo(tab.key)}
+            className={`sup-tab${view === tab.key ? " sup-tab--active" : ""}`}
+          >
+            {tab.icon} {tab.label}
+          </button>
+        ))}
       </div>
 
       {view === "home" && (
@@ -483,24 +456,14 @@ function SupplierEditPage() {
 
       {view === "payments" && (
         <>
-          <h2
-            className="supplier-edit__title"
-            style={{ margin: "0 0 6px", fontSize: "var(--font-size-lg)" }}
-          >
-            💳 אמצעי תשלום
-          </h2>
+          <h2 className="sup-section-title">💳 אמצעי תשלום</h2>
           <SupplierPayments vendor={vendor} onSave={handleSavePayments} />
         </>
       )}
 
       {view === "socials" && (
         <>
-          <h2
-            className="supplier-edit__title"
-            style={{ margin: "0 0 6px", fontSize: "var(--font-size-lg)" }}
-          >
-            🔗 רשתות חברתיות
-          </h2>
+          <h2 className="sup-section-title">🔗 רשתות חברתיות</h2>
           <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
         </>
       )}

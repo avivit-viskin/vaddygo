@@ -1,0 +1,56 @@
+/*
+  supplier-app — ליטוש "אפליקציה" לאזור הספק: פס טאבים דביק ומוקפד, וכותרות
+  סקשן אחידות. משתמש במשתני העיצוב הקיימים (מתאים למצב כהה/בהיר ולערכת הצבעים).
+*/
+.sup-tabs {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  display: flex;
+  gap: 8px;
+  overflow-x: auto;
+  padding: 10px 0 12px;
+  margin: 6px 0 4px;
+  background: var(--color-bg);
+  -webkit-overflow-scrolling: touch;
+}
+.sup-tab {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+}
+.sup-tab:hover {
+  border-color: var(--color-primary);
+}
+.sup-tab--active {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-weight: 700;
+}
+.sup-section-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: var(--font-size-lg);
+  color: var(--color-primary-dark);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sup-tab {
+    transition: none;
+  }
+}

@@ -27,6 +27,8 @@ function VendorForm({
   onCancel,
   hidePayments = false,
   hideSocials = false,
+  hideBusinessDetails = false,
+  hideProducts = false,
   initialFolder = "",
   initialStatus = "",
   showFab = false,
@@ -65,6 +67,8 @@ function VendorForm({
   const [selected, setSelected] = useState(() => new Set());
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTarget, setMoveTarget] = useState("");
+  const [priceOpen, setPriceOpen] = useState(false);
+  const [priceTarget, setPriceTarget] = useState("");
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
@@ -146,6 +150,7 @@ function VendorForm({
     setProducts((prev) => prev.filter((_, i) => !selected.has(i)));
     setSelected(new Set());
     setMoveOpen(false);
+    setPriceOpen(false);
   }
 
   // העברת כל הנבחרים לתיקייה (או "כללי" = בלי תיקייה). משמש גם לשינוי שם תיקייה:
@@ -159,6 +164,20 @@ function VendorForm({
     setSelected(new Set());
     setMoveOpen(false);
     setMoveTarget("");
+  }
+
+  // קביעת מחיר אחיד לכל הנבחרים בבת אחת
+  function setPriceForSelected(price) {
+    if (price === "" || !(Number(price) >= 0)) {
+      return;
+    }
+    const n = Number(price);
+    setProducts((prev) =>
+      prev.map((p, i) => (selected.has(i) ? { ...p, price: n } : p))
+    );
+    setSelected(new Set());
+    setPriceOpen(false);
+    setPriceTarget("");
   }
 
   // הוספת מוצר חדש — לתיקייה המסוננת כרגע (אם נבחרה)
@@ -305,6 +324,8 @@ function VendorForm({
 
   return (
     <form onSubmit={handleSubmit} noValidate>
+      {!hideBusinessDetails && (
+        <>
       <div className="sup-card">
         <h3 className="sup-card__title">🏢 פרטי העסק</h3>
         <Input
@@ -367,6 +388,8 @@ function VendorForm({
           placeholder="https://..."
         />
       </div>
+        </>
+      )}
 
       {!hidePayments && (
         <>
@@ -409,6 +432,8 @@ function VendorForm({
         </>
       )}
 
+      {!hideProducts && (
+        <>
       <p className="vendor-form__products-title">מוצרים</p>
       <div
         style={{
@@ -598,7 +623,10 @@ function VendorForm({
               </button>
               <button
                 type="button"
-                onClick={() => setMoveOpen((o) => !o)}
+                onClick={() => {
+                  setMoveOpen((o) => !o);
+                  setPriceOpen(false);
+                }}
                 style={{
                   border: "1px solid var(--color-primary-dark)",
                   background: "var(--color-surface)",
@@ -616,8 +644,29 @@ function VendorForm({
               <button
                 type="button"
                 onClick={() => {
+                  setPriceOpen((o) => !o);
+                  setMoveOpen(false);
+                }}
+                style={{
+                  border: "1px solid var(--color-primary-dark)",
+                  background: "var(--color-surface)",
+                  color: "var(--color-primary-dark)",
+                  borderRadius: 10,
+                  padding: "6px 12px",
+                  fontFamily: "var(--font-family)",
+                  fontWeight: 700,
+                  fontSize: "var(--font-size-sm)",
+                  cursor: "pointer",
+                }}
+              >
+                💰 מחיר אחיד
+              </button>
+              <button
+                type="button"
+                onClick={() => {
                   setSelected(new Set());
                   setMoveOpen(false);
+                  setPriceOpen(false);
                 }}
                 style={{
                   border: "none",
@@ -694,6 +743,60 @@ function VendorForm({
                 }}
               >
                 העברה
+              </button>
+            </div>
+          )}
+
+          {priceOpen && selected.size > 0 && (
+            <div
+              style={{
+                flexBasis: "100%",
+                display: "flex",
+                flexWrap: "wrap",
+                gap: 6,
+                alignItems: "center",
+                marginTop: 4,
+              }}
+            >
+              <span
+                style={{
+                  fontSize: "var(--font-size-sm)",
+                  color: "var(--color-text-muted)",
+                }}
+              >
+                מחיר אחיד לכל הנבחרים (₪):
+              </span>
+              <input
+                className="field__input"
+                type="number"
+                min="0"
+                value={priceTarget}
+                onChange={(e) => setPriceTarget(e.target.value)}
+                placeholder="למשל: 50"
+                style={{ width: 120, flexShrink: 0 }}
+              />
+              <button
+                type="button"
+                onClick={() => setPriceForSelected(priceTarget)}
+                disabled={priceTarget === "" || Number(priceTarget) < 0}
+                style={{
+                  border: "none",
+                  background: "var(--color-primary)",
+                  color: "var(--color-primary-dark)",
+                  borderRadius: 10,
+                  padding: "6px 14px",
+                  fontFamily: "var(--font-family)",
+                  fontWeight: 700,
+                  fontSize: "var(--font-size-sm)",
+                  cursor:
+                    priceTarget === "" || Number(priceTarget) < 0
+                      ? "default"
+                      : "pointer",
+                  opacity:
+                    priceTarget === "" || Number(priceTarget) < 0 ? 0.5 : 1,
+                }}
+              >
+                החלת מחיר
               </button>
             </div>
           )}
@@ -948,6 +1051,8 @@ function VendorForm({
           + הוספת מוצר
           {folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
         </Button>
+      )}
+        </>
       )}
 
       {!hideSocials && (

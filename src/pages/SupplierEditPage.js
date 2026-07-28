@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
   getVendorByToken,
@@ -13,6 +13,10 @@ import Input from "../components/Input";
 import Button from "../components/Button";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
+import ConfirmDialog from "../components/ConfirmDialog";
+import SupplierSideMenu from "../components/SupplierSideMenu";
+import WhatsAppFab from "../components/WhatsAppFab";
+import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
 
 /*
@@ -22,6 +26,7 @@ import "../styles/gifts.css";
 */
 function SupplierEditPage() {
   const { token } = useParams();
+  const navigate = useNavigate();
   const fetcher = useCallback(() => getVendorByToken(token), [token]);
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
   const [saved, setSaved] = useState(false);
@@ -35,6 +40,27 @@ function SupplierEditPage() {
   const [credPassword, setCredPassword] = useState("");
   const [credMsg, setCredMsg] = useState(null);
   const [credSaving, setCredSaving] = useState(false);
+  // תפריט הצד של אזור הספק, ובקשת מחיקת חשבון (דורשת אישור VaddyGo)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [deleteAsking, setDeleteAsking] = useState(false);
+
+  function handleLogout() {
+    navigate("/supplier-login");
+  }
+
+  // בקשת מחיקת חשבון — לא מוחקים מיד. שולחים ל-VaddyGo הודעת וואטסאפ עם הבקשה,
+  // והמחיקה מתבצעת רק אחרי אישור מצד VaddyGo.
+  function confirmDeleteRequest() {
+    setDeleteAsking(false);
+    const msg = `בקשת מחיקת חשבון ספק ב-VaddyGo: "${
+      vendor?.name || ""
+    }". אנא אשרו את המחיקה.`;
+    window.open(
+      whatsappUrlWithText("054-4579179", msg),
+      "_blank",
+      "noopener,noreferrer"
+    );
+  }
 
   async function handleSave(payload) {
     setSaveError("");
@@ -87,6 +113,32 @@ function SupplierEditPage() {
 
   return (
     <div className="supplier-edit" dir="rtl">
+      <button
+        type="button"
+        aria-label="תפריט"
+        onClick={() => setIsMenuOpen(true)}
+        style={{
+          position: "fixed",
+          top: 12,
+          insetInlineStart: 12,
+          zIndex: 60,
+          width: 44,
+          height: 44,
+          borderRadius: "50%",
+          border: "1px solid var(--color-border)",
+          background: "var(--color-surface)",
+          color: "var(--color-text)",
+          fontSize: 22,
+          lineHeight: 1,
+          cursor: "pointer",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
+        }}
+      >
+        ☰
+      </button>
       <div className="supplier-edit__brand">
         <Logo />
       </div>
@@ -108,6 +160,7 @@ function SupplierEditPage() {
           ששולחים לספק). אחרי שהספק הגדיר/התחבר (hasLogin) — הכרטיס מוסתר. ── */}
       {!vendor?.hasLogin && (
       <form
+        id="supplier-account"
         className="supplier-edit__login"
         onSubmit={saveCredentials}
         noValidate
@@ -162,6 +215,7 @@ function SupplierEditPage() {
 
       {/* ── עריכת הכרטיס והמוצרים ── */}
       <h2
+        id="supplier-card"
         className="supplier-edit__title"
         style={{ margin: "28px 0 4px", fontSize: "var(--font-size-lg)" }}
       >
@@ -207,6 +261,21 @@ function SupplierEditPage() {
       ) : (
         <VendorForm vendor={vendor} onSave={handleSave} />
       )}
+
+      <SupplierSideMenu
+        isOpen={isMenuOpen}
+        onClose={() => setIsMenuOpen(false)}
+        onDeleteRequest={() => setDeleteAsking(true)}
+        onLogout={handleLogout}
+      />
+      <WhatsAppFab />
+      <ConfirmDialog
+        isOpen={deleteAsking}
+        title="בקשת מחיקת חשבון"
+        message="הבקשה תישלח לצוות VaddyGo בוואטסאפ לאישור. אחרי אישור — החשבון, הכרטיס והמוצרים יימחקו. להמשיך?"
+        onConfirm={confirmDeleteRequest}
+        onCancel={() => setDeleteAsking(false)}
+      />
     </div>
   );
 }

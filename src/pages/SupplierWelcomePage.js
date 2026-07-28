@@ -40,12 +40,15 @@ function SupplierWelcomePage() {
             כבר רשומים? כניסה
           </Button>
         </div>
-        <p className="welcome__text" style={{ margin: "6px 0 0" }}>
+        <p
+          className="welcome__text"
+          style={{
+            margin: "12px 0 0",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
           חבר/ת ועד? <Link to="/login">לכניסת הוועד</Link>
-        </p>
-        <p className="welcome__text">
-          קיבלתם קישור אישי מהוועד? פשוט פִּתחו אותו כדי לערוך — ותוכלו להגדיר שם
-          מייל וסיסמה לכניסה מהירה בפעם הבאה.
         </p>
         <SupportLink />
       </div>

@@ -50,6 +50,15 @@ function VendorForm({ vendor, onSave, onCancel }) {
     setter((prev) => prev.filter((_, i) => i !== index));
   }
 
+  // שכפול פריט — מוסיף עותק מיד אחרי המקור, כדי להוסיף מוצרים דומים במהירות
+  function duplicateItem(setter, index) {
+    setter((prev) => {
+      const next = [...prev];
+      next.splice(index + 1, 0, { ...prev[index] });
+      return next;
+    });
+  }
+
   // תמונה שנבחרה מהטלפון (ספרייה/קבצים) — מכווצים ושומרים כתמונה מוטמעת במוצר
   async function handleProductImage(index, file) {
     if (!file) {
@@ -259,6 +268,27 @@ function VendorForm({ vendor, onSave, onCancel }) {
         <div className="vendor-form__product" key={index}>
           <div className="vendor-form__product-head">
             <span className="vendor-form__product-num">מוצר {index + 1}</span>
+            <button
+              type="button"
+              aria-label={`שכפול מוצר ${index + 1}`}
+              onClick={() => duplicateItem(setProducts, index)}
+              style={{
+                marginInlineStart: "auto",
+                marginInlineEnd: 8,
+                border: "none",
+                background: "none",
+                color: "var(--color-link)",
+                fontFamily: "var(--font-family)",
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 600,
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: 4,
+              }}
+            >
+              <Icon name="copy" size={15} /> שכפול
+            </button>
             <button
               type="button"
               className="vendor-form__remove"

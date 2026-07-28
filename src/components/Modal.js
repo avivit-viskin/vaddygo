@@ -1,13 +1,18 @@
+import { createPortal } from "react-dom";
+
 /*
   Modal — חלון קופץ גנרי. נסגר בלחיצה על הרקע או על כפתור הסגירה.
   isOpen שולט בהצגה; onClose נקרא בכל בקשת סגירה.
+  מוצג דרך Portal אל <body> כדי ש-position:fixed ימוקם תמיד יחסית למסך — אחרת,
+  כשיש טרנספורם/פילטר על מכל-ביניים (למשל אנימציית מעבר), החלון "בורח" למעלה
+  אל ראש התוכן ולא נראה כשהעמוד גלול.
 */
 function Modal({ isOpen, onClose, title, children }) {
   if (!isOpen) {
     return null;
   }
 
-  return (
+  return createPortal(
     <div className="modal-overlay" onClick={onClose}>
       <div
         className="modal"
@@ -29,7 +34,8 @@ function Modal({ isOpen, onClose, title, children }) {
         </div>
         {children}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 

@@ -2,6 +2,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
+import WhatsAppIcon from "../components/WhatsAppIcon";
 import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
@@ -261,10 +262,14 @@ function GiftsPage() {
             )}
             <ul className="vendors">
               {visibleVendors.map((vendor) => (
-                <li key={vendor.id}>
+                <li
+                  key={vendor.id}
+                  style={{ display: "flex", alignItems: "center", gap: 6 }}
+                >
                   <button
                     type="button"
                     className="vendors__item"
+                    style={{ flex: 1, minWidth: 0 }}
                     onClick={() => setOpenVendor(vendor)}
                   >
                     <span className="vendors__info">
@@ -282,6 +287,29 @@ function GiftsPage() {
                       </span>
                     )}
                   </button>
+                  {/* כפתור וואטסאפ ירוק ליד שם הספק — פנייה ישירה + קצת צבע לדף */}
+                  {vendor.whatsApp && (
+                    <a
+                      href={whatsappUrl(vendor.whatsApp)}
+                      target="_blank"
+                      rel="noreferrer"
+                      aria-label={`וואטסאפ ל${vendor.name}`}
+                      style={{
+                        flexShrink: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 44,
+                        height: 44,
+                        borderRadius: "50%",
+                        background: "#eafaf0",
+                        border: "1px solid #bfe6cf",
+                        textDecoration: "none",
+                      }}
+                    >
+                      <WhatsAppIcon size={24} />
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>

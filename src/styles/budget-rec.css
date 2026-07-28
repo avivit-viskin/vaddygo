@@ -66,14 +66,23 @@
 
 .budget-rec__toggle {
   margin-top: 12px;
-  border: none;
-  background: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-primary);
+  background: var(--color-accent-pink);
   color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 6px 16px;
   cursor: pointer;
   font-family: inherit;
   font-size: var(--font-size-sm);
   font-weight: 600;
   min-height: var(--touch-target);
+}
+
+.budget-rec__toggle:hover {
+  background: var(--color-primary);
 }
 
 .budget-rec__rates {

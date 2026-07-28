@@ -4,35 +4,32 @@ import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/sidemenu.css";
 
 /*
-  SupplierSideMenu — תפריט צד לאזור הספק (פורטל ספקים). נפתח מכפתור ☰ ומרכז את
-  ההגדרות: פרטי העסק והמוצרים, תשלומים, חשבון וסיסמה, עוגיות, צור קשר, מחיקת
-  חשבון (בקשה שדורשת אישור) והתנתקות. בעיצוב תפריט הצד הראשי (sidemenu.css).
+  SupplierSideMenu — תפריט צד לאזור הספק (פורטל ספקים). נפתח מכפתור ☰ ומנווט
+  בין דפי אזור הספק (בית / מוצרים / תשלומים / רשתות / תצוגה), ומרכז את ההגדרות:
+  חשבון וסיסמה, עוגיות, מחיקת חשבון, צור קשר והתנתקות. בעיצוב תפריט הצד הראשי.
 */
 // מספר הוואטסאפ/תמיכה של VaddyGo (ציבורי — לא סוד)
 const SUPPORT_PHONE = "054-4579179";
 
-function scrollToId(id) {
-  const el = typeof document !== "undefined" ? document.getElementById(id) : null;
-  if (el) {
-    el.scrollIntoView({ behavior: "smooth", block: "start" });
-  }
-}
+const NAV = [
+  { key: "home", label: "בית", icon: "home" },
+  { key: "products", label: "המוצרים שלי", icon: "package" },
+  { key: "payments", label: "תשלומים", icon: "card" },
+  { key: "socials", label: "רשתות חברתיות", icon: "link" },
+  { key: "preview", label: "כך הוועד רואה", icon: "eye" },
+];
 
 function SupplierSideMenu({
   isOpen,
   onClose,
+  onNavigate,
   onChangePassword,
+  onCookies,
   onDeleteRequest,
   onLogout,
 }) {
   if (!isOpen) {
     return null;
-  }
-
-  // סוגרים את התפריט ואז גוללים לאזור המבוקש (אחרי שהתפריט נעלם)
-  function goTo(id) {
-    onClose();
-    setTimeout(() => scrollToId(id), 60);
   }
 
   const contactUrl = whatsappUrlWithText(
@@ -60,20 +57,19 @@ function SupplierSideMenu({
         </div>
 
         <h3 className="sidemenu__title">הכרטיס שלי</h3>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => goTo("supplier-card")}
-        >
-          <Icon name="package" size={18} /> פרטי העסק והמוצרים
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => goTo("supplier-card")}
-        >
-          <Icon name="card" size={18} /> תשלומים
-        </button>
+        {NAV.map((item) => (
+          <button
+            key={item.key}
+            type="button"
+            className="sidemenu__action"
+            onClick={() => {
+              onClose();
+              onNavigate(item.key);
+            }}
+          >
+            <Icon name={item.icon} size={18} /> {item.label}
+          </button>
+        ))}
 
         <h3 className="sidemenu__title">החשבון וההגדרות</h3>
         <button
@@ -86,15 +82,16 @@ function SupplierSideMenu({
         >
           <Icon name="key" size={18} /> חשבון וסיסמה
         </button>
-        <a
+        <button
+          type="button"
           className="sidemenu__action"
-          href="/cookies"
-          target="_blank"
-          rel="noreferrer"
-          onClick={onClose}
+          onClick={() => {
+            onClose();
+            onCookies();
+          }}
         >
           <Icon name="settings" size={18} /> הגדרות עוגיות
-        </a>
+        </button>
         <button
           type="button"
           className="sidemenu__action"

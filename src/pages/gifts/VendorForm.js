@@ -20,11 +20,27 @@ const TEMPLATE_HREF =
   מנהלת VaddyGo (ערוץ הכנסה). לכל ספק: שם, קישור לקטלוג, וואטסאפ, מוצרים
   (שם + מחיר + תמונה + תיקייה/חג) וקישורים לרשתות חברתיות.
 */
-function VendorForm({ vendor, onSave, onCancel }) {
+function VendorForm({
+  vendor,
+  onSave,
+  onCancel,
+  hidePayments = false,
+  hideSocials = false,
+}) {
   const [name, setName] = useState(vendor?.name || "");
   const [catalogUrl, setCatalogUrl] = useState(vendor?.catalogUrl || "");
   const [whatsApp, setWhatsApp] = useState(vendor?.whatsApp || "");
-  const [category, setCategory] = useState(vendor?.category || "");
+  // קטגוריה: אם הערך השמור אינו אחת מברירות-המחדל (וגם לא "אחר") — זו קטגוריה
+  // חופשית שהוקלדה, אז בוחרים "אחר" ומראים שדה הקלדה עם הערך.
+  const savedCat = vendor?.category || "";
+  const isPresetCat =
+    savedCat !== "" && savedCat !== "אחר" && VENDOR_CATEGORIES.includes(savedCat);
+  const [category, setCategory] = useState(
+    savedCat === "" ? "" : isPresetCat ? savedCat : "אחר"
+  );
+  const [customCategory, setCustomCategory] = useState(
+    savedCat && !isPresetCat && savedCat !== "אחר" ? savedCat : ""
+  );
   const [city, setCity] = useState(vendor?.city || "");
   const [paymentLink, setPaymentLink] = useState(vendor?.paymentLink || "");
   const [paymentBit, setPaymentBit] = useState(vendor?.paymentBit || "");
@@ -124,7 +140,7 @@ function VendorForm({ vendor, onSave, onCancel }) {
         name: name.trim(),
         catalogUrl: catalogUrl.trim(),
         whatsApp: whatsApp.trim(),
-        category: category.trim(),
+        category: (category === "אחר" ? customCategory : category).trim(),
         city: city.trim(),
         paymentLink: paymentLink.trim(),
         paymentBit: paymentBit.trim(),
@@ -183,6 +199,15 @@ function VendorForm({ vendor, onSave, onCancel }) {
           </option>
         ))}
       </Select>
+      {category === "אחר" && (
+        <Input
+          id="vendor-category-custom"
+          label="פירוט הקטגוריה (איזה סוג מוצרים)"
+          value={customCategory}
+          onChange={(e) => setCustomCategory(e.target.value)}
+          placeholder="הקלידו את סוג המוצרים"
+        />
+      )}
       <Input
         id="vendor-city"
         label="עיר / אזור פעילות (אופציונלי)"
@@ -191,42 +216,46 @@ function VendorForm({ vendor, onSave, onCancel }) {
         placeholder="למשל: תל אביב והמרכז"
       />
 
-      <p className="vendor-form__products-title">אמצעי תשלום (לא חובה)</p>
-      <Input
-        id="vendor-pay-link"
-        label="קישור תשלום (GROW / פייבוקס / כל קישור)"
-        type="url"
-        value={paymentLink}
-        onChange={(e) => setPaymentLink(e.target.value)}
-        placeholder="https://..."
-      />
-      <Input
-        id="vendor-pay-bit"
-        label="ביט (מספר טלפון)"
-        value={paymentBit}
-        onChange={(e) => setPaymentBit(e.target.value)}
-        placeholder="למשל: 054-1234567"
-      />
-      <Input
-        id="vendor-pay-bank"
-        label="פרטי העברה בנקאית"
-        value={paymentBankInfo}
-        onChange={(e) => setPaymentBankInfo(e.target.value)}
-        placeholder="בנק · סניף · חשבון · שם המוטב"
-      />
-      <Select
-        id="vendor-pay-installments"
-        label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"
-        value={paymentInstallments}
-        onChange={(e) => setPaymentInstallments(e.target.value)}
-      >
-        <option value={0}>תשלום אחד (בלי פריסה)</option>
-        {[2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
-          <option key={n} value={n}>
-            עד {n} תשלומים
-          </option>
-        ))}
-      </Select>
+      {!hidePayments && (
+        <>
+          <p className="vendor-form__products-title">אמצעי תשלום (לא חובה)</p>
+          <Input
+            id="vendor-pay-link"
+            label="קישור תשלום (GROW / פייבוקס / כל קישור)"
+            type="url"
+            value={paymentLink}
+            onChange={(e) => setPaymentLink(e.target.value)}
+            placeholder="https://..."
+          />
+          <Input
+            id="vendor-pay-bit"
+            label="ביט (מספר טלפון)"
+            value={paymentBit}
+            onChange={(e) => setPaymentBit(e.target.value)}
+            placeholder="למשל: 054-1234567"
+          />
+          <Input
+            id="vendor-pay-bank"
+            label="פרטי העברה בנקאית"
+            value={paymentBankInfo}
+            onChange={(e) => setPaymentBankInfo(e.target.value)}
+            placeholder="בנק · סניף · חשבון · שם המוטב"
+          />
+          <Select
+            id="vendor-pay-installments"
+            label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"
+            value={paymentInstallments}
+            onChange={(e) => setPaymentInstallments(e.target.value)}
+          >
+            <option value={0}>תשלום אחד (בלי פריסה)</option>
+            {[2, 3, 4, 5, 6, 8, 10, 12].map((n) => (
+              <option key={n} value={n}>
+                עד {n} תשלומים
+              </option>
+            ))}
+          </Select>
+        </>
+      )}
       <Input
         id="vendor-catalog"
         label="קישור לקטלוג (אופציונלי)"
@@ -511,46 +540,50 @@ function VendorForm({ vendor, onSave, onCancel }) {
         + הוספת מוצר
       </Button>
 
-      <p className="vendor-form__products-title">רשתות חברתיות</p>
-      {socialLinks.map((link, index) => (
-        <div className="vendor-form__linkrow" key={index}>
-          <input
-            className="field__input vendor-form__social-label"
-            aria-label={`שם רשת ${index + 1}`}
-            value={link.label || ""}
-            onChange={(e) =>
-              updateItem(setSocialLinks, index, { label: e.target.value })
+      {!hideSocials && (
+        <>
+          <p className="vendor-form__products-title">רשתות חברתיות</p>
+          {socialLinks.map((link, index) => (
+            <div className="vendor-form__linkrow" key={index}>
+              <input
+                className="field__input vendor-form__social-label"
+                aria-label={`שם רשת ${index + 1}`}
+                value={link.label || ""}
+                onChange={(e) =>
+                  updateItem(setSocialLinks, index, { label: e.target.value })
+                }
+                placeholder="אינסטגרם / פייסבוק..."
+              />
+              <input
+                className="field__input"
+                aria-label={`קישור רשת ${index + 1}`}
+                type="url"
+                value={link.url || ""}
+                onChange={(e) =>
+                  updateItem(setSocialLinks, index, { url: e.target.value })
+                }
+                placeholder="https://..."
+              />
+              <button
+                type="button"
+                className="vendor-form__remove"
+                aria-label={`הסרת רשת ${index + 1}`}
+                onClick={() => removeItem(setSocialLinks, index)}
+              >
+                ✕
+              </button>
+            </div>
+          ))}
+          <Button
+            variant="secondary"
+            onClick={() =>
+              setSocialLinks((prev) => [...prev, { label: "", url: "" }])
             }
-            placeholder="אינסטגרם / פייסבוק..."
-          />
-          <input
-            className="field__input"
-            aria-label={`קישור רשת ${index + 1}`}
-            type="url"
-            value={link.url || ""}
-            onChange={(e) =>
-              updateItem(setSocialLinks, index, { url: e.target.value })
-            }
-            placeholder="https://..."
-          />
-          <button
-            type="button"
-            className="vendor-form__remove"
-            aria-label={`הסרת רשת ${index + 1}`}
-            onClick={() => removeItem(setSocialLinks, index)}
           >
-            ✕
-          </button>
-        </div>
-      ))}
-      <Button
-        variant="secondary"
-        onClick={() =>
-          setSocialLinks((prev) => [...prev, { label: "", url: "" }])
-        }
-      >
-        + הוספת רשת חברתית
-      </Button>
+            + הוספת רשת חברתית
+          </Button>
+        </>
+      )}
 
       <div className="gift-form__actions">
         <Button type="submit" isLoading={isSubmitting}>

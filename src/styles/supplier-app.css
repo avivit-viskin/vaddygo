@@ -1,52 +1,234 @@
 /*
-  supplier-app — ליטוש "אפליקציה" לאזור הספק: פס טאבים דביק ומוקפד, וכותרות
-  סקשן אחידות. משתמש במשתני העיצוב הקיימים (מתאים למצב כהה/בהיר ולערכת הצבעים).
+  supplier-app — מערכת עיצוב "אפליקציה" לאזור הספק: הדר קומפקטי, טאבים בסגנון
+  ניווט (אייקון + פס תחתון), דאשבורד אריחים, כרטיסי מוצר, כרטיסי סקשן, וכפתור
+  פעולה צף. רדיוסים מתונים (14px), היררכיית טיפוגרפיה, וצבעי פעולה (ירוק/כתום).
 */
+
+/* ── הדר קומפקטי ── */
+.sup-head {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 0 4px;
+  margin-bottom: 2px;
+}
+.sup-head__logo {
+  flex-shrink: 0;
+  display: flex;
+}
+.sup-head__logo svg,
+.sup-head__logo img {
+  height: 30px;
+  width: auto;
+}
+.sup-head__hi {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+/* ── טאבים בסגנון ניווט תחתון (אייקון למעלה, פס ורוד תחתון לפעיל) ── */
 .sup-tabs {
   position: sticky;
   top: 0;
   z-index: 20;
   display: flex;
-  gap: 8px;
-  overflow-x: auto;
-  padding: 10px 0 12px;
-  margin: 6px 0 4px;
+  gap: 2px;
   background: var(--color-bg);
-  -webkit-overflow-scrolling: touch;
+  border-bottom: 1px solid var(--color-border);
+  margin: 2px 0 14px;
 }
 .sup-tab {
-  flex-shrink: 0;
-  display: inline-flex;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: 5px;
-  padding: 8px 16px;
-  border-radius: 999px;
-  border: 1px solid var(--color-border);
-  background: var(--color-surface);
-  color: var(--color-text);
-  font-family: var(--font-family);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
+  gap: 2px;
+  padding: 7px 2px 9px;
+  border: none;
+  background: none;
   cursor: pointer;
-  white-space: nowrap;
-  transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+  color: var(--color-text-muted);
+  font-family: var(--font-family);
+  font-size: 11.5px;
+  font-weight: 500;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -1px;
+  transition: color 0.15s ease, border-color 0.15s ease;
 }
-.sup-tab:hover {
-  border-color: var(--color-primary);
+.sup-tab__icon {
+  font-size: 19px;
+  line-height: 1;
 }
 .sup-tab--active {
-  background: var(--color-primary);
-  border-color: var(--color-primary);
   color: var(--color-primary-dark);
   font-weight: 700;
+  border-bottom-color: var(--color-primary);
 }
+
+/* ── דאשבורד: אריחי סטטיסטיקה ── */
+.sup-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
+  gap: 10px;
+  margin-bottom: 18px;
+}
+.sup-stat {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px 8px;
+  text-align: center;
+  background: var(--color-surface);
+}
+.sup-stat__icon {
+  font-size: 19px;
+  line-height: 1;
+}
+.sup-stat__num {
+  font-size: 22px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  line-height: 1.1;
+  margin: 3px 0 1px;
+}
+.sup-stat__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+.sup-stat--warn .sup-stat__num {
+  color: #e67e22;
+}
+
+/* ── כרטיסי מוצר (תצוגה בדאשבורד) ── */
+.sup-prods {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  gap: 12px;
+}
+.sup-prod {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  overflow: hidden;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+}
+.sup-prod__img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  background: var(--color-primary-light);
+  display: block;
+}
+.sup-prod__img--empty {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+.sup-prod__body {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+.sup-prod__name {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+.sup-prod__price {
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+.sup-prod__status {
+  font-size: 11px;
+  font-weight: 600;
+}
+.sup-prod__status--ok {
+  color: #27ae60;
+}
+.sup-prod__status--warn {
+  color: #e67e22;
+}
+.sup-prod__edit {
+  margin-top: 5px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  border: none;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+}
+
+/* ── כרטיס סקשן (תשלומים / קבוצות שדות) ── */
+.sup-card {
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 16px;
+  margin-bottom: 14px;
+  background: var(--color-surface);
+}
+.sup-card__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 4px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.sup-card__hint {
+  margin: 0 0 12px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 400;
+}
+
+/* ── כפתור פעולה צף (הוספת מוצר) — מימין למטה, הרחק מכפתור הוואטסאפ שמשמאל ── */
+.sup-fab {
+  position: fixed;
+  bottom: 20px;
+  right: 16px;
+  z-index: 40;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  border: none;
+  font-size: 30px;
+  line-height: 1;
+  cursor: pointer;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.22);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* כותרת סקשן קומפקטית (מחוץ לכרטיס) */
 .sup-section-title {
   display: flex;
   align-items: center;
   gap: 6px;
-  margin: 0 0 8px;
+  margin: 0 0 10px;
   font-size: var(--font-size-lg);
   color: var(--color-primary-dark);
+  font-weight: 700;
+}
+
+/* הודעת הצלחה בצבע פעולה ירוק */
+.sup-saved {
+  color: #27ae60;
+  font-weight: 700;
 }
 
 @media (prefers-reduced-motion: reduce) {

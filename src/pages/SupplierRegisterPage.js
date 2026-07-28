@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
 import { registerVendor } from "../services/vendorsService";
+import { setSupplierSession } from "../services/supplierSession";
 import "../styles/login.css";
 
 /*
@@ -43,6 +44,8 @@ function SupplierRegisterPage() {
         loginEmail: loginEmail.trim(),
         password,
       });
+      // כבר נרשמו עם מייל+סיסמה — פותחים סשן כדי שלא יתבקשו להתחבר/להירשם שוב
+      setSupplierSession(token);
       navigate(`/supplier/${token}`);
     } catch (err) {
       setSubmitError(err.message || "לא הצלחנו להשלים את ההרשמה. אפשר לנסות שוב.");

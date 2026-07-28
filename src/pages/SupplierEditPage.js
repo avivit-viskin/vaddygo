@@ -312,41 +312,38 @@ function SupplierEditPage() {
 
   return (
     <div className="supplier-edit" dir="rtl">
-      <button
-        type="button"
-        aria-label="תפריט"
-        onClick={() => setIsMenuOpen(true)}
-        style={{
-          position: "fixed",
-          top: 12,
-          insetInlineStart: 12,
-          zIndex: 60,
-          width: 44,
-          height: 44,
-          borderRadius: "50%",
-          border: "1px solid var(--color-border)",
-          background: "var(--color-surface)",
-          color: "var(--color-text)",
-          fontSize: 22,
-          lineHeight: 1,
-          cursor: "pointer",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          boxShadow: "0 2px 8px rgba(0, 0, 0, 0.12)",
-        }}
-      >
-        ☰
-      </button>
-      <div className="supplier-edit__brand">
-        <Logo />
+      <div className="sup-head">
+        <button
+          type="button"
+          aria-label="תפריט"
+          onClick={() => setIsMenuOpen(true)}
+          style={{
+            flexShrink: 0,
+            width: 40,
+            height: 40,
+            borderRadius: 10,
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+            color: "var(--color-text)",
+            fontSize: 20,
+            lineHeight: 1,
+            cursor: "pointer",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+          }}
+        >
+          ☰
+        </button>
+        <span className="sup-head__logo">
+          <Logo />
+        </span>
+        <span className="sup-head__hi">שלום {vendor.name || "ספק יקר"} 👋</span>
       </div>
-      <h1 className="supplier-edit__title">אזור הספק שלך</h1>
-      <p className="supplier-edit__intro">שלום {vendor.name || "ספק יקר"} 👋</p>
 
       {saved && (
-        <p className="supplier-edit__saved" role="status">
-          ✓ נשמר — כבר מעודכן אצל הוועדים
+        <p className="sup-saved" role="status">
+          ✔️ נשמר — כבר מעודכן אצל הוועדים
         </p>
       )}
       {saveError && (
@@ -360,8 +357,8 @@ function SupplierEditPage() {
         </p>
       )}
 
-      {/* פס ניווט בין הדפים — דביק ומוקפד */}
-      <div className="sup-tabs">
+      {/* פס ניווט בין הדפים — סגנון ניווט (אייקון + פס תחתון), דביק */}
+      <nav className="sup-tabs" aria-label="ניווט אזור הספק">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -369,10 +366,11 @@ function SupplierEditPage() {
             onClick={() => goTo(tab.key)}
             className={`sup-tab${view === tab.key ? " sup-tab--active" : ""}`}
           >
-            {tab.icon} {tab.label}
+            <span className="sup-tab__icon">{tab.icon}</span>
+            <span>{tab.label}</span>
           </button>
         ))}
-      </div>
+      </nav>
 
       {view === "home" && (
         <>

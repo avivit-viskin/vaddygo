@@ -18,6 +18,46 @@ function supplierMessage(folderName) {
   return `היי! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix}, אפשר לקבל פרטים ומחירים?`;
 }
 
+// האם הערך הוא קישור (ואז לוחצים ועוברים ישירות) או מספר טלפון (מציגים אותו)
+const isPayUrl = (s) => /^https?:\/\//i.test((s || "").trim());
+
+// תג-מותג קטן לאמצעי התשלום — זהה במראה לקוביות מסך הבית (ביט טורקיז, פייבוקס
+// כחול). לאשראי/העברה בנקאית אמוג'י. שומר על "לא גדולים" כמו שביקשו.
+const brandChip = (bg) => ({
+  display: "inline-block",
+  borderRadius: 6,
+  padding: "2px 8px",
+  fontSize: 12,
+  fontWeight: 700,
+  color: "#fff",
+  background: bg,
+  lineHeight: 1.4,
+});
+function PayBrandMark({ method }) {
+  if (method.brand === "bit") return <span style={brandChip("#22b8c2")}>bit</span>;
+  if (method.brand === "paybox")
+    return <span style={brandChip("var(--color-paybox)")}>payBox</span>;
+  return (
+    <span aria-hidden="true" style={{ fontSize: 17, lineHeight: 1 }}>
+      {method.icon}
+    </span>
+  );
+}
+const payChipStyle = (active) => ({
+  display: "inline-flex",
+  alignItems: "center",
+  gap: 7,
+  padding: "8px 12px",
+  borderRadius: 10,
+  border: `1px solid ${active ? "var(--color-primary)" : "var(--color-border)"}`,
+  background: active ? "var(--color-primary-light)" : "var(--color-surface)",
+  color: "var(--color-text)",
+  fontSize: 14,
+  fontWeight: 600,
+  cursor: "pointer",
+  textDecoration: "none",
+});
+
 function VendorPanel({
   vendor,
   onEdit,
@@ -32,9 +72,18 @@ function VendorPanel({
   const [zoomImage, setZoomImage] = useState(null);
   // פרטי התשלום של הספק אינם מוצגים לוועד עד שלוחצים "תשלום לספק" (רק אז נחשפים)
   const [showPay, setShowPay] = useState(false);
+  // אמצעי התשלום שנבחר (מציג את פרטיו) + חשיפת פרטי החשבון (מיסוך עם עין)
+  const [payMethod, setPayMethod] = useState(null);
+  const [revealAccount, setRevealAccount] = useState(false);
   const folders = groupByFolder(vendor.products || []);
-  const hasPayInfo =
-    vendor.paymentLink || vendor.paymentBit || vendor.paymentBankInfo;
+  // אמצעי התשלום הזמינים — מוצגים לוועד כאייקונים ממותגים (רק מה שהספק מילא)
+  const payMethods = [
+    vendor.paymentBit && { key: "bit", label: "ביט", brand: "bit", value: vendor.paymentBit },
+    vendor.paymentPaybox && { key: "paybox", label: "פייבוקס", brand: "paybox", value: vendor.paymentPaybox },
+    vendor.paymentLink && { key: "card", label: "אשראי", icon: "💳", value: vendor.paymentLink },
+    vendor.paymentBankInfo && { key: "bank", label: "העברה בנקאית", icon: "🏦", value: vendor.paymentBankInfo },
+  ].filter(Boolean);
+  const hasPayInfo = payMethods.length > 0;
   // מספר התשלומים שהספק מאפשר (0/1 = תשלום אחד; גדול מ-1 = ניתן לפרוס)
   const installments = Number(vendor.paymentInstallments) || 0;
 
@@ -196,26 +245,137 @@ function VendorPanel({
                     ניתן לפרוס עד {installments} תשלומים
                   </p>
                 )}
-                {vendor.paymentLink && (
-                  <a
-                    className="btn btn--primary vendor-panel__pay-cta"
-                    href={vendor.paymentLink}
-                    target="_blank"
-                    rel="noreferrer"
-                  >
-                    <Icon name="card" size={16} /> מעבר לתשלום מאובטח
-                  </a>
-                )}
-                {vendor.paymentBit && (
-                  <p className="vendor-panel__pay-row">
-                    ביט: <strong dir="ltr">{vendor.paymentBit}</strong>
-                  </p>
-                )}
-                {vendor.paymentBankInfo && (
-                  <p className="vendor-panel__pay-row">
-                    העברה בנקאית: <strong>{vendor.paymentBankInfo}</strong>
-                  </p>
-                )}
+
+                {/* אייקוני אמצעי התשלום — קטנים וממותגים, כמו בדף הבית. ביט נפתח
+                    ישירות; פייבוקס/אשראי/בנק פותחים את הפרטים בלחיצה. */}
+                <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+                  {payMethods.map((m) =>
+                    m.key === "bit" && isPayUrl(m.value) ? (
+                      <a
+                        key={m.key}
+                        href={m.value}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={payChipStyle(false)}
+                      >
+                        <PayBrandMark method={m} /> <span>{m.label}</span>
+                      </a>
+                    ) : (
+                      <button
+                        key={m.key}
+                        type="button"
+                        aria-expanded={payMethod === m.key}
+                        onClick={() => {
+                          setPayMethod(payMethod === m.key ? null : m.key);
+                          setRevealAccount(false);
+                        }}
+                        style={payChipStyle(payMethod === m.key)}
+                      >
+                        <PayBrandMark method={m} /> <span>{m.label}</span>
+                      </button>
+                    )
+                  )}
+                </div>
+
+                {/* פרטי האמצעי שנבחר */}
+                {(() => {
+                  const m = payMethods.find((x) => x.key === payMethod);
+                  if (!m) return null;
+                  return (
+                    <div
+                      style={{
+                        marginTop: 10,
+                        padding: 12,
+                        border: "1px solid var(--color-border)",
+                        borderRadius: 10,
+                        background: "var(--color-surface)",
+                      }}
+                    >
+                      {m.key === "card" && (
+                        <a
+                          className="btn btn--primary vendor-panel__pay-cta"
+                          href={m.value}
+                          target="_blank"
+                          rel="noreferrer"
+                        >
+                          <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+                        </a>
+                      )}
+                      {m.key === "paybox" &&
+                        (isPayUrl(m.value) ? (
+                          <a
+                            className="btn btn--primary vendor-panel__pay-cta"
+                            href={m.value}
+                            target="_blank"
+                            rel="noreferrer"
+                          >
+                            פתיחת payBox
+                          </a>
+                        ) : (
+                          <p className="vendor-panel__pay-row">
+                            מספר payBox: <strong dir="ltr">{m.value}</strong>
+                          </p>
+                        ))}
+                      {m.key === "bit" && (
+                        <p className="vendor-panel__pay-row">
+                          מספר ביט: <strong dir="ltr">{m.value}</strong>
+                        </p>
+                      )}
+                      {m.key === "bank" && (
+                        <div>
+                          <p
+                            className="vendor-panel__pay-row"
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: 8,
+                              flexWrap: "wrap",
+                            }}
+                          >
+                            <span>פרטי חשבון:</span>
+                            {revealAccount ? (
+                              <strong>{m.value}</strong>
+                            ) : (
+                              <strong dir="ltr" aria-hidden="true">
+                                •••• •••• ••••
+                              </strong>
+                            )}
+                            <button
+                              type="button"
+                              onClick={() => setRevealAccount((v) => !v)}
+                              aria-label={
+                                revealAccount
+                                  ? "הסתרת פרטי החשבון"
+                                  : "הצגת פרטי החשבון"
+                              }
+                              style={{
+                                border: "none",
+                                background: "none",
+                                cursor: "pointer",
+                                fontSize: 18,
+                                lineHeight: 1,
+                                padding: 4,
+                              }}
+                            >
+                              {revealAccount ? "🙈" : "👁"}
+                            </button>
+                          </p>
+                          {!revealAccount && (
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: 13,
+                                color: "#8a7d84",
+                              }}
+                            >
+                              לחצו על העין כדי להציג את פרטי החשבון.
+                            </p>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  );
+                })()}
               </div>
             ))}
           {paidTotal > 0 && (

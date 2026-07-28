@@ -12,6 +12,9 @@ import "../styles/supplier-app.css";
 function SupplierPayments({ vendor, onSave }) {
   const [paymentLink, setPaymentLink] = useState(vendor?.paymentLink || "");
   const [paymentBit, setPaymentBit] = useState(vendor?.paymentBit || "");
+  const [paymentPaybox, setPaymentPaybox] = useState(
+    vendor?.paymentPaybox || ""
+  );
   const [paymentBankInfo, setPaymentBankInfo] = useState(
     vendor?.paymentBankInfo || ""
   );
@@ -29,6 +32,7 @@ function SupplierPayments({ vendor, onSave }) {
       await onSave({
         paymentLink: paymentLink.trim(),
         paymentBit: paymentBit.trim(),
+        paymentPaybox: paymentPaybox.trim(),
         paymentBankInfo: paymentBankInfo.trim(),
         paymentInstallments: Number(paymentInstallments) || 0,
       });
@@ -43,24 +47,32 @@ function SupplierPayments({ vendor, onSave }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="sup-card">
-        <h3 className="sup-card__title">⚡ תשלום מהיר</h3>
+        <h3 className="sup-card__title">⚡ אמצעי תשלום מהירים</h3>
         <p className="sup-card__hint">
-          קישור ישיר לתשלום (ביט / פייבוקס / GROW) — הכי נוח לוועד.
+          מלאו רק את מה שרלוונטי לכם — כל אמצעי יופיע לוועד ככפתור ממותג
+          (ביט / פייבוקס / אשראי).
         </p>
         <Input
+          id="pay-bit"
+          label="ביט — מספר טלפון או קישור"
+          value={paymentBit}
+          onChange={(e) => setPaymentBit(e.target.value)}
+          placeholder="למשל: 054-1234567"
+        />
+        <Input
+          id="pay-paybox"
+          label="פייבוקס — מספר טלפון או קישור"
+          value={paymentPaybox}
+          onChange={(e) => setPaymentPaybox(e.target.value)}
+          placeholder="למשל: 054-1234567 או קישור payBox"
+        />
+        <Input
           id="pay-link"
-          label="קישור תשלום"
+          label="אשראי — קישור לתשלום מאובטח (סליקה / GROW)"
           type="url"
           value={paymentLink}
           onChange={(e) => setPaymentLink(e.target.value)}
           placeholder="https://..."
-        />
-        <Input
-          id="pay-bit"
-          label="ביט (מספר טלפון)"
-          value={paymentBit}
-          onChange={(e) => setPaymentBit(e.target.value)}
-          placeholder="למשל: 054-1234567"
         />
       </div>
 

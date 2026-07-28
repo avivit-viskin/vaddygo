@@ -18,6 +18,7 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 import SupplierSideMenu from "../components/SupplierSideMenu";
+import SupplierChecklist from "../components/SupplierChecklist";
 import WhatsAppFab from "../components/WhatsAppFab";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
@@ -194,6 +195,8 @@ function SupplierEditPage() {
           ✓ בקשת המחיקה נשלחה ל-VaddyGo. ניצור קשר לאישור.
         </p>
       )}
+
+      <SupplierChecklist vendor={previewVendor || vendor} />
 
       {/* ── כניסה קבועה — מוצג רק כשעדיין לא הוגדרו פרטי כניסה (הקישור הראשון
           ששולחים לספק). אחרי שהספק הגדיר/התחבר (hasLogin) — הכרטיס מוסתר. ── */}

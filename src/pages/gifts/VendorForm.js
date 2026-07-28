@@ -26,6 +26,7 @@ function VendorForm({
   onCancel,
   hidePayments = false,
   hideSocials = false,
+  initialFolder = "",
 }) {
   const [name, setName] = useState(vendor?.name || "");
   const [catalogUrl, setCatalogUrl] = useState(vendor?.catalogUrl || "");
@@ -52,6 +53,8 @@ function VendorForm({
   );
   const [products, setProducts] = useState(vendor?.products || []);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
+  // סינון המוצרים לפי תיקייה (קטגוריה) בעריכה — כדי לא לגלול מוצר-מוצר. "" = הכל.
+  const [folderFilter, setFolderFilter] = useState(initialFolder || "");
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
@@ -75,15 +78,14 @@ function VendorForm({
     });
   }
 
-  // הזזת פריט מעלה/מטה (dir = -1/1) — לסדר את המוצרים כפי שהלקוח יראה אותם
-  function moveItem(setter, index, dir) {
+  // החלפת שני פריטים במקומם (לפי אינדקסים בפועל) — לסידור, גם בתצוגה מסוננת
+  function swapItems(setter, indexA, indexB) {
     setter((prev) => {
-      const target = index + dir;
-      if (target < 0 || target >= prev.length) {
+      if (indexB == null || indexB < 0 || indexB >= prev.length) {
         return prev;
       }
       const next = [...prev];
-      [next[index], next[target]] = [next[target], next[index]];
+      [next[indexA], next[indexB]] = [next[indexB], next[indexA]];
       return next;
     });
   }
@@ -165,6 +167,46 @@ function VendorForm({
       setIsSubmitting(false);
     }
   }
+
+  // ── סינון מוצרים לפי תיקייה (קטגוריה) בעריכה ──
+  function inFolder(product, filter) {
+    if (!filter) return true;
+    const f = (product.folder || "").trim();
+    if (filter === "כללי") return f === "" || f === "כללי";
+    return f === filter;
+  }
+  const usedFolders = [
+    ...FOLDER_PRESETS.filter((f) =>
+      products.some((p) => (p.folder || "").trim() === f)
+    ),
+    ...[
+      ...new Set(
+        products
+          .map((p) => (p.folder || "").trim())
+          .filter((f) => f && !FOLDER_PRESETS.includes(f))
+      ),
+    ].sort(),
+  ];
+  const hasUncategorized = products.some((p) => !(p.folder || "").trim());
+  const folderChips = [...usedFolders, ...(hasUncategorized ? ["כללי"] : [])];
+  const visibleProducts = products
+    .map((product, index) => ({ product, index }))
+    .filter(({ product }) => inFolder(product, folderFilter));
+  const chipStyle = (active) => ({
+    flexShrink: 0,
+    border: active
+      ? "1px solid var(--color-primary-dark)"
+      : "1px solid var(--color-border)",
+    background: active ? "var(--color-primary-light)" : "var(--color-surface)",
+    color: active ? "var(--color-primary-dark)" : "var(--color-text)",
+    borderRadius: 999,
+    padding: "5px 12px",
+    fontSize: "var(--font-size-sm)",
+    fontFamily: "var(--font-family)",
+    fontWeight: active ? 700 : 500,
+    cursor: "pointer",
+    whiteSpace: "nowrap",
+  });
 
   return (
     <form onSubmit={handleSubmit} noValidate>
@@ -306,15 +348,56 @@ function VendorForm({
           </span>
         )}
       </div>
-      {products.map((product, index) => (
+      {folderChips.length > 0 && (
+        <div
+          style={{
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 6,
+            marginBottom: 12,
+          }}
+        >
+          <button
+            type="button"
+            onClick={() => setFolderFilter("")}
+            style={chipStyle(folderFilter === "")}
+          >
+            הכל ({products.length})
+          </button>
+          {folderChips.map((f) => (
+            <button
+              key={f}
+              type="button"
+              onClick={() => setFolderFilter(f)}
+              style={chipStyle(folderFilter === f)}
+            >
+              {f}
+            </button>
+          ))}
+        </div>
+      )}
+      {folderFilter && visibleProducts.length === 0 && (
+        <p
+          style={{
+            color: "var(--color-text-muted)",
+            fontSize: "var(--font-size-sm)",
+            margin: "0 0 10px",
+          }}
+        >
+          אין מוצרים בתיקייה הזו — אפשר להוסיף מוצר חדש למטה.
+        </p>
+      )}
+      {visibleProducts.map(({ product, index }, vi) => (
         <div className="vendor-form__product" key={index}>
           <div className="vendor-form__product-head">
             <span className="vendor-form__product-num">מוצר {index + 1}</span>
             <button
               type="button"
               aria-label={`העברת מוצר ${index + 1} למעלה`}
-              disabled={index === 0}
-              onClick={() => moveItem(setProducts, index, -1)}
+              disabled={vi === 0}
+              onClick={() =>
+                swapItems(setProducts, index, visibleProducts[vi - 1]?.index)
+              }
               style={{
                 marginInlineStart: 6,
                 width: 28,
@@ -322,8 +405,8 @@ function VendorForm({
                 border: "1px solid var(--color-border)",
                 background: "var(--color-surface)",
                 borderRadius: 6,
-                cursor: index === 0 ? "default" : "pointer",
-                opacity: index === 0 ? 0.35 : 1,
+                cursor: vi === 0 ? "default" : "pointer",
+                opacity: vi === 0 ? 0.35 : 1,
                 fontSize: 15,
                 lineHeight: 1,
               }}
@@ -333,8 +416,10 @@ function VendorForm({
             <button
               type="button"
               aria-label={`העברת מוצר ${index + 1} למטה`}
-              disabled={index === products.length - 1}
-              onClick={() => moveItem(setProducts, index, 1)}
+              disabled={vi === visibleProducts.length - 1}
+              onClick={() =>
+                swapItems(setProducts, index, visibleProducts[vi + 1]?.index)
+              }
               style={{
                 marginInlineStart: 4,
                 width: 28,
@@ -342,8 +427,9 @@ function VendorForm({
                 border: "1px solid var(--color-border)",
                 background: "var(--color-surface)",
                 borderRadius: 6,
-                cursor: index === products.length - 1 ? "default" : "pointer",
-                opacity: index === products.length - 1 ? 0.35 : 1,
+                cursor:
+                  vi === visibleProducts.length - 1 ? "default" : "pointer",
+                opacity: vi === visibleProducts.length - 1 ? 0.35 : 1,
                 fontSize: 15,
                 lineHeight: 1,
               }}
@@ -533,11 +619,18 @@ function VendorForm({
         onClick={() =>
           setProducts((prev) => [
             ...prev,
-            { name: "", price: "", imageUrl: "", folder: "" },
+            {
+              name: "",
+              price: "",
+              imageUrl: "",
+              // מוסיפים לתיקייה שמסוננת כרגע (חוץ מ"הכל"/"כללי"), כדי להישאר בהקשר
+              folder:
+                folderFilter && folderFilter !== "כללי" ? folderFilter : "",
+            },
           ])
         }
       >
-        + הוספת מוצר
+        + הוספת מוצר{folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}
       </Button>
 
       {!hideSocials && (

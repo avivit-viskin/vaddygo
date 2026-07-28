@@ -65,7 +65,7 @@ function ProductThumb({ src, alt }) {
   );
 }
 
-function SupplierHome({ vendor }) {
+function SupplierHome({ vendor, onGoTo }) {
   const products = (vendor?.products || []).filter((p) => (p.name || "").trim());
   const folders = groupByFolder(products);
 
@@ -96,13 +96,24 @@ function SupplierHome({ vendor }) {
       ) : (
         folders.map((folder) => (
           <div key={folder.name} style={{ marginBottom: 18 }}>
-            <h3
+            <button
+              type="button"
+              onClick={() => onGoTo && onGoTo("products", folder.name)}
               style={{
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
+                width: "100%",
                 margin: "0 0 8px",
+                padding: 0,
+                border: "none",
+                background: "none",
+                cursor: onGoTo ? "pointer" : "default",
+                fontFamily: "var(--font-family)",
                 fontSize: "var(--font-size-base)",
+                fontWeight: 700,
+                color: "var(--color-text)",
+                textAlign: "start",
               }}
             >
               <Icon name="folder" size={18} /> {folder.name}
@@ -115,7 +126,19 @@ function SupplierHome({ vendor }) {
               >
                 ({folder.products.length})
               </span>
-            </h3>
+              {onGoTo && (
+                <span
+                  style={{
+                    marginInlineStart: "auto",
+                    color: "var(--color-link)",
+                    fontWeight: 700,
+                    fontSize: "var(--font-size-sm)",
+                  }}
+                >
+                  לעריכה »
+                </span>
+              )}
+            </button>
             <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
               {folder.products.map((product, index) => (
                 <li

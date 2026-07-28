@@ -63,6 +63,8 @@ function SupplierEditPage() {
   const [pwMsg, setPwMsg] = useState(null);
   const [pwSaving, setPwSaving] = useState(false);
   const [cookiesOpen, setCookiesOpen] = useState(false);
+  // תיקייה שאליה לפתוח את דף המוצרים (בלחיצה על תיקייה בדף הבית)
+  const [productsFolder, setProductsFolder] = useState("");
 
   // בונה מטען כתיבה מלא מהכרטיס העדכני, עם דריסת השדות שהשתנו — כדי ששמירה של
   // חלק אחד (למשל תשלומים) לא תמחק חלק אחר (מוצרים/רשתות). זה מה שמסנכרן הכל.
@@ -91,9 +93,12 @@ function SupplierEditPage() {
     };
   }
 
-  function goTo(nextView) {
+  function goTo(nextView, folder) {
     setSaved(false);
     setSaveError("");
+    if (nextView === "products") {
+      setProductsFolder(folder || "");
+    }
     setView(nextView);
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
@@ -361,7 +366,7 @@ function SupplierEditPage() {
             </form>
           )}
           <div style={{ marginTop: 16 }}>
-            <SupplierHome vendor={vendor} />
+            <SupplierHome vendor={vendor} onGoTo={goTo} />
           </div>
         </>
       )}
@@ -373,10 +378,12 @@ function SupplierEditPage() {
             <strong>מיד</strong> לוועדים.
           </p>
           <VendorForm
+            key={`products-${productsFolder}`}
             vendor={vendor}
             onSave={handleSaveProducts}
             hidePayments
             hideSocials
+            initialFolder={productsFolder}
           />
         </>
       )}

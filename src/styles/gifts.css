@@ -308,6 +308,14 @@
   font-weight: 700;
   color: var(--color-primary-dark);
 }
+/* כפתור "תשלום לספק" — צ'יפ קומפקטי (קטן ונגיש, לא כפתור גדול שתופס שורה) */
+.btn.vendor-panel__pay-cta {
+  align-self: flex-start;
+  gap: 6px;
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
+}
 .vendor-panel__pay-btn {
   align-self: flex-start;
   background: var(--color-primary-dark);

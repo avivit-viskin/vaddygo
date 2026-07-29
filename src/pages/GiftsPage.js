@@ -60,6 +60,8 @@ function GiftsPage() {
   const [vendorFilter, setVendorFilter] = useState("");
   // ספק שממתין לאישור מחיקה (מודאל אישור); null = סגור
   const [approvingVendor, setApprovingVendor] = useState(null);
+  // ספק שהמנהלת בחרה למחוק ישירות (מודאל אישור); null = סגור
+  const [deletingVendor, setDeletingVendor] = useState(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -211,6 +213,19 @@ function GiftsPage() {
     load();
   }
 
+  // מחיקת ספק ביוזמת המנהלת (SuperAdmin) — לצמיתות, דרך ConfirmDialog.
+  async function handleDeleteVendor() {
+    if (!deletingVendor?.id) {
+      return;
+    }
+    await deleteVendor(deletingVendor.id);
+    if (openVendor && openVendor.id === deletingVendor.id) {
+      setOpenVendor(null);
+    }
+    setDeletingVendor(null);
+    load();
+  }
+
   if (isLoading) {
     return <Spinner text="טוען מתנות וספקים..." />;
   }
@@ -352,6 +367,30 @@ function GiftsPage() {
                       <WhatsAppIcon size={24} />
                     </a>
                   )}
+                  {/* מחיקת ספק — למנהלת בלבד, עם אישור. אדום עדין כדי לא לבלוט מדי. */}
+                  {canManageVendors && (
+                    <button
+                      type="button"
+                      onClick={() => setDeletingVendor(vendor)}
+                      aria-label={`מחיקת ${vendor.name}`}
+                      title="מחיקת ספק"
+                      style={{
+                        flexShrink: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 44,
+                        height: 44,
+                        borderRadius: "50%",
+                        background: "#fdecea",
+                        border: "1px solid #f5b7b1",
+                        color: "#c0392b",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Icon name="trash" size={20} />
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
@@ -489,6 +528,18 @@ function GiftsPage() {
         }
         onConfirm={handleApproveDelete}
         onCancel={() => setApprovingVendor(null)}
+      />
+
+      <ConfirmDialog
+        isOpen={deletingVendor !== null}
+        title="מחיקת ספק"
+        message={
+          deletingVendor
+            ? `למחוק את הספק "${deletingVendor.name}" ואת כל המוצרים שלו לצמיתות? אי אפשר לבטל.`
+            : ""
+        }
+        onConfirm={handleDeleteVendor}
+        onCancel={() => setDeletingVendor(null)}
       />
     </div>
   );

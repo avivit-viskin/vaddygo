@@ -84,6 +84,9 @@ function SupplierEditPage() {
   const [cookiesOpen, setCookiesOpen] = useState(false);
   const [shareCatalogOpen, setShareCatalogOpen] = useState(false);
   const [catalogCopied, setCatalogCopied] = useState(false);
+  // תיקייה מסוימת לשיתוף כקטלוג ("" = כל הקטלוג). נקבע כשלוחצים "קישור לקטלוג"
+  // על תיקייה בדף הבית של הספק.
+  const [shareCatalogFolder, setShareCatalogFolder] = useState("");
   // שינוי שם העסק (מתוך התפריט הצדדי)
   const [nameModalOpen, setNameModalOpen] = useState(false);
   const [bizName, setBizName] = useState("");
@@ -362,6 +365,18 @@ function SupplierEditPage() {
     );
   }
 
+  // קישור לקטלוג הציבורי — לכל הקטלוג, או לתיקייה בודדת (?folder=<שם>)
+  const buildCatalogUrl = (folder) =>
+    `${window.location.origin}/catalog/${vendor?.id}` +
+    (folder ? `?folder=${encodeURIComponent(folder)}` : "");
+
+  // פותח את מודאל השיתוף — לכל הקטלוג (folder="") או לתיקייה מסוימת
+  const openShareCatalog = (folder = "") => {
+    setCatalogCopied(false);
+    setShareCatalogFolder(folder);
+    setShareCatalogOpen(true);
+  };
+
   return (
     <div className="supplier-edit" dir="rtl">
       {/* משיכה למטה לרענון (נייד/מסך-בית) — אין רענון דפדפן במצב אפליקציה */}
@@ -555,17 +570,15 @@ function SupplierEditPage() {
             </form>
           )}
           <div style={{ marginTop: 16 }}>
-            <SupplierHome vendor={vendor} onGoTo={goTo} />
+            <SupplierHome
+              vendor={vendor}
+              onGoTo={goTo}
+              onShareCatalog={openShareCatalog}
+            />
           </div>
           <div style={{ marginTop: 16 }}>
-            <Button
-              variant="secondary"
-              onClick={() => {
-                setCatalogCopied(false);
-                setShareCatalogOpen(true);
-              }}
-            >
-              🔗 שיתוף הקטלוג
+            <Button variant="secondary" onClick={() => openShareCatalog("")}>
+              🔗 שיתוף כל הקטלוג
             </Button>
           </div>
         </>
@@ -731,15 +744,18 @@ function SupplierEditPage() {
       <Modal
         isOpen={shareCatalogOpen}
         onClose={() => setShareCatalogOpen(false)}
-        title="שיתוף הקטלוג 🔗"
+        title={
+          shareCatalogFolder ? `שיתוף קטלוג: ${shareCatalogFolder} 🔗` : "שיתוף הקטלוג 🔗"
+        }
       >
         <p className="supplier-edit__login-hint">
-          שלחו את הקישור הזה לכל אחד — הוא יראה קטלוג יפה של המוצרים שלכם, בלי
-          אפשרות עריכה.
+          {shareCatalogFolder
+            ? `שלחו את הקישור הזה לכל אחד — הוא יראה קטלוג יפה של המוצרים בתיקייה "${shareCatalogFolder}", בלי אפשרות עריכה.`
+            : "שלחו את הקישור הזה לכל אחד — הוא יראה קטלוג יפה של כל המוצרים שלכם, בלי אפשרות עריכה."}
         </p>
         <input
           className="field__input vendor-link__url"
-          value={`${window.location.origin}/catalog/${vendor.id}`}
+          value={buildCatalogUrl(shareCatalogFolder)}
           readOnly
           onFocus={(e) => e.target.select()}
           aria-label="קישור הקטלוג"
@@ -747,7 +763,7 @@ function SupplierEditPage() {
         <div className="vendor-link__actions">
           <Button
             onClick={() => {
-              const url = `${window.location.origin}/catalog/${vendor.id}`;
+              const url = buildCatalogUrl(shareCatalogFolder);
               if (navigator.clipboard) {
                 navigator.clipboard
                   .writeText(url)
@@ -759,7 +775,11 @@ function SupplierEditPage() {
           </Button>
           <a
             href={`https://wa.me/?text=${encodeURIComponent(
-              `הנה הקטלוג שלנו ב-VaddyGo: ${window.location.origin}/catalog/${vendor.id}`
+              `${
+                shareCatalogFolder
+                  ? `הנה הקטלוג שלנו (${shareCatalogFolder}) ב-VaddyGo: `
+                  : "הנה הקטלוג שלנו ב-VaddyGo: "
+              }${buildCatalogUrl(shareCatalogFolder)}`
             )}`}
             target="_blank"
             rel="noreferrer"
@@ -767,7 +787,7 @@ function SupplierEditPage() {
             <Button variant="secondary">שיתוף בוואטסאפ 💬</Button>
           </a>
           <a
-            href={`${window.location.origin}/catalog/${vendor.id}`}
+            href={buildCatalogUrl(shareCatalogFolder)}
             target="_blank"
             rel="noreferrer"
           >

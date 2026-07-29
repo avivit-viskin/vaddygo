@@ -176,9 +176,6 @@ function VendorForm({
       else next.add(index);
       return next;
     });
-  // ייבוא קטלוג: אם ממלאים שם תיקייה — כל המוצרים המיובאים ייכנסו לתיקייה אחת
-  // (הקטלוג). אם ריק — קטלוג כללי (בלי תיקייה).
-  const [catalogFolder, setCatalogFolder] = useState("");
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTarget, setMoveTarget] = useState("");
   const [priceOpen, setPriceOpen] = useState(false);
@@ -346,15 +343,14 @@ function VendorForm({
     }
   }
 
-  // ממפה מוצר שיובא (מ-AI/קובץ) לצורת המוצר בטופס. אם הוגדרה תיקיית-קטלוג,
-  // כל המוצרים המיובאים נכנסים אליה (הקטלוג = תיקייה אחת); אחרת — קטלוג כללי.
+  // ממפה מוצר שיובא (מ-AI/קובץ) לצורת המוצר בטופס
   function mapImported(p) {
     return {
       name: p.name,
       description: p.description || "",
       price: p.price,
       imageUrl: p.imageUrl || "",
-      folder: catalogFolder.trim(),
+      folder: "",
     };
   }
 
@@ -690,22 +686,6 @@ function VendorForm({
             {importMsg}
           </span>
         )}
-      </div>
-      {/* ייבוא כקטלוג: אם ממלאים שם תיקייה — כל המוצרים המיובאים ייכנסו לתיקייה
-          אחת (הקטלוג). אם ריק — קטלוג כללי (בלי תיקייה). */}
-      <div className="vendor-form__catalog-folder">
-        <Input
-          id="vendor-catalog-folder"
-          label="תיקייה לקטלוג (אופציונלי)"
-          value={catalogFolder}
-          onChange={(e) => setCatalogFolder(e.target.value)}
-          placeholder="למשל: קטלוג קיץ 2026"
-        />
-        <p className="vendor-form__catalog-hint">
-          יש לכם קטלוג? אפשר לייבא אותו כ<strong>קטלוג כללי</strong> (השאירו ריק),
-          או להכניס את כולו ל<strong>תיקייה אחת</strong> — כתבו כאן שם והתיקייה הזו
-          תהיה הקטלוג.
-        </p>
       </div>
       {folderChips.length > 0 && (
         <div

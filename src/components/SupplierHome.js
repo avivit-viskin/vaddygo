@@ -72,7 +72,7 @@ function ProductCardImage({ src, alt, onLowRes, onBadgeClick }) {
   );
 }
 
-function SupplierHome({ vendor, onGoTo }) {
+function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
   const products = (vendor?.products || []).filter((p) => (p.name || "").trim());
   // srcs של תמונות שזוהו כרזולוציה נמוכה (בטעינה) — נספרות גם הן כ"דורש טיפול"
   const [lowResSrcs, setLowResSrcs] = useState(() => new Set());
@@ -190,6 +190,19 @@ function SupplierHome({ vendor, onGoTo }) {
               )}
             </div>
             {isOpen && (
+            <>
+              {/* קישור לקטלוג של התיקייה — רק אם יש בה מוצרים (תמיד כן כאן) */}
+              {onShareCatalog && folder.products.length > 0 && (
+                <div className="sup-folder__actions">
+                  <button
+                    type="button"
+                    className="sup-folder__catalog"
+                    onClick={() => onShareCatalog(folder.name)}
+                  >
+                    <Icon name="link" size={16} /> קישור לקטלוג של התיקייה
+                  </button>
+                </div>
+              )}
             <div className="sup-prods">
               {folder.products.map((product, i) => {
                 const missing = isMissing(product);
@@ -308,6 +321,7 @@ function SupplierHome({ vendor, onGoTo }) {
                 );
               })}
             </div>
+            </>
             )}
           </div>
           );

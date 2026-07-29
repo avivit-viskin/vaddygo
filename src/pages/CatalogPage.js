@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useParams, Link } from "react-router-dom";
+import { useParams, useSearchParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getPublicCatalog } from "../services/vendorsService";
 import { groupByFolder } from "../services/vendorFolders";
@@ -19,6 +19,9 @@ import "../styles/supplier-public.css";
 */
 function CatalogPage() {
   const { id } = useParams();
+  // קישור לתיקייה בודדת: /catalog/:id?folder=<שם התיקייה> — מציג רק אותה כקטלוג
+  const [searchParams] = useSearchParams();
+  const folderParam = (searchParams.get("folder") || "").trim();
   const fetcher = useCallback(() => getPublicCatalog(id), [id]);
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
   // תמונת מוצר להגדלה (לייטבוקס); null = סגור
@@ -44,7 +47,12 @@ function CatalogPage() {
     );
   }
 
-  const folders = groupByFolder(vendor.products || []);
+  const allFolders = groupByFolder(vendor.products || []);
+  // אם הגיעו עם קישור לתיקייה מסוימת — מציגים רק אותה (קטלוג של תיקייה אחת)
+  const folders =
+    folderParam && allFolders.some((f) => f.name === folderParam)
+      ? allFolders.filter((f) => f.name === folderParam)
+      : allFolders;
   const wa = vendor.whatsApp
     ? whatsappUrlWithText(vendor.whatsApp, "היי! ראיתי את הקטלוג שלכם 🙂")
     : null;
@@ -61,6 +69,11 @@ function CatalogPage() {
             {vendor.category}
             {vendor.category && vendor.city ? " · " : ""}
             {vendor.city}
+          </p>
+        )}
+        {folderParam && folders.length > 0 && (
+          <p className="pub-hero__meta">
+            <Icon name="folder" size={15} /> קטלוג: {folderParam}
           </p>
         )}
         <div className="pub-hero__contacts">

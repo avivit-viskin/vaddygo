@@ -372,6 +372,24 @@
 .sup-folder .sup-prods {
   padding: 0 12px 12px;
 }
+/* פעולות של תיקייה פתוחה — כרגע: קישור לקטלוג של התיקייה */
+.sup-folder__actions {
+  padding: 0 12px 10px;
+}
+.sup-folder__catalog {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 1px solid var(--color-primary-dark);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 7px 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  cursor: pointer;
+}
 
 @media (prefers-reduced-motion: reduce) {
   .sup-tab,

@@ -101,7 +101,41 @@ namespace ParentCommitteeAPI.Services
             return ParseProducts(json);
         }
 
-        // קריאה ל-Gemini (generateContent) והחזרת גוף התשובה הגולמי. משותף לשתי הפעולות.
+        // חילוץ מוצרים מתמונת קטלוג (צילום) — Gemini "רואה" את התמונה (inlineData)
+        // וקורא ממנה את המוצרים ישירות, בלי תלות בחילוץ טקסט (מדויק גם בעברית/RTL).
+        public async Task<List<ExtractedProductDto>> ExtractProductsFromImageAsync(
+            string base64Data, string mimeType)
+        {
+            if (string.IsNullOrWhiteSpace(base64Data))
+            {
+                return new List<ExtractedProductDto>();
+            }
+            var mime = string.IsNullOrWhiteSpace(mimeType) ? "image/jpeg" : mimeType;
+
+            var payload = new
+            {
+                systemInstruction = new { parts = new[] { new { text = ExtractSystemPrompt } } },
+                contents = new[]
+                {
+                    new
+                    {
+                        role = "user",
+                        parts = new object[]
+                        {
+                            new { text = "לפניך תמונה של קטלוג ספק. חלץ ממנה את המוצרים." },
+                            new { inlineData = new { mimeType = mime, data = base64Data } },
+                        },
+                    },
+                },
+                generationConfig = new { responseMimeType = "application/json", temperature = 0.0 },
+            };
+
+            var body = await PostGeminiAsync(payload);
+            var json = ExtractAnswer(body);
+            return ParseProducts(json);
+        }
+
+        // קריאה ל-Gemini (generateContent) והחזרת גוף התשובה הגולמי. משותף לכל הפעולות.
         private async Task<string> PostGeminiAsync(object payload)
         {
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent";

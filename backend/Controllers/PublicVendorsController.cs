@@ -39,6 +39,23 @@ namespace ParentCommitteeAPI.Controllers
                 });
             }
 
+            // חילוץ מתמונה (צילום קטלוג) — קודם, אם נשלחה תמונה
+            var image = dto?.ImageBase64 ?? string.Empty;
+            if (image.Length > 0)
+            {
+                // תקרת גודל לתמונה (base64) — כ-10MB, הגנה מפני קבצים ענקיים
+                if (image.Length > 14_000_000)
+                {
+                    return StatusCode(413, new
+                    {
+                        message = "התמונה גדולה מדי. נסו צילום קטן יותר."
+                    });
+                }
+                var imgProducts = await _aiService.ExtractProductsFromImageAsync(
+                    image, dto?.ImageMimeType ?? "image/jpeg");
+                return Ok(new AiExtractResponseDto { Products = imgProducts });
+            }
+
             var text = (dto?.Text ?? string.Empty).Trim();
             if (text.Length == 0)
             {

@@ -7,7 +7,13 @@ namespace ParentCommitteeAPI.DTOs
     */
     public class AiExtractRequestDto
     {
+        // חילוץ מטקסט (PDF) — כשזה מלא, מחלצים ממנו.
         public string Text { get; set; } = string.Empty;
+
+        // חילוץ מתמונה (צילום קטלוג) — base64 בלי הקידומת data:, עם סוג התוכן.
+        // כשיש תמונה, מעדיפים אותה (Gemini "רואה" את הקטלוג ישירות).
+        public string? ImageBase64 { get; set; }
+        public string? ImageMimeType { get; set; }
     }
 
     public class ExtractedProductDto

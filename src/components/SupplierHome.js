@@ -81,6 +81,15 @@ function SupplierHome({ vendor, onGoTo }) {
   const isLowRes = (p) => !!(p.imageUrl && lowResSrcs.has(p.imageUrl));
   // איזו תמונה מציגה כרגע את הודעת ההמלצה (בלחיצה על ה-!); null = אין
   const [openMsgSrc, setOpenMsgSrc] = useState(null);
+  // מפתחות מוצרים שהתיאור שלהם מורחב ("קרא עוד"); ברירת מחדל — מקוצר ל-2 שורות
+  const [expandedDesc, setExpandedDesc] = useState(() => new Set());
+  const toggleDesc = (key) =>
+    setExpandedDesc((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
   const ready = products.filter((p) => !isMissing(p) && !isLowRes(p));
   const needsAttention = products.filter((p) => isMissing(p) || isLowRes(p));
   const views = vendor?.views || 0;
@@ -195,6 +204,53 @@ function SupplierHome({ vendor, onGoTo }) {
                     )}
                     <div className="sup-prod__body">
                       <span className="sup-prod__name">{product.name}</span>
+                      {product.description && (
+                        <>
+                          {/* תיאור — מקוצר ל-2 שורות כדי לשמור על גובה אחיד;
+                              "קרא עוד" מרחיב אם התיאור ארוך */}
+                          <span
+                            className="sup-prod__desc"
+                            style={{
+                              fontSize: 12,
+                              lineHeight: 1.35,
+                              color: "var(--color-text-muted)",
+                              ...(expandedDesc.has(product.id ?? product.name)
+                                ? {}
+                                : {
+                                    display: "-webkit-box",
+                                    WebkitLineClamp: 2,
+                                    WebkitBoxOrient: "vertical",
+                                    overflow: "hidden",
+                                  }),
+                            }}
+                          >
+                            {product.description}
+                          </span>
+                          {product.description.length > 55 && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                toggleDesc(product.id ?? product.name)
+                              }
+                              style={{
+                                alignSelf: "flex-start",
+                                border: "none",
+                                background: "none",
+                                padding: 0,
+                                color: "var(--color-link)",
+                                fontFamily: "var(--font-family)",
+                                fontSize: 12,
+                                fontWeight: 600,
+                                cursor: "pointer",
+                              }}
+                            >
+                              {expandedDesc.has(product.id ?? product.name)
+                                ? "קרא פחות"
+                                : "קרא עוד ..."}
+                            </button>
+                          )}
+                        </>
+                      )}
                       <span className="sup-prod__price">
                         {formatShekels(product.price)}
                       </span>

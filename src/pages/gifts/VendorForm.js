@@ -926,6 +926,13 @@ function VendorForm({
           )}
         </div>
       )}
+      {visibleProducts.length > 0 && (
+        <div className="gift-form__actions" style={{ margin: "0 0 12px" }}>
+          <Button type="submit" isLoading={isSubmitting}>
+            💾 שמירת השינויים
+          </Button>
+        </div>
+      )}
       {visibleProducts.map(({ product, index }, vi) => (
         <div
           className="vendor-form__product"
@@ -1163,6 +1170,33 @@ function VendorForm({
                 </button>
               )}
             </div>
+          </div>
+          {/* שמירה מהירה של המוצר — שומרת את כל הכרטיס (הספק לא צריך לגלול למטה) */}
+          <div
+            style={{
+              marginTop: 8,
+              display: "flex",
+              justifyContent: "flex-end",
+            }}
+          >
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              style={{
+                border: "1px solid var(--color-primary-dark)",
+                background: "var(--color-primary)",
+                color: "var(--color-primary-dark)",
+                borderRadius: 10,
+                padding: "6px 14px",
+                fontFamily: "var(--font-family)",
+                fontWeight: 700,
+                fontSize: "var(--font-size-sm)",
+                cursor: isSubmitting ? "default" : "pointer",
+                opacity: isSubmitting ? 0.6 : 1,
+              }}
+            >
+              💾 שמירה
+            </button>
           </div>
         </div>
       ))}

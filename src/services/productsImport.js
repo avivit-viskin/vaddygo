@@ -1,17 +1,20 @@
 /*
-  productsImport — ייבוא מרוכז של מוצרי ספק מקובץ Excel/CSV (כמו ייבוא התלמידים).
-  העמודות מזוהות לפי *שם* (לא לפי מיקום), כך שהסדר יכול להשתנות:
-    • שם / מוצר / פריט / name      → שם המוצר (חובה)
-    • מחיר / price / עלות          → מחיר
-    • תמונה / קישור / image / url  → קישור לתמונה (אופציונלי)
-  מחזיר [{ name, price, imageUrl }]. תומך ב-CSV וב-Excel (SheetJS, טעינה עצלה).
+  productsImport — ייבוא מרוכז של מוצרי ספק מקובץ Excel / CSV / PDF.
+  בקבצי טבלה (Excel/CSV) העמודות מזוהות לפי *שם* (לא לפי מיקום), כך שהסדר גמיש:
+    • שם / מוצר / פריט / name         → שם המוצר (חובה)
+    • מחיר / price / עלות             → מחיר
+    • פירוט / תיאור / description     → פירוט (אופציונלי)
+    • תמונה / קישור / image / url     → קישור לתמונה (אופציונלי)
+  ב-PDF מחלצים טקסט ומזהים שם+מחיר (ופירוט אם יש) — חילוץ "כמיטב היכולת" שכדאי
+  לעבור עליו ולתקן; תמונות לא נשלפות מ-PDF. מחזיר [{ name, description, price,
+  imageUrl }]. Excel דרך SheetJS ו-PDF דרך pdfjs — שתיהן בטעינה עצלה.
 */
 
 /* תבנית להורדה: כותרת + שתי שורות דוגמה. BOM כדי שאקסל יציג עברית נכון. */
 export const PRODUCTS_IMPORT_TEMPLATE =
-  "﻿שם המוצר,מחיר,קישור לתמונה\n" +
-  "מגש פירות,350,https://\n" +
-  "עוגת שוקולד אישית,12,\n";
+  "﻿שם המוצר,מחיר,פירוט,קישור לתמונה\n" +
+  "מגש פירות,350,מגש גדול עם 12 סוגי פירות,https://\n" +
+  "עוגת שוקולד אישית,12,,\n";
 
 function normalizeHeader(raw) {
   return String(raw ?? "")
@@ -27,6 +30,8 @@ function classifyHeader(raw) {
   if (!h) return null;
   if (/מחיר|price|עלות|סכום|₪/i.test(h)) return "price";
   if (/תמונ|image|photo|קישור|url|לינק|link/i.test(h)) return "imageUrl";
+  if (/פירוט|תיאור|תאור|הערות|description|desc|details/i.test(h))
+    return "description";
   if (/שם|מוצר|פריט|name|product|item/i.test(h)) return "name";
   return null;
 }
@@ -54,17 +59,23 @@ function rowFromCells(cells, map) {
   if (!name) return null;
   return {
     name,
+    description: get("description"),
     price: parsePrice(map.price == null ? "" : c[map.price]),
     imageUrl: get("imageUrl"),
   };
 }
 
-/* קובץ בלי כותרות — לפי מיקום: עמודה 1 = שם, 2 = מחיר, 3 = תמונה. */
+/* קובץ בלי כותרות — לפי מיקום: 1=שם, 2=מחיר, 3=תמונה, 4=פירוט. */
 function positionalRow(cells) {
   const c = cells || [];
   const name = String(c[0] ?? "").trim();
   if (!name) return null;
-  return { name, price: parsePrice(c[1]), imageUrl: String(c[2] ?? "").trim() };
+  return {
+    name,
+    description: String(c[3] ?? "").trim(),
+    price: parsePrice(c[1]),
+    imageUrl: String(c[2] ?? "").trim(),
+  };
 }
 
 function parseGrid(grid) {
@@ -119,12 +130,124 @@ export function parseProductRows(text) {
   return parseGrid(grid);
 }
 
+/* ── PDF ─────────────────────────────────────────────────── */
+// pdfjs נטענת עצלה; ה-worker מוגש מ-public (אותה גרסה שהותקנה, כדי שיתאימו).
+let pdfjsPromise = null;
+async function loadPdfJs() {
+  if (!pdfjsPromise) {
+    pdfjsPromise = import("pdfjs-dist/legacy/build/pdf").then((ns) => {
+      const lib = ns.getDocument ? ns : ns.default || ns;
+      lib.GlobalWorkerOptions.workerSrc =
+        (process.env.PUBLIC_URL || "") + "/pdf.worker.min.js";
+      return lib;
+    });
+  }
+  return pdfjsPromise;
+}
+
+// פריטי טקסט של עמוד → שורות: קיבוץ לפי y (גובה), ומיון פנימי לפי x (רוחב).
+function itemsToLines(items) {
+  const withPos = (items || [])
+    .filter((it) => it && typeof it.str === "string" && it.str.trim())
+    .map((it) => ({ str: it.str, x: it.transform[4], y: it.transform[5] }));
+  withPos.sort((a, b) => b.y - a.y);
+  const groups = [];
+  let current = [];
+  let currentY = null;
+  for (const it of withPos) {
+    if (currentY !== null && Math.abs(it.y - currentY) > 3) {
+      groups.push(current);
+      current = [];
+    }
+    current.push(it);
+    currentY = it.y;
+  }
+  if (current.length) groups.push(current);
+  return groups
+    .map((group) =>
+      group
+        .slice()
+        .sort((a, b) => a.x - b.x)
+        .map((it) => it.str)
+        .join(" ")
+        .replace(/\s+/g, " ")
+        .trim()
+    )
+    .filter(Boolean);
+}
+
+// מזהה מחיר בשורה ומחזיר { name, price } (או null אם אין מחיר סביר בשורה).
+function extractPriceAndName(line) {
+  const patterns = [
+    /(\d[\d,]*(?:\.\d+)?)\s*(?:₪|ש["']?\s*ח|שקל)/i, // 350 ₪
+    /(?:₪|ש["']?\s*ח|שקל)\s*(\d[\d,]*(?:\.\d+)?)/i, // ₪ 350
+    /(\d[\d,]*(?:\.\d+)?)\s*$/, // מספר בסוף השורה
+  ];
+  for (const re of patterns) {
+    const m = line.match(re);
+    if (!m) continue;
+    const price = Number(String(m[1]).replace(/,/g, "")) || 0;
+    if (price <= 0) continue;
+    const before = line.slice(0, m.index).trim();
+    const after = line.slice(m.index + m[0].length).trim();
+    const name = (before || after)
+      .replace(/^[\s.\-–—:_]+/, "")
+      .replace(/[\s.\-–—:_]+$/, "")
+      .trim();
+    return { name, price };
+  }
+  return null;
+}
+
+/* שורות → מוצרים. תומך ב"שם ומחיר באותה שורה", וב"שם (ופירוט) בשורות ומחיר
+   בשורה נפרדת". חילוץ כמיטב היכולת — הספק עובר ומתקן לפני שמירה. */
+function linesToProducts(lines) {
+  const products = [];
+  let pending = null; // { name, desc: [] } — שם (ואולי פירוט) שממתין למחיר
+  for (const line of lines) {
+    const priced = extractPriceAndName(line);
+    if (priced) {
+      let name = priced.name;
+      let description = "";
+      if (!name && pending) {
+        name = pending.name;
+        description = pending.desc.join(" · ");
+      }
+      if (name) {
+        products.push({ name, description, price: priced.price, imageUrl: "" });
+      }
+      pending = null;
+    } else if (!pending) {
+      pending = { name: line, desc: [] };
+    } else {
+      pending.desc.push(line);
+    }
+  }
+  return products;
+}
+
+async function parsePdfFile(file) {
+  const pdfjsLib = await loadPdfJs();
+  const data = new Uint8Array(await file.arrayBuffer());
+  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  const lines = [];
+  for (let p = 1; p <= pdf.numPages; p += 1) {
+    const page = await pdf.getPage(p);
+    const content = await page.getTextContent();
+    lines.push(...itemsToLines(content.items));
+  }
+  return linesToProducts(lines);
+}
+
 /*
-  קורא את הקובץ שהספק בחר ומחזיר מוצרים. CSV נקרא כטקסט; Excel דרך SheetJS
-  (אותה ספרייה של ייבוא התלמידים, נטענת רק כשצריך). לוקח את הגיליון עם הכי הרבה שורות.
+  קורא את הקובץ שהספק בחר ומחזיר מוצרים. CSV נקרא כטקסט; Excel דרך SheetJS;
+  PDF דרך pdfjs (חילוץ טקסט). הספריות הכבדות נטענות רק כשצריך.
 */
 export async function parseProductFile(file) {
   const name = (file?.name || "").toLowerCase();
+  if (name.endsWith(".pdf")) {
+    return parsePdfFile(file);
+  }
   if (name.endsWith(".csv") || name.endsWith(".txt")) {
     return parseProductRows(await file.text());
   }

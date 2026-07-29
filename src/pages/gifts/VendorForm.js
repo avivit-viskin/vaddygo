@@ -293,16 +293,21 @@ function VendorForm({
     }
   }
 
-  // ייבוא מרוכז של מוצרים מקובץ Excel/CSV — מתווספים לרשימה, והספק שומר אחר כך
+  // ייבוא מרוכז של מוצרים מקובץ Excel / CSV / PDF — מתווספים לרשימה, ושומרים אחר כך
   async function handleImportFile(file) {
     if (!file) {
       return;
     }
-    setImportMsg("מייבא...");
+    const isPdf = (file.name || "").toLowerCase().endsWith(".pdf");
+    setImportMsg(isPdf ? "קורא את ה-PDF..." : "מייבא...");
     try {
       const imported = await parseProductFile(file);
       if (imported.length === 0) {
-        setImportMsg("לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'.");
+        setImportMsg(
+          isPdf
+            ? "לא זוהו מוצרים ב-PDF. עדיף קובץ עם שם ומחיר בכל שורה, או Excel/CSV."
+            : "לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'."
+        );
         return;
       }
       setProducts((prev) => [
@@ -315,9 +320,13 @@ function VendorForm({
           folder: "",
         })),
       ]);
-      setImportMsg(`נוספו ${imported.length} מוצרים ✓ — אפשר לבדוק וללחוץ שמירה`);
+      setImportMsg(
+        isPdf
+          ? `זוהו ${imported.length} מוצרים מה-PDF ✓ — עברו לבדוק, להוסיף תמונות וללחוץ שמירה`
+          : `נוספו ${imported.length} מוצרים ✓ — אפשר לבדוק וללחוץ שמירה`
+      );
     } catch {
-      setImportMsg("לא הצלחנו לקרוא את הקובץ. נסו Excel או CSV.");
+      setImportMsg("לא הצלחנו לקרוא את הקובץ. נסו Excel, CSV או PDF.");
     }
   }
 
@@ -536,10 +545,10 @@ function VendorForm({
         }}
       >
         <label className="vendor-form__upload">
-          📥 ייבוא מקובץ (Excel/CSV)
+          📥 ייבוא מקובץ (Excel / CSV / PDF)
           <input
             type="file"
-            accept=".csv,.txt,.xlsx,.xls"
+            accept=".csv,.txt,.xlsx,.xls,.pdf"
             className="vendor-form__file"
             aria-label="ייבוא מוצרים מקובץ"
             onChange={(e) =>

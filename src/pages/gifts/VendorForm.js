@@ -16,6 +16,88 @@ import "../../styles/supplier-app.css";
 const TEMPLATE_HREF =
   "data:text/csv;charset=utf-8," + encodeURIComponent(PRODUCTS_IMPORT_TEMPLATE);
 
+// צלע מינימלית מומלצת לתמונת מוצר; מתחתיה מסמנים "רזולוציה נמוכה" (דורש טיפול).
+const MIN_GOOD_DIMENSION = 350;
+
+/* תמונה ממוזערת של מוצר בטופס — עם סימן קריאה לחיץ אם הרזולוציה נמוכה. הלחיצה
+   פותחת הודעה עם המלצת הגודל, ומדווחת להורה (onLowRes) כדי לספור "דורש טיפול". */
+function VendorThumb({ src, alt, onLowRes }) {
+  const [lowQuality, setLowQuality] = useState(false);
+  const [showMsg, setShowMsg] = useState(false);
+  return (
+    <span style={{ position: "relative", display: "inline-block" }}>
+      <img
+        className="vendor-form__thumb"
+        src={src}
+        alt={alt}
+        onLoad={(e) => {
+          const w = e.target.naturalWidth;
+          const h = e.target.naturalHeight;
+          if (w && h && Math.min(w, h) < MIN_GOOD_DIMENSION) {
+            setLowQuality(true);
+            onLowRes && onLowRes();
+          }
+        }}
+      />
+      {lowQuality && (
+        <>
+          <button
+            type="button"
+            onClick={() => setShowMsg((v) => !v)}
+            aria-label="בעיית איכות תמונה — לחצו לפרטים"
+            style={{
+              position: "absolute",
+              top: 4,
+              insetInlineEnd: 4,
+              width: 20,
+              height: 20,
+              borderRadius: "50%",
+              background: "#f39c12",
+              color: "#fff",
+              fontSize: 12,
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              cursor: "pointer",
+              border: "none",
+              padding: 0,
+            }}
+          >
+            !
+          </button>
+          {showMsg && (
+            <div
+              role="status"
+              style={{
+                position: "absolute",
+                top: 28,
+                insetInlineEnd: 0,
+                width: 200,
+                maxWidth: "80vw",
+                background: "#fff",
+                color: "#3a2f35",
+                border: "1px solid #f0e0e8",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                lineHeight: 1.4,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+                zIndex: 30,
+                textAlign: "start",
+              }}
+            >
+              התמונה ברזולוציה לא טובה. ההמלצה: תמונה בגודל{" "}
+              <strong>600×600</strong> לפחות.
+            </div>
+          )}
+        </>
+      )}
+    </span>
+  );
+}
+
 /*
   VendorForm — הוספה/עריכה של ספק (UI_SPEC ס' 12). ספקים מנוהלים ידנית ע"י
   מנהלת VaddyGo (ערוץ הכנסה). לכל ספק: שם, קישור לקטלוג, וואטסאפ, מוצרים
@@ -58,6 +140,10 @@ function VendorForm({
   );
   const [products, setProducts] = useState(vendor?.products || []);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
+  // srcs של תמונות שזוהו כרזולוציה נמוכה — נכללות בסינון "דורש טיפול"
+  const [lowResSrcs, setLowResSrcs] = useState(() => new Set());
+  const markLowRes = (src) =>
+    setLowResSrcs((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
   // סינון המוצרים לפי תיקייה (קטגוריה) בעריכה — כדי לא לגלול מוצר-מוצר. "" = הכל.
   const [folderFilter, setFolderFilter] = useState(initialFolder || "");
   // סינון לפי סטטוס מוכנות: "" = הכל, "ready" = מוכנים, "attention" = דורש טיפול.
@@ -281,12 +367,14 @@ function VendorForm({
     if (filter === "כללי") return f === "" || f === "כללי";
     return f === filter;
   }
-  // מוצר "חסר מידע" = בלי מחיר או בלי תמונה. מוכן = ההפך.
+  // מוצר "דורש טיפול" = בלי מחיר, בלי תמונה, או תמונה ברזולוציה נמוכה. מוכן = ההפך.
   function matchesStatus(product, status) {
     if (!status) return true;
     const missing =
       !(Number(product.price) > 0) || !(product.imageUrl || "").trim();
-    return status === "attention" ? missing : !missing;
+    const lowRes = !!(product.imageUrl && lowResSrcs.has(product.imageUrl));
+    const attention = missing || lowRes;
+    return status === "attention" ? attention : !attention;
   }
   const usedFolders = [
     ...FOLDER_PRESETS.filter((f) =>
@@ -998,10 +1086,10 @@ function VendorForm({
 
           <div className="vendor-form__image">
             {product.imageUrl ? (
-              <img
-                className="vendor-form__thumb"
+              <VendorThumb
                 src={product.imageUrl}
                 alt={`תמונת ${product.name || "המוצר"}`}
+                onLowRes={() => markLowRes(product.imageUrl)}
               />
             ) : (
               <span

@@ -16,8 +16,9 @@ function isMissing(p) {
   return !(Number(p.price) > 0) || !(p.imageUrl || "").trim();
 }
 
-function ProductCardImage({ src, alt }) {
+function ProductCardImage({ src, alt, onLowRes }) {
   const [lowQuality, setLowQuality] = useState(false);
+  const [showMsg, setShowMsg] = useState(false);
   return (
     <div style={{ position: "relative" }}>
       <img
@@ -30,31 +31,66 @@ function ProductCardImage({ src, alt }) {
           const h = e.target.naturalHeight;
           if (w && h && Math.min(w, h) < MIN_GOOD_DIMENSION) {
             setLowQuality(true);
+            onLowRes && onLowRes();
           }
         }}
       />
       {lowQuality && (
-        <span
-          title="תמונה קטנה/לא חדה — מומלץ תמונה גדולה וברורה יותר"
-          style={{
-            position: "absolute",
-            top: 6,
-            insetInlineEnd: 6,
-            width: 22,
-            height: 22,
-            borderRadius: "50%",
-            background: "#f39c12",
-            color: "#fff",
-            fontSize: 13,
-            fontWeight: 700,
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
-          }}
-        >
-          !
-        </span>
+        <>
+          {/* סימן קריאה לחיץ — פותח הודעה עם המלצת הרזולוציה */}
+          <button
+            type="button"
+            onClick={() => setShowMsg((v) => !v)}
+            aria-label="בעיית איכות תמונה — לחצו לפרטים"
+            title="לחצו לפרטים על איכות התמונה"
+            style={{
+              position: "absolute",
+              top: 6,
+              insetInlineEnd: 6,
+              width: 22,
+              height: 22,
+              borderRadius: "50%",
+              background: "#f39c12",
+              color: "#fff",
+              fontSize: 13,
+              fontWeight: 700,
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.3)",
+              cursor: "pointer",
+              border: "none",
+              padding: 0,
+            }}
+          >
+            !
+          </button>
+          {showMsg && (
+            <div
+              role="status"
+              style={{
+                position: "absolute",
+                top: 32,
+                insetInlineEnd: 6,
+                width: 200,
+                maxWidth: "80vw",
+                background: "#fff",
+                color: "#3a2f35",
+                border: "1px solid #f0e0e8",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: 12,
+                lineHeight: 1.4,
+                boxShadow: "0 6px 18px rgba(0,0,0,0.18)",
+                zIndex: 30,
+                textAlign: "start",
+              }}
+            >
+              התמונה ברזולוציה לא טובה. ההמלצה: תמונה בגודל{" "}
+              <strong>600×600</strong> לפחות.
+            </div>
+          )}
+        </>
       )}
     </div>
   );
@@ -62,8 +98,13 @@ function ProductCardImage({ src, alt }) {
 
 function SupplierHome({ vendor, onGoTo }) {
   const products = (vendor?.products || []).filter((p) => (p.name || "").trim());
-  const ready = products.filter((p) => !isMissing(p));
-  const needsAttention = products.filter((p) => isMissing(p));
+  // srcs של תמונות שזוהו כרזולוציה נמוכה (בטעינה) — נספרות גם הן כ"דורש טיפול"
+  const [lowResSrcs, setLowResSrcs] = useState(() => new Set());
+  const markLowRes = (src) =>
+    setLowResSrcs((prev) => (prev.has(src) ? prev : new Set(prev).add(src)));
+  const isLowRes = (p) => !!(p.imageUrl && lowResSrcs.has(p.imageUrl));
+  const ready = products.filter((p) => !isMissing(p) && !isLowRes(p));
+  const needsAttention = products.filter((p) => isMissing(p) || isLowRes(p));
   const views = vendor?.views || 0;
   const folders = groupByFolder(products);
 
@@ -155,12 +196,14 @@ function SupplierHome({ vendor, onGoTo }) {
             <div className="sup-prods">
               {folder.products.map((product, i) => {
                 const missing = isMissing(product);
+                const lowRes = isLowRes(product);
                 return (
                   <article key={i} className="sup-prod">
                     {product.imageUrl ? (
                       <ProductCardImage
                         src={product.imageUrl}
                         alt={product.name}
+                        onLowRes={() => markLowRes(product.imageUrl)}
                       />
                     ) : (
                       <div className="sup-prod__img sup-prod__img--empty">
@@ -174,12 +217,16 @@ function SupplierHome({ vendor, onGoTo }) {
                       </span>
                       <span
                         className={`sup-prod__status ${
-                          missing
+                          missing || lowRes
                             ? "sup-prod__status--warn"
                             : "sup-prod__status--ok"
                         }`}
                       >
-                        {missing ? "⚠️ חסר מידע" : "✔️ זמין"}
+                        {missing
+                          ? "⚠️ חסר מידע"
+                          : lowRes
+                          ? "⚠️ רזולוציה נמוכה"
+                          : "✔️ זמין"}
                       </span>
                       <button
                         type="button"

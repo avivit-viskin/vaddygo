@@ -21,6 +21,8 @@ const TEMPLATE_HREF =
 
 // צלע מינימלית מומלצת לתמונת מוצר; מתחתיה מסמנים "רזולוציה נמוכה" (דורש טיפול).
 const MIN_GOOD_DIMENSION = 350;
+// וקטור (SVG) — חד בכל גודל, ולכן לא נבדק לרזולוציה נמוכה (naturalWidth שלו לא אמין)
+const isVectorSrc = (s) => /^data:image\/svg|\.svg(\?|#|$)/i.test(s || "");
 
 /* תמונה ממוזערת של מוצר בטופס — עם סימן קריאה לחיץ אם הרזולוציה נמוכה. הלחיצה
    פותחת הודעה עם המלצת הגודל, ומדווחת להורה (onLowRes) כדי לספור "דורש טיפול". */
@@ -34,6 +36,7 @@ function VendorThumb({ src, alt, onLowRes }) {
         src={src}
         alt={alt}
         onLoad={(e) => {
+          if (isVectorSrc(src)) return;
           const w = e.target.naturalWidth;
           const h = e.target.naturalHeight;
           if (w && h && Math.min(w, h) < MIN_GOOD_DIMENSION) {
@@ -308,7 +311,10 @@ function VendorForm({
       let imported;
       if (isPdf) {
         const text = await extractPdfText(file);
-        setImportMsg("מזהה מוצרים מתוך ה-PDF...");
+        setImportMsg(
+          "המערכת עובדת קשה לחלץ את המוצרים והתוכן מתוך ה-PDF 💪 " +
+            "רגע של סבלנות — בסוף הם יגיעו 🙂"
+        );
         try {
           imported = await extractProductsFromText(text);
         } catch {

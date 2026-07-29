@@ -186,6 +186,7 @@ function VendorForm({
       ...prev,
       {
         name: "",
+        description: "",
         price: "",
         imageUrl: "",
         folder: folderFilter && folderFilter !== "כללי" ? folderFilter : "",
@@ -222,6 +223,7 @@ function VendorForm({
         ...prev,
         ...imported.map((p) => ({
           name: p.name,
+          description: p.description || "",
           price: p.price,
           imageUrl: p.imageUrl || "",
           folder: "",
@@ -255,6 +257,7 @@ function VendorForm({
           .filter((product) => product.name.trim())
           .map((product) => ({
             name: product.name.trim(),
+            description: (product.description || "").trim(),
             price: Number(product.price) || 0,
             imageUrl: (product.imageUrl || "").trim(),
             folder: (product.folder || "").trim(),
@@ -911,6 +914,18 @@ function VendorForm({
               updateItem(setProducts, index, { name: e.target.value })
             }
             placeholder="שם המוצר"
+          />
+
+          <textarea
+            className="field__input"
+            aria-label={`תיאור מוצר ${index + 1}`}
+            value={product.description || ""}
+            onChange={(e) =>
+              updateItem(setProducts, index, { description: e.target.value })
+            }
+            placeholder="תיאור קצר (אופציונלי)"
+            rows={2}
+            style={{ resize: "vertical", marginBottom: 6 }}
           />
 
           <div className="vendor-form__row">

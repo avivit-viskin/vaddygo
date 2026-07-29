@@ -86,7 +86,7 @@
 }
 .pub-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 12px;
 }
 .pub-card {
@@ -119,6 +119,11 @@
 .pub-card__name {
   font-weight: 600;
   font-size: var(--font-size-sm);
+}
+.pub-card__desc {
+  font-size: var(--font-size-xs, 0.78rem);
+  color: var(--color-text-muted);
+  line-height: 1.35;
 }
 .pub-card__price {
   font-weight: 800;

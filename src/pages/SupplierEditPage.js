@@ -106,6 +106,7 @@ function SupplierEditPage() {
       paymentInstallments: vendor?.paymentInstallments || 0,
       products: (vendor?.products || []).map((p) => ({
         name: p.name,
+        description: p.description || "",
         price: p.price,
         imageUrl: p.imageUrl,
         folder: p.folder || "",

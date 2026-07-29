@@ -107,6 +107,11 @@ function CatalogPage() {
                   )}
                   <div className="pub-card__body">
                     <span className="pub-card__name">{product.name}</span>
+                    {product.description && (
+                      <span className="pub-card__desc">
+                        {product.description}
+                      </span>
+                    )}
                     <span className="pub-card__price">
                       {formatShekels(product.price)}
                     </span>

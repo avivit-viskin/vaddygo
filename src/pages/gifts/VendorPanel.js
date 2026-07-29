@@ -137,7 +137,19 @@ function VendorPanel({
                   style={{ cursor: "zoom-in" }}
                 />
               )}
-              <span className="vendor-panel__product-name">{product.name}</span>
+              <div
+                className="vendor-panel__product-name"
+                style={{ display: "flex", flexDirection: "column", gap: 2 }}
+              >
+                <span>{product.name}</span>
+                {product.description && (
+                  <span
+                    style={{ fontSize: 13, color: "#8a7d84", lineHeight: 1.35 }}
+                  >
+                    {product.description}
+                  </span>
+                )}
+              </div>
               <span className="vendor-panel__price">
                 {formatShekels(product.price)}
               </span>

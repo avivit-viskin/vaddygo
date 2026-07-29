@@ -17,10 +17,41 @@ namespace ParentCommitteeAPI.Controllers
     public class PublicVendorsController : ControllerBase
     {
         private readonly IVendorService _vendorService;
+        private readonly IAiService _aiService;
 
-        public PublicVendorsController(IVendorService vendorService)
+        public PublicVendorsController(IVendorService vendorService, IAiService aiService)
         {
             _vendorService = vendorService;
+            _aiService = aiService;
+        }
+
+        // POST: api/public/vendors/extract-products — חילוץ מוצרים מטקסט קטלוג (PDF)
+        // בעזרת ה-AI. הספק מעלה PDF, הפרונט מחלץ טקסט ושולח לכאן; מקבל רשימת מוצרים.
+        [HttpPost("extract-products")]
+        public async Task<ActionResult<AiExtractResponseDto>> ExtractProducts(
+            [FromBody] AiExtractRequestDto dto)
+        {
+            if (!_aiService.IsConfigured)
+            {
+                return StatusCode(503, new
+                {
+                    message = "חילוץ אוטומטי מ-PDF אינו זמין כרגע."
+                });
+            }
+
+            var text = (dto?.Text ?? string.Empty).Trim();
+            if (text.Length == 0)
+            {
+                return Ok(new AiExtractResponseDto());
+            }
+            // תקרה על אורך הטקסט — הגנה מפני קבצים ענקיים/עלות מיותרת
+            if (text.Length > 20000)
+            {
+                text = text.Substring(0, 20000);
+            }
+
+            var products = await _aiService.ExtractProductsAsync(text);
+            return Ok(new AiExtractResponseDto { Products = products });
         }
 
         // GET: api/public/vendors/{token} — טעינת הכרטיס של הספק לעריכה

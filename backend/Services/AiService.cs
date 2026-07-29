@@ -1,5 +1,8 @@
+using System.Globalization;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
+using ParentCommitteeAPI.DTOs;
 
 namespace ParentCommitteeAPI.Services
 {
@@ -26,6 +29,16 @@ namespace ParentCommitteeAPI.Services
 
         private const string SafetyMessage =
             "מצטערת, לא אוכל לעזור עם הבקשה הזו. אפשר לנסח אותה אחרת 🙂";
+
+        // פרומפט ייעודי לחילוץ מוצרים מקטלוג (לא ה-persona של העוזרת). דורש JSON נקי.
+        private const string ExtractSystemPrompt =
+            "אתה מחלץ מוצרים מטקסט של קטלוג ספק. החזר אך ורק מערך JSON, בלי שום טקסט נוסף. " +
+            "כל פריט במערך: {\"name\": string, \"description\": string, \"price\": number}. " +
+            "name = שם המוצר (חובה, לא ריק). " +
+            "description = פירוט קצר של המוצר אם קיים בטקסט, אחרת מחרוזת ריקה. " +
+            "price = המחיר בשקלים כמספר בלבד (0 אם אין מחיר). " +
+            "התעלם משורות שאינן מוצרים: כותרות, שמות קטגוריות, מספרי עמודים, פרטי קשר וכתובות. " +
+            "אל תמציא מוצרים, מחירים או פרטים שאינם מופיעים בטקסט.";
 
         private readonly HttpClient _http;
         private readonly ILogger<AiService> _logger;
@@ -60,6 +73,37 @@ namespace ParentCommitteeAPI.Services
                 // בלי חיתוך באמצע (בקשת בעלת המוצר, 09.07.2026).
             };
 
+            var body = await PostGeminiAsync(payload);
+            return ExtractAnswer(body);
+        }
+
+        // חילוץ מוצרים מטקסט קטלוג: מבקשים מ-Gemini מערך JSON נקי ומפרסרים אותו.
+        // אין persona של העוזרת — פרומפט ייעודי, מצב JSON, וטמפרטורה 0 ליציבות.
+        public async Task<List<ExtractedProductDto>> ExtractProductsAsync(string catalogText)
+        {
+            if (string.IsNullOrWhiteSpace(catalogText))
+            {
+                return new List<ExtractedProductDto>();
+            }
+
+            var payload = new
+            {
+                systemInstruction = new { parts = new[] { new { text = ExtractSystemPrompt } } },
+                contents = new[]
+                {
+                    new { role = "user", parts = new[] { new { text = catalogText } } },
+                },
+                generationConfig = new { responseMimeType = "application/json", temperature = 0.0 },
+            };
+
+            var body = await PostGeminiAsync(payload);
+            var json = ExtractAnswer(body);
+            return ParseProducts(json);
+        }
+
+        // קריאה ל-Gemini (generateContent) והחזרת גוף התשובה הגולמי. משותף לשתי הפעולות.
+        private async Task<string> PostGeminiAsync(object payload)
+        {
             var url = $"https://generativelanguage.googleapis.com/v1beta/models/{_model}:generateContent";
             using var request = new HttpRequestMessage(HttpMethod.Post, url);
             request.Headers.Add("x-goog-api-key", _apiKey);
@@ -76,7 +120,79 @@ namespace ParentCommitteeAPI.Services
                 throw new HttpRequestException("AI request failed");
             }
 
-            return ExtractAnswer(body);
+            return body;
+        }
+
+        // מפרסר את מערך ה-JSON שהמודל החזיר לרשימת מוצרים, בסלחנות (מדלג על פריטים פגומים).
+        private static List<ExtractedProductDto> ParseProducts(string json)
+        {
+            var list = new List<ExtractedProductDto>();
+            if (string.IsNullOrWhiteSpace(json))
+            {
+                return list;
+            }
+
+            // אם המודל עטף את המערך בטקסט/בלוק קוד — לוקחים מה-[ הראשון עד ה-] האחרון.
+            var start = json.IndexOf('[');
+            var end = json.LastIndexOf(']');
+            if (start < 0 || end <= start)
+            {
+                return list;
+            }
+            var arrayText = json.Substring(start, end - start + 1);
+
+            try
+            {
+                using var doc = JsonDocument.Parse(arrayText);
+                if (doc.RootElement.ValueKind != JsonValueKind.Array)
+                {
+                    return list;
+                }
+                foreach (var el in doc.RootElement.EnumerateArray())
+                {
+                    if (el.ValueKind != JsonValueKind.Object)
+                    {
+                        continue;
+                    }
+                    var name = el.TryGetProperty("name", out var n) && n.ValueKind == JsonValueKind.String
+                        ? (n.GetString() ?? string.Empty).Trim()
+                        : string.Empty;
+                    if (name.Length == 0)
+                    {
+                        continue;
+                    }
+                    var desc = el.TryGetProperty("description", out var d) && d.ValueKind == JsonValueKind.String
+                        ? (d.GetString() ?? string.Empty).Trim()
+                        : string.Empty;
+                    decimal price = 0m;
+                    if (el.TryGetProperty("price", out var p))
+                    {
+                        if (p.ValueKind == JsonValueKind.Number)
+                        {
+                            p.TryGetDecimal(out price);
+                        }
+                        else if (p.ValueKind == JsonValueKind.String)
+                        {
+                            var digits = new string((p.GetString() ?? string.Empty)
+                                .Where(c => char.IsDigit(c) || c == '.').ToArray());
+                            decimal.TryParse(digits, NumberStyles.Any,
+                                CultureInfo.InvariantCulture, out price);
+                        }
+                    }
+                    list.Add(new ExtractedProductDto
+                    {
+                        Name = name,
+                        Description = desc,
+                        Price = price,
+                    });
+                }
+            }
+            catch (JsonException)
+            {
+                // JSON לא תקין — מחזירים מה שהצלחנו (ייתכן ריק); הפרונט ייפול חזרה לחילוץ מקומי.
+            }
+
+            return list;
         }
 
         // מחלץ את הטקסט מתשובת Gemini; מטפל גם בחסימת בטיחות (blockReason / finishReason=SAFETY)

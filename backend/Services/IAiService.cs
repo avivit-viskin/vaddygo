@@ -1,3 +1,5 @@
+using ParentCommitteeAPI.DTOs;
+
 namespace ParentCommitteeAPI.Services
 {
     /*
@@ -8,5 +10,8 @@ namespace ParentCommitteeAPI.Services
     {
         bool IsConfigured { get; }
         Task<string> AskAsync(string question, string? context);
+
+        // מחלץ מוצרים מטקסט קטלוג (PDF) — מחזיר רשימה מובנית של {שם, פירוט, מחיר}.
+        Task<List<ExtractedProductDto>> ExtractProductsAsync(string catalogText);
     }
 }

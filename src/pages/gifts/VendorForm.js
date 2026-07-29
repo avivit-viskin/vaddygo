@@ -164,6 +164,8 @@ function VendorForm({
   const [statusFilter, setStatusFilter] = useState(initialStatus || "");
   // בחירה מרובה למחיקה/העברה קבוצתית — קבוצת אינדקסים של מוצרים שסומנו.
   const [selected, setSelected] = useState(() => new Set());
+  // תפריט כפתור ההוספה הצף (＋): צילום מוצר / בחירה מהתמונות / הזנה ידנית.
+  const [addMenuOpen, setAddMenuOpen] = useState(false);
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTarget, setMoveTarget] = useState("");
   const [priceOpen, setPriceOpen] = useState(false);
@@ -279,18 +281,37 @@ function VendorForm({
     setPriceTarget("");
   }
 
-  // הוספת מוצר חדש — לתיקייה המסוננת כרגע (אם נבחרה)
+  // מוצר חדש ריק — לתיקייה המסוננת כרגע (אם נבחרה)
+  function blankProduct(imageUrl = "") {
+    return {
+      name: "",
+      description: "",
+      price: "",
+      imageUrl,
+      folder: folderFilter && folderFilter !== "כללי" ? folderFilter : "",
+    };
+  }
+
+  // הוספת מוצר חדש — נכנס בראש הרשימה כדי שיהיה המוצר הראשון שרואים (ולא למטה).
+  // מנקים סימונים כי האינדקסים "זזים" קדימה בהוספה בראש הרשימה.
   function addProduct() {
-    setProducts((prev) => [
-      ...prev,
-      {
-        name: "",
-        description: "",
-        price: "",
-        imageUrl: "",
-        folder: folderFilter && folderFilter !== "כללי" ? folderFilter : "",
-      },
-    ]);
+    setSelected(new Set());
+    setProducts((prev) => [blankProduct(), ...prev]);
+  }
+
+  // הוספת מוצר מתוך תמונה שצולמה/נבחרה — יוצרים מוצר חדש בראש הרשימה עם התמונה.
+  async function addProductWithImage(file) {
+    if (!file) {
+      return;
+    }
+    let imageUrl = "";
+    try {
+      imageUrl = await fileToResizedDataUrl(file);
+    } catch {
+      // אם ההמרה נכשלה — מוסיפים מוצר בלי תמונה; אפשר להוסיף תמונה בעריכה
+    }
+    setSelected(new Set());
+    setProducts((prev) => [blankProduct(imageUrl), ...prev]);
   }
 
   // תמונה שנבחרה מהטלפון (ספרייה/קבצים) — מכווצים ושומרים כתמונה מוטמעת במוצר
@@ -317,9 +338,10 @@ function VendorForm({
     };
   }
 
-  // מוסיף את המוצרים שיובאו לרשימה + הודעת סיכום
+  // מוסיף את המוצרים שיובאו לראש הרשימה + הודעת סיכום (כדי שיראו אותם מיד)
   function addImported(list) {
-    setProducts((prev) => [...prev, ...list.map(mapImported)]);
+    setSelected(new Set());
+    setProducts((prev) => [...list.map(mapImported), ...prev]);
     setImportMsg(
       `נוספו ${list.length} מוצרים ✓ — עברו לבדוק, להוסיף תמונות וללחוץ שמירה`
     );
@@ -1255,16 +1277,76 @@ function VendorForm({
         ))}
       </datalist>
       {/* הוספת מוצר — כפתור צף (＋) באזור הספק, או כפתור רגיל בעריכת מנהלת.
-          מציגים רק אחד מהם כדי לא לכפול את האופציה. */}
+          מציגים רק אחד מהם כדי לא לכפול את האופציה. לחיצה על ＋ פותחת תפריט:
+          צילום מוצר / בחירה מהתמונות / הזנה ידנית. */}
       {showFab ? (
-        <button
-          type="button"
-          className="sup-fab"
-          aria-label="הוספת מוצר"
-          onClick={addProduct}
-        >
-          ＋
-        </button>
+        <div className="sup-fab-wrap">
+          {addMenuOpen && (
+            <>
+              {/* רקע שקוף — לחיצה מחוץ לתפריט סוגרת אותו */}
+              <button
+                type="button"
+                className="sup-fab-backdrop"
+                aria-label="סגירת התפריט"
+                onClick={() => setAddMenuOpen(false)}
+              />
+              <div className="sup-fab-menu" role="menu">
+                <label className="sup-fab-menu__item" role="menuitem">
+                  <span className="sup-fab-menu__emoji" aria-hidden="true">📷</span>
+                  צילום מוצר
+                  <input
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    className="vendor-form__file"
+                    aria-label="צילום מוצר חדש"
+                    onChange={(e) => {
+                      addProductWithImage(e.target.files && e.target.files[0]);
+                      setAddMenuOpen(false);
+                    }}
+                  />
+                </label>
+                <label className="sup-fab-menu__item" role="menuitem">
+                  <span className="sup-fab-menu__emoji" aria-hidden="true">🖼️</span>
+                  מהתמונות / קבצים
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="vendor-form__file"
+                    aria-label="בחירת תמונת מוצר מהמכשיר"
+                    onChange={(e) => {
+                      addProductWithImage(e.target.files && e.target.files[0]);
+                      setAddMenuOpen(false);
+                    }}
+                  />
+                </label>
+                <button
+                  type="button"
+                  className="sup-fab-menu__item"
+                  role="menuitem"
+                  onClick={() => {
+                    addProduct();
+                    setAddMenuOpen(false);
+                  }}
+                >
+                  <span className="sup-fab-menu__emoji" aria-hidden="true">✏️</span>
+                  הזנה ידנית (מוצר ריק)
+                </button>
+              </div>
+            </>
+          )}
+          <button
+            type="button"
+            className={`sup-fab${addMenuOpen ? " sup-fab--open" : ""}`}
+            aria-label="הוספת מוצר"
+            aria-haspopup="true"
+            aria-expanded={addMenuOpen}
+            onClick={() => setAddMenuOpen((v) => !v)}
+          >
+            <span className="sup-fab__plus" aria-hidden="true">＋</span>
+            <span className="sup-fab__label">מוצר</span>
+          </button>
+        </div>
       ) : (
         <Button variant="secondary" onClick={addProduct}>
           + הוספת מוצר

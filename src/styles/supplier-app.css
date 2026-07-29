@@ -251,9 +251,73 @@
   font-weight: 700;
 }
 
+/* ── תיקיות מוצרים כאקורדיון (רצף תיקיות שנפתחות/נסגרות) ── */
+.sup-folder {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  margin-bottom: 10px;
+  overflow: hidden;
+  background: var(--color-surface);
+}
+.sup-folder__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.sup-folder__toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  text-align: start;
+}
+.sup-folder__chevron {
+  display: inline-block;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+  transform: rotate(-90deg);
+}
+.sup-folder__chevron--open {
+  transform: rotate(0deg);
+}
+.sup-folder__name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sup-folder__count {
+  color: var(--color-text-muted);
+  font-weight: 400;
+  font-size: var(--font-size-sm);
+}
+.sup-folder__edit {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 12px 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-link);
+}
+.sup-folder .sup-prods {
+  padding: 0 12px 12px;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sup-tab,
-  .sup-stat--link {
+  .sup-stat--link,
+  .sup-folder__chevron {
     transition: none;
   }
 }

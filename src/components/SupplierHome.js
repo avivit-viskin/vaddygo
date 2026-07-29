@@ -95,6 +95,19 @@ function SupplierHome({ vendor, onGoTo }) {
   const views = vendor?.views || 0;
   const folders = groupByFolder(products);
 
+  // תיקיות נפתחות/נסגרות (אקורדיון): התיקייה הראשונה פתוחה כברירת מחדל, השאר
+  // מקופלות — כדי לראות רצף של תיקיות ולהגיע בקלות לזו שרוצים.
+  const [openFolders, setOpenFolders] = useState(
+    () => new Set(folders[0] ? [folders[0].name] : [])
+  );
+  const toggleFolder = (name) =>
+    setOpenFolders((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+
   const goToProducts = (folder) => onGoTo && onGoTo("products", folder);
   // אריח שנלחץ → דף המוצרים מסונן לפי הסטטוס (מוכנים / דורש טיפול / הכל)
   const goToStatus = (status) => onGoTo && onGoTo("products", "", status);
@@ -141,45 +154,42 @@ function SupplierHome({ vendor, onGoTo }) {
           message="עדיין אין מוצרים. עברו ל'מוצרים' כדי להוסיף את הראשון."
         />
       ) : (
-        folders.map((folder) => (
-          <div key={folder.name} style={{ marginBottom: 18 }}>
-            <button
-              type="button"
-              onClick={() => goToProducts(folder.name)}
-              className="sup-section-title"
-              style={{
-                width: "100%",
-                border: "none",
-                background: "none",
-                cursor: onGoTo ? "pointer" : "default",
-                fontFamily: "var(--font-family)",
-                textAlign: "start",
-                fontSize: "var(--font-size-base)",
-              }}
-            >
-              <Icon name="folder" size={18} /> {folder.name}
-              <span
-                style={{
-                  color: "var(--color-text-muted)",
-                  fontWeight: 400,
-                  fontSize: "var(--font-size-sm)",
-                }}
+        folders.map((folder) => {
+          const isOpen = openFolders.has(folder.name);
+          return (
+          <div key={folder.name} className="sup-folder">
+            <div className="sup-folder__head">
+              <button
+                type="button"
+                className="sup-folder__toggle"
+                onClick={() => toggleFolder(folder.name)}
+                aria-expanded={isOpen}
               >
-                ({folder.products.length})
-              </span>
-              {onGoTo && (
                 <span
-                  style={{
-                    marginInlineStart: "auto",
-                    color: "var(--color-link)",
-                    fontWeight: 700,
-                    fontSize: "var(--font-size-sm)",
-                  }}
+                  className={`sup-folder__chevron${
+                    isOpen ? " sup-folder__chevron--open" : ""
+                  }`}
+                  aria-hidden="true"
+                >
+                  ▾
+                </span>
+                <Icon name="folder" size={18} />
+                <span className="sup-folder__name">{folder.name}</span>
+                <span className="sup-folder__count">
+                  ({folder.products.length})
+                </span>
+              </button>
+              {onGoTo && (
+                <button
+                  type="button"
+                  className="sup-folder__edit"
+                  onClick={() => goToProducts(folder.name)}
                 >
                   לעריכה »
-                </span>
+                </button>
               )}
-            </button>
+            </div>
+            {isOpen && (
             <div className="sup-prods">
               {folder.products.map((product, i) => {
                 const missing = isMissing(product);
@@ -298,8 +308,10 @@ function SupplierHome({ vendor, onGoTo }) {
                 );
               })}
             </div>
+            )}
           </div>
-        ))
+          );
+        })
       )}
     </div>
   );

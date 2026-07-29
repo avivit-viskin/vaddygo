@@ -3,11 +3,12 @@ import Input from "./Input";
 import Button from "./Button";
 
 /*
-  SupplierSocials — דף הרשתות החברתיות של הספק: פייסבוק, אינסטגרם, טיקטוק (וגם
-  קישורים נוספים אם יש). מוצג לוועד ככפתורי רשת בכרטיס הספק. onSave מקבל את
-  מערך socialLinks המלא; ההורה ממזג לכרטיס המלא ושומר (מסונכרן לוועד).
+  SupplierSocials — דף הרשתות החברתיות והקישורים של הספק: אתר, פייסבוק, אינסטגרם,
+  טיקטוק (וגם קישורים נוספים אם יש). מוצג לוועד ככפתורים בכרטיס הספק. onSave מקבל
+  את מערך socialLinks המלא; ההורה ממזג לכרטיס המלא ושומר (מסונכרן לוועד).
 */
 const PLATFORMS = [
+  { key: "website", label: "אתר", placeholder: "https://..." },
   { key: "facebook", label: "פייסבוק", placeholder: "https://facebook.com/..." },
   { key: "instagram", label: "אינסטגרם", placeholder: "https://instagram.com/..." },
   { key: "tiktok", label: "טיקטוק", placeholder: "https://tiktok.com/@..." },

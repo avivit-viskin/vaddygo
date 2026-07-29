@@ -1,4 +1,5 @@
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 
 /*
@@ -42,7 +43,13 @@ function BudgetAssistant({ gifts, holidayBudgets }) {
   }
 
   return (
-    <Card title="הוצאות חגים 💰">
+    <Card
+      title={
+        <>
+          <Icon name="wallet" size={18} /> הוצאות חגים
+        </>
+      }
+    >
       <ul className="budget-assistant">
         {rows.map((row) => {
           const overBudget = row.allocated > 0 && row.remaining < 0;

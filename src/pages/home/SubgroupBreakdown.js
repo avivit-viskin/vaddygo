@@ -1,4 +1,5 @@
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 
 /*
@@ -13,7 +14,13 @@ function SubgroupBreakdown({ subgroups }) {
   }
 
   return (
-    <Card title="גבייה לפי קבוצות">
+    <Card
+      title={
+        <>
+          <Icon name="users" size={18} /> גבייה לפי קבוצות
+        </>
+      }
+    >
       <ul className="subgroups">
         {rows.map((sg) => {
           const target = Number(sg.targetAmount) || 0;

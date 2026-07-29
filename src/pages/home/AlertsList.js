@@ -13,7 +13,13 @@ function AlertsList({ alerts }) {
   }
 
   return (
-    <Card title="התראות">
+    <Card
+      title={
+        <>
+          <Icon name="bell" size={18} /> התראות
+        </>
+      }
+    >
       <ul className="alerts">
         {alerts.map((alert, index) => (
           <li key={index} className={`alerts__item alerts__item--${alert.type}`}>

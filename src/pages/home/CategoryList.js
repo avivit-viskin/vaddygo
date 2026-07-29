@@ -1,4 +1,5 @@
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import { formatShekels, formatNumber } from "../../services/format";
 
 /*
@@ -13,7 +14,13 @@ function CategoryList({ categories }) {
   }
 
   return (
-    <Card title="תשלומים לפי קטגוריות">
+    <Card
+      title={
+        <>
+          <Icon name="tag" size={18} /> תשלומים לפי קטגוריות
+        </>
+      }
+    >
       <ul className="categories">
         {categories.map((category) => {
           const spent = Number(category.spentAmount) || 0;

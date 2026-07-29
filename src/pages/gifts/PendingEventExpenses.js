@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import Button from "../../components/Button";
 import EventExpenseModal from "../home/EventExpenseModal";
 import { formatDayMonth } from "../../services/format";
@@ -43,7 +44,13 @@ function PendingEventExpenses({ onRecorded }) {
   }
 
   return (
-    <Card title="לרשום הוצאה? 🧾">
+    <Card
+      title={
+        <>
+          <Icon name="receipt" size={18} /> לרשום הוצאה?
+        </>
+      }
+    >
       <p className="pending-expenses__hint">
         אירועים שכבר עברו — כדאי לרשום כמה כסף יצא, כדי שיתרת הקופה תהיה מדויקת.
       </p>

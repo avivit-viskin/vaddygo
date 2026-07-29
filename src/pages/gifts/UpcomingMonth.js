@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import Card from "../../components/Card";
+import Icon from "../../components/Icon";
 import { loadUpcomingMonth, whenText } from "../../services/upcomingMonth";
 import { isDismissed, dismissNotice } from "../../services/dismissedNotices";
 import "../../styles/upcoming.css";
@@ -34,7 +35,13 @@ function UpcomingMonth() {
   }
 
   return (
-    <Card title="מה מתקרב 🗓️">
+    <Card
+      title={
+        <>
+          <Icon name="calendar" size={18} /> מה מתקרב
+        </>
+      }
+    >
       <ul className="upcoming">
         {items.map((it) => (
           <li key={it.id} className="upcoming__item">

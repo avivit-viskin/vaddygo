@@ -301,11 +301,20 @@ button.vendor-form__remove {
   margin-bottom: 12px;
 }
 
+/* כותרת כרטיס — אייקון + טקסט מודגש בפחם, בסגנון כותרות אזור הספק (.sup-card__title)
+   כדי שכל המסכים ידברו באותה שפה עיצובית. */
 .card__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   font-size: var(--font-size-lg);
-  font-weight: 600;
+  font-weight: 700;
   color: var(--color-primary-dark);
   margin-bottom: 8px;
+}
+/* אייקון הקו בכותרת הכרטיס — לא מתכווץ, ובגוון הכותרת */
+.card__title svg {
+  flex-shrink: 0;
 }
 
 /* ===== Modal ===== */
@@ -492,9 +501,10 @@ button.vendor-form__remove {
   position: relative;
 }
 
-/* המסך הפעיל נצבע בוורוד קריא (רוז חם) — האייקון, התווית והקו העליון */
+/* הפריט הפעיל — בפחם-חם עם קו ורוד, בדיוק כמו טאבים באזור הספק (.sup-tab--active):
+   שפה עיצובית אחת לניווט בכל המערכת. */
 .bottom-nav__link.active {
-  color: var(--color-link);
+  color: var(--color-primary-dark);
 }
 
 /* קו ורוד מעל הפריט הפעיל — מסמן איפה אנחנו בבירור */
@@ -506,7 +516,7 @@ button.vendor-form__remove {
   right: 22%;
   height: 3px;
   border-radius: 0 0 3px 3px;
-  background: var(--color-link);
+  background: var(--color-primary-muted);
 }
 
 .bottom-nav__icon {

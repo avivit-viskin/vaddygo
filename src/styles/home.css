@@ -374,7 +374,7 @@
   flex: 1;
   background: var(--color-bg);
   border-top: 3px solid transparent;
-  border-radius: var(--radius-md);
+  border-radius: 14px;
   padding: 8px;
   text-align: center;
   display: flex;
@@ -446,32 +446,34 @@
 
 /* ── קטגוריות ───────────────────────────────────────────── */
 
-/* קטגוריות כריבועים עדינים — מסגרת דקה, בלי בולד כבד, תופס מעט מקום */
+/* קטגוריות כאריחים נקיים בסגנון אריחי הדאשבורד של אזור הספק (.sup-stat):
+   משטח לבן, מסגרת דקה ופינות 14px — ממורכז ותופס מעט מקום. */
 .categories {
   list-style: none;
   margin: 0;
   padding: 0;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
-  gap: 6px;
+  gap: 8px;
 }
 
 .categories__item {
-  background: transparent;
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 6px 8px;
+  border-radius: 14px;
+  padding: 10px 10px;
   text-align: center;
   display: flex;
   flex-direction: column;
   align-items: center; /* מרכוז אופקי של התוכן בתוך הריבוע */
   justify-content: center; /* מרכוז אנכי — כשריבוע נמתח לגובה שכנו */
-  gap: 2px;
+  gap: 3px;
 }
 
 .categories__name {
-  font-weight: 500;
+  font-weight: 600;
   font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
 }
 
 /* שורת "יצא X מתוך Y · נשאר לתשלום Z" — שורה אחת ממורכזת מתחת לשם הקטגוריה */
@@ -492,9 +494,10 @@
 }
 
 .subgroups__item {
+  background: var(--color-surface);
   border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  padding: 8px 10px;
+  border-radius: 14px;
+  padding: 10px 12px;
   display: flex;
   flex-direction: column;
   gap: 2px;

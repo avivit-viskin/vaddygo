@@ -1,4 +1,4 @@
-import { useCallback, useState } from "react";
+import { useCallback, useState, useEffect } from "react";
 import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
@@ -32,6 +32,11 @@ import SupplierCookies from "../components/SupplierCookies";
 import WhatsAppFab from "../components/WhatsAppFab";
 import useUnsavedGuard from "../hooks/useUnsavedGuard";
 import PullToRefresh from "../components/PullToRefresh";
+import {
+  getImportJob,
+  subscribeImportJob,
+  clearImportJob,
+} from "../services/importJobs";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
 import "../styles/supplier-app.css";
@@ -87,6 +92,9 @@ function SupplierEditPage() {
   // תיקייה + סטטוס שאליהם לפתוח את דף המוצרים (בלחיצה על תיקייה/אריח בדף הבית)
   const [productsFolder, setProductsFolder] = useState("");
   const [productsStatus, setProductsStatus] = useState("");
+  // משימת ייבוא מוצרים (קובץ/צילום) שרצה ברקע — לבאנר גלובלי מעל כל הטאבים
+  const [importJob, setImportJob] = useState(() => getImportJob());
+  useEffect(() => subscribeImportJob(setImportJob), []);
   // שער כניסה: אם הספק כבר הגדיר מייל+סיסמה — דורשים התחברות (עם זיכרון קצר)
   const [sessionOk, setSessionOk] = useState(() =>
     hasValidSupplierSession(token)
@@ -386,6 +394,77 @@ function SupplierEditPage() {
         </span>
         <span className="sup-head__hi">שלום {vendor.name || "ספק יקר"} 👋</span>
       </div>
+
+      {importJob && (
+        <div
+          role="status"
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            padding: "10px 12px",
+            margin: "6px 0",
+            borderRadius: 12,
+            fontSize: "var(--font-size-sm)",
+            fontWeight: 600,
+            background:
+              importJob.status === "done"
+                ? "#eafaf1"
+                : importJob.status === "loading"
+                ? "var(--color-primary-light)"
+                : "#fdf1e7",
+            border: `1px solid ${
+              importJob.status === "done"
+                ? "#b7e6cd"
+                : importJob.status === "loading"
+                ? "var(--color-primary)"
+                : "#f0c9a3"
+            }`,
+            color:
+              importJob.status === "done"
+                ? "#1d8a55"
+                : importJob.status === "loading"
+                ? "var(--color-primary-dark)"
+                : "#c05a17",
+          }}
+        >
+          <span style={{ flex: 1 }}>{importJob.message}</span>
+          {importJob.status === "done" && view !== "products" && (
+            <button
+              type="button"
+              onClick={() => goTo("products")}
+              style={{
+                border: "none",
+                background: "none",
+                color: "var(--color-link)",
+                fontFamily: "var(--font-family)",
+                fontWeight: 700,
+                fontSize: "var(--font-size-sm)",
+                cursor: "pointer",
+              }}
+            >
+              למוצרים »
+            </button>
+          )}
+          {importJob.status !== "loading" && (
+            <button
+              type="button"
+              aria-label="סגירה"
+              onClick={clearImportJob}
+              style={{
+                border: "none",
+                background: "none",
+                color: "inherit",
+                fontSize: 16,
+                lineHeight: 1,
+                cursor: "pointer",
+              }}
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      )}
 
       {saved && (
         <p className="sup-saved" role="status">

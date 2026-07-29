@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Button from "../../components/Button";
 import Icon from "../../components/Icon";
 import Input from "../../components/Input";
@@ -11,7 +11,15 @@ import {
   extractPdfText,
   PRODUCTS_IMPORT_TEMPLATE,
 } from "../../services/productsImport";
-import { extractProductsFromText } from "../../services/vendorsService";
+import {
+  extractProductsFromText,
+  extractProductsFromImage,
+} from "../../services/vendorsService";
+import {
+  startImportJob,
+  subscribeImportJob,
+  consumeImportJob,
+} from "../../services/importJobs";
 import "../../styles/supplier-app.css";
 
 /* תבנית להורדה כקובץ CSV (data-URI) — נפתח באקסל עם עברית תקינה (BOM) */
@@ -298,61 +306,89 @@ function VendorForm({
     }
   }
 
-  // ייבוא מרוכז של מוצרים מקובץ Excel / CSV / PDF — מתווספים לרשימה, ושומרים אחר כך.
-  // ל-PDF: מחלצים טקסט ומעדיפים חילוץ חכם (AI) בשרת; אם לא זמין — נופלים להיוריסטיקה.
-  async function handleImportFile(file) {
+  // ממפה מוצר שיובא (מ-AI/קובץ) לצורת המוצר בטופס
+  function mapImported(p) {
+    return {
+      name: p.name,
+      description: p.description || "",
+      price: p.price,
+      imageUrl: p.imageUrl || "",
+      folder: "",
+    };
+  }
+
+  // מוסיף את המוצרים שיובאו לרשימה + הודעת סיכום
+  function addImported(list) {
+    setProducts((prev) => [...prev, ...list.map(mapImported)]);
+    setImportMsg(
+      `נוספו ${list.length} מוצרים ✓ — עברו לבדוק, להוסיף תמונות וללחוץ שמירה`
+    );
+  }
+
+  // ייבוא מקובץ (Excel / CSV / PDF) כמשימת רקע — אפשר להמשיך לעבוד בזמן שזה רץ.
+  // ל-PDF מחלצים טקסט ושולחים ל-AI. התוצאה מתווספת לרשימה לבדיקה לפני שמירה.
+  function beginFileImport(file) {
     if (!file) {
       return;
     }
     const isPdf = (file.name || "").toLowerCase().endsWith(".pdf");
-    setImportMsg(isPdf ? "קורא את ה-PDF..." : "מייבא...");
-    try {
-      let imported;
-      if (isPdf) {
-        const text = await extractPdfText(file);
-        setImportMsg(
-          "המערכת עובדת קשה לחלץ את המוצרים והתוכן מתוך ה-PDF 💪 " +
-            "רגע של סבלנות — בסוף הם יגיעו 🙂"
-        );
-        try {
-          imported = await extractProductsFromText(text);
-        } catch {
-          // חשוב: לא נופלים לזיהוי מקומי גס (שהופך טלפונים ל"מוצרים") — מודיעים בבירור
-          setImportMsg(
-            "לא הצלחנו לחלץ כרגע מה-PDF 🙏 אפשר לנסות שוב בעוד רגע, או לייבא מ-Excel/CSV."
-          );
-          return;
+    startImportJob(vendor?.id, {
+      loadingMessage: isPdf
+        ? "המערכת עובדת קשה לחלץ את המוצרים מתוך ה-PDF 💪 אפשר להמשיך לעבוד — נודיע כשמוכן 🙂"
+        : "מייבא מוצרים מהקובץ...",
+      extract: async () => {
+        if (isPdf) {
+          const text = await extractPdfText(file);
+          return extractProductsFromText(text);
         }
-      } else {
-        imported = await parseProductFile(file);
-      }
-      if (!imported || imported.length === 0) {
-        setImportMsg(
-          isPdf
-            ? "לא זוהו מוצרים ב-PDF. אפשר לנסות קובץ ברור יותר, או ייבוא Excel/CSV."
-            : "לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'."
-        );
+        return parseProductFile(file);
+      },
+    });
+  }
+
+  // ייבוא מצילום קטלוג כמשימת רקע — ה-AI "רואה" את התמונה וקורא ממנה את המוצרים.
+  function beginPhotoImport(file) {
+    if (!file) {
+      return;
+    }
+    startImportJob(vendor?.id, {
+      loadingMessage:
+        "המערכת עובדת קשה לקרוא את הקטלוג מהתמונה 💪 אפשר להמשיך לעבוד — נודיע כשמוכן 🙂",
+      extract: async () => {
+        const dataUrl = await fileToResizedDataUrl(file, 1600, 0.82);
+        const comma = dataUrl.indexOf(",");
+        const base64 = comma >= 0 ? dataUrl.slice(comma + 1) : dataUrl;
+        const m = dataUrl.match(/^data:(.*?);base64/);
+        const mimeType = m ? m[1] : "image/jpeg";
+        return extractProductsFromImage(base64, mimeType);
+      },
+    });
+  }
+
+  // מאזין למשימת הייבוא: מציג התקדמות, ומוסיף את המוצרים כשהחילוץ מסתיים — גם
+  // אם הטופס נטען מחדש אחרי מעבר בין טאבים (המשימה חיה ברמת המודול, לא ברכיב).
+  useEffect(() => {
+    const done = consumeImportJob(vendor?.id);
+    if (done && done.length) {
+      addImported(done);
+    }
+    return subscribeImportJob((current) => {
+      if (!current || current.key !== vendor?.id) {
         return;
       }
-      setProducts((prev) => [
-        ...prev,
-        ...imported.map((p) => ({
-          name: p.name,
-          description: p.description || "",
-          price: p.price,
-          imageUrl: p.imageUrl || "",
-          folder: "",
-        })),
-      ]);
-      setImportMsg(
-        isPdf
-          ? `זוהו ${imported.length} מוצרים מה-PDF ✓ — עברו לבדוק, להוסיף תמונות וללחוץ שמירה`
-          : `נוספו ${imported.length} מוצרים ✓ — אפשר לבדוק וללחוץ שמירה`
-      );
-    } catch {
-      setImportMsg("לא הצלחנו לקרוא את הקובץ. נסו Excel, CSV או PDF.");
-    }
-  }
+      if (current.status === "loading") {
+        setImportMsg(current.message);
+      } else if (current.status === "done") {
+        const products = consumeImportJob(vendor?.id);
+        if (products && products.length) {
+          addImported(products);
+        }
+      } else {
+        setImportMsg(current.message);
+      }
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [vendor?.id]);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -576,7 +612,20 @@ function VendorForm({
             className="vendor-form__file"
             aria-label="ייבוא מוצרים מקובץ"
             onChange={(e) =>
-              handleImportFile(e.target.files && e.target.files[0])
+              beginFileImport(e.target.files && e.target.files[0])
+            }
+          />
+        </label>
+        <label className="vendor-form__upload">
+          📷 צילום קטלוג
+          <input
+            type="file"
+            accept="image/*"
+            capture="environment"
+            className="vendor-form__file"
+            aria-label="צילום קטלוג לזיהוי מוצרים"
+            onChange={(e) =>
+              beginPhotoImport(e.target.files && e.target.files[0])
             }
           />
         </label>

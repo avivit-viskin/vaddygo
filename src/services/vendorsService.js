@@ -150,3 +150,15 @@ export async function extractProductsFromText(text) {
   });
   return (result && result.products) || [];
 }
+
+/*
+  חילוץ מוצרים מצילום קטלוג — שולח את התמונה (base64) ל-AI שקורא אותה ישירות.
+  base64 בלי הקידומת "data:...;base64,". מחזיר [{ name, description, price }].
+*/
+export async function extractProductsFromImage(imageBase64, imageMimeType) {
+  const result = await api.post("/api/public/vendors/extract-products", {
+    imageBase64,
+    imageMimeType: imageMimeType || "image/jpeg",
+  });
+  return (result && result.products) || [];
+}

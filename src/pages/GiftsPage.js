@@ -268,8 +268,6 @@ function GiftsPage() {
         )}
       </Card>
 
-      <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
-
       <Card
         title={
           // צבע שחור-פחם מפורש (inline) — כדי שהכותרת תישאר שחורה בוודאות, בלי
@@ -402,6 +400,8 @@ function GiftsPage() {
           </Button>
         )}
       </Card>
+
+      <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
 
       {/* טופס מתנה */}
       <Modal

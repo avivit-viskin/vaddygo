@@ -9,7 +9,6 @@ import { fileToResizedDataUrl } from "../../services/imageUpload";
 import {
   parseProductFile,
   extractPdfText,
-  parsePdfText,
   PRODUCTS_IMPORT_TEMPLATE,
 } from "../../services/productsImport";
 import { extractProductsFromText } from "../../services/vendorsService";
@@ -318,11 +317,11 @@ function VendorForm({
         try {
           imported = await extractProductsFromText(text);
         } catch {
-          imported = [];
-        }
-        // אם החילוץ החכם לא זמין/נכשל — פולבק לזיהוי מקומי לפי שורות
-        if (!imported || imported.length === 0) {
-          imported = parsePdfText(text);
+          // חשוב: לא נופלים לזיהוי מקומי גס (שהופך טלפונים ל"מוצרים") — מודיעים בבירור
+          setImportMsg(
+            "לא הצלחנו לחלץ כרגע מה-PDF 🙏 אפשר לנסות שוב בעוד רגע, או לייבא מ-Excel/CSV."
+          );
+          return;
         }
       } else {
         imported = await parseProductFile(file);
@@ -330,7 +329,7 @@ function VendorForm({
       if (!imported || imported.length === 0) {
         setImportMsg(
           isPdf
-            ? "לא זוהו מוצרים ב-PDF. עדיף קובץ עם שם ומחיר ברורים, או Excel/CSV."
+            ? "לא זוהו מוצרים ב-PDF. אפשר לנסות קובץ ברור יותר, או ייבוא Excel/CSV."
             : "לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'."
         );
         return;

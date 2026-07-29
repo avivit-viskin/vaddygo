@@ -10,6 +10,9 @@ namespace ParentCommitteeAPI.Models
         public string Name { get; set; } = string.Empty;
         public decimal Price { get; set; }
 
+        /* תיאור חופשי קצר של המוצר (אופציונלי) — מוצג לוועד ובקטלוג מתחת לשם. */
+        public string Description { get; set; } = string.Empty;
+
         /* קישור לתמונת המוצר (URL). העלאת קובץ ישירה תיכנס עם תשתית ה-Drive (שלב 8) */
         public string ImageUrl { get; set; } = string.Empty;
 

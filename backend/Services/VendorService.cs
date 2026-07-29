@@ -457,6 +457,7 @@ namespace ParentCommitteeAPI.Services
                 .Select(p => new VendorProduct
                 {
                     Name = p.Name.Trim(),
+                    Description = (p.Description ?? string.Empty).Trim(),
                     Price = p.Price,
                     ImageUrl = p.ImageUrl.Trim(),
                     Folder = (p.Folder ?? string.Empty).Trim(),
@@ -493,6 +494,7 @@ namespace ParentCommitteeAPI.Services
             {
                 Id = p.Id,
                 Name = p.Name,
+                Description = p.Description,
                 Price = p.Price,
                 ImageUrl = p.ImageUrl,
                 Folder = p.Folder,

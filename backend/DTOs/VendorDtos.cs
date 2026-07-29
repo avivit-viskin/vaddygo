@@ -51,6 +51,9 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(80, ErrorMessage = "שם המוצר יכול להכיל עד 80 תווים")]
         public string Name { get; set; } = string.Empty;
 
+        [StringLength(500, ErrorMessage = "התיאור יכול להכיל עד 500 תווים")]
+        public string Description { get; set; } = string.Empty;
+
         [Range(0, 1000000, ErrorMessage = "המחיר חייב להיות בין 0 ל-1,000,000")]
         public decimal Price { get; set; }
 
@@ -182,6 +185,7 @@ namespace ParentCommitteeAPI.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public string Folder { get; set; } = string.Empty;

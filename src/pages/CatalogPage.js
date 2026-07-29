@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getPublicCatalog } from "../services/vendorsService";
@@ -21,6 +21,17 @@ function CatalogPage() {
   const { id } = useParams();
   const fetcher = useCallback(() => getPublicCatalog(id), [id]);
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
+  // תמונת מוצר להגדלה (לייטבוקס); null = סגור
+  const [zoomImage, setZoomImage] = useState(null);
+  // מפתחות מוצרים שהתיאור שלהם מורחב ("קרא עוד"); ברירת מחדל — מקוצר ל-2 שורות
+  const [expandedDesc, setExpandedDesc] = useState(() => new Set());
+  const toggleDesc = (key) =>
+    setExpandedDesc((prev) => {
+      const next = new Set(prev);
+      if (next.has(key)) next.delete(key);
+      else next.add(key);
+      return next;
+    });
 
   if (isLoading) {
     return <Spinner text="טוען קטלוג..." />;
@@ -99,6 +110,8 @@ function CatalogPage() {
                       src={product.imageUrl}
                       alt={product.name}
                       loading="lazy"
+                      onClick={() => setZoomImage(product.imageUrl)}
+                      style={{ cursor: "zoom-in" }}
                     />
                   ) : (
                     <div className="pub-card__img pub-card__img--empty">
@@ -108,9 +121,46 @@ function CatalogPage() {
                   <div className="pub-card__body">
                     <span className="pub-card__name">{product.name}</span>
                     {product.description && (
-                      <span className="pub-card__desc">
-                        {product.description}
-                      </span>
+                      <>
+                        {/* תיאור מקוצר ל-2 שורות (כרטיסים אחידים); "קרא עוד" מרחיב */}
+                        <span
+                          className="pub-card__desc"
+                          style={
+                            expandedDesc.has(`${folder.name}:${i}`)
+                              ? undefined
+                              : {
+                                  display: "-webkit-box",
+                                  WebkitLineClamp: 2,
+                                  WebkitBoxOrient: "vertical",
+                                  overflow: "hidden",
+                                }
+                          }
+                        >
+                          {product.description}
+                        </span>
+                        {product.description.length > 55 && (
+                          <button
+                            type="button"
+                            onClick={() => toggleDesc(`${folder.name}:${i}`)}
+                            style={{
+                              alignSelf: "flex-start",
+                              border: "none",
+                              background: "none",
+                              padding: 0,
+                              marginTop: 2,
+                              color: "var(--color-primary-dark)",
+                              fontFamily: "var(--font-family)",
+                              fontSize: "0.78rem",
+                              fontWeight: 700,
+                              cursor: "pointer",
+                            }}
+                          >
+                            {expandedDesc.has(`${folder.name}:${i}`)
+                              ? "קרא פחות"
+                              : "קרא עוד ..."}
+                          </button>
+                        )}
+                      </>
                     )}
                     <span className="pub-card__price">
                       {formatShekels(product.price)}
@@ -127,6 +177,57 @@ function CatalogPage() {
         הקטלוג מוצג באמצעות{" "}
         <Link to="/suppliers">VaddyGo</Link> — ניהול ועדי הורים
       </p>
+
+      {/* הגדלת תמונת מוצר (לייטבוקס) — לחיצה בכל מקום או על ה-✕ סוגרת */}
+      {zoomImage && (
+        <div
+          onClick={() => setZoomImage(null)}
+          style={{
+            position: "fixed",
+            inset: 0,
+            background: "rgba(0, 0, 0, 0.85)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            zIndex: 200,
+            padding: 16,
+            cursor: "zoom-out",
+          }}
+        >
+          <button
+            type="button"
+            aria-label="סגירת התמונה"
+            onClick={() => setZoomImage(null)}
+            style={{
+              position: "absolute",
+              top: 16,
+              insetInlineEnd: 16,
+              width: 44,
+              height: 44,
+              borderRadius: "50%",
+              border: "2px solid #fff",
+              background: "rgba(0, 0, 0, 0.55)",
+              color: "#fff",
+              fontSize: 22,
+              fontWeight: 700,
+              lineHeight: 1,
+              cursor: "pointer",
+            }}
+          >
+            ✕
+          </button>
+          <img
+            src={zoomImage}
+            alt="תמונת המוצר בהגדלה"
+            style={{
+              maxWidth: "100%",
+              maxHeight: "100%",
+              objectFit: "contain",
+              borderRadius: 12,
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }

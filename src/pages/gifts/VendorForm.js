@@ -166,6 +166,19 @@ function VendorForm({
   const [selected, setSelected] = useState(() => new Set());
   // תפריט כפתור ההוספה הצף (＋): צילום מוצר / בחירה מהתמונות / הזנה ידנית.
   const [addMenuOpen, setAddMenuOpen] = useState(false);
+  // אילו מוצרים "פתוחים" לעריכה (אקורדיון) — כברירת מחדל כולם מקופלים, כדי שלא
+  // תהיה רשימה ארוכה. פעולות שמזיזות אינדקסים (הוספה/מחיקה/סידור) מאפסות.
+  const [openProducts, setOpenProducts] = useState(() => new Set());
+  const toggleProduct = (index) =>
+    setOpenProducts((prev) => {
+      const next = new Set(prev);
+      if (next.has(index)) next.delete(index);
+      else next.add(index);
+      return next;
+    });
+  // ייבוא קטלוג: אם ממלאים שם תיקייה — כל המוצרים המיובאים ייכנסו לתיקייה אחת
+  // (הקטלוג). אם ריק — קטלוג כללי (בלי תיקייה).
+  const [catalogFolder, setCatalogFolder] = useState("");
   const [moveOpen, setMoveOpen] = useState(false);
   const [moveTarget, setMoveTarget] = useState("");
   const [priceOpen, setPriceOpen] = useState(false);
@@ -182,9 +195,10 @@ function VendorForm({
 
   function removeItem(setter, index) {
     setter((prev) => prev.filter((_, i) => i !== index));
-    // שינוי מבנה הרשימה מזיז אינדקסים — מנקים בחירה קבוצתית כדי שלא תתבלבל
+    // שינוי מבנה הרשימה מזיז אינדקסים — מנקים בחירה ואקורדיון כדי שלא יתבלבלו
     if (setter === setProducts) {
       setSelected(new Set());
+      setOpenProducts(new Set());
     }
   }
 
@@ -197,6 +211,7 @@ function VendorForm({
     });
     if (setter === setProducts) {
       setSelected(new Set());
+      setOpenProducts(new Set());
     }
   }
 
@@ -212,6 +227,7 @@ function VendorForm({
     });
     if (setter === setProducts) {
       setSelected(new Set());
+      setOpenProducts(new Set());
     }
   }
 
@@ -250,6 +266,7 @@ function VendorForm({
     }
     setProducts((prev) => prev.filter((_, i) => !selected.has(i)));
     setSelected(new Set());
+    setOpenProducts(new Set());
     setMoveOpen(false);
     setPriceOpen(false);
   }
@@ -292,10 +309,11 @@ function VendorForm({
     };
   }
 
-  // הוספת מוצר חדש — נכנס בראש הרשימה כדי שיהיה המוצר הראשון שרואים (ולא למטה).
-  // מנקים סימונים כי האינדקסים "זזים" קדימה בהוספה בראש הרשימה.
+  // הוספת מוצר חדש — נכנס בראש הרשימה כדי שיהיה המוצר הראשון שרואים (ולא למטה),
+  // ופתוח לעריכה מיד. מנקים סימונים כי האינדקסים "זזים" קדימה בהוספה בראש.
   function addProduct() {
     setSelected(new Set());
+    setOpenProducts(new Set([0]));
     setProducts((prev) => [blankProduct(), ...prev]);
   }
 
@@ -311,6 +329,7 @@ function VendorForm({
       // אם ההמרה נכשלה — מוסיפים מוצר בלי תמונה; אפשר להוסיף תמונה בעריכה
     }
     setSelected(new Set());
+    setOpenProducts(new Set([0]));
     setProducts((prev) => [blankProduct(imageUrl), ...prev]);
   }
 
@@ -327,20 +346,22 @@ function VendorForm({
     }
   }
 
-  // ממפה מוצר שיובא (מ-AI/קובץ) לצורת המוצר בטופס
+  // ממפה מוצר שיובא (מ-AI/קובץ) לצורת המוצר בטופס. אם הוגדרה תיקיית-קטלוג,
+  // כל המוצרים המיובאים נכנסים אליה (הקטלוג = תיקייה אחת); אחרת — קטלוג כללי.
   function mapImported(p) {
     return {
       name: p.name,
       description: p.description || "",
       price: p.price,
       imageUrl: p.imageUrl || "",
-      folder: "",
+      folder: catalogFolder.trim(),
     };
   }
 
   // מוסיף את המוצרים שיובאו לראש הרשימה + הודעת סיכום (כדי שיראו אותם מיד)
   function addImported(list) {
     setSelected(new Set());
+    setOpenProducts(new Set());
     setProducts((prev) => [...list.map(mapImported), ...prev]);
     setImportMsg(
       `נוספו ${list.length} מוצרים ✓ — עברו לבדוק, להוסיף תמונות וללחוץ שמירה`
@@ -669,6 +690,22 @@ function VendorForm({
             {importMsg}
           </span>
         )}
+      </div>
+      {/* ייבוא כקטלוג: אם ממלאים שם תיקייה — כל המוצרים המיובאים ייכנסו לתיקייה
+          אחת (הקטלוג). אם ריק — קטלוג כללי (בלי תיקייה). */}
+      <div className="vendor-form__catalog-folder">
+        <Input
+          id="vendor-catalog-folder"
+          label="תיקייה לקטלוג (אופציונלי)"
+          value={catalogFolder}
+          onChange={(e) => setCatalogFolder(e.target.value)}
+          placeholder="למשל: קטלוג קיץ 2026"
+        />
+        <p className="vendor-form__catalog-hint">
+          יש לכם קטלוג? אפשר לייבא אותו כ<strong>קטלוג כללי</strong> (השאירו ריק),
+          או להכניס את כולו ל<strong>תיקייה אחת</strong> — כתבו כאן שם והתיקייה הזו
+          תהיה הקטלוג.
+        </p>
       </div>
       {folderChips.length > 0 && (
         <div
@@ -1004,7 +1041,11 @@ function VendorForm({
           </Button>
         </div>
       )}
-      {visibleProducts.map(({ product, index }, vi) => (
+      {visibleProducts.map(({ product, index }, vi) => {
+        const isOpen = openProducts.has(index);
+        const missing =
+          !(Number(product.price) > 0) || !(product.imageUrl || "").trim();
+        return (
         <div
           className="vendor-form__product"
           key={index}
@@ -1028,7 +1069,45 @@ function VendorForm({
                 cursor: "pointer",
               }}
             />
-            <span className="vendor-form__product-num">מוצר {index + 1}</span>
+            <button
+              type="button"
+              className="vendor-form__product-toggle"
+              onClick={() => toggleProduct(index)}
+              aria-expanded={isOpen}
+              aria-label={`${isOpen ? "סגירת" : "פתיחת"} מוצר ${index + 1}`}
+            >
+              <span
+                className={`vendor-form__product-chevron${
+                  isOpen ? " is-open" : ""
+                }`}
+                aria-hidden="true"
+              >
+                ▾
+              </span>
+              {product.imageUrl ? (
+                <img
+                  className="vendor-form__product-thumb-sm"
+                  src={product.imageUrl}
+                  alt=""
+                />
+              ) : (
+                <span
+                  className="vendor-form__product-thumb-sm vendor-form__product-thumb-sm--empty"
+                  aria-hidden="true"
+                >
+                  <Icon name="image" size={14} />
+                </span>
+              )}
+              <span className="vendor-form__product-summary">
+                <span className="vendor-form__product-title-sm">
+                  {(product.name || "").trim() || `מוצר ${index + 1}`}
+                </span>
+                <span className="vendor-form__product-meta-sm">
+                  {Number(product.price) > 0 ? `${product.price} ₪` : "בלי מחיר"}
+                  {missing ? " · חסר מידע ⚠️" : ""}
+                </span>
+              </span>
+            </button>
             <button
               type="button"
               aria-label={`העברת מוצר ${index + 1} למעלה`}
@@ -1105,6 +1184,8 @@ function VendorForm({
             </button>
           </div>
 
+          {isOpen && (
+          <div className="vendor-form__product-body">
           <input
             className="field__input"
             aria-label={`שם מוצר ${index + 1}`}
@@ -1269,8 +1350,11 @@ function VendorForm({
               💾 שמירה
             </button>
           </div>
+          </div>
+          )}
         </div>
-      ))}
+        );
+      })}
       <datalist id="vendor-folder-presets">
         {FOLDER_PRESETS.map((f) => (
           <option key={f} value={f} />

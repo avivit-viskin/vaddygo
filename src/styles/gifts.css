@@ -488,6 +488,74 @@
   color: var(--color-text-muted);
 }
 
+/* ── מוצר כאקורדיון: כותרת לחיצה (צ'בון + תמונה זעירה + שם + מחיר) והגוף נפתח ── */
+.vendor-form__product-toggle {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 2px 0;
+  font-family: var(--font-family);
+  text-align: start;
+}
+.vendor-form__product-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  transition: transform 0.15s ease;
+  transform: rotate(-90deg);
+}
+.vendor-form__product-chevron.is-open {
+  transform: rotate(0deg);
+}
+.vendor-form__product-thumb-sm {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  object-fit: cover;
+  flex-shrink: 0;
+  background: var(--color-primary-light);
+}
+.vendor-form__product-thumb-sm--empty {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-text-muted);
+}
+.vendor-form__product-summary {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  gap: 1px;
+}
+.vendor-form__product-title-sm {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.vendor-form__product-meta-sm {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+/* גוף המוצר (השדות שנפתחים) — שומר על אותו ריווח שהיה בין השדות */
+.vendor-form__product-body {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .vendor-form__product-chevron {
+    transition: none;
+  }
+}
+
 .vendor-form__row {
   display: flex;
   gap: 8px;

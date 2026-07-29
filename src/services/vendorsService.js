@@ -139,3 +139,14 @@ export async function getPublicCatalog(id) {
 export async function getSupplierDirectory() {
   return api.get("/api/public/vendors/directory");
 }
+
+/*
+  חילוץ מוצרים מטקסט קטלוג (PDF) בעזרת ה-AI — מחזיר [{ name, description, price }].
+  אם ה-AI לא זמין (503) או נכשל, הקורא נופל חזרה לחילוץ המקומי (parsePdfText).
+*/
+export async function extractProductsFromText(text) {
+  const result = await api.post("/api/public/vendors/extract-products", {
+    text,
+  });
+  return (result && result.products) || [];
+}

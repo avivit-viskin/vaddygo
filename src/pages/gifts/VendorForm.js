@@ -8,8 +8,11 @@ import { VENDOR_CATEGORIES } from "../../services/vendorCategories";
 import { fileToResizedDataUrl } from "../../services/imageUpload";
 import {
   parseProductFile,
+  extractPdfText,
+  parsePdfText,
   PRODUCTS_IMPORT_TEMPLATE,
 } from "../../services/productsImport";
+import { extractProductsFromText } from "../../services/vendorsService";
 import "../../styles/supplier-app.css";
 
 /* תבנית להורדה כקובץ CSV (data-URI) — נפתח באקסל עם עברית תקינה (BOM) */
@@ -293,7 +296,8 @@ function VendorForm({
     }
   }
 
-  // ייבוא מרוכז של מוצרים מקובץ Excel / CSV / PDF — מתווספים לרשימה, ושומרים אחר כך
+  // ייבוא מרוכז של מוצרים מקובץ Excel / CSV / PDF — מתווספים לרשימה, ושומרים אחר כך.
+  // ל-PDF: מחלצים טקסט ומעדיפים חילוץ חכם (AI) בשרת; אם לא זמין — נופלים להיוריסטיקה.
   async function handleImportFile(file) {
     if (!file) {
       return;
@@ -301,11 +305,26 @@ function VendorForm({
     const isPdf = (file.name || "").toLowerCase().endsWith(".pdf");
     setImportMsg(isPdf ? "קורא את ה-PDF..." : "מייבא...");
     try {
-      const imported = await parseProductFile(file);
-      if (imported.length === 0) {
+      let imported;
+      if (isPdf) {
+        const text = await extractPdfText(file);
+        setImportMsg("מזהה מוצרים מתוך ה-PDF...");
+        try {
+          imported = await extractProductsFromText(text);
+        } catch {
+          imported = [];
+        }
+        // אם החילוץ החכם לא זמין/נכשל — פולבק לזיהוי מקומי לפי שורות
+        if (!imported || imported.length === 0) {
+          imported = parsePdfText(text);
+        }
+      } else {
+        imported = await parseProductFile(file);
+      }
+      if (!imported || imported.length === 0) {
         setImportMsg(
           isPdf
-            ? "לא זוהו מוצרים ב-PDF. עדיף קובץ עם שם ומחיר בכל שורה, או Excel/CSV."
+            ? "לא זוהו מוצרים ב-PDF. עדיף קובץ עם שם ומחיר ברורים, או Excel/CSV."
             : "לא נמצאו מוצרים בקובץ. ודאו שיש עמודת 'שם'."
         );
         return;

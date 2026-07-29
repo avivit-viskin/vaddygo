@@ -226,7 +226,8 @@ function linesToProducts(lines) {
   return products;
 }
 
-async function parsePdfFile(file) {
+// מחלץ את כל הטקסט מ-PDF (שורות מופרדות בשורת-רווח). משמש גם לחילוץ AI וגם לפולבק.
+export async function extractPdfText(file) {
   const pdfjsLib = await loadPdfJs();
   const data = new Uint8Array(await file.arrayBuffer());
   const pdf = await pdfjsLib.getDocument({ data }).promise;
@@ -236,7 +237,20 @@ async function parsePdfFile(file) {
     const content = await page.getTextContent();
     lines.push(...itemsToLines(content.items));
   }
+  return lines.join("\n");
+}
+
+// חילוץ מוצרים מקומי (פולבק) מטקסט PDF — היוריסטיקה של שם+מחיר(+פירוט) לפי שורות.
+export function parsePdfText(text) {
+  const lines = (text || "")
+    .split(/\r?\n/)
+    .map((l) => l.trim())
+    .filter(Boolean);
   return linesToProducts(lines);
+}
+
+async function parsePdfFile(file) {
+  return parsePdfText(await extractPdfText(file));
 }
 
 /*

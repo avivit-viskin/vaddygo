@@ -30,7 +30,7 @@ import SupplierPayments from "../components/SupplierPayments";
 import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
 import WhatsAppFab from "../components/WhatsAppFab";
-import UnsavedChangesGuard from "../components/UnsavedChangesGuard";
+import useUnsavedGuard from "../hooks/useUnsavedGuard";
 import PullToRefresh from "../components/PullToRefresh";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/gifts.css";
@@ -59,6 +59,8 @@ function SupplierEditPage() {
   // וכפתור "חזור" חוזר לטאב הקודם במקום לזרוק החוצה למסך הכניסה/הרשמה.
   const [searchParams, setSearchParams] = useSearchParams();
   const view = searchParams.get("tab") || "home";
+  // שומר מפני עזיבת הטופס עם שינויים שלא נשמרו (מעבר טאב / התנתקות / חזור / רענון)
+  const { confirmDiscard } = useUnsavedGuard();
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
   // הגדרת התחברות ראשונית — מייל+סיסמה כדי לחזור בלי הקישור
@@ -123,6 +125,8 @@ function SupplierEditPage() {
   }
 
   function goTo(nextView, folder, status) {
+    // עוזבים טאב עם שינוי שלא נשמר? שואלים "לא לחצת שמור, האם להמשיך בכל זאת?"
+    if (nextView !== view && !confirmDiscard()) return;
     setSaved(false);
     setSaveError("");
     if (nextView === "products") {
@@ -138,6 +142,7 @@ function SupplierEditPage() {
   }
 
   function handleLogout() {
+    if (!confirmDiscard()) return;
     clearSupplierSession();
     navigate("/supplier-login");
   }
@@ -353,8 +358,6 @@ function SupplierEditPage() {
     <div className="supplier-edit" dir="rtl">
       {/* משיכה למטה לרענון (נייד/מסך-בית) — אין רענון דפדפן במצב אפליקציה */}
       <PullToRefresh />
-      {/* אזהרה לפני יציאה אם יש שינויים שלא נשמרו בטופס העריכה/מוצרים */}
-      <UnsavedChangesGuard />
       <div className="sup-head">
         <button
           type="button"

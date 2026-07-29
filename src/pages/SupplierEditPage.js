@@ -1,5 +1,5 @@
 import { useCallback, useState } from "react";
-import { useParams, useNavigate, Link } from "react-router-dom";
+import { useParams, useNavigate, useSearchParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import {
   getVendorByToken,
@@ -55,7 +55,10 @@ function SupplierEditPage() {
   const navigate = useNavigate();
   const fetcher = useCallback(() => getVendorByToken(token), [token]);
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
-  const [view, setView] = useState("home");
+  // הטאב הפעיל נשמר בכתובת (?tab=) ולא רק בזיכרון — כך רענון נשאר באותו עמוד,
+  // וכפתור "חזור" חוזר לטאב הקודם במקום לזרוק החוצה למסך הכניסה/הרשמה.
+  const [searchParams, setSearchParams] = useSearchParams();
+  const view = searchParams.get("tab") || "home";
   const [saved, setSaved] = useState(false);
   const [saveError, setSaveError] = useState("");
   // הגדרת התחברות ראשונית — מייל+סיסמה כדי לחזור בלי הקישור
@@ -126,7 +129,11 @@ function SupplierEditPage() {
       setProductsFolder(folder || "");
       setProductsStatus(status || "");
     }
-    setView(nextView);
+    // מעדכנים את הכתובת (?tab=) — push, כדי ש"חזור" יחזור לטאב הקודם.
+    // "home" = בלי פרמטר (כתובת נקייה). דילוג אם כבר על אותו טאב (בלי כפילויות בהיסטוריה).
+    if (nextView !== view) {
+      setSearchParams(nextView === "home" ? {} : { tab: nextView });
+    }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 

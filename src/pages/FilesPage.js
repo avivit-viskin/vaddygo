@@ -15,6 +15,7 @@ import {
   deleteFolder,
 } from "../services/filesService";
 import FolderForm from "./files/FolderForm";
+import ReceiptsCard from "./files/ReceiptsCard";
 import WhatsAppIcon from "../components/WhatsAppIcon";
 import { whatsappShareUrl } from "../services/whatsapp";
 import { isActiveReadOnly } from "../services/institutionsService";
@@ -50,6 +51,8 @@ function FilesPage() {
 
   return (
     <div className="files">
+      <ReceiptsCard />
+
       <Card
         title={
           <>

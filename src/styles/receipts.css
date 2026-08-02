@@ -1,0 +1,77 @@
+/*
+  receipts — כרטיס "קבלות והוצאות" בעמוד הקבצים: גלריית תמונות קטנות עם סכום,
+  קטגוריה ותאריך. לחיצה על תמונה פותחת אותה בגדול; מחיקה מוחקת גם את ההוצאה.
+*/
+.receipts {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 12px;
+}
+
+.receipts__item {
+  position: relative;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--color-surface);
+  display: flex;
+  flex-direction: column;
+}
+
+.receipts__thumb-btn {
+  border: none;
+  padding: 0;
+  background: none;
+  cursor: pointer;
+  display: block;
+}
+
+.receipts__thumb {
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  display: block;
+  background: var(--color-primary-light);
+}
+
+.receipts__info {
+  padding: 8px 10px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.receipts__amount {
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.receipts__cat {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+}
+
+.receipts__date {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.receipts__delete {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 6px;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--color-error);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}

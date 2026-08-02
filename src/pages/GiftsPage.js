@@ -16,7 +16,7 @@ import {
   generateVendorEditLink,
   dismissVendorDeletion,
 } from "../services/vendorsService";
-import { whatsappUrl } from "../services/whatsapp";
+import { whatsappUrl, whatsappUrlWithText } from "../services/whatsapp";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
@@ -342,10 +342,14 @@ function GiftsPage() {
                       🗑️ ביקש מחיקה
                     </span>
                   )}
-                  {/* כפתור וואטסאפ ירוק ליד שם הספק — פנייה ישירה + קצת צבע לדף */}
+                  {/* כפתור וואטסאפ ירוק ליד שם הספק — פותח שיחה עם הספק והודעה
+                      מוכנה כבר מוקלדת (נשאר רק ללחוץ "שליחה") */}
                   {vendor.whatsApp && (
                     <a
-                      href={whatsappUrl(vendor.whatsApp)}
+                      href={whatsappUrlWithText(
+                        vendor.whatsApp,
+                        `היי ${vendor.name}! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. נשמח לקבל פרטים ומחירים על המוצרים שלכם 🙏`
+                      )}
                       target="_blank"
                       rel="noreferrer"
                       aria-label={`וואטסאפ ל${vendor.name}`}

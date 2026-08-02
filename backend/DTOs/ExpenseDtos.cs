@@ -21,6 +21,9 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(60, ErrorMessage = "שם הקטגוריה יכול להכיל עד 60 תווים")]
         public string? Category { get; set; }
 
+        // תצלום קבלה/מסמך כאסמכתא (base64 data-URI) — אופציונלי
+        public string? ReceiptImage { get; set; }
+
         // אם ההוצאה היא תשלום לספק מהפורטל — מזהה הספק (אופציונלי)
         public int? VendorId { get; set; }
     }
@@ -32,6 +35,7 @@ namespace ParentCommitteeAPI.DTOs
         public string Method { get; set; } = string.Empty;
         public string Description { get; set; } = string.Empty;
         public string Category { get; set; } = string.Empty;
+        public string ReceiptImage { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public int? VendorId { get; set; }
     }

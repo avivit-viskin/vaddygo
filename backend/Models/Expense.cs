@@ -21,6 +21,9 @@ namespace ParentCommitteeAPI.Models
 
         public DateTime Date { get; set; }
 
+        // תצלום קבלה/מסמך כאסמכתא (base64 data-URI, כמו תמונת מוצר). ריק = בלי אסמכתא.
+        public string ReceiptImage { get; set; } = string.Empty;
+
         // המוסד שאליו שייכת ההוצאה (ריבוי מוסדות) — null = ישן ללא שיוך
         public int? GroupId { get; set; }
 

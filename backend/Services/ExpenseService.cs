@@ -51,6 +51,7 @@ namespace ParentCommitteeAPI.Services
                 Method = Normalize(dto.Method),
                 Description = (dto.Description ?? string.Empty).Trim(),
                 Category = (dto.Category ?? string.Empty).Trim(),
+                ReceiptImage = (dto.ReceiptImage ?? string.Empty).Trim(),
                 Date = DateTime.UtcNow,
                 GroupId = scoped,
                 VendorId = dto.VendorId,
@@ -90,6 +91,7 @@ namespace ParentCommitteeAPI.Services
             Method = e.Method,
             Description = e.Description,
             Category = e.Category,
+            ReceiptImage = e.ReceiptImage,
             Date = e.Date,
             VendorId = e.VendorId,
         };

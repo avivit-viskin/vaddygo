@@ -82,20 +82,20 @@ function FilesPage() {
                   <Icon name="folder" size={18} /> {folder.name}
                 </a>
                 <div className="folders__actions">
-                  <a
-                    className="folders__action folders__action--whatsapp"
-                    href={whatsappShareUrl(
-                      `שלום 🙂 הנה הקישור לתיקייה "${folder.name}":\n${folder.url}`
-                    )}
-                    target="_blank"
-                    rel="noreferrer"
-                    aria-label={`שליחת התיקייה ${folder.name} בוואטסאפ`}
-                  >
-                    <WhatsAppIcon size={20} />
-                  </a>
-                  {/* "צופה" — לצפייה בלבד: בלי עריכה/מחיקה */}
+                  {/* "צופה" — לצפייה בלבד: בלי שיתוף/עריכה/מחיקה */}
                   {!readOnly && (
                     <>
+                      <a
+                        className="folders__action folders__action--whatsapp"
+                        href={whatsappShareUrl(
+                          `שלום 🙂 הנה הקישור לתיקייה "${folder.name}":\n${folder.url}`
+                        )}
+                        target="_blank"
+                        rel="noreferrer"
+                        aria-label={`שליחת התיקייה ${folder.name} בוואטסאפ`}
+                      >
+                        <WhatsAppIcon size={20} />
+                      </a>
                       <button
                         type="button"
                         className="folders__action"

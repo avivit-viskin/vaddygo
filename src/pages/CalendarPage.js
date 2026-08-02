@@ -469,7 +469,8 @@ function CalendarPage({ initialDate }) {
                 <Icon name="users" size={14} />{" "}
                 {event.name?.trim() || roleLabel(event.shabbatRole)}
               </span>
-              {event.parentPhone && (
+              {/* "צופה" — לצפייה בלבד: בלי שליחת הודעה להורה */}
+              {!readOnly && event.parentPhone && (
                 <a
                   className="calendar-list__send"
                   href={shabbatWhatsappUrl(event, ganName)}
@@ -506,15 +507,18 @@ function CalendarPage({ initialDate }) {
               <span className="calendar-list__name">
                 ראש חודש {rc.monthName}
               </span>
-              <a
-                className="calendar-list__send"
-                href={whatsappShareUrl(rc.message)}
-                target="_blank"
-                rel="noreferrer"
-                aria-label={`שליחת תזכורת להורים על ראש חודש ${rc.monthName}`}
-              >
-                <WhatsAppIcon size={18} /> שליחת תזכורת
-              </a>
+              {/* "צופה" — לצפייה בלבד: בלי שליחת תזכורת להורים */}
+              {!readOnly && (
+                <a
+                  className="calendar-list__send"
+                  href={whatsappShareUrl(rc.message)}
+                  target="_blank"
+                  rel="noreferrer"
+                  aria-label={`שליחת תזכורת להורים על ראש חודש ${rc.monthName}`}
+                >
+                  <WhatsAppIcon size={18} /> שליחת תזכורת
+                </a>
+              )}
             </div>
           ))}
         </section>

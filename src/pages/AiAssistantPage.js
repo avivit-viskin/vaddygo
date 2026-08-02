@@ -54,6 +54,8 @@ function AiAssistantPage() {
   const [error, setError] = useState("");
   const [finance, setFinance] = useState(""); // תמצית כספית לרקע (נטענת פעם אחת)
   const threadEndRef = useRef(null);
+  // "צופה" — לצפייה בלבד: בלי שיתוף הודעות להורים בוואטסאפ
+  const readOnly = isActiveReadOnly();
 
   // טוענים את המצב הכספי פעם אחת בכניסה (רק אם ההעדפה דלוקה) כדי שהעוזרת תדע
   // לענות לפי המספרים. אפשר לכבות בהגדרות ← פרטיות, ואז לא נשלח מידע כספי.
@@ -136,7 +138,7 @@ function AiAssistantPage() {
                 className={`ai-bubble ai-bubble--${message.role}`}
               >
                 <p className="ai-bubble__text">{message.text}</p>
-                {message.role === "assistant" && (
+                {message.role === "assistant" && !readOnly && (
                   <a
                     className="ai-bubble__share"
                     href={whatsappShareUrl(extractShareMessage(message.text))}

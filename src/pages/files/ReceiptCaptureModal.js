@@ -6,7 +6,7 @@ import Button from "../../components/Button";
 import ExpenseCategorySelect from "../home/ExpenseCategorySelect";
 import { PAYMENT_METHODS } from "../../services/paymentMethods";
 import { fileToResizedDataUrl } from "../../services/imageUpload";
-import { createExpense } from "../../services/expensesService";
+import { createExpense, updateExpense } from "../../services/expensesService";
 
 /*
   ReceiptCaptureModal — הוספת קבלה/מסמך בעמוד הקבצים: מצלמים (מצלמה) או בוחרים
@@ -32,7 +32,7 @@ const pickStyle = {
   textAlign: "center",
 };
 
-function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
+function ReceiptCaptureModal({ isOpen, onClose, onSaved, receipt = null }) {
   const [image, setImage] = useState(""); // base64 data-URI של הקבלה
   const [amount, setAmount] = useState("");
   const [category, setCategory] = useState("");
@@ -42,20 +42,20 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
   const [isSaving, setIsSaving] = useState(false);
   const [imageBusy, setImageBusy] = useState(false);
 
-  // איפוס הטופס בכל פתיחה
+  // בכל פתיחה: בעריכה ממלאים מהקבלה הקיימת, בהוספה טופס ריק
   useEffect(() => {
     if (!isOpen) {
       return;
     }
-    setImage("");
-    setAmount("");
-    setCategory("");
-    setMethod("bit");
-    setDescription("");
+    setImage(receipt?.receiptImage || "");
+    setAmount(receipt ? String(receipt.amount ?? "") : "");
+    setCategory(receipt?.category || "");
+    setMethod(receipt?.method || "bit");
+    setDescription(receipt?.description || "");
     setError("");
     setIsSaving(false);
     setImageBusy(false);
-  }, [isOpen]);
+  }, [isOpen, receipt]);
 
   async function handlePick(file) {
     if (!file) {
@@ -88,13 +88,18 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
     setIsSaving(true);
     setError("");
     try {
-      await createExpense({
+      const payload = {
         amount: value,
         method,
         category,
         description: description.trim(),
         receiptImage: image,
-      });
+      };
+      if (receipt) {
+        await updateExpense(receipt.id, payload);
+      } else {
+        await createExpense(payload);
+      }
       if (onSaved) {
         onSaved();
       }
@@ -106,7 +111,11 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
   }
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="הוספת קבלה / הוצאה 🧾">
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title={receipt ? "עריכת קבלה 🧾" : "הוספת קבלה / הוצאה 🧾"}
+    >
       <form onSubmit={handleSubmit} noValidate>
         {image ? (
           <div style={{ marginBottom: 12 }}>
@@ -228,7 +237,7 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
         )}
         <div style={{ marginTop: 10 }}>
           <Button type="submit" isLoading={isSaving}>
-            שמירה — ועדכון היתרה
+            {receipt ? "שמירת השינויים" : "שמירה — ועדכון היתרה"}
           </Button>
         </div>
       </form>

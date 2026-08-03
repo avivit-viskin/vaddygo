@@ -31,6 +31,7 @@ function ReceiptsCard() {
   const readOnly = isActiveReadOnly();
   const { data: expenses, isLoading, error, reload } = useApi(getExpenses);
   const [adding, setAdding] = useState(false);
+  const [editing, setEditing] = useState(null); // קבלה בעריכה
   const [viewing, setViewing] = useState(null); // קבלה לצפייה בגדול
   const [deleting, setDeleting] = useState(null);
   const [openFolder, setOpenFolder] = useState(null); // שם הקטגוריה שנפתחה, או null
@@ -101,14 +102,24 @@ function ReceiptsCard() {
           <span className="receipts__date">{formatDayMonth(r.date)}</span>
         </div>
         {!readOnly && (
-          <button
-            type="button"
-            className="receipts__delete"
-            aria-label="מחיקת קבלה"
-            onClick={() => setDeleting(r)}
-          >
-            <Icon name="trash" size={16} />
-          </button>
+          <>
+            <button
+              type="button"
+              className="receipts__edit"
+              aria-label="עריכת קבלה"
+              onClick={() => setEditing(r)}
+            >
+              <Icon name="pencil" size={15} />
+            </button>
+            <button
+              type="button"
+              className="receipts__delete"
+              aria-label="מחיקת קבלה"
+              onClick={() => setDeleting(r)}
+            >
+              <Icon name="trash" size={16} />
+            </button>
+          </>
         )}
       </li>
     );
@@ -209,8 +220,12 @@ function ReceiptsCard() {
       )}
 
       <ReceiptCaptureModal
-        isOpen={adding}
-        onClose={() => setAdding(false)}
+        isOpen={adding || editing !== null}
+        receipt={editing}
+        onClose={() => {
+          setAdding(false);
+          setEditing(null);
+        }}
         onSaved={reload}
       />
 

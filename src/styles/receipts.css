@@ -44,6 +44,19 @@
   gap: 2px;
 }
 
+.receipts__name {
+  font-weight: 700;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  overflow-wrap: anywhere;
+}
+
+.receipts__name--empty {
+  font-weight: 500;
+  font-style: italic;
+  color: var(--color-text-muted);
+}
+
 .receipts__amount {
   font-weight: 800;
   color: var(--color-primary-dark);
@@ -52,6 +65,84 @@
 .receipts__cat {
   font-size: var(--font-size-sm);
   color: var(--color-text);
+}
+
+/* ── תיקיות קבלות לפי קטגוריה + ניווט תיקייה פתוחה ── */
+.receipt-folders {
+  list-style: none;
+  margin: 0 0 12px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.receipt-folders__item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-surface);
+  color: var(--color-text);
+  font-family: var(--font-family);
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  cursor: pointer;
+  text-align: start;
+}
+
+.receipt-folders__item:hover {
+  border-color: var(--color-primary);
+}
+
+.receipt-folders__icon {
+  display: flex;
+  color: var(--color-primary-dark);
+}
+
+.receipt-folders__name {
+  flex: 1;
+}
+
+.receipt-folders__count {
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text-muted);
+}
+
+.receipt-folders__chevron {
+  font-size: 20px;
+  color: var(--color-text-muted);
+}
+
+.receipts__back {
+  border: none;
+  background: none;
+  color: var(--color-link);
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 4px;
+}
+
+.receipts__folder-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 12px;
+  font-size: var(--font-size-base);
+  color: var(--color-primary-dark);
+}
+
+.receipts__more-note {
+  margin: 4px 0 12px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 .receipts__date {

@@ -207,11 +207,20 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
         </Select>
         <Input
           id="receipt-desc"
-          label="פירוט (לא חובה)"
-          placeholder="למשל: קנייה ליום הולדת"
+          label="שם הקבלה לתצוגה (לא חובה)"
+          placeholder="למשל: מגש פירות ליום המשפחה"
           value={description}
           onChange={(e) => setDescription(e.target.value)}
         />
+        <p
+          style={{
+            margin: "-6px 0 8px",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          זה השם שיוצג לקבלה ברשימה.
+        </p>
         {error && (
           <p className="field__error" role="alert">
             {error}

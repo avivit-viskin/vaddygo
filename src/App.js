@@ -9,6 +9,7 @@ import WhatsAppFab from "./components/WhatsAppFab";
 import PullToRefresh from "./components/PullToRefresh";
 import PageTransition from "./components/PageTransition";
 import ToastContainer from "./components/Toast";
+import ImportJobBanner from "./components/ImportJobBanner";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import StudentPaymentsPage from "./pages/StudentPaymentsPage";
@@ -175,6 +176,9 @@ function App() {
   return (
     <div dir="rtl">
       <ToastContainer />
+      {/* באנר ייבוא גלובלי — ממשיך להופיע בכל דף באתר עד שהמשימה נגמרת. בפורטל
+          הספק (isSupplierEdit) יש באנר משלו, ולכן שם לא מכפילים */}
+      {!isSupplierEdit && <ImportJobBanner />}
       <PageTransition disabled={isFullScreen} />
       {!isFullScreen && <PullToRefresh />}
       {!isFullScreen && (

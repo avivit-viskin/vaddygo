@@ -86,9 +86,11 @@ test('מסך התלמידים מציג שגיאה ידידותית כשהשרת 
   expect(await screen.findByText(/לא הצלחנו להתחבר לשרת/)).toBeInTheDocument();
 });
 
-test('משתמשת לא מחוברת מופנית ממסך פנימי למסך הפתיחה', () => {
+test('משתמשת לא מחוברת מופנית ממסך פנימי לדף הנחיתה', () => {
   localStorage.removeItem('vaadygo.token');
   renderAt('/students');
-  // בלי token אין גישה למסך התלמידים — מגיעים למסך הפתיחה (כפתור "שנתחיל?")
-  expect(screen.getByRole('button', { name: 'שנתחיל?' })).toBeInTheDocument();
+  // בלי token אין גישה למסך פנימי — מגיעים לדף הנחיתה הציבורי, שממנו נרשמים
+  expect(
+    screen.getAllByRole('link', { name: 'הרשמה חינם' }).length
+  ).toBeGreaterThan(0);
 });

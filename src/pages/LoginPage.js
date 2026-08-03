@@ -154,7 +154,7 @@ function LoginPage() {
             עדיין אין לך חשבון? <Link to="/register">להרשמה מהירה</Link>
           </p>
           <p className="auth-page__hint">
-            ספק/ית? <Link to="/suppliers">לכניסת ספקים 🏷️</Link>
+            ספק/ית? <Link to="/supplier-login">לכניסת ספקים 🏷️</Link>
           </p>
           </form>
         </div>

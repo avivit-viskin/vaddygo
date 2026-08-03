@@ -134,8 +134,8 @@ function SupplierForgotPasswordPage() {
             <>
               <h2 className="login-card__title">הזנת הקוד וסיסמה חדשה</h2>
               <p className="auth-page__hint" style={{ margin: "0 0 12px" }}>
-                אם המייל שהזנת רשום אצלנו — שלחנו אליו קוד בן 6 ספרות. הקוד תקף
-                ל-5 דקות. כדאי לבדוק גם בתיקיית הספאם 🙂
+                במידה והמייל שלך רשום במערכת — מחכה לך קוד בן 6 ספרות לאיפוס
+                הסיסמה. הקוד תקף ל-5 דקות, וכדאי לבדוק גם בתיקיית הספאם 🙂
               </p>
               <form onSubmit={handleReset} noValidate>
                 <Input

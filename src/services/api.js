@@ -10,12 +10,17 @@ const BASE_URL = process.env.REACT_APP_API_URL;
 
 // פעולות שמירה (מוטציות) — עליהן מציגים "השינויים נשמרו ✓" בהצלחה
 const SAVE_METHODS = new Set(["POST", "PUT", "DELETE"]);
-// נתיבים שאינם "שמירה" של הלקוח — התחברות ועוזרת AI: בלי הודעת "נשמר"
-// (חילוץ מוצרים מ-PDF הוא POST אך אינו שמירה — רק מחזיר מוצרים לבדיקה)
+// נתיבים שאינם "שמירה" של הלקוח — התחברות/הרשמה/איפוס סיסמה (ועד + ספקים)
+// ועוזרת AI: בלי הודעת "נשמר". על איפוס סיסמה מציגים בעמוד עצמו הודעה ניטרלית
+// שלא חושפת אם המייל קיים. (חילוץ מוצרים מ-PDF הוא POST אך אינו שמירה.)
 const NO_TOAST_PREFIXES = [
   "/api/auth",
   "/api/ai",
   "/api/public/vendors/extract-products",
+  "/api/public/vendors/login",
+  "/api/public/vendors/register",
+  "/api/public/vendors/forgot-password",
+  "/api/public/vendors/reset-password",
 ];
 // נתיבים ללא נפילה ל-localStorage — כאן כישלון שרת = הנתונים באמת לא נשמרו,
 // ולכן רק עליהם מציגים "שגיאה, לא נשמר" (בשאר, כישלון נשמר מקומית = לא שגיאה).

@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Card from "../../components/Card";
 import Icon from "../../components/Icon";
 import Button from "../../components/Button";
@@ -34,6 +34,12 @@ function ReceiptsCard() {
   const [viewing, setViewing] = useState(null); // קבלה לצפייה בגדול
   const [deleting, setDeleting] = useState(null);
   const [openFolder, setOpenFolder] = useState(null); // שם הקטגוריה שנפתחה, או null
+  const [showAll, setShowAll] = useState(false); // "ראה עוד" — חשיפת כל הקבלות בתיקייה
+
+  // בכל כניסה לתיקייה מתחילים מ-4 האחרונות (ולא במצב "ראה עוד" של תיקייה קודמת)
+  useEffect(() => {
+    setShowAll(false);
+  }, [openFolder]);
 
   const receipts = useMemo(
     () => (expenses || []).filter((e) => (e.receiptImage || "").trim()),
@@ -76,7 +82,12 @@ function ReceiptsCard() {
           onClick={() => setViewing(r)}
           aria-label="צפייה בקבלה"
         >
-          <img className="receipts__thumb" src={r.receiptImage} alt="קבלה" />
+          <img
+            className="receipts__thumb"
+            src={r.receiptImage}
+            alt="קבלה"
+            loading="lazy"
+          />
         </button>
         <div className="receipts__info">
           <span
@@ -151,7 +162,7 @@ function ReceiptsCard() {
         </ul>
       )}
 
-      {/* תיקייה פתוחה: עד 4 הקבלות האחרונות בקטגוריה */}
+      {/* תיקייה פתוחה: 4 הקבלות האחרונות, ו"ראה עוד" לחשיפת השאר */}
       {!isLoading && !error && current && (
         <div>
           <button
@@ -165,13 +176,29 @@ function ReceiptsCard() {
             <Icon name="folder" size={18} /> {current.name}
           </h3>
           <ul className="receipts">
-            {current.items.slice(0, MAX_VISIBLE).map(renderReceipt)}
+            {(showAll
+              ? current.items
+              : current.items.slice(0, MAX_VISIBLE)
+            ).map(renderReceipt)}
           </ul>
-          {current.items.length > MAX_VISIBLE && (
-            <p className="receipts__more-note">
-              מוצגות 4 הקבלות האחרונות בקטגוריה זו.
-            </p>
-          )}
+          {current.items.length > MAX_VISIBLE &&
+            (showAll ? (
+              <button
+                type="button"
+                className="receipts__more-btn"
+                onClick={() => setShowAll(false)}
+              >
+                הצג פחות
+              </button>
+            ) : (
+              <button
+                type="button"
+                className="receipts__more-btn"
+                onClick={() => setShowAll(true)}
+              >
+                ראה עוד ({current.items.length - MAX_VISIBLE})
+              </button>
+            ))}
         </div>
       )}
 

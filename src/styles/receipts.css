@@ -139,10 +139,22 @@
   color: var(--color-primary-dark);
 }
 
-.receipts__more-note {
-  margin: 4px 0 12px;
+.receipts__more-btn {
+  display: inline-block;
+  margin: 0 0 12px;
+  padding: 8px 16px;
+  border: 1px solid var(--color-primary);
+  border-radius: 10px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-family: var(--font-family);
+  font-weight: 700;
   font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
+  cursor: pointer;
+}
+
+.receipts__more-btn:hover {
+  filter: brightness(0.97);
 }
 
 .receipts__date {

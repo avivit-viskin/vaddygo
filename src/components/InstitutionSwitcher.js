@@ -116,6 +116,26 @@ function InstitutionSwitcher({ onClose }) {
           תלמידים, תשלומים, צוות, הוצאות ומתנות. <strong>החשבון שלך ושאר
           המוסדות יישארו כמו שהם.</strong> לא ניתן לשחזר.
         </p>
+        {/* אזהרה כשזה המוסד היחיד — אחרי המחיקה אין מוסד, והמשתמשת מועברת לאשף
+            ההקמה. מסבירים מראש כדי שזה לא ייראה כמו תקלה. */}
+        {toDelete?.activated &&
+          institutions.filter((i) => i.activated && i.id !== toDelete.id)
+            .length === 0 && (
+            <p
+              role="alert"
+              style={{
+                background: "#fff8e6",
+                border: "1px solid #f6d98a",
+                color: "#8a6d1a",
+                borderRadius: 8,
+                padding: "8px 10px",
+                fontSize: "var(--font-size-sm)",
+              }}
+            >
+              ⚠️ זה המוסד היחיד שלך. אחרי המחיקה תועברי למסך ההקמה כדי ליצור מוסד
+              חדש — בלי מוסד אי אפשר להשתמש באפליקציה.
+            </p>
+          )}
         <Input
           id="delete-institution-confirm"
           label={`כדי לאשר, יש להקליד את שם המוסד: ${toDelete?.name || ""}`}

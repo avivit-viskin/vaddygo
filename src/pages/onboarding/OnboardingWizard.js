@@ -68,11 +68,9 @@ function OnboardingWizard() {
   }
 
   function handleBack() {
-    // מהשלב הראשון אין צעד קודם באשף — חוזרים למסך שלפניו
-    if (step === 1) {
-      navigate(-1);
-      return;
-    }
+    // כפתור "חזרה" מוצג רק משלב 2 ואילך (ראו wizard__actions). מהשלב הראשון אין
+    // לאן לחזור — בעבר קראנו כאן navigate(-1), אבל למשתמשת בלי מוסד זה יצר לולאה
+    // בחזרה ל-/onboarding, ולכן פשוט מדלגים צעד אחורה בתוך האשף.
     setStep((s) => Math.max(s - 1, 1));
   }
 
@@ -134,9 +132,13 @@ function OnboardingWizard() {
       {renderStep(currentKey)}
 
       <div className="wizard__actions">
-        <Button variant="secondary" onClick={handleBack}>
-          חזרה
-        </Button>
+        {/* "חזרה" רק משלב 2 ואילך — בשלב הראשון אין צעד קודם, וכפתור שחוזר
+            בהיסטוריה היה נתקע בלולאה חזרה לאשף (כשאין למשתמשת מוסד). */}
+        {step > 1 && (
+          <Button variant="secondary" onClick={handleBack}>
+            חזרה
+          </Button>
+        )}
         {step < totalSteps && <Button onClick={handleNext}>המשך</Button>}
         {step === totalSteps && (
           <Button onClick={handleFinish} isLoading={isSaving}>

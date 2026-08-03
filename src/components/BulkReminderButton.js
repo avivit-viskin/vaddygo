@@ -58,12 +58,9 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
 
   return (
     <>
-      <span className="pro-trigger">
-        <Button variant="secondary" onClick={open}>
-          📣 תזכורת לחייבים
-        </Button>
-        <ProBadge title="תזכורת גורפת — פיצ'ר פרו" />
-      </span>
+      <Button variant="secondary" onClick={open}>
+        📣 תזכורת לחייבים <ProBadge title="תזכורת גורפת — פיצ'ר פרו" />
+      </Button>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

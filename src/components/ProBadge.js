@@ -2,15 +2,15 @@ import Icon from "./Icon";
 import "../styles/pro.css";
 
 /*
-  ProBadge — תגית "פרו" קטנה (כתר זהב) שמוצמדת ליד פיצ'רים ממסלול הפרו.
-  שלב א': סימון ויזואלי בלבד — לא חוסם כלום (ראו services/plan.js).
+  ProBadge — תגית "פרו" בסגנון Canva: כתר זהב מלא בתוך קובייה קטנה מעוגלת,
+  בלי טקסט. שלב א': סימון ויזואלי בלבד — לא חוסם כלום (ראו services/plan.js).
   דקורטיבי (aria-hidden) כדי לא "ללכלך" את השם הנגיש של כפתורים/כותרות שלצידו;
-  המידע הנגיש על הפרו נמצא בעמוד השדרוג ובכניסה הייעודית בתפריט הצד.
+  ה-title משמש כ-tooltip למי שמרחף עם העכבר.
 */
-function ProBadge({ label = "פרו", size = 12, title = "פיצ'ר פרו" }) {
+function ProBadge({ size = 13, title = "פרו" }) {
   return (
     <span className="pro-badge" title={title} aria-hidden="true">
-      <Icon name="crown" size={size} /> {label}
+      <Icon name="crown" size={size} />
     </span>
   );
 }

@@ -89,16 +89,14 @@ function BulkPaymentRequestButton({ students = [] }) {
 
   return (
     <>
-      <span className="pro-trigger">
-        <Button
-          variant="secondary"
-          onClick={open}
-          disabled={students.length === 0}
-        >
-          <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ
-        </Button>
+      <Button
+        variant="secondary"
+        onClick={open}
+        disabled={students.length === 0}
+      >
+        <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ{" "}
         <ProBadge title="בקשת תשלום גורפת — פיצ'ר פרו" />
-      </span>
+      </Button>
       <Modal
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

@@ -199,10 +199,12 @@ const PATHS = {
     </>
   ),
   crown: (
-    <>
-      <path d="M2.5 8 6 12 12 5l6 7 3.5-4L20 19H4L2.5 8Z" />
-      <path d="M4.5 15.5h15" />
-    </>
+    <g fill="currentColor" stroke="none">
+      <path d="M4.9 17.4 3.3 8.9 7.9 11 12 5.7 16.1 11 20.7 8.9 19.1 17.4Z" />
+      <circle cx="12" cy="4.8" r="1.3" />
+      <circle cx="3.4" cy="7.7" r="1.12" />
+      <circle cx="20.6" cy="7.7" r="1.12" />
+    </g>
   ),
 };
 

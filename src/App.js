@@ -31,7 +31,6 @@ import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import TeamSetupPage from "./pages/TeamSetupPage";
 import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
-import UpgradePage from "./pages/UpgradePage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -257,7 +256,6 @@ function App() {
           <Route path="/accessibility" element={<AccessibilityPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
-          <Route path="/upgrade" element={<UpgradePage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

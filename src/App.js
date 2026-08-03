@@ -31,6 +31,7 @@ import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
 import TeamSetupPage from "./pages/TeamSetupPage";
 import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
+import UpgradePage from "./pages/UpgradePage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -40,6 +41,7 @@ import PrivacyPage from "./pages/legal/PrivacyPage";
 import TermsPage from "./pages/legal/TermsPage";
 import AccessibilityPage from "./pages/legal/AccessibilityPage";
 import CookiesPage from "./pages/legal/CookiesPage";
+import LandingPage from "./pages/LandingPage";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import AccessibilityWidget from "./components/AccessibilityWidget";
@@ -52,7 +54,6 @@ import {
 } from "./services/onboardingService";
 import {
   isAuthenticated,
-  hasVisitedBefore,
   isSubscriptionExpired,
 } from "./services/authService";
 import {
@@ -144,18 +145,15 @@ function App() {
     isCatalog;
   const activeInstitution = getActiveInstitution();
 
-  // הגנת ניתוב: כל מסך שאינו ציבורי דורש הזדהות.
-  // משתמש חדש (מכשיר שטרם נכנסו אליו) → מסך הברוכים-הבאים.
-  // משתמש חוזר (כבר נרשם/התחבר כאן) → ישר למסך הכניסה.
+  // הגנת ניתוב: כל מי שאינו מחובר ומגיע לכתובת שאינה ציבורית → דף הנחיתה
+  // השיווקי (הכתובת הראשית). ממנו נכנסים להרשמה (/register) או לכניסה (/login).
   if (!isAuthenticated() && !isPublic) {
-    const entry = hasVisitedBefore() ? "/login" : "/welcome";
     return (
       <div dir="rtl">
-        <main className="app-main">
-          <Routes>
-            <Route path="*" element={<Navigate to={entry} replace />} />
-          </Routes>
-        </main>
+        <Routes>
+          <Route path="/" element={<LandingPage />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
         <CookieConsent />
         <AccessibilityWidget />
       </div>
@@ -259,6 +257,7 @@ function App() {
           <Route path="/accessibility" element={<AccessibilityPage />} />
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
+          <Route path="/upgrade" element={<UpgradePage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

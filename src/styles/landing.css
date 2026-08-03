@@ -1,0 +1,710 @@
+/*
+  landing.css — דף הנחיתה הציבורי של VaddyGo.
+  שפה עיצובית בהשראת פייבוקס/ביט: טיפוגרפיה עברית חזקה (Rubik), ורוד/רוז מותגי
+  כאקסנט בטוח, פחם לכותרות, רקעים חמים ונקיים, פינות מעוגלות וצללים עדינים.
+  מובייל-first + RTL. משתני הצבע מקומיים (scope ל-.lp) כדי לא להשפיע על האפליקציה.
+*/
+.lp {
+  --lp-ink: #2b201e;
+  --lp-ink-soft: #6f584d;
+  --lp-rose: #cf5b86;
+  --lp-rose-dark: #b0416b;
+  --lp-pink: #f9cfe0;
+  --lp-pink-tint: #fdeef4;
+  --lp-beige: #faf5ef;
+  --lp-bg: #ffffff;
+  --lp-border: #ece0d3;
+  --lp-shadow: 0 18px 40px rgba(80, 30, 55, 0.12);
+  --lp-shadow-sm: 0 6px 18px rgba(80, 30, 55, 0.08);
+
+  font-family: var(--font-family);
+  color: var(--lp-ink);
+  background: var(--lp-bg);
+  line-height: 1.6;
+  overflow-x: hidden;
+}
+.lp * {
+  box-sizing: border-box;
+}
+
+/* ── מיכל רוחב ── */
+.lp-nav__inner,
+.lp-hero__inner,
+.lp-section,
+.lp-feature__inner,
+.lp-foot__inner {
+  width: 100%;
+  max-width: 1120px;
+  margin: 0 auto;
+  padding-inline: 20px;
+}
+
+/* ══ כפתורים ══ */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: 2px solid transparent;
+  border-radius: 999px;
+  font-family: var(--font-family);
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: transform 0.12s ease, box-shadow 0.15s ease,
+    background-color 0.15s ease;
+  white-space: nowrap;
+}
+.lp-btn--sm {
+  padding: 9px 18px;
+  font-size: 15px;
+}
+.lp-btn--lg {
+  padding: 15px 30px;
+  font-size: 17px;
+}
+.lp-btn--primary {
+  background: var(--lp-rose);
+  color: #fff;
+  box-shadow: 0 10px 22px rgba(207, 91, 134, 0.32);
+}
+.lp-btn--primary:hover {
+  background: var(--lp-rose-dark);
+  transform: translateY(-1px);
+}
+.lp-btn--ghost {
+  background: #fff;
+  color: var(--lp-ink);
+  border-color: var(--lp-border);
+}
+.lp-btn--ghost:hover {
+  border-color: var(--lp-ink);
+  transform: translateY(-1px);
+}
+.lp-btn--onDark {
+  background: #fff;
+  color: var(--lp-ink);
+}
+.lp-btn--onDark:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.2);
+}
+
+/* ══ ניווט עליון ══ */
+.lp-nav {
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  background: rgba(255, 255, 255, 0.86);
+  backdrop-filter: saturate(180%) blur(10px);
+  border-bottom: 1px solid var(--lp-border);
+}
+.lp-nav__inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  height: 64px;
+}
+.lp-nav__logo img,
+.lp-nav__logo svg {
+  height: 34px;
+  width: auto;
+  display: block;
+}
+.lp-nav__actions {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.lp-nav__login {
+  color: var(--lp-ink);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 15px;
+}
+.lp-nav__login:hover {
+  color: var(--lp-rose);
+}
+
+/* ══ גיבור ══ */
+.lp-hero {
+  position: relative;
+  background: linear-gradient(180deg, var(--lp-beige) 0%, #ffffff 100%);
+  padding: 40px 0 20px;
+  overflow: hidden;
+}
+.lp-hero__blob {
+  position: absolute;
+  top: -140px;
+  inset-inline-start: -120px;
+  width: 460px;
+  height: 460px;
+  background: radial-gradient(circle at 30% 30%, var(--lp-pink), transparent 68%);
+  opacity: 0.75;
+  pointer-events: none;
+}
+.lp-hero__inner {
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 32px;
+  align-items: center;
+}
+.lp-badge {
+  display: inline-block;
+  background: var(--lp-pink);
+  color: var(--lp-rose-dark);
+  font-weight: 700;
+  font-size: 13px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  margin-bottom: 18px;
+}
+.lp-hero__title {
+  margin: 0 0 16px;
+  font-size: clamp(34px, 7vw, 56px);
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+  color: var(--lp-ink);
+}
+.lp-hero__title mark {
+  background: linear-gradient(transparent 62%, var(--lp-pink) 62%);
+  color: var(--lp-rose-dark);
+  padding: 0 2px;
+}
+.lp-hero__sub {
+  margin: 0 0 26px;
+  font-size: clamp(16px, 2.4vw, 19px);
+  color: var(--lp-ink-soft);
+  max-width: 34em;
+}
+.lp-hero__cta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.lp-hero__note {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 16px 0 0;
+  color: var(--lp-ink-soft);
+  font-size: 14px;
+  font-weight: 600;
+}
+.lp-hero__note svg {
+  color: var(--lp-rose);
+}
+.lp-hero__art {
+  display: flex;
+  justify-content: center;
+}
+
+/* ══ מוקאפ טלפון ══ */
+.lp-phone {
+  width: 262px;
+  background: #1e1614;
+  border-radius: 40px;
+  padding: 12px;
+  box-shadow: var(--lp-shadow);
+  position: relative;
+}
+.lp-phone__notch {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 96px;
+  height: 20px;
+  background: #1e1614;
+  border-radius: 0 0 14px 14px;
+  z-index: 2;
+}
+.lp-phone__screen {
+  background: var(--lp-beige);
+  border-radius: 30px;
+  padding: 16px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 480px;
+}
+.lp-appbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+}
+.lp-appbar__gan {
+  font-weight: 800;
+  font-size: 17px;
+  color: var(--lp-ink);
+}
+.lp-appbar__avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lp-pink);
+  color: var(--lp-rose-dark);
+  font-weight: 800;
+  font-size: 13px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.lp-collect {
+  background: linear-gradient(140deg, #ffffff 0%, #fde7f0 100%);
+  border: 1px solid #f4d3e0;
+  border-radius: 18px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.lp-collect__label {
+  font-size: 13px;
+  color: var(--lp-ink-soft);
+  font-weight: 600;
+}
+.lp-collect__amount {
+  font-size: 30px;
+  font-weight: 800;
+  color: var(--lp-ink);
+  letter-spacing: -0.02em;
+}
+.lp-collect__bar,
+.lp-snippet__bar {
+  height: 9px;
+  background: #f3d7e2;
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 4px 0;
+}
+.lp-collect__bar span,
+.lp-snippet__bar span {
+  display: block;
+  height: 100%;
+  background: var(--lp-rose);
+  border-radius: 999px;
+}
+.lp-collect__meta {
+  font-size: 12px;
+  color: var(--lp-ink-soft);
+}
+.lp-tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.lp-tile {
+  background: #fff;
+  border: 1px solid var(--lp-border);
+  border-radius: 14px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  text-align: center;
+}
+.lp-tile__name {
+  font-size: 12px;
+  color: var(--lp-ink-soft);
+}
+.lp-tile__val {
+  font-weight: 800;
+  color: var(--lp-ink);
+}
+.lp-mini-nav {
+  margin-top: auto;
+  display: flex;
+  justify-content: space-around;
+  padding: 10px 4px 4px;
+  border-top: 1px solid var(--lp-border);
+  color: #b9a99e;
+}
+.lp-mini-nav .is-on {
+  color: var(--lp-rose);
+}
+
+/* ══ פס ערכים ══ */
+.lp-strip {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px 28px;
+  padding: 18px 20px;
+  background: var(--lp-ink);
+  color: #fff;
+}
+.lp-strip span {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-weight: 600;
+  font-size: 15px;
+}
+.lp-strip svg {
+  color: var(--lp-pink);
+}
+
+/* ══ מקטע כללי ══ */
+.lp-section {
+  padding: 64px 20px;
+}
+.lp-section__head {
+  text-align: center;
+  max-width: 640px;
+  margin: 0 auto 40px;
+}
+.lp-h2 {
+  margin: 0 0 12px;
+  font-size: clamp(26px, 4.5vw, 38px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  color: var(--lp-ink);
+}
+.lp-lead {
+  margin: 0;
+  font-size: 17px;
+  color: var(--lp-ink-soft);
+}
+
+/* רשת יכולות */
+.lp-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  max-width: 1120px;
+  margin: 0 auto;
+}
+.lp-card {
+  background: #fff;
+  border: 1px solid var(--lp-border);
+  border-radius: 20px;
+  padding: 24px;
+  box-shadow: var(--lp-shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.lp-card:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--lp-shadow);
+}
+.lp-card__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 52px;
+  height: 52px;
+  border-radius: 15px;
+  background: var(--lp-pink-tint);
+  color: var(--lp-rose);
+  margin-bottom: 14px;
+}
+.lp-card__title {
+  margin: 0 0 6px;
+  font-size: 19px;
+  font-weight: 800;
+  color: var(--lp-ink);
+}
+.lp-card__text {
+  margin: 0;
+  color: var(--lp-ink-soft);
+  font-size: 15.5px;
+}
+
+/* ══ מקטעים מתחלפים ══ */
+.lp-feature {
+  padding: 60px 20px;
+}
+.lp-feature--tint {
+  background: var(--lp-pink-tint);
+}
+.lp-feature__inner {
+  display: flex;
+  flex-direction: column;
+  gap: 34px;
+  align-items: center;
+}
+.lp-feature__text {
+  flex: 1;
+}
+.lp-feature__art {
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.lp-checks {
+  list-style: none;
+  margin: 20px 0 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.lp-checks li {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: var(--lp-ink);
+}
+.lp-checks svg {
+  color: var(--lp-rose);
+  flex-shrink: 0;
+}
+
+/* מוקאפ קטן (snippet) בתוך מקטע */
+.lp-snippet {
+  width: 100%;
+  max-width: 360px;
+  background: #fff;
+  border: 1px solid var(--lp-border);
+  border-radius: 22px;
+  padding: 22px;
+  box-shadow: var(--lp-shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.lp-snippet__label {
+  font-size: 14px;
+  color: var(--lp-ink-soft);
+  font-weight: 600;
+}
+.lp-snippet__amount {
+  font-size: 34px;
+  font-weight: 800;
+  color: var(--lp-ink);
+  letter-spacing: -0.02em;
+}
+.lp-snippet__rows {
+  margin-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.lp-snippet__rows > div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid var(--lp-border);
+  font-size: 15px;
+}
+.lp-snippet__rows > div:last-child {
+  border-bottom: none;
+}
+.lp-snippet__rows b {
+  font-size: 13px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+.is-paid {
+  background: #e4f6ea;
+  color: #2c9a5c;
+}
+.is-due {
+  background: #fdecc8;
+  color: #b57e14;
+}
+
+/* מוקאפ הרשאות */
+.lp-roles {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 6px;
+}
+.lp-roles > div {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--lp-ink);
+}
+.lp-ava {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background: var(--lp-pink);
+  color: var(--lp-rose-dark);
+  font-weight: 800;
+  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.lp-role {
+  margin-inline-start: auto;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 11px;
+  border-radius: 999px;
+}
+.lp-role--owner {
+  background: var(--lp-ink);
+  color: #fff;
+}
+.lp-role--edit {
+  background: var(--lp-pink);
+  color: var(--lp-rose-dark);
+}
+.lp-role--view {
+  background: #eee7de;
+  color: var(--lp-ink-soft);
+}
+
+/* ══ צעדים ══ */
+.lp-steps {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+.lp-step {
+  text-align: center;
+  padding: 8px;
+}
+.lp-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: var(--lp-rose);
+  color: #fff;
+  font-size: 24px;
+  font-weight: 800;
+  margin-bottom: 14px;
+  box-shadow: 0 8px 18px rgba(207, 91, 134, 0.3);
+}
+.lp-step__title {
+  margin: 0 0 6px;
+  font-size: 20px;
+  font-weight: 800;
+  color: var(--lp-ink);
+}
+.lp-step__text {
+  margin: 0;
+  color: var(--lp-ink-soft);
+}
+
+/* ══ פס קריאה לפעולה ══ */
+.lp-cta {
+  margin: 20px 20px 0;
+  padding: 56px 24px;
+  text-align: center;
+  background: linear-gradient(135deg, var(--lp-rose) 0%, #a8395f 100%);
+  border-radius: 28px;
+  color: #fff;
+}
+.lp-cta__title {
+  margin: 0 0 10px;
+  font-size: clamp(26px, 4.5vw, 38px);
+  font-weight: 800;
+  color: #fff;
+}
+.lp-cta__sub {
+  margin: 0 0 24px;
+  font-size: 17px;
+  opacity: 0.95;
+  max-width: 30em;
+  margin-inline: auto;
+}
+
+/* ══ פוטר ══ */
+.lp-foot {
+  margin-top: 40px;
+  background: var(--lp-beige);
+  border-top: 1px solid var(--lp-border);
+  padding: 48px 20px 24px;
+}
+.lp-foot__inner {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 28px;
+}
+.lp-foot__logo img,
+.lp-foot__logo svg {
+  height: 32px;
+  width: auto;
+}
+.lp-foot__tag {
+  margin: 10px 0 0;
+  color: var(--lp-ink-soft);
+  font-weight: 600;
+}
+.lp-foot__col h4 {
+  margin: 0 0 12px;
+  font-size: 15px;
+  font-weight: 800;
+  color: var(--lp-ink);
+}
+.lp-foot__col a {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--lp-ink-soft);
+  text-decoration: none;
+  font-size: 15px;
+  padding: 5px 0;
+}
+.lp-foot__col a:hover {
+  color: var(--lp-rose);
+}
+.lp-foot__copy {
+  max-width: 1120px;
+  margin: 32px auto 0;
+  padding-top: 20px;
+  border-top: 1px solid var(--lp-border);
+  text-align: center;
+  color: var(--lp-ink-soft);
+  font-size: 13px;
+}
+
+/* ══ רספונסיב — דסקטופ ══ */
+@media (min-width: 760px) {
+  .lp-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .lp-steps {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  .lp-foot__inner {
+    grid-template-columns: 1.6fr 1fr 1fr 1fr;
+  }
+}
+@media (min-width: 900px) {
+  .lp-hero {
+    padding: 64px 0 40px;
+  }
+  .lp-hero__inner {
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 40px;
+  }
+  .lp-feature__inner {
+    flex-direction: row;
+    gap: 56px;
+  }
+  .lp-feature--flip .lp-feature__inner {
+    flex-direction: row-reverse;
+  }
+  .lp-phone {
+    width: 288px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-btn,
+  .lp-card {
+    transition: none;
+  }
+}

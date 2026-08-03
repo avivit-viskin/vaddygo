@@ -30,15 +30,24 @@
   isolation: isolate;
 }
 
-/* ===== רקע חי: "בועות" שנעות באיטיות — טורקיז (קריר), חול (ניטרלי) ורוז עדין ===== */
+/* המסך "דבוק": בלי הקפצת גלילה (rubber-band) מעלה/מטה — כך שהכרטיס לא זז.
+   המשיכה-לרענון הייעודית (PullToRefresh) מבוססת אירועי מגע ולא על גלישת-היתר
+   של הדפדפן, ולכן היא ממשיכה לעבוד גם כשמבטלים את ה-overscroll. */
+html:has(.login-screen),
+body:has(.login-screen) {
+  overscroll-behavior-y: none;
+}
+
+/* ===== רקע חי: "בועות" שנעות באיטיות — חול (ניטרלי), אפרסק חם ורוז עדין ===== */
 .login-bg {
   position: absolute;
   inset: 0;
   z-index: -1;
   overflow: hidden;
+  /* רקע חם ואחיד (קרם→חול) — בלי הגוון הכחלחל שהיה כאן קודם */
   background:
-    radial-gradient(130% 90% at 50% -20%, #fcfaf6 0%, transparent 58%),
-    linear-gradient(180deg, #f6f2ec 0%, #edf1f1 100%);
+    radial-gradient(130% 90% at 50% -10%, #fdfaf5 0%, transparent 60%),
+    linear-gradient(180deg, #faf5ee 0%, #f4ece0 100%);
 }
 
 .login-blob {
@@ -47,14 +56,14 @@
   filter: blur(54px);
   will-change: transform;
 }
-/* טורקיז-רך (קריר) — האקסנט המאזן */
+/* אפרסק-חם רך — נגיעת חמימות עדינה (במקום הטורקיז הכחלחל שהיה כאן) */
 .login-blob--1 {
   width: 44vmax;
   height: 44vmax;
   top: -15vmax;
   inset-inline-end: -13vmax;
-  background: radial-gradient(circle at 32% 30%, #d4e4e4, #b6d0d2 72%);
-  opacity: 0.62;
+  background: radial-gradient(circle at 32% 30%, #f7e7dc, #efd8c8 72%);
+  opacity: 0.5;
   animation: blob-drift-1 22s ease-in-out infinite alternate;
 }
 /* חול/בז' חמים — ניטרלי */

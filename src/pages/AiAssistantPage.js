@@ -10,6 +10,7 @@ import Icon from "../components/Icon";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
+import ProBadge from "../components/ProBadge";
 import "../styles/ai.css";
 
 /*
@@ -109,7 +110,8 @@ function AiAssistantPage() {
     <div className="ai-page">
       <Card>
         <h2 className="ai-page__title">
-          <BrandName /> — במה ברצונך לעזור? 💬
+          <BrandName /> — במה ברצונך לעזור? 💬{" "}
+          <ProBadge title="עוזרת AI — פיצ'ר פרו" />
         </h2>
         <p className="ai-page__subtitle">
           אני כאן לעזור לנסח הודעות להורים, לתת רעיונות ולענות על שאלות. אפשר גם

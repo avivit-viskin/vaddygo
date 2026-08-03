@@ -198,6 +198,12 @@ const PATHS = {
       <path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1" />
     </>
   ),
+  crown: (
+    <>
+      <path d="M2.5 8 6 12 12 5l6 7 3.5-4L20 19H4L2.5 8Z" />
+      <path d="M4.5 15.5h15" />
+    </>
+  ),
 };
 
 function Icon({ name, size = 20, strokeWidth = 1.8, className, title }) {

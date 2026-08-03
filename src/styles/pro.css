@@ -1,0 +1,157 @@
+/*
+  pro.css — עיצוב תגית "פרו" (כתר זהב) ועמוד השדרוג.
+  גוון הזהב נבחר כך שיתלכד עם הבז'+ורוד של המותג (theme.css), בלי לצרום.
+*/
+:root {
+  --color-pro: #b8860b; /* זהב עמוק — אייקון הכתר */
+  --color-pro-strong: #946c09; /* זהב כהה — טקסט התגית */
+  --color-pro-bg: #faf1d6; /* זהב רך — רקע התגית/הכרטיס */
+  --color-pro-border: #e6cf8f; /* גבול זהוב עדין */
+}
+
+/* ===== תגית פרו קטנה ===== */
+.pro-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 3px;
+  vertical-align: middle;
+  padding: 1px 7px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1.7;
+  color: var(--color-pro-strong);
+  background-color: var(--color-pro-bg);
+  border: 1px solid var(--color-pro-border);
+  white-space: nowrap;
+}
+
+.pro-badge svg {
+  color: var(--color-pro);
+}
+
+/* עוטף כפתור-פעולה + תגית פרו לצידו (למשל תזכורת גורפת) */
+.pro-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* כותרת-משנה עם תגית פרו (למשל ניהול צוות) */
+.pro-inline-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-weight: 600;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+/* פריט "שדרוג לפרו" בתפריט הצד */
+.sidemenu__upgrade {
+  color: var(--color-pro-strong);
+}
+
+.sidemenu__upgrade svg {
+  color: var(--color-pro);
+}
+
+/* ===== עמוד השדרוג ===== */
+.upgrade-page {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+.upgrade-hero {
+  text-align: center;
+  padding: 8px 4px 4px;
+}
+
+.upgrade-crown {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 68px;
+  height: 68px;
+  border-radius: 50%;
+  background-color: var(--color-pro-bg);
+  border: 1px solid var(--color-pro-border);
+  color: var(--color-pro);
+  margin-bottom: 10px;
+}
+
+.upgrade-title {
+  margin: 0 0 6px;
+  font-size: var(--font-size-xl);
+}
+
+.upgrade-price {
+  margin: 0 0 6px;
+  color: var(--color-primary-dark);
+}
+
+.upgrade-price__num {
+  font-size: var(--font-size-2xl);
+  font-weight: 800;
+}
+
+.upgrade-price__per {
+  font-size: var(--font-size-base);
+  color: var(--color-text-muted);
+  font-weight: 600;
+}
+
+.upgrade-subtitle {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+.upgrade-features {
+  list-style: none;
+  padding: 0;
+  margin: 18px 0;
+  display: grid;
+  gap: 10px;
+}
+
+.upgrade-feature {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background-color: var(--color-primary-light);
+  font-weight: 600;
+}
+
+.upgrade-feature svg {
+  color: var(--color-pro);
+  flex-shrink: 0;
+}
+
+.upgrade-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  background-color: var(--color-pro-bg);
+  border: 1px solid var(--color-pro-border);
+  border-radius: var(--radius-md);
+  padding: 10px 12px;
+}
+
+.upgrade-note svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.upgrade-actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+  justify-content: center;
+  flex-wrap: wrap;
+}

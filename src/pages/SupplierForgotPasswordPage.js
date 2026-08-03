@@ -4,6 +4,7 @@ import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
+import PullToRefresh from "../components/PullToRefresh";
 import {
   requestVendorPasswordReset,
   resetVendorPassword,
@@ -75,6 +76,8 @@ function SupplierForgotPasswordPage() {
 
   return (
     <div className="login-screen">
+      {/* משיכה למטה לרענון הדף (נייד) */}
+      <PullToRefresh />
       <div className="login-bg" aria-hidden="true">
         <span className="login-blob login-blob--1" />
         <span className="login-blob login-blob--2" />

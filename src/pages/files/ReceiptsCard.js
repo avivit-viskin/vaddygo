@@ -7,6 +7,7 @@ import Spinner from "../../components/Spinner";
 import EmptyState from "../../components/EmptyState";
 import ErrorMessage from "../../components/ErrorMessage";
 import ConfirmDialog from "../../components/ConfirmDialog";
+import ProBadge from "../../components/ProBadge";
 import useApi from "../../hooks/useApi";
 import { getExpenses, deleteExpense } from "../../services/expensesService";
 import { paymentMethodLabel } from "../../services/paymentMethods";
@@ -39,7 +40,8 @@ function ReceiptsCard() {
     <Card
       title={
         <>
-          <span aria-hidden="true">🧾</span> קבלות והוצאות
+          <span aria-hidden="true">🧾</span> קבלות והוצאות{" "}
+          <ProBadge title="ניהול קבלות — פיצ'ר פרו" />
         </>
       }
     >

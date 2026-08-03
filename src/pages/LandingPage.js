@@ -1,3 +1,4 @@
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
@@ -7,36 +8,51 @@ import "../styles/landing.css";
 
 /*
   LandingPage — דף הנחיתה הציבורי של VaddyGo (הכתובת הראשית למי שאינו מחובר).
-  שפה עיצובית בהשראת פייבוקס/ביט: כותרות ענק, מוקאפ נאמן-למקור של מסך הבית עם
-  אלמנטים מרחפים, רצועת תלמידים נעה, ומקטעי יכולות גדולים. זהות VaddyGo: ורוד/רוז,
-  פחם, Rubik. הכפתורים מובילים להרשמה/כניסה האמיתיות.
+  שפה עיצובית בהשראת פייבוקס/ביט בגוונים חמים (חום/בז'): כותרות ענק, מוקאפ נאמן
+  של מסך הבית עם צ'יפים מרחפים שמתחלפים כל הזמן, ורצועת יכולות גדולה ונעה. Rubik + RTL.
 */
 
 const SUPPORT_PHONE = "054-4579179";
 const CONTACT_EMAIL = "avivitm91@gmail.com";
 
-// מוקאפ נאמן של מסך הבית האמיתי (מספרים ידידותיים לתצוגה שיווקית)
+// ── תוכן שמתחלף בצ'יפים המרחפים (כדי שהבאנר "יזוז כל הזמן על שמות אחרים") ──
+const PAID = ["דנה כהן", "יואב אבני", "מיה לוי", "נועה בר", "איתי טל", "שירה רון", "עמית פז", "רוני דגן"];
+const AMOUNTS = ["250 ₪ התקבל", "180 ₪ התקבל", "500 ₪ התקבל", "120 ₪ התקבל", "340 ₪ התקבל"];
+const EVENTS = [
+  { icon: "cake", text: "יום הולדת של דנה" },
+  { icon: "gift", text: "מתנה לחג נרכשה" },
+  { icon: "calendar", text: "טיול שנתי בקרוב" },
+  { icon: "check", text: "12 הורים שילמו היום" },
+];
+const initials = (name) => name.split(" ").map((w) => w[0]).join("").slice(0, 2);
+
+function useRotator(len, ms) {
+  const [i, setI] = useState(0);
+  useEffect(() => {
+    if (typeof setInterval !== "function") return undefined;
+    const id = setInterval(() => setI((v) => (v + 1) % len), ms);
+    return () => clearInterval(id);
+  }, [len, ms]);
+  return i;
+}
+
+// מוקאפ נאמן של מסך הבית (מספרים ידידותיים לתצוגה שיווקית)
 function HomeMock() {
   return (
     <div className="lp-app" aria-hidden="true">
       <div className="lp-app__status">
         <span>9:41</span>
-        <span className="lp-app__status-icons">
-          <Icon name="check" size={12} /> ▮▮▮
-        </span>
+        <span className="lp-app__status-icons"><Icon name="check" size={12} /> ▮▮▮</span>
       </div>
-
       <div className="lp-app__bar">
         <span className="lp-app__ava">גפ</span>
         <span className="lp-app__logo"><Logo /></span>
         <span className="lp-app__menu">☰</span>
       </div>
-
       <div className="lp-app__title">
         <span className="lp-app__bell"><Icon name="bell" size={17} /></span>
         <b>גן הפרחים <span className="lp-app__year">תשפ״ו</span></b>
       </div>
-
       <div className="lp-app__collect">
         <div className="lp-app__collect-top">
           <div>
@@ -53,7 +69,6 @@ function HomeMock() {
           <div className="lp-m lp-m--bit"><b>bit</b></div>
         </div>
       </div>
-
       <div className="lp-app__sec">
         <span className="lp-app__sec-title"><Icon name="tag" size={14} /> תשלומים לפי קטגוריות</span>
         <div className="lp-app__cats">
@@ -61,7 +76,6 @@ function HomeMock() {
           <div className="lp-app__cat"><b>חוגים</b><span>יצא 9,200 מתוך 12,000 ₪</span></div>
         </div>
       </div>
-
       <div className="lp-app__nav">
         <span><Icon name="folder" size={17} /></span>
         <span><Icon name="gift" size={17} /></span>
@@ -73,29 +87,26 @@ function HomeMock() {
   );
 }
 
-// רצועת תלמידים נעה — "רשימת תלמידים" חיה שזזה, בנושא של הדף
-const KIDS = [
-  { i: "מכ", n: "מיה כהן", ok: true },
-  { i: "יא", n: "יואב אבני", ok: true },
-  { i: "נל", n: "נועה לוי", ok: false },
-  { i: "אב", n: "איתי בר", ok: true },
-  { i: "שט", n: "שירה טל", ok: true },
-  { i: "ער", n: "עמית רון", ok: true },
-  { i: "רד", n: "רוני דגן", ok: false },
-  { i: "יפ", n: "יעל פז", ok: true },
+// רצועת יכולות גדולה ונעה — הפיצ'רים שלנו זזים כל הזמן
+const MARQUEE = [
+  { icon: "wallet", label: "גבייה ותשלומים" },
+  { icon: "users", label: "תלמידים והורים" },
+  { icon: "calendar", label: "לוח שנה ואירועים" },
+  { icon: "gift", label: "מתנות וספקים" },
+  { icon: "folder", label: "קבצים ומסמכים" },
+  { icon: "lock", label: "הרשאות לצוות" },
+  { icon: "robot", label: "עוזרת AI" },
+  { icon: "bell", label: "תזכורות בוואטסאפ" },
 ];
-function StudentsMarquee() {
-  const row = [...KIDS, ...KIDS];
+function FeaturesMarquee() {
+  const row = [...MARQUEE, ...MARQUEE];
   return (
-    <div className="lp-marquee" aria-hidden="true">
-      <div className="lp-marquee__track">
-        {row.map((k, idx) => (
-          <div className="lp-kid" key={idx}>
-            <span className="lp-kid__ava">{k.i}</span>
-            <span className="lp-kid__name">{k.n}</span>
-            <span className={`lp-kid__badge${k.ok ? " is-ok" : ""}`}>
-              {k.ok ? "שולם ✓" : "ממתין"}
-            </span>
+    <div className="lp-fmarquee" aria-hidden="true">
+      <div className="lp-fmarquee__track">
+        {row.map((f, idx) => (
+          <div className="lp-fcard" key={idx}>
+            <span className="lp-fcard__ic"><Icon name={f.icon} size={24} /></span>
+            <span className="lp-fcard__label">{f.label}</span>
           </div>
         ))}
       </div>
@@ -119,6 +130,11 @@ const STEPS = [
 ];
 
 function LandingPage() {
+  const tick = useRotator(8, 2200);
+  const paidName = PAID[tick % PAID.length];
+  const amount = AMOUNTS[tick % AMOUNTS.length];
+  const ev = EVENTS[tick % EVENTS.length];
+
   return (
     <div className="lp">
       {/* ── ניווט עליון דביק ── */}
@@ -150,9 +166,7 @@ function LandingPage() {
               <Link className="lp-btn lp-btn--primary lp-btn--lg" to="/register">הרשמה חינם</Link>
               <Link className="lp-btn lp-btn--ghost lp-btn--lg" to="/login">יש לי כבר חשבון</Link>
             </div>
-            <p className="lp-hero__note">
-              <Icon name="check" size={16} /> התחלה חינם · בלי כרטיס אשראי
-            </p>
+            <p className="lp-hero__note"><Icon name="check" size={16} /> התחלה חינם · בלי כרטיס אשראי</p>
           </div>
 
           <div className="lp-hero__art">
@@ -161,15 +175,18 @@ function LandingPage() {
                 <div className="lp-phone__cam" />
                 <div className="lp-phone__screen"><HomeMock /></div>
               </div>
-              {/* אלמנטים מרחפים בנושא הדף */}
+              {/* צ'יפים מרחפים שמתחלפים כל הזמן על שמות/פיצ'רים אחרים */}
               <div className="lp-chip lp-chip--pay">
-                <span className="lp-chip__dot">₪</span> 250 ₪ התקבל
+                <span className="lp-chip__dot">₪</span>
+                <span className="lp-chip__swap" key={amount}>{amount}</span>
               </div>
               <div className="lp-chip lp-chip--kid">
-                <span className="lp-chip__ava">דנ</span> דנה · שולם ✓
+                <span className="lp-chip__ava">{initials(paidName)}</span>
+                <span className="lp-chip__swap" key={paidName}>{paidName.split(" ")[0]} · שולם ✓</span>
               </div>
               <div className="lp-chip lp-chip--bday">
-                <Icon name="cake" size={16} /> יום הולדת השבוע
+                <Icon name={ev.icon} size={16} />
+                <span className="lp-chip__swap" key={ev.text}>{ev.text}</span>
               </div>
               <div className="lp-chip lp-chip--bit">bit</div>
             </div>
@@ -177,15 +194,8 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ── פס ערכים ── */}
-      <div className="lp-strip">
-        <span><Icon name="check" size={18} /> הכול במקום אחד</span>
-        <span><Icon name="check" size={18} /> שקוף מול ההורים</span>
-        <span><Icon name="check" size={18} /> עובד מהנייד</span>
-      </div>
-
-      {/* ── רצועת תלמידים נעה ── */}
-      <StudentsMarquee />
+      {/* ── רצועת יכולות גדולה ונעה (במקום הפס השחור) ── */}
+      <FeaturesMarquee />
 
       {/* ── ערך מרכזי + רשת יכולות ── */}
       <section className="lp-section">
@@ -267,9 +277,7 @@ function LandingPage() {
 
       {/* ── איך זה עובד ── */}
       <section className="lp-section">
-        <div className="lp-section__head">
-          <h2 className="lp-h2">מתחילים ב-3 צעדים</h2>
-        </div>
+        <div className="lp-section__head"><h2 className="lp-h2">מתחילים ב-3 צעדים</h2></div>
         <div className="lp-steps">
           {STEPS.map((s) => (
             <div className="lp-step" key={s.n}>
@@ -281,14 +289,17 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ── פס קריאה לפעולה ── */}
+      {/* ── קאבר קריאה-לפעולה (גדול, עם רקע מעניין) ── */}
       <section className="lp-cta">
         <div className="lp-cta__inner">
+          <span className="lp-cta__deco lp-cta__deco--1" aria-hidden="true" />
+          <span className="lp-cta__deco lp-cta__deco--2" aria-hidden="true" />
           <h2 className="lp-cta__title">מוכנים להתחיל?</h2>
           <p className="lp-cta__sub">
             הצטרפו לוועדים שכבר מנהלים חכם עם VaddyGo — בחינם, בלי התחייבות.
           </p>
           <Link className="lp-btn lp-btn--onDark lp-btn--lg" to="/register">הרשמה חינם</Link>
+          <p className="lp-cta__note">התחלה חינם · בלי כרטיס אשראי · הקמה ב-5 דקות</p>
         </div>
       </section>
 

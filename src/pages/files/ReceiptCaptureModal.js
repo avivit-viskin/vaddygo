@@ -179,6 +179,22 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
         )}
 
         <Input
+          id="receipt-desc"
+          label="שם הקבלה לתצוגה (לא חובה)"
+          placeholder="למשל: מגש פירות ליום המשפחה"
+          value={description}
+          onChange={(e) => setDescription(e.target.value)}
+        />
+        <p
+          style={{
+            margin: "-6px 0 8px",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          זה השם שיוצג לקבלה ברשימה.
+        </p>
+        <Input
           id="receipt-amount"
           label="כמה כסף יצא?"
           type="number"
@@ -205,22 +221,6 @@ function ReceiptCaptureModal({ isOpen, onClose, onSaved }) {
             </option>
           ))}
         </Select>
-        <Input
-          id="receipt-desc"
-          label="שם הקבלה לתצוגה (לא חובה)"
-          placeholder="למשל: מגש פירות ליום המשפחה"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-        />
-        <p
-          style={{
-            margin: "-6px 0 8px",
-            fontSize: "var(--font-size-sm)",
-            color: "var(--color-text-muted)",
-          }}
-        >
-          זה השם שיוצג לקבלה ברשימה.
-        </p>
         {error && (
           <p className="field__error" role="alert">
             {error}

@@ -1,13 +1,15 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
 import PullToRefresh from "../components/PullToRefresh";
-import { supplierLogin } from "../services/vendorsService";
+import { supplierLogin, supplierLoginWithGoogle } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
+import "../styles/onboarding.css";
 import "../styles/login.css";
 
 /*
@@ -23,6 +25,27 @@ function SupplierLoginPage() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // כניסה עם Google — מאמת בשרת מול מייל ההתחברות של הספק ומחזיר טוקן עריכה.
+  // useCallback יציב כדי לא לאתחל את כפתור גוגל שוב ושוב.
+  const handleGoogle = useCallback(
+    async (credential) => {
+      setSubmitError("");
+      try {
+        const token = await supplierLoginWithGoogle(credential);
+        setSupplierSession(token);
+        navigate(`/supplier/${token}`);
+      } catch (err) {
+        setSubmitError(err.message || "לא הצלחנו להתחבר עם Google");
+      }
+    },
+    [navigate]
+  );
+  const handleGoogleError = useCallback(() => {
+    setSubmitError(
+      "לא הצלחנו לטעון את כניסת Google. אפשר להתחבר עם מייל וסיסמה."
+    );
+  }, []);
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -114,6 +137,13 @@ function SupplierLoginPage() {
                 שכחת סיסמה? נשלח לך קוד למייל
               </Link>
             </p>
+            <div className="auth-divider">או</div>
+            <div className="google-signin-wrap">
+              <GoogleSignInButton
+                onCredential={handleGoogle}
+                onError={handleGoogleError}
+              />
+            </div>
             <p className="auth-page__hint">
               ספק חדש? <Link to="/supplier-register">להרשמה מהירה</Link>
             </p>

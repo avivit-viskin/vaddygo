@@ -86,6 +86,14 @@ export async function supplierLogin(credentials) {
   return editToken;
 }
 
+/* כניסת ספק עם Google — שולח את ה-credential מכפתור גוגל ומקבל את טוקן העריכה. */
+export async function supplierLoginWithGoogle(credential) {
+  const { editToken } = await api.post("/api/public/vendors/google-login", {
+    credential,
+  });
+  return editToken;
+}
+
 /*
   הרשמת ספק חדש בעצמו (שם עסק + מייל + סיסמה). מחזיר את טוקן העריכה, והלקוח
   ממשיך איתו לעמוד מילוי הכרטיס והמוצרים.

@@ -18,6 +18,7 @@ const NO_TOAST_PREFIXES = [
   "/api/ai",
   "/api/public/vendors/extract-products",
   "/api/public/vendors/login",
+  "/api/public/vendors/google-login",
   "/api/public/vendors/register",
   "/api/public/vendors/forgot-password",
   "/api/public/vendors/reset-password",

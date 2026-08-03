@@ -1,4 +1,5 @@
 using System.Security.Cryptography;
+using Google.Apis.Auth;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
@@ -194,6 +195,51 @@ namespace ParentCommitteeAPI.Services
                 vendor.EditToken = Guid.NewGuid().ToString("N");
                 await _db.SaveChangesAsync();
             }
+            return vendor.EditToken;
+        }
+
+        /*
+          כניסת ספק עם Google — מאמת את ה-ID token מול גוגל (אותו Client ID של הוועד),
+          מוצא ספק לפי מייל ההתחברות שלו (LoginEmail == המייל של חשבון הגוגל) ומחזיר את
+          טוקן העריכה. אין צורך בסיסמה — גוגל כבר אימתה שהמשתמש הוא בעל המייל. מחזיר null
+          אם ההזדהות נכשלה או שאין ספק עם המייל הזה (אז הלקוח מציג הודעה מתאימה).
+        */
+        public async Task<string?> LoginWithGoogleAsync(string credential)
+        {
+            if (string.IsNullOrWhiteSpace(credential))
+            {
+                return null;
+            }
+            GoogleJsonWebSignature.Payload payload;
+            try
+            {
+                var settings = new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { GoogleSettings.GetClientId(_config) },
+                };
+                payload = await GoogleJsonWebSignature.ValidateAsync(credential, settings);
+            }
+            catch (InvalidJwtException)
+            {
+                return null;
+            }
+            var email = (payload.Email ?? string.Empty).Trim().ToLowerInvariant();
+            if (string.IsNullOrEmpty(email))
+            {
+                return null;
+            }
+            // מתאימים לפי מייל ההתחברות שהספק הגדיר; ספק בלי מייל התחברות לא ניתן לכניסה
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.LoginEmail == email);
+            if (vendor == null)
+            {
+                return null;
+            }
+            if (string.IsNullOrEmpty(vendor.EditToken))
+            {
+                vendor.EditToken = Guid.NewGuid().ToString("N");
+                await _db.SaveChangesAsync();
+            }
+            _logger.LogInformation("Vendor logged in with Google (Id: {VendorId})", vendor.Id);
             return vendor.EditToken;
         }
 

@@ -21,6 +21,7 @@ namespace ParentCommitteeAPI.Services
         /* התחברות ספק: הגדרת מייל+סיסמה (דרך הטוקן), והתחברות שמחזירה טוקן */
         Task<CredentialResult> SetCredentialsAsync(string token, string loginEmail, string password);
         Task<string?> LoginAsync(string loginEmail, string password);
+        Task<string?> LoginWithGoogleAsync(string credential);
 
         /* הרשמת ספק חדש בעצמו (שם + מייל + סיסמה). מחזיר את טוקן העריכה בהצלחה,
            או הודעת שגיאה (מייל תפוס/לא תקין). */

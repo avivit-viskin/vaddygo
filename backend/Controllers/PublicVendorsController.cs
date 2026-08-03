@@ -122,6 +122,20 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(new { editToken = token });
         }
 
+        // POST: api/public/vendors/google-login — כניסת ספק עם Google. מאמת את ה-
+        // credential מול גוגל, מוצא ספק לפי מייל ההתחברות, ומחזיר את טוקן העריכה.
+        [HttpPost("google-login")]
+        public async Task<ActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
+        {
+            var token = await _vendorService.LoginWithGoogleAsync(dto.Credential);
+            if (token == null)
+                return Unauthorized(new
+                {
+                    message = "לא נמצא ספק עם המייל של חשבון הגוגל. אפשר להתחבר עם מייל וסיסמה, או להירשם."
+                });
+            return Ok(new { editToken = token });
+        }
+
         // POST: api/public/vendors/register — הרשמת ספק חדש בעצמו (שם+מייל+סיסמה).
         // נוצר ספק חדש עם טוקן עריכה, והלקוח ממשיך איתו לעמוד מילוי הכרטיס.
         [HttpPost("register")]

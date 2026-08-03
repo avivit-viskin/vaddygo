@@ -1,4 +1,5 @@
 import { api } from "./api";
+import { COOKIE_CONSENT_KEY } from "./cookieConsentService";
 
 /*
   authService — הזדהות המנוי (UI_SPEC ס' 2): הרשמה בעת הרכישה (שם משתמש +
@@ -92,7 +93,9 @@ export function isSuperAdmin() {
   מתנות, תקציבים, התראות שנקראו, הגדרות) — כל מפתחות vaadygo.* חוץ מפרטי ההזדהות.
 */
 function clearCachedAppData() {
-  const keep = new Set([TOKEN_KEY, USER_KEY, DATA_OWNER_KEY]);
+  // בחירת העוגיות היא העדפת מכשיר (לא נתוני חשבון) — שומרים אותה גם בהחלפת משתמש,
+  // כדי שבאנר האישור לא יקפוץ שוב אחרי שכבר בחרו במכשיר הזה.
+  const keep = new Set([TOKEN_KEY, USER_KEY, DATA_OWNER_KEY, COOKIE_CONSENT_KEY]);
   Object.keys(localStorage)
     .filter((key) => key.startsWith("vaadygo.") && !keep.has(key))
     .forEach((key) => localStorage.removeItem(key));

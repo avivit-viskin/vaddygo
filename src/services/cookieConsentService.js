@@ -5,11 +5,13 @@
     null / ערך ישן = טרם בחרו → מציגים את באנר האישור.
   זו נקודת האמת היחידה שממנה קוד המעקב (analytics) יודע אם מותר לו לרוץ.
 */
-const CONSENT_KEY = "vaadygo.cookieConsent";
+// בחירת עוגיות היא העדפה *ברמת המכשיר* (לא לפי חשבון) — לכן היא נשמרת גם כשמחליפים
+// משתמש/מתנתקים, ואת המפתח הזה שומרים ב-authService.clearCachedAppData.
+export const COOKIE_CONSENT_KEY = "vaadygo.cookieConsent";
 
 export function getCookieConsent() {
   try {
-    return localStorage.getItem(CONSENT_KEY);
+    return localStorage.getItem(COOKIE_CONSENT_KEY);
   } catch {
     return null;
   }
@@ -29,7 +31,7 @@ export function hasAnalyticsConsent() {
 export function setCookieConsent(value) {
   // value: "accepted" | "declined"
   try {
-    localStorage.setItem(CONSENT_KEY, value);
+    localStorage.setItem(COOKIE_CONSENT_KEY, value);
   } catch {
     // אחסון חסום — הבחירה לא נשמרת, אך תכובד לפגישה הנוכחית
   }

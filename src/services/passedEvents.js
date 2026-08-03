@@ -10,6 +10,16 @@ import { holidayBudgetKey } from "./holidayBudgetsService";
 const PROMPTED_KEY = "vaadygo.expensePrompted";
 const LOOKBACK_DAYS = 21;
 
+/*
+  שגרות גן חוזרות שאינן אירועי-הוצאה — לא קופצים עליהן "כמה כסף יצא?":
+  אבא/אמא של שבת (תפקיד מתחלף) וראש חודש (מסומן כל חודש). זיהוי לפי שם.
+*/
+const NON_EXPENSE_PATTERNS = [/אבא\s*של\s*שבת/, /אמא\s*של\s*שבת/, /ראש\s*חודש/];
+function isNonExpenseName(name) {
+  const n = (name || "").trim();
+  return NON_EXPENSE_PATTERNS.some((re) => re.test(n));
+}
+
 function getPromptedIds() {
   try {
     return new Set(JSON.parse(localStorage.getItem(PROMPTED_KEY)) || []);
@@ -45,6 +55,8 @@ function recentlyPassedHolidays(startOfToday) {
       const key = holidayBudgetKey(occ.name, occ.hebrewYear);
       if (seen.has(key)) continue;
       seen.add(key);
+      // ראש חודש וכד' — שגרה חוזרת, לא אירוע-הוצאה
+      if (isNonExpenseName(occ.name)) continue;
       const endDay = occ.days[occ.days.length - 1];
       const endDate = new Date(year, monthIndex, endDay);
       const daysAgo = daysBetween(endDate, startOfToday);
@@ -70,6 +82,8 @@ export async function loadPassedForExpense(today = new Date()) {
 
   const events = await getEvents().catch(() => []);
   for (const e of events || []) {
+    // אבא/אמא של שבת (לפי התפקיד או השם) — שגרת גן, לא אירוע-הוצאה
+    if (e.shabbatRole || isNonExpenseName(e.name)) continue;
     const daysAgo = daysBetween(parseEventDate(e.eventDate), startOfToday);
     if (daysAgo > 0 && daysAgo <= LOOKBACK_DAYS) {
       items.push({ id: `event:${e.id}`, name: e.name, date: parseEventDate(e.eventDate) });

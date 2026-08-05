@@ -9,6 +9,7 @@ import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { whatsappShareUrl } from "../services/whatsapp";
+import { getBranding } from "../services/branding";
 import "../styles/report.css";
 
 /*
@@ -48,6 +49,7 @@ function AnnualReportPage() {
   } = dashboard;
 
   const totalSpent = byCategory.reduce((sum, c) => sum + (c.spentAmount || 0), 0);
+  const branding = getBranding();
 
   const shareText = [
     `📄 דוח שנתי — ${ganName} (${year})`,
@@ -78,8 +80,19 @@ function AnnualReportPage() {
       </div>
 
       <article className="report" dir="rtl">
-        <header className="report__head">
-          <p className="report__eyebrow">דוח שנתי להורים</p>
+        <header
+          className="report__head"
+          style={branding.color ? { borderColor: branding.color } : undefined}
+        >
+          {branding.logo && (
+            <img className="report__logo" src={branding.logo} alt="לוגו הגן" />
+          )}
+          <p
+            className="report__eyebrow"
+            style={branding.color ? { color: branding.color } : undefined}
+          >
+            דוח שנתי להורים
+          </p>
           <h1 className="report__title">{ganName}</h1>
           <p className="report__sub">
             שנת {year}

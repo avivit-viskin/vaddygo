@@ -124,6 +124,14 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="package" size={18} /> גיבוי והשוואת שנים{" "}
           <ProBadge title="גיבוי והשוואה בין שנים — פיצ'ר פרו" />
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/branding")}
+        >
+          <Icon name="image" size={18} /> מיתוג אישי לגן{" "}
+          <ProBadge title="מיתוג אישי — פיצ'ר פרו" />
+        </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
         <button

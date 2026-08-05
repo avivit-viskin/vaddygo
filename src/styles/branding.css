@@ -1,0 +1,100 @@
+/*
+  branding.css — מסך המיתוג האישי לגן (פיצ'ר פרו).
+*/
+.branding-intro {
+  color: var(--color-text-muted);
+  margin: 0 0 16px;
+}
+
+.branding-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+
+.branding-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.branding-upload {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 10px 16px;
+  border: 1px dashed var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  cursor: pointer;
+  width: fit-content;
+}
+
+.branding-remove {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: var(--font-size-sm);
+  width: fit-content;
+  padding: 0;
+}
+
+.branding-color {
+  width: 64px;
+  height: 44px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: none;
+  cursor: pointer;
+  padding: 2px;
+}
+
+.branding-preview {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 20px;
+}
+
+.branding-preview__head {
+  text-align: center;
+  border-bottom: 3px solid var(--color-primary);
+  padding-bottom: 14px;
+  margin-bottom: 12px;
+}
+
+.branding-preview__logo {
+  max-height: 64px;
+  max-width: 60%;
+  object-fit: contain;
+  margin-bottom: 8px;
+}
+
+.branding-preview__eyebrow {
+  margin: 0 0 4px;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+
+.branding-preview__title {
+  margin: 0;
+  font-size: var(--font-size-xl);
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.branding-preview__hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  text-align: center;
+}

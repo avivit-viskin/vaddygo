@@ -81,7 +81,7 @@
 }
 .sup-stat {
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 12px 8px;
   text-align: center;
   background: var(--color-surface);
@@ -113,7 +113,7 @@
   font-weight: 400;
 }
 .sup-stat--warn .sup-stat__num {
-  color: #e67e22;
+  color: var(--color-attention);
 }
 
 /* ── כרטיסי מוצר (תצוגה בדאשבורד) ── */
@@ -124,12 +124,12 @@
 }
 .sup-prod {
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   overflow: hidden;
   background: var(--color-surface);
   display: flex;
   flex-direction: column;
-  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
 }
 .sup-prod__img {
   width: 100%;
@@ -166,10 +166,10 @@
   font-weight: 600;
 }
 .sup-prod__status--ok {
-  color: #27ae60;
+  color: var(--color-success);
 }
 .sup-prod__status--warn {
-  color: #e67e22;
+  color: var(--color-attention);
 }
 .sup-prod__edit {
   /* auto — מצמיד את הכפתור לתחתית הכרטיס (מיושר בכל הכרטיסים, לא תלוי בשם) */
@@ -178,8 +178,8 @@
   align-items: center;
   justify-content: center;
   gap: 5px;
-  padding: 7px 10px;
-  border-radius: 10px;
+  padding: 7px 14px;
+  border-radius: 999px;
   background: var(--color-primary);
   color: var(--color-primary-dark);
   border: none;
@@ -192,7 +192,7 @@
 /* ── כרטיס סקשן (תשלומים / קבוצות שדות) ── */
 .sup-card {
   border: 1px solid var(--color-border);
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   padding: 16px;
   margin-bottom: 14px;
   background: var(--color-surface);
@@ -202,7 +202,7 @@
   align-items: center;
   gap: 6px;
   margin: 0 0 4px;
-  font-size: var(--font-size-base);
+  font-size: var(--font-size-lg);
   font-weight: 700;
   color: var(--color-primary-dark);
 }
@@ -268,10 +268,10 @@
   align-items: center;
   gap: 10px;
   padding: 13px 15px;
-  border-radius: 14px;
+  border-radius: var(--radius-lg);
   border: 1px solid var(--color-border);
   background: var(--color-surface);
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.16);
+  box-shadow: var(--shadow-md);
   font-family: var(--font-family);
   font-size: var(--font-size-base);
   font-weight: 700;
@@ -306,7 +306,7 @@
 
 /* הודעת הצלחה בצבע פעולה ירוק */
 .sup-saved {
-  color: #27ae60;
+  color: var(--color-success);
   font-weight: 700;
 }
 

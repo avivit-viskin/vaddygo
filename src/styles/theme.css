@@ -32,6 +32,7 @@
   --color-warning: #fff5cc;
   --color-error: #ef4444;
   --color-error-bg: #fce9ec;
+  --color-attention: #d98324; /* ענבר חם — טקסט "דורש טיפול" (במקום כתום קשיח) */
 
   /* ===== אמצעי תשלום — ביט (טורקיז) ===== */
   --color-bit-bg: #063e45;
@@ -59,6 +60,7 @@
     Arial, "Noto Sans Hebrew", sans-serif;
   --font-size-base: 16px;
   --font-size-sm: 14px;
+  --font-size-xs: 12px; /* טקסט זעיר — הערות/תגיות משנה */
   --font-size-lg: 18px;
   --font-size-xl: 23px;
   --font-size-2xl: 32px; /* מספרי-גיבור (יתרת הקופה וכו') */

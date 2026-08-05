@@ -124,7 +124,14 @@ namespace ParentCommitteeAPI.Services
             }
             var vendor = await WithChildren(_db.Vendors)
                 .FirstOrDefaultAsync(v => v.EditToken == token);
-            return vendor == null ? null : ToResponse(vendor);
+            if (vendor == null)
+            {
+                return null;
+            }
+            var dto = ToResponse(vendor);
+            // רק כאן (תצוגת הספק עצמו דרך הטוקן) חושפים את מייל ההתחברות — לא בוועד/קטלוג
+            dto.LoginEmail = vendor.LoginEmail;
+            return dto;
         }
 
         public async Task<VendorResponseDto?> UpdateByEditTokenAsync(string token, VendorUpdateDto dto)

@@ -179,6 +179,10 @@ namespace ParentCommitteeAPI.DTOs
            רק בקישור הראשון (לפני שהוגדרו), ולהסתירו אחרי שהספק כבר הגדיר/התחבר. */
         public bool HasLogin { get; set; }
 
+        /* מייל ההתחברות של הספק — נחשף אך ורק בתצוגת הספק עצמו (דרך הטוקן),
+           כדי להציגו באווטאר החשבון. ריק בתצוגת הוועד/הקטלוג (לא מדליפים). */
+        public string LoginEmail { get; set; } = string.Empty;
+
         /* האם הספק ביקש למחוק את החשבון (ממתין לאישור VaddyGo) — לתצוגת המנהלת */
         public bool DeletionRequested { get; set; }
 

@@ -28,6 +28,7 @@ import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
 import SupplierOffer from "../components/SupplierOffer";
+import SupplierReports from "../components/SupplierReports";
 import SupplierPayments from "../components/SupplierPayments";
 import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
@@ -583,6 +584,9 @@ function SupplierEditPage() {
               onGoTo={goTo}
               onShareCatalog={openShareCatalog}
             />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <SupplierReports vendor={vendor} />
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />

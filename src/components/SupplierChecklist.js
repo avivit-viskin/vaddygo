@@ -45,25 +45,11 @@ function SupplierChecklist({ vendor, onGoTo }) {
   }
 
   return (
-    <div
-      style={{
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-md)",
-        padding: 16,
-        margin: "4px 0 16px",
-        background: "var(--color-surface)",
-      }}
-    >
-      <p style={{ margin: "0 0 4px", fontWeight: 700 }}>
-        <Icon name="star" size={16} /> להשלמת הכרטיס ({doneCount}/{items.length})
+    <div className="card" style={{ margin: "4px 0 16px" }}>
+      <p className="sup-card__title">
+        <Icon name="star" size={18} /> להשלמת הכרטיס ({doneCount}/{items.length})
       </p>
-      <p
-        style={{
-          margin: "0 0 10px",
-          fontSize: "var(--font-size-sm)",
-          color: "var(--color-text-muted)",
-        }}
-      >
+      <p className="sup-card__hint">
         כמה צעדים קטנים כדי שהכרטיס שלכם ייראה מושלם לוועדים:
       </p>
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>

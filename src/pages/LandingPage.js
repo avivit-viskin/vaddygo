@@ -52,26 +52,29 @@ function Phone({ src, alt, float = false }) {
 }
 
 // רצועת יכולות גדולה ונעה
+// טיקר של משפטי ערך (לא שמות הפיצ'רים) — מופרדים בנקודה קטנה, בלי אייקונים.
 const MARQUEE = [
-  { icon: "wallet", label: "גבייה ותשלומים" },
-  { icon: "users", label: "תלמידים והורים" },
-  { icon: "calendar", label: "לוח שנה ואירועים" },
-  { icon: "gift", label: "מתנות וספקים" },
-  { icon: "folder", label: "קבצים ומסמכים" },
-  { icon: "lock", label: "הרשאות לצוות" },
-  { icon: "robot", label: "עוזרת AI" },
-  { icon: "bell", label: "תזכורות בוואטסאפ" },
+  "בלי אקסלים ובלי בלגן",
+  "הכול במקום אחד",
+  "שקוף מול ההורים",
+  "עובד מכל נייד",
+  "תזכורות בוואטסאפ בלחיצה",
+  "מאובטח ומופרד לכל גן",
+  "מסונכרן אוטומטית",
+  "בעברית מלאה",
+  "התחלה חינם",
+  "הקמה ב-5 דקות",
 ];
 function FeaturesMarquee() {
   const row = [...MARQUEE, ...MARQUEE];
   return (
     <div className="lp-fmarquee" aria-hidden="true">
       <div className="lp-fmarquee__track">
-        {row.map((f, idx) => (
-          <div className="lp-fcard" key={idx}>
-            <span className="lp-fcard__ic"><Icon name={f.icon} size={18} /></span>
-            <span className="lp-fcard__label">{f.label}</span>
-          </div>
+        {row.map((t, idx) => (
+          <span className="lp-fitem" key={idx}>
+            <span className="lp-ftext">{t}</span>
+            <span className="lp-fdot" aria-hidden="true">•</span>
+          </span>
         ))}
       </div>
     </div>
@@ -260,7 +263,7 @@ function LandingPage() {
       <section className="lp-feature lp-feature--tint">
         <div className="lp-feature__inner">
           <div className="lp-feature__text">
-            <h2 className="lp-h2">גבייה שקופה,<br />בלי כאב ראש</h2>
+            <h2 className="lp-h2">גבייה שקופה, בלי כאב ראש</h2>
             <p className="lp-lead">
               רואים בכל רגע מי שילם וכמה עוד חסר, שולחים בקשת תשלום בלחיצה,
               והכול נשאר מסודר — בלי טבלאות ובלי לרדוף אחרי אף אחד.

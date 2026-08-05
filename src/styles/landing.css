@@ -178,21 +178,17 @@
 @keyframes lp-swap { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 
 /* ══ רצועת יכולות גדולה ונעה ══ */
+/* בלי mask-image — הוא גורם לרצועה המונפשת "להיעלם" ב-iOS Safari (באג ידוע של
+   mask + transform-animation). מוותרים על דעיכת הקצוות כדי שהרצועה תיראה בנייד. */
 .lp-fmarquee {
   overflow: hidden; padding: 18px 0;
   background: var(--lp-pink-tint);
   border-block: 1px solid var(--lp-border);
-  -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
-  mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
-.lp-fmarquee__track { display: flex; gap: 12px; width: max-content; animation: lp-marquee 58s linear infinite; }
-.lp-fcard {
-  display: inline-flex; align-items: center; gap: 8px;
-  background: #fff; border: 1px solid var(--lp-border); border-radius: 12px;
-  padding: 8px 15px;
-  font-weight: 600; font-size: 14.5px; color: var(--lp-ink-soft); white-space: nowrap;
-}
-.lp-fcard__ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--lp-pink-tint); color: var(--lp-rose); }
+.lp-fmarquee__track { display: flex; align-items: center; gap: 16px; width: max-content; animation: lp-marquee 58s linear infinite; }
+.lp-fitem { display: inline-flex; align-items: center; gap: 16px; }
+.lp-ftext { font-size: 16px; font-weight: 600; color: var(--lp-ink); white-space: nowrap; }
+.lp-fdot { color: var(--lp-rose); font-size: 20px; line-height: 1; }
 @keyframes lp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* ══ מקטע כללי ══ */
@@ -229,8 +225,8 @@
 /* ══ מקטעים מתחלפים ══ */
 .lp-feature { padding: 62px 22px; }
 .lp-feature--tint { background: var(--lp-pink-tint); }
-.lp-feature__inner { display: flex; flex-direction: column; gap: 40px; align-items: center; }
-.lp-feature__text { flex: 1; }
+.lp-feature__inner { display: flex; flex-direction: column; gap: 34px; align-items: center; }
+.lp-feature__text { flex: 1; width: 100%; }
 .lp-feature__art { flex: 1; display: flex; justify-content: center; width: 100%; }
 .lp-checks { list-style: none; margin: 24px 0 0; padding: 0; display: flex; flex-direction: column; gap: 14px; }
 .lp-checks li { display: flex; align-items: center; gap: 11px; font-weight: 500; font-size: 17px; color: var(--lp-ink); }

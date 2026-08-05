@@ -23,6 +23,7 @@ import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
@@ -578,7 +579,7 @@ function SupplierEditPage() {
           </div>
           <div style={{ marginTop: 16 }}>
             <Button variant="secondary" onClick={() => openShareCatalog("")}>
-              🔗 שיתוף כל הקטלוג
+              🔗 שיתוף כל הקטלוג <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
             </Button>
           </div>
         </>
@@ -613,7 +614,9 @@ function SupplierEditPage() {
 
       {view === "socials" && (
         <>
-          <h2 className="sup-section-title">🔗 רשתות חברתיות</h2>
+          <h2 className="sup-section-title">
+            🔗 רשתות חברתיות <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
+          </h2>
           <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
         </>
       )}

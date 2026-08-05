@@ -60,13 +60,17 @@
   outline-offset: 2px;
 }
 
-/* ══ ניווט ══ */
+/* ══ ניווט — מוסתר במסך הראשון, מחליק פנימה בגלילה (בלי לכפול את ה-CTA שבגיבור) ══ */
 .lp-nav {
-  position: sticky; top: 0; z-index: 50;
-  background: rgba(255, 253, 250, 0.9);
+  position: fixed; top: 0; inset-inline: 0; z-index: 50;
+  background: rgba(255, 253, 250, 0.92);
   backdrop-filter: saturate(180%) blur(12px);
   border-bottom: 1px solid var(--lp-border);
+  transform: translateY(-100%);
+  visibility: hidden;
+  transition: transform 0.3s ease, visibility 0.3s ease;
 }
+.lp-nav--scrolled { transform: translateY(0); visibility: visible; }
 .lp-nav__inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; height: 66px; }
 .lp-nav__logo img, .lp-nav__logo svg { height: 36px; width: auto; display: block; }
 .lp-nav__actions { display: flex; align-items: center; gap: 16px; }
@@ -370,5 +374,5 @@
 
 @media (prefers-reduced-motion: reduce) {
   .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card, .lp-faq__icon,
-  .lp-features__deco, .lp-features .lp-card__icon, .lp-cta__deco { animation: none !important; transition: none; }
+  .lp-features__deco, .lp-features .lp-card__icon, .lp-cta__deco, .lp-nav { animation: none !important; transition: none; }
 }

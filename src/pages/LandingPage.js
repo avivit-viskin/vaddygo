@@ -159,10 +159,23 @@ function LandingPage() {
   const amount = AMOUNTS[tick % AMOUNTS.length];
   const ev = EVENTS[tick % EVENTS.length];
 
+  // סרגל דביק "חכם": מוסתר במסך הראשון (כדי לא לכפול את ההרשמה/כניסה שבגיבור),
+  // ומחליק פנימה כשגוללים מעבר לגיבור — CTA קבוע בגלילה, בלי כפילות במסך הראשון.
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 520);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
     <div className="lp">
-      {/* ── סרגל ניווט דביק: לוגו + כניסה + הרשמה (כפתור המרה שנשאר תמיד למעלה) ── */}
-      <header className="lp-nav">
+      {/* ── סרגל ניווט דביק — מתגלה רק בגלילה (בלי כפילות של ה-CTA במסך הראשון) ── */}
+      <header
+        className={`lp-nav${scrolled ? " lp-nav--scrolled" : ""}`}
+        aria-hidden={!scrolled}
+      >
         <div className="lp-nav__inner">
           <span className="lp-nav__logo"><Logo /></span>
           <nav className="lp-nav__actions">

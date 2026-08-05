@@ -388,6 +388,17 @@ function LandingPage() {
         </div>
         <p className="lp-foot__copy">© {new Date().getFullYear()} VaddyGo · כל הזכויות שמורות</p>
       </footer>
+
+      {/* כפתור וואטסאפ צף — צור קשר (כפתור הנגישות כבר צף מהאפליקציה) */}
+      <a
+        className="lp-wa"
+        href={`${whatsappUrl(SUPPORT_PHONE)}?text=${encodeURIComponent("שלום, אשמח לעזרה עם VaddyGo 🙂")}`}
+        target="_blank"
+        rel="noreferrer"
+        aria-label="צור קשר בוואטסאפ"
+      >
+        <WhatsAppIcon color="#ffffff" size={28} />
+      </a>
     </div>
   );
 }

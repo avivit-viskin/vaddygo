@@ -332,6 +332,25 @@
 .lp-faq__item[open] .lp-faq__icon { transform: rotate(45deg); }
 .lp-faq__a { padding: 0 22px 20px; color: var(--lp-ink-soft); font-size: 16px; line-height: 1.7; }
 
+/* ══ כפתור וואטסאפ צף (צור קשר) — למטה משמאל, מול כפתור הנגישות שמימין ══ */
+.lp-wa {
+  position: fixed;
+  bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + 16px);
+  left: 12px;
+  z-index: 55;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: #25d366;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.22);
+  transition: transform 0.12s ease;
+}
+.lp-wa:hover { transform: translateY(-2px); }
+
 /* ══ רספונסיב ══ */
 @media (min-width: 760px) {
   .lp-grid { grid-template-columns: repeat(3, 1fr); }

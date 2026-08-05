@@ -5,6 +5,7 @@ import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
+import { getOnboarding } from "../../services/onboardingService";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -16,6 +17,12 @@ import { groupByFolder } from "../../services/vendorFolders";
 function supplierMessage(folderName) {
   const suffix = folderName && folderName !== "כללי" ? ` ל${folderName}` : "";
   return `היי! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix}, אפשר לקבל פרטים ומחירים?`;
+}
+
+// בקשת הצעת מחיר — ליד מזוהה: כולל את שם הגן כדי שהספק ידע מי פונה (לא אנונימי).
+function quoteRequestMessage(vendorName, ganName) {
+  const who = ganName ? `ועד ההורים של ${ganName}` : "ועד הורים";
+  return `היי ${vendorName || ""}! 🙂 אנחנו ${who}, הגענו אליכם דרך VaddyGo ונשמח לקבל הצעת מחיר. מה תוכלו להציע לנו?`;
 }
 
 // הודעת התעניינות לתשלום בביט — נפתחת בוואטסאפ של מספר הביט. אם הוועד גלש
@@ -86,6 +93,8 @@ function VendorPanel({
   const [payMethod, setPayMethod] = useState(null);
   const [revealAccount, setRevealAccount] = useState(false);
   const folders = groupByFolder(vendor.products || []);
+  // שם הגן — נכנס להודעת "בקשת הצעת מחיר" כדי שהפנייה תהיה ליד מזוהה
+  const ganName = getOnboarding()?.ganName || "";
   // אמצעי התשלום הזמינים — מוצגים לוועד כאייקונים ממותגים (רק מה שהספק מילא)
   const payMethods = [
     vendor.paymentBit && { key: "bit", label: "ביט", brand: "bit", value: vendor.paymentBit },
@@ -222,6 +231,19 @@ function VendorPanel({
         </p>
       )}
       <div className="vendor-panel__contact">
+        {vendor.whatsApp && (
+          <a
+            className="btn btn--primary"
+            href={whatsappUrlWithText(
+              vendor.whatsApp,
+              quoteRequestMessage(vendor.name, ganName)
+            )}
+            target="_blank"
+            rel="noreferrer"
+          >
+            <Icon name="message" size={16} /> בקשת הצעת מחיר
+          </a>
+        )}
         {whatsapp && (
           <a
             className="btn btn--secondary vendor-panel__wa"

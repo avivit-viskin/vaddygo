@@ -797,6 +797,24 @@ function SupplierEditPage() {
             <Button variant="secondary">פתיחת הקטלוג</Button>
           </a>
         </div>
+        <div style={{ textAlign: "center", marginTop: 18 }}>
+          <img
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(
+              buildCatalogUrl(shareCatalogFolder)
+            )}`}
+            alt="קוד QR לקטלוג"
+            width={180}
+            height={180}
+            style={{
+              borderRadius: 8,
+              border: "1px solid var(--color-border)",
+            }}
+          />
+          <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
+            📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
+            לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
+          </p>
+        </div>
       </Modal>
 
       <ConfirmDialog

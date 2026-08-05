@@ -21,6 +21,10 @@ namespace ParentCommitteeAPI.DTOs
         // מאפשר ללקוח להתאים את הממשק (להסתיר עריכה מ"צופה"). ברירת מחדל manager.
         public string Role { get; set; } = "manager";
 
+        // מתי יימחקו אוטומטית נתוני השנה (לקראת שנה חדשה) — כדי שהלקוח יציג
+        // התראה מראש. null = טרם נקבע מועד.
+        public DateTime? NextCleanupAt { get; set; }
+
         // קישורי התשלום של הוועד (לבקשת תשלום); ריקים עד שהמשתמשת מגדירה אותם
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }

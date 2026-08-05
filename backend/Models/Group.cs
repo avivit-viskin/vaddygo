@@ -24,6 +24,11 @@ namespace ParentCommitteeAPI.Models
         public int StaffCount { get; set; }
         public string Subgroups { get; set; } = string.Empty;
 
+        // מתי למחוק אוטומטית את נתוני השנה של הגן (תלמידים/תשלומים/הוצאות/אירועים/
+        // מתנות), לקראת השנה החדשה — בערך 1 בספטמבר של סוף שנת הלימודים. null =
+        // טרם אותחל; משימת הרקע מאתחלת לתאריך *עתידי* ולעולם לא מוחקת באתחול.
+        public DateTime? NextCleanupAt { get; set; }
+
         // קישורי התשלום של הוועד (ביט + קבוצת פייבוקס) — משותפים לכל חברות הוועד.
         // נשמרים ברמת הגן כדי שכולן יראו את אותם קישורים; משמשים את "בקשת תשלום".
         public string? BitLink { get; set; }

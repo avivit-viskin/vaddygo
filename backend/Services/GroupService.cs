@@ -369,6 +369,7 @@ namespace ParentCommitteeAPI.Services
                 Name = group.Name,
                 City = group.City,
                 Year = group.Year,
+                NextCleanupAt = group.NextCleanupAt,
                 ChildrenCount = group.ChildrenCount,
                 StaffCount = group.StaffCount,
                 Subgroups = group.Subgroups.Length == 0

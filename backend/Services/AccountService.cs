@@ -57,9 +57,17 @@ namespace ParentCommitteeAPI.Services
                 await _db.DriveFolders.Where(d => d.GroupId != null && groupIds.Contains(d.GroupId.Value)).ExecuteDeleteAsync();
                 await _db.CollectionCategories.Where(c => groupIds.Contains(c.GroupId)).ExecuteDeleteAsync();
 
+                // חברויות והזמנות של הגנים של המשתמש — אחרת נשארות רשומות יתומות
+                // (עם שם/הרשאה) גם אחרי מחיקת הגן ("הזכות להימחק" לא מלאה).
+                await _db.GroupMembers.Where(m => groupIds.Contains(m.GroupId)).ExecuteDeleteAsync();
+                await _db.GroupInvites.Where(i => groupIds.Contains(i.GroupId)).ExecuteDeleteAsync();
+
                 // 3) הגנים עצמם
                 await _db.Groups.Where(g => g.UserId == userId).ExecuteDeleteAsync();
             }
+
+            // חברויות של המשתמש עצמו בגנים של אחרים — גם אלה נתוני המשתמש שנמחקים
+            await _db.GroupMembers.Where(m => m.UserId == userId).ExecuteDeleteAsync();
 
             // 4) המשתמש
             var deleted = await _db.Users.Where(u => u.Id == userId).ExecuteDeleteAsync();

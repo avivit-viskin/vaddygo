@@ -59,6 +59,9 @@ builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+// ניקוי סוף שנת לימודים — שירות + משימת רקע יומית שמריצה אותו
+builder.Services.AddScoped<IYearEndCleanupService, YearEndCleanupService>();
+builder.Services.AddHostedService<YearEndCleanupBackgroundService>();
 
 // סליקת אשראי — ספק לפי Payments:Provider. mock=סימולטור לפיתוח/בדיקות, payplus=פרודקשן.
 var paymentProvider = builder.Configuration["Payments:Provider"] ?? "mock";

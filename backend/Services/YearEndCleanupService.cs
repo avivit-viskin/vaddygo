@@ -16,12 +16,18 @@ namespace ParentCommitteeAPI.Services
     */
     public class YearEndCleanupService : IYearEndCleanupService
     {
+        // כמה ימים לפני המחיקה שולחים התראת מייל (וגם חלון הבאנר בממשק)
+        private const int WarningDays = 14;
+
         private readonly AppDbContext _db;
+        private readonly IEmailSender _email;
         private readonly ILogger<YearEndCleanupService> _logger;
 
-        public YearEndCleanupService(AppDbContext db, ILogger<YearEndCleanupService> logger)
+        public YearEndCleanupService(
+            AppDbContext db, IEmailSender email, ILogger<YearEndCleanupService> logger)
         {
             _db = db;
+            _email = email;
             _logger = logger;
         }
 
@@ -44,6 +50,47 @@ namespace ParentCommitteeAPI.Services
                 {
                     await CleanupGroupAsync(group, cancellationToken);
                 }
+                else if (now >= group.NextCleanupAt.Value.AddDays(-WarningDays)
+                         && group.CleanupWarnedAt == null)
+                {
+                    // שבועיים לפני: התראת מייל לבעל/ת הגן, פעם אחת בכל מחזור
+                    await SendWarningEmailAsync(group, cancellationToken);
+                }
+            }
+        }
+
+        private async Task SendWarningEmailAsync(Group group, CancellationToken cancellationToken)
+        {
+            var email = await _db.Users
+                .Where(u => u.Id == group.UserId)
+                .Select(u => u.Email)
+                .FirstOrDefaultAsync(cancellationToken);
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                return;
+            }
+
+            var date = group.NextCleanupAt!.Value.ToString("dd/MM/yyyy");
+            const string subject = "VaddyGo — נתוני השנה יימחקו בקרוב לקראת שנה חדשה";
+            var body =
+                $"שלום 🙂\n\n" +
+                $"לקראת שנת הלימודים החדשה, נתוני השנה של \"{group.Name}\" יימחקו אוטומטית בתאריך {date}.\n\n" +
+                "יימחקו: תלמידים והורים, תשלומים, הוצאות (כולל קבלות), אירועים ומתנות.\n" +
+                "יישמרו: החשבון והמנוי, קטגוריות הגבייה, וחברי הצוות.\n\n" +
+                "אם יש משהו שכדאי לשמור או לייצא — זה הזמן, לפני התאריך.\n\n" +
+                "צוות VaddyGo 💜";
+
+            try
+            {
+                await _email.SendAsync(email, subject, body);
+                group.CleanupWarnedAt = DateTime.UtcNow;
+                await _db.SaveChangesAsync(cancellationToken);
+                _logger.LogInformation("Year-end warning emailed for group {GroupId}", group.Id);
+            }
+            catch (Exception ex)
+            {
+                // לא קובעים CleanupWarnedAt — ינוסה שוב מחר; הבאנר בממשק ממילא מוצג
+                _logger.LogError(ex, "Year-end warning email failed for group {GroupId}", group.Id);
             }
         }
 
@@ -74,6 +121,7 @@ namespace ParentCommitteeAPI.Services
             var justEnded = group.NextCleanupAt!.Value;
             group.Year = justEnded.Year;
             group.NextCleanupAt = justEnded.AddYears(1);
+            group.CleanupWarnedAt = null; // לקראת התראת המייל של השנה הבאה
             await _db.SaveChangesAsync(cancellationToken);
 
             await tx.CommitAsync(cancellationToken);

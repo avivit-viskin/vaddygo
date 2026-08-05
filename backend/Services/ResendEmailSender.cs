@@ -7,16 +7,16 @@ namespace ParentCommitteeAPI.Services
     /*
       ResendEmailSender — שליחת מייל דרך ה-HTTP API של Resend (HTTPS, פורט 443,
       שלא נחסם ע"י Railway). הגדרות: Resend:ApiKey (חובה) ו-Resend:Sender
-      (אופציונלי; ברירת מחדל onboarding@resend.dev — עובד גם בלי דומיין משלנו).
+      (אופציונלי; ברירת מחדל noreply@vaddygo.com — הדומיין המאומת שלנו).
       אם חסר מפתח — לא שולחים, רק כותבים ללוג (לא קורסים).
 
-      הערה: בלי דומיין מאומת ב-Resend אפשר לשלוח רק לכתובת של בעל החשבון.
-      כדי לשלוח לכל אחד — מאמתים דומיין ומעדכנים את Resend:Sender לכתובת בדומיין.
+      הדומיין vaddygo.com מאומת ב-Resend, ולכן אפשר לשלוח לכל נמען מכתובת בדומיין
+      (כל כתובת @vaddygo.com עובדת). ניתן לדרוס עם משתנה הסביבה Resend__Sender.
     */
     public class ResendEmailSender : IEmailSender
     {
         private const string Endpoint = "https://api.resend.com/emails";
-        private const string DefaultSender = "VaddyGo <onboarding@resend.dev>";
+        private const string DefaultSender = "VaddyGo <noreply@vaddygo.com>";
 
         private readonly HttpClient _http;
         private readonly IConfiguration _config;

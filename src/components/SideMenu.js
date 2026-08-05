@@ -108,6 +108,14 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="bell" size={18} /> תזכורות אוטומטיות{" "}
           <ProBadge title="תזכורות אוטומטיות — פיצ'ר פרו" />
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/polls")}
+        >
+          <Icon name="check-circle" size={18} /> סקרים והצבעות{" "}
+          <ProBadge title="סקרים והצבעות — פיצ'ר פרו" />
+        </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
         <button

@@ -75,8 +75,8 @@
 }
 .lp-hero__blob { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(2px); }
 .lp-hero__blob--a {
-  top: -160px; inset-inline-start: -140px; width: 480px; height: 480px;
-  background: radial-gradient(circle at 30% 30%, var(--lp-pink), transparent 68%); opacity: 0.65;
+  top: 6%; inset-inline-start: -150px; width: 440px; height: 440px;
+  background: radial-gradient(circle at 40% 40%, var(--lp-pink), transparent 66%); opacity: 0.85;
 }
 .lp-hero__blob--b {
   bottom: -180px; inset-inline-end: 8%; width: 360px; height: 360px;
@@ -195,6 +195,28 @@
 .lp-card__icon { display: inline-flex; align-items: center; justify-content: center; width: 58px; height: 58px; border-radius: 17px; background: var(--lp-pink-tint); color: var(--lp-rose); margin-bottom: 16px; }
 .lp-card__title { margin: 0 0 7px; font-size: 21px; font-weight: 700; color: var(--lp-ink); }
 .lp-card__text { margin: 0; color: var(--lp-ink-soft); font-size: 16px; font-weight: 400; }
+
+/* ── מקטע היכולות: עיצוב ייחודי עם רקע נע ואייקונים "חיים" (מושכי עין) ── */
+.lp-features { position: relative; overflow: hidden; padding-top: 32px; }
+.lp-features__deco { position: absolute; z-index: 0; border-radius: 50%; pointer-events: none; filter: blur(6px); }
+.lp-features__deco--1 { width: 240px; height: 240px; top: 40px; inset-inline-start: -90px; background: radial-gradient(circle, var(--lp-pink), transparent 70%); opacity: 0.55; animation: lp-drift 9s ease-in-out infinite; }
+.lp-features__deco--2 { width: 280px; height: 280px; bottom: 10px; inset-inline-end: -100px; background: radial-gradient(circle, #f7e3cf, transparent 70%); opacity: 0.55; animation: lp-drift 11s ease-in-out infinite reverse; }
+.lp-features .lp-section__head, .lp-features .lp-grid { position: relative; z-index: 1; }
+.lp-features .lp-card { text-align: center; }
+.lp-features .lp-card__icon {
+  width: 64px; height: 64px;
+  background: linear-gradient(140deg, var(--lp-pink) 0%, #fce2ee 100%);
+  color: var(--lp-rose-dark);
+  box-shadow: 0 8px 18px rgba(194, 92, 138, 0.18);
+  animation: lp-bob 3.6s ease-in-out infinite;
+}
+.lp-features .lp-card:nth-child(2) .lp-card__icon { animation-delay: 0.2s; }
+.lp-features .lp-card:nth-child(3) .lp-card__icon { animation-delay: 0.4s; }
+.lp-features .lp-card:nth-child(4) .lp-card__icon { animation-delay: 0.6s; }
+.lp-features .lp-card:nth-child(5) .lp-card__icon { animation-delay: 0.8s; }
+.lp-features .lp-card:nth-child(6) .lp-card__icon { animation-delay: 1s; }
+@keyframes lp-drift { 0%, 100% { transform: translate(0, 0); } 50% { transform: translate(0, -18px); } }
+@keyframes lp-bob { 0%, 100% { transform: translateY(0) rotate(0); } 50% { transform: translateY(-6px) rotate(-5deg); } }
 
 /* ══ מקטעים מתחלפים ══ */
 .lp-feature { padding: 62px 22px; }
@@ -319,5 +341,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card, .lp-faq__icon { animation: none !important; transition: none; }
+  .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card, .lp-faq__icon,
+  .lp-features__deco, .lp-features .lp-card__icon { animation: none !important; transition: none; }
 }

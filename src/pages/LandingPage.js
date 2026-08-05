@@ -170,7 +170,7 @@ function LandingPage() {
             <span className="lp-hero__brand"><Logo /></span>
             <h1 className="lp-hero__title">
               כל ניהול הוועד,<br />
-              <mark>במקום אחד.</mark>
+              במקום אחד.
             </h1>
             <p className="lp-hero__sub">
               גבייה, תשלומים, תלמידים, אירועים, מתנות וספקים — הכול מסודר במקום
@@ -208,9 +208,12 @@ function LandingPage() {
       {/* ── רצועת יכולות גדולה ונעה ── */}
       <FeaturesMarquee />
 
-      {/* ── ערך מרכזי + רשת יכולות ── */}
-      <section className="lp-section">
+      {/* ── ערך מרכזי + רשת יכולות (מעוצב, עם רקע נע ואייקונים חיים) ── */}
+      <section className="lp-section lp-features">
+        <span className="lp-features__deco lp-features__deco--1" aria-hidden="true" />
+        <span className="lp-features__deco lp-features__deco--2" aria-hidden="true" />
         <div className="lp-section__head">
+          <span className="lp-eyebrow">היכולות</span>
           <h2 className="lp-h2">הרבה יותר מגבייה</h2>
           <p className="lp-lead">
             VaddyGo מרכזת בשבילכם את כל מה שוועד הורים צריך — כדי שתשקיעו את הזמן

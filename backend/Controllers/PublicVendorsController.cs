@@ -208,5 +208,13 @@ namespace ParentCommitteeAPI.Controllers
                 return NotFound(new { message = "הקטלוג לא נמצא" });
             return Ok(vendor);
         }
+
+        // POST: api/public/vendors/{id}/lead — ועד לחץ "בקשת הצעת מחיר" (מונה פניות)
+        [HttpPost("{id:int}/lead")]
+        public async Task<IActionResult> Lead(int id)
+        {
+            await _vendorService.RecordLeadAsync(id);
+            return NoContent();
+        }
     }
 }

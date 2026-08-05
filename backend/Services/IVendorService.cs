@@ -44,6 +44,7 @@ namespace ParentCommitteeAPI.Services
 
         /* קטלוג ציבורי לקריאה בלבד (לשיתוף) — כרטיס הספק בלי פרטי תשלום/כניסה. */
         Task<VendorResponseDto?> GetPublicCatalogAsync(int id);
+        Task<bool> RecordLeadAsync(int id);
         /* מדריך הספקים הציבורי — רשימה קלילה לגלישה/סינון. */
         Task<List<VendorDirectoryDto>> GetDirectoryAsync();
     }

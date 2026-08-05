@@ -93,6 +93,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
   const ready = products.filter((p) => !isMissing(p) && !isLowRes(p));
   const needsAttention = products.filter((p) => isMissing(p) || isLowRes(p));
   const views = vendor?.views || 0;
+  const leads = vendor?.leads || 0;
   const folders = groupByFolder(products);
 
   // תיקיות נפתחות/נסגרות (אקורדיון): התיקייה הראשונה פתוחה כברירת מחדל, השאר
@@ -145,6 +146,10 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
         <div className="sup-stat">
           <div className="sup-stat__num">{views}</div>
           <div className="sup-stat__label">צפיות</div>
+        </div>
+        <div className="sup-stat">
+          <div className="sup-stat__num">{leads}</div>
+          <div className="sup-stat__label">פניות</div>
         </div>
       </div>
 

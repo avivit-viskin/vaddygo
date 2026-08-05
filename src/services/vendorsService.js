@@ -19,6 +19,11 @@ function writeLocal(list) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(list));
 }
 
+/* מונה פניות — נקרא כשוועד לוחץ "בקשת הצעת מחיר" (fire-and-forget, לא חוסם). */
+export function recordLead(vendorId) {
+  return api.post(`/api/public/vendors/${vendorId}/lead`).catch(() => {});
+}
+
 export async function getVendors() {
   try {
     return await api.get("/api/vendors");

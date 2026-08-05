@@ -185,6 +185,9 @@ namespace ParentCommitteeAPI.DTOs
         /* מספר צפיות בקטלוג הציבורי — לדאשבורד הספק */
         public int Views { get; set; }
 
+        /* מספר פניות (לחיצות "בקשת הצעת מחיר") — לדאשבורד הספק */
+        public int Leads { get; set; }
+
         /* מבצע/הצעה מיוחדת שהספק מפרסם — מוצג לוועדים בכרטיס הספק ובקטלוג */
         public string Offer { get; set; } = string.Empty;
     }

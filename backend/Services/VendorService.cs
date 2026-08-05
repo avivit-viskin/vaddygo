@@ -456,6 +456,19 @@ namespace ParentCommitteeAPI.Services
             return dto;
         }
 
+        /* מונה פניות — ועד לחץ "בקשת הצעת מחיר". מגדיל את Leads (לדאשבורד הספק). */
+        public async Task<bool> RecordLeadAsync(int id)
+        {
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return false;
+            }
+            vendor.Leads += 1;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
         public async Task<List<VendorDirectoryDto>> GetDirectoryAsync()
         {
             return await _db.Vendors
@@ -538,6 +551,7 @@ namespace ParentCommitteeAPI.Services
             HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),
             DeletionRequested = vendor.DeletionRequestedAt != null,
             Views = vendor.Views,
+            Leads = vendor.Leads,
             Offer = vendor.Offer,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {

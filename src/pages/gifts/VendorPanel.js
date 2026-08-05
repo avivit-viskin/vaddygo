@@ -6,6 +6,7 @@ import { formatShekels } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 import { getOnboarding } from "../../services/onboardingService";
+import { recordLead } from "../../services/vendorsService";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -255,6 +256,7 @@ function VendorPanel({
             )}
             target="_blank"
             rel="noreferrer"
+            onClick={() => !readOnly && recordLead(vendor.id)}
           >
             <Icon name="message" size={16} /> בקשת הצעת מחיר
           </a>

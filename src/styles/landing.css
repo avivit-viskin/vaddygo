@@ -179,20 +179,20 @@
 
 /* ══ רצועת יכולות גדולה ונעה ══ */
 .lp-fmarquee {
-  overflow: hidden; padding: 30px 0;
+  overflow: hidden; padding: 18px 0;
   background: var(--lp-pink-tint);
   border-block: 1px solid var(--lp-border);
   -webkit-mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask-image: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
-.lp-fmarquee__track { display: flex; gap: 18px; width: max-content; animation: lp-marquee 40s linear infinite; }
+.lp-fmarquee__track { display: flex; gap: 12px; width: max-content; animation: lp-marquee 58s linear infinite; }
 .lp-fcard {
-  display: inline-flex; align-items: center; gap: 13px;
-  background: #fff; border: 1px solid var(--lp-border); border-radius: 18px;
-  padding: 15px 24px; box-shadow: var(--lp-shadow-sm);
-  font-weight: 700; font-size: 20px; color: var(--lp-ink); white-space: nowrap;
+  display: inline-flex; align-items: center; gap: 8px;
+  background: #fff; border: 1px solid var(--lp-border); border-radius: 12px;
+  padding: 8px 15px;
+  font-weight: 600; font-size: 14.5px; color: var(--lp-ink-soft); white-space: nowrap;
 }
-.lp-fcard__ic { display: inline-flex; align-items: center; justify-content: center; width: 46px; height: 46px; border-radius: 13px; background: var(--lp-pink); color: var(--lp-rose-dark); }
+.lp-fcard__ic { display: inline-flex; align-items: center; justify-content: center; width: 30px; height: 30px; border-radius: 9px; background: var(--lp-pink-tint); color: var(--lp-rose); }
 @keyframes lp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* ══ מקטע כללי ══ */
@@ -264,16 +264,14 @@
 .lp-step__title { margin: 0 0 7px; font-size: 22px; font-weight: 700; color: var(--lp-ink); }
 .lp-step__text { margin: 0; color: var(--lp-ink-soft); font-size: 16px; font-weight: 400; }
 
-/* ══ קאבר קריאה-לפעולה — כרטיס הזמנה חמים ורך ══ */
-.lp-cta { padding: 34px 22px 8px; }
+/* ══ קאבר קריאה-לפעולה — פס רוחב-מלא חמים ורך (זורם ישר לפוטר) ══ */
+.lp-cta { padding: 0; }
 .lp-cta__inner {
   position: relative; overflow: hidden;
-  max-width: 1040px; margin: 0 auto;
-  padding: 72px 28px; text-align: center; border-radius: 36px;
-  border: 1px solid #f2d7e3;
-  box-shadow: var(--lp-shadow-sm);
+  max-width: none; margin: 0;
+  padding: 78px 22px; text-align: center;
   background:
-    radial-gradient(560px 320px at 50% -12%, #fde7f1, transparent 66%),
+    radial-gradient(760px 380px at 50% -8%, #fde7f1, transparent 64%),
     linear-gradient(160deg, #fbe1ed 0%, #f6efe2 100%);
 }
 .lp-cta__inner::before {
@@ -290,7 +288,7 @@
 .lp-cta__note { position: relative; z-index: 1; margin: 18px 0 0; font-size: 14px; color: var(--lp-ink-soft); }
 
 /* ══ פוטר ══ */
-.lp-foot { margin-top: 56px; background: var(--lp-beige); border-top: 1px solid var(--lp-border); padding: 52px 22px 26px; }
+.lp-foot { margin-top: 0; background: var(--lp-beige); border-top: 1px solid var(--lp-border); padding: 52px 22px 26px; }
 .lp-foot__inner { display: grid; grid-template-columns: 1fr; gap: 30px; }
 .lp-foot__logo img, .lp-foot__logo svg { height: 34px; width: auto; }
 .lp-foot__tag { margin: 12px 0 0; color: var(--lp-ink-soft); font-weight: 600; }
@@ -315,7 +313,7 @@
 
 /* ══ שאלות ותשובות ══ */
 .lp-faq { background: var(--lp-pink-tint); }
-.lp-faq__list { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.lp-faq__list { max-width: 1000px; margin: 0 auto; display: grid; grid-template-columns: 1fr; gap: 12px; align-items: start; }
 .lp-faq__item { background: #fff; border: 1px solid var(--lp-border); border-radius: 16px; box-shadow: var(--lp-shadow-sm); overflow: hidden; }
 .lp-faq__q {
   display: flex; align-items: center; justify-content: space-between; gap: 14px;
@@ -374,17 +372,26 @@
   .lp-grid { grid-template-columns: repeat(3, 1fr); }
   .lp-steps { grid-template-columns: repeat(3, 1fr); }
   .lp-roles-grid { grid-template-columns: repeat(3, 1fr); }
+  .lp-faq__list { grid-template-columns: 1fr 1fr; gap: 14px; }
   .lp-foot__inner { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
 }
 @media (min-width: 960px) {
-  .lp-hero { padding: 60px 0 52px; }
+  .lp-hero { padding: 64px 0 56px; }
+  /* גיבור ב-2 טורים: טקסט+כפתורים מימין (start), הטלפון משמאל */
+  .lp-hero__inner { flex-direction: row; text-align: right; align-items: center; gap: 44px; }
+  .lp-hero__text { flex: 1 1 0; max-width: 600px; }
+  .lp-hero__art { flex: 1 1 0; }
+  .lp-hero__brand { margin-bottom: 18px; }
+  .lp-hero__sub { margin-inline: 0; }
+  .lp-hero__cta { justify-content: flex-start; }
+  .lp-hero__note { justify-content: flex-start; }
   .lp-phone { width: 320px; }
   .lp-feature__inner { flex-direction: row; gap: 64px; }
   .lp-feature--flip .lp-feature__inner { flex-direction: row-reverse; }
   .lp-about__inner { flex-direction: row; gap: 56px; align-items: center; }
   .lp-about__text { flex: 1.4; }
   .lp-about__team { flex: 1; }
-  .lp-cta__inner { padding: 90px 44px; }
+  .lp-cta__inner { padding: 104px 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -69,7 +69,7 @@ function FeaturesMarquee() {
       <div className="lp-fmarquee__track">
         {row.map((f, idx) => (
           <div className="lp-fcard" key={idx}>
-            <span className="lp-fcard__ic"><Icon name={f.icon} size={24} /></span>
+            <span className="lp-fcard__ic"><Icon name={f.icon} size={18} /></span>
             <span className="lp-fcard__label">{f.label}</span>
           </div>
         ))}
@@ -192,6 +192,7 @@ function LandingPage() {
         <span className="lp-hero__blob lp-hero__blob--b" aria-hidden="true" />
         <div className="lp-hero__inner">
           <div className="lp-hero__text">
+            <span className="lp-hero__brand"><Logo /></span>
             <h1 className="lp-hero__title">
               כל ניהול הוועד,<br />
               במקום אחד.

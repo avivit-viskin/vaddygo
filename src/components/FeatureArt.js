@@ -5,19 +5,15 @@
 */
 
 const ART = {
-  // גבייה ותשלומים — ערמת מטבעות + מטבע ₪
+  // גבייה ותשלומים — ארנק עם שטרות מציצים
   collect: (
     <svg viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-hidden="true">
       <circle cx="48" cy="48" r="42" fill="#ffe6ef" />
-      <ellipse cx="38" cy="67" rx="19" ry="6.5" fill="#e2a02c" />
-      <rect x="19" y="56" width="38" height="11" fill="#f5c451" />
-      <ellipse cx="38" cy="56" rx="19" ry="6.5" fill="#ffd873" />
-      <ellipse cx="38" cy="49" rx="19" ry="6.5" fill="#e2a02c" />
-      <rect x="19" y="42" width="38" height="7" fill="#f5c451" />
-      <ellipse cx="38" cy="42" rx="19" ry="6.5" fill="#ffd873" />
-      <circle cx="62" cy="42" r="17" fill="#f5c451" stroke="#e2a02c" strokeWidth="2.5" />
-      <circle cx="62" cy="42" r="12" fill="#ffd873" />
-      <text x="62" y="48" fontSize="16" fontWeight="800" textAnchor="middle" fill="#bf821c" fontFamily="Rubik, sans-serif">₪</text>
+      <rect x="34" y="25" width="28" height="19" rx="3" fill="#7fd8c4" />
+      <rect x="29" y="29" width="28" height="19" rx="3" fill="#ffd873" />
+      <rect x="23" y="39" width="50" height="33" rx="8" fill="#e0578f" />
+      <path d="M23 52h50v12a8 8 0 0 1-8 8H31a8 8 0 0 1-8-8z" fill="#f4739e" />
+      <circle cx="60" cy="58" r="6" fill="#ffd873" stroke="#e2a02c" strokeWidth="2" />
     </svg>
   ),
   // תלמידים והורים — קבוצת אנשים

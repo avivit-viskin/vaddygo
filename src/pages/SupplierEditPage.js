@@ -25,6 +25,7 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 import SupplierSideMenu from "../components/SupplierSideMenu";
+import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
 import SupplierOffer from "../components/SupplierOffer";
@@ -414,7 +415,10 @@ function SupplierEditPage() {
         <span className="sup-head__logo">
           <Logo />
         </span>
-        <span className="sup-head__hi">שלום {vendor.name || "ספק יקר"} 👋</span>
+        {/* אווטאר החשבון בצד שמאל — לחיצה מציגה שם העסק ומייל ההתחברות */}
+        <div style={{ marginInlineStart: "auto" }}>
+          <SupplierAvatar name={vendor.name} email={vendor.loginEmail} />
+        </div>
       </div>
 
       {importJob && (

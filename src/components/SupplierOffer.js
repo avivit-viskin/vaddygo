@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "./Button";
+import ProBadge from "./ProBadge";
 
 /*
   SupplierOffer — עורך "מבצע/הצעה מיוחדת" של הספק (פיצ'ר פרו). מה שנשמר כאן
@@ -31,7 +32,7 @@ function SupplierOffer({ vendor, onSave }) {
       }}
     >
       <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
-        🏷️ מבצע / הצעה מיוחדת
+        🏷️ מבצע / הצעה מיוחדת <ProBadge title="מבצע לוועדים — פיצ'ר פרו" />
       </h3>
       <p
         style={{

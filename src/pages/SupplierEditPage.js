@@ -24,6 +24,7 @@ import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierChecklist from "../components/SupplierChecklist";
@@ -597,7 +598,8 @@ function SupplierEditPage() {
           </div>
           <div style={{ marginTop: 16 }}>
             <Button variant="secondary" onClick={() => openShareCatalog("")}>
-              <Icon name="link" size={16} /> שיתוף כל הקטלוג
+              <Icon name="link" size={16} /> שיתוף כל הקטלוג{" "}
+              <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
             </Button>
           </div>
         </>
@@ -635,7 +637,8 @@ function SupplierEditPage() {
       {view === "socials" && (
         <>
           <h2 className="sup-section-title">
-            <Icon name="link" size={22} /> רשתות חברתיות
+            <Icon name="link" size={22} /> רשתות חברתיות{" "}
+            <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
           </h2>
           <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
         </>
@@ -834,7 +837,7 @@ function SupplierEditPage() {
           />
           <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
             📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
-            לקטלוג.
+            לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
           </p>
         </div>
       </Modal>

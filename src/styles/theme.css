@@ -5,6 +5,10 @@
 */
 
 :root {
+  /* המערכת בהירה בלבד. מצהירים על כך במפורש כדי שדפדפנים עם "מצב כהה כפוי"
+     (Chrome / Samsung Internet באנדרואיד) לא יהפכו לבד את הרקע לשחור. */
+  color-scheme: light;
+
   /* ===== צבעי בסיס — בז' + ורוד בהיר =====
      ⚠️ החלטת בעלת המוצר (13.07.2026): רקעים בבז', והאקסנט הוא הוורוד הבהיר #f9dae9.
      לא חום כהה ולא סגול. אין לשנות בלי אישור מפורש של בעלת המוצר.
@@ -91,6 +95,19 @@ body {
   font-size: var(--font-size-base);
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
+}
+
+/* טבעת פוקוס למקלדת — מסומנת בבירור בעת ניווט ב-Tab (ולא בלחיצת עכבר), בצבע
+   המותג. נגישות: מאפשר למי שגולש במקלדת לראות תמיד על איזה כפתור/קישור הוא נמצא. */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+summary:focus-visible,
+[tabindex]:focus-visible {
+  outline: 3px solid var(--color-link);
+  outline-offset: 2px;
 }
 
 /* קישורים — גוון רוז חם (במקום כחול ברירת מחדל שצורם על הבז') */

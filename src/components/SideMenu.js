@@ -9,7 +9,6 @@ import Button from "./Button";
 import { logout } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
-import { isPro } from "../services/plan";
 import ProBadge from "./ProBadge";
 import "../styles/sidemenu.css";
 
@@ -91,54 +90,13 @@ function SideMenu({ isOpen, onClose }) {
           <ProBadge title="ניהול כמה מוסדות — פיצ'ר פרו" />
         </button>
 
-        <h3 className="sidemenu__title">כלים</h3>
         <button
           type="button"
-          className="sidemenu__action"
-          onClick={() => go("/annual-report")}
+          className="sidemenu__action sidemenu__upgrade"
+          onClick={() => go("/upgrade")}
         >
-          <Icon name="receipt" size={18} /> דוח שנתי להורים{" "}
-          <ProBadge title="דוח שנתי — פיצ'ר פרו" />
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/reminders")}
-        >
-          <Icon name="bell" size={18} /> תזכורות אוטומטיות{" "}
-          <ProBadge title="תזכורות אוטומטיות — פיצ'ר פרו" />
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/polls")}
-        >
-          <Icon name="check-circle" size={18} /> סקרים והצבעות{" "}
-          <ProBadge title="סקרים והצבעות — פיצ'ר פרו" />
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/backup")}
-        >
-          <Icon name="package" size={18} /> גיבוי והשוואת שנים{" "}
-          <ProBadge title="גיבוי והשוואה בין שנים — פיצ'ר פרו" />
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/branding")}
-        >
-          <Icon name="image" size={18} /> מיתוג אישי לגן{" "}
-          <ProBadge title="מיתוג אישי — פיצ'ר פרו" />
-        </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/contacts")}
-        >
-          <Icon name="users" size={18} /> ספר קשרים ושליחה{" "}
-          <ProBadge title="ספר קשרים ושליחה מרוכזת — פיצ'ר פרו" />
+          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
+          <ProBadge title="כל כלי הפרו במקום אחד" />
         </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
@@ -156,15 +114,6 @@ function SideMenu({ isOpen, onClose }) {
         >
           <Icon name="bell" size={18} /> הגדרות התראות
         </button>
-        {!isPro() && (
-          <button
-            type="button"
-            className="sidemenu__action sidemenu__upgrade"
-            onClick={() => go("/upgrade")}
-          >
-            <Icon name="crown" size={18} /> שדרוג לפרו
-          </button>
-        )}
 
         <div className="sidemenu__footer">
           <a

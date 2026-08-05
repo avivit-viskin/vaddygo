@@ -16,11 +16,21 @@ function renderPage() {
   );
 }
 
-test("מציג את מחיר הפרו ורשימת הטבות", () => {
+test("מציג את מחיר הפרו ואת ההטבות שאינן כלים", () => {
   renderPage();
   expect(screen.getByText(new RegExp(String(PRO_PRICE)))).toBeInTheDocument();
   expect(screen.getByText(/עוזרת AI מלאה/)).toBeInTheDocument();
   expect(screen.getByText(/תמיכה מועדפת/)).toBeInTheDocument();
+});
+
+test("מרכז את כל כלי הפרו כקישורים למסכים שלהם", () => {
+  renderPage();
+  expect(
+    screen.getByRole("link", { name: /דוח שנתי להורים/ }).getAttribute("href")
+  ).toBe("/annual-report");
+  expect(
+    screen.getByRole("link", { name: /ספר קשרים ושליחה/ }).getAttribute("href")
+  ).toBe("/contacts");
 });
 
 test("כשמוגדר קישור תשלום — מופיע כפתור 'מעבר לתשלום מאובטח' לקישור", () => {

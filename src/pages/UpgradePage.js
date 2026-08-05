@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
@@ -9,12 +9,27 @@ import { PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/pro.css";
 
 /*
-  UpgradePage (/upgrade) — עמוד השדרוג למסלול הפרו. מציג את המחיר (₪149/שנה)
-  ואת רשימת הטבות הפרו (מקור אמת יחיד: PRO_FEATURES ב-services/plan.js).
-  שלב א': אין עדיין חיוב בפועל — לכן ה-CTA הוא פנייה לתמיכה ("אשמח לשמוע עוד"),
-  והעמוד מבהיר בכנות שכל הפיצ'רים עדיין פתוחים לכולם.
+  UpgradePage (/upgrade) — מרכז הפרו: כל כלי הפרו במקום אחד (כל אחד מוביל למסך
+  שלו), המחיר (₪149/שנה), וכפתור תשלום מאובטח (עמוד GROW). שלב א': שום דבר לא
+  חסום — הכלים פתוחים לכולם, וזה רק "אזור השדרוגים" המרכזי.
 */
 const SUPPORT_PHONE = "054-4579179";
+
+const PRO_TOOLS = [
+  { path: "/annual-report", icon: "receipt", label: "דוח שנתי להורים", desc: "סיכום כספי שקוף — להדפסה, PDF ושיתוף" },
+  { path: "/reminders", icon: "bell", label: "תזכורות אוטומטיות", desc: "המערכת עוקבת מי מחכה לתזכורת — ואת שולחת" },
+  { path: "/polls", icon: "check-circle", label: "סקרים והצבעות", desc: "שאלה להורים עם תוצאות חיות" },
+  { path: "/backup", icon: "package", label: "גיבוי והשוואת שנים", desc: "גיבוי מלא והשוואה בין השנים" },
+  { path: "/branding", icon: "image", label: "מיתוג אישי לגן", desc: "לוגו וצבע הגן על הדוח" },
+  { path: "/contacts", icon: "users", label: "ספר קשרים ושליחה", desc: "כל ההורים במקום אחד + שליחה מרוכזת" },
+];
+
+const ALSO_INCLUDED = [
+  PRO_FEATURES.ai,
+  PRO_FEATURES.multiInstitution,
+  PRO_FEATURES.teamRoles,
+  PRO_FEATURES.prioritySupport,
+];
 
 function UpgradePage() {
   const navigate = useNavigate();
@@ -31,30 +46,42 @@ function UpgradePage() {
             <Icon name="crown" size={40} title="פרו" />
           </span>
           <h2 className="upgrade-title">
-            שדרוג ל־<BrandName /> פרו
+            שדרוגי <BrandName /> פרו
           </h2>
           <p className="upgrade-price">
             <span className="upgrade-price__num">₪{PRO_PRICE}</span>
             <span className="upgrade-price__per"> / שנה לארגון</span>
           </p>
           <p className="upgrade-subtitle">
-            כל מה שיש בחינם — ובנוסף אוטומציות, עוזרת AI וניהול בקנה מידה גדול.
+            כל מה שיש בחינם — ובנוסף כל הכלים המתקדמים האלה, במקום אחד:
           </p>
         </div>
 
-        <ul className="upgrade-features">
-          {Object.entries(PRO_FEATURES).map(([key, label]) => (
-            <li key={key} className="upgrade-feature">
-              <Icon name="check" size={18} /> {label}
+        <ul className="upgrade-tools">
+          {PRO_TOOLS.map((tool) => (
+            <li key={tool.path}>
+              <Link to={tool.path} className="upgrade-tool">
+                <span className="upgrade-tool__icon">
+                  <Icon name={tool.icon} size={22} />
+                </span>
+                <span className="upgrade-tool__body">
+                  <span className="upgrade-tool__label">{tool.label}</span>
+                  <span className="upgrade-tool__desc">{tool.desc}</span>
+                </span>
+                <span className="upgrade-tool__arrow" aria-hidden="true">
+                  ‹
+                </span>
+              </Link>
             </li>
           ))}
         </ul>
 
+        <p className="upgrade-also">כולל גם: {ALSO_INCLUDED.join(" · ")}</p>
+
         <p className="upgrade-note">
           <Icon name="clock" size={15} />
           <span>
-            כרגע כל הפיצ'רים פתוחים לכולם — מסלול הפרו ייכנס לתוקף בהמשך. הכתר
-            מסמן מה ייכלל בפרו.
+            כרגע כל הפיצ'רים פתוחים לכולם — מסלול הפרו ייכנס לתוקף בהמשך.
           </span>
         </p>
 

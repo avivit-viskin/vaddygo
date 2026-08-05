@@ -643,18 +643,105 @@ function VendorForm({
           marginBottom: "10px",
         }}
       >
-        <label className="vendor-form__upload">
-          📥 ייבוא מקובץ (Excel / CSV / PDF)
-          <input
-            type="file"
-            accept=".csv,.txt,.xlsx,.xls,.pdf"
-            className="vendor-form__file"
-            aria-label="ייבוא מוצרים מקובץ"
-            onChange={(e) =>
-              beginFileImport(e.target.files && e.target.files[0])
-            }
-          />
-        </label>
+        {/* הוספת מוצר — כפתור ראשי בשורה, ליד "צילום קטלוג". פותח תפריט:
+            צילום / גלריה / הזנה ידנית (החליף את הכפתור הצף לבקשת בעלת המוצר). */}
+        {showFab && (
+          <div style={{ position: "relative" }}>
+            <button
+              type="button"
+              className="vendor-form__upload"
+              aria-haspopup="true"
+              aria-expanded={addMenuOpen}
+              onClick={() => setAddMenuOpen((v) => !v)}
+            >
+              ＋ הוספת מוצר ▾
+            </button>
+            {addMenuOpen && (
+              <>
+                {/* רקע שקוף — לחיצה מחוץ לתפריט סוגרת אותו */}
+                <button
+                  type="button"
+                  aria-label="סגירת התפריט"
+                  onClick={() => setAddMenuOpen(false)}
+                  style={{
+                    position: "fixed",
+                    inset: 0,
+                    background: "transparent",
+                    border: "none",
+                    zIndex: 40,
+                    cursor: "default",
+                  }}
+                />
+                <div
+                  role="menu"
+                  style={{
+                    position: "absolute",
+                    top: "calc(100% + 6px)",
+                    insetInlineStart: 0,
+                    zIndex: 41,
+                    background: "var(--color-surface)",
+                    border: "1px solid var(--color-border)",
+                    borderRadius: 12,
+                    boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                    padding: 6,
+                    minWidth: 210,
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 2,
+                  }}
+                >
+                  <label role="menuitem" className="sup-fab-menu__item">
+                    <span className="sup-fab-menu__emoji" aria-hidden="true">
+                      📷
+                    </span>{" "}
+                    צילום מוצר
+                    <input
+                      type="file"
+                      accept="image/*"
+                      capture="environment"
+                      className="vendor-form__file"
+                      aria-label="צילום מוצר חדש"
+                      onChange={(e) => {
+                        addProductWithImage(e.target.files && e.target.files[0]);
+                        setAddMenuOpen(false);
+                      }}
+                    />
+                  </label>
+                  <label role="menuitem" className="sup-fab-menu__item">
+                    <span className="sup-fab-menu__emoji" aria-hidden="true">
+                      🖼️
+                    </span>{" "}
+                    מהתמונות / קבצים
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="vendor-form__file"
+                      aria-label="בחירת תמונת מוצר מהמכשיר"
+                      onChange={(e) => {
+                        addProductWithImage(e.target.files && e.target.files[0]);
+                        setAddMenuOpen(false);
+                      }}
+                    />
+                  </label>
+                  <button
+                    type="button"
+                    role="menuitem"
+                    className="sup-fab-menu__item"
+                    onClick={() => {
+                      addProduct();
+                      setAddMenuOpen(false);
+                    }}
+                  >
+                    <span className="sup-fab-menu__emoji" aria-hidden="true">
+                      ✏️
+                    </span>{" "}
+                    הזנה ידנית (מוצר ריק)
+                  </button>
+                </div>
+              </>
+            )}
+          </div>
+        )}
         <label className="vendor-form__upload">
           📷 צילום קטלוג
           <input
@@ -665,6 +752,18 @@ function VendorForm({
             aria-label="צילום קטלוג לזיהוי מוצרים"
             onChange={(e) =>
               beginPhotoImport(e.target.files && e.target.files[0])
+            }
+          />
+        </label>
+        <label className="vendor-form__upload">
+          📥 ייבוא מקובץ (Excel / CSV / PDF)
+          <input
+            type="file"
+            accept=".csv,.txt,.xlsx,.xls,.pdf"
+            className="vendor-form__file"
+            aria-label="ייבוא מוצרים מקובץ"
+            onChange={(e) =>
+              beginFileImport(e.target.files && e.target.files[0])
             }
           />
         </label>
@@ -1343,75 +1442,9 @@ function VendorForm({
       {/* הוספת מוצר — כפתור צף (＋) באזור הספק, או כפתור רגיל בעריכת מנהלת.
           מציגים רק אחד מהם כדי לא לכפול את האופציה. לחיצה על ＋ פותחת תפריט:
           צילום מוצר / בחירה מהתמונות / הזנה ידנית. */}
-      {showFab ? (
-        <div className="sup-fab-wrap">
-          {addMenuOpen && (
-            <>
-              {/* רקע שקוף — לחיצה מחוץ לתפריט סוגרת אותו */}
-              <button
-                type="button"
-                className="sup-fab-backdrop"
-                aria-label="סגירת התפריט"
-                onClick={() => setAddMenuOpen(false)}
-              />
-              <div className="sup-fab-menu" role="menu">
-                <label className="sup-fab-menu__item" role="menuitem">
-                  <span className="sup-fab-menu__emoji" aria-hidden="true">📷</span>
-                  צילום מוצר
-                  <input
-                    type="file"
-                    accept="image/*"
-                    capture="environment"
-                    className="vendor-form__file"
-                    aria-label="צילום מוצר חדש"
-                    onChange={(e) => {
-                      addProductWithImage(e.target.files && e.target.files[0]);
-                      setAddMenuOpen(false);
-                    }}
-                  />
-                </label>
-                <label className="sup-fab-menu__item" role="menuitem">
-                  <span className="sup-fab-menu__emoji" aria-hidden="true">🖼️</span>
-                  מהתמונות / קבצים
-                  <input
-                    type="file"
-                    accept="image/*"
-                    className="vendor-form__file"
-                    aria-label="בחירת תמונת מוצר מהמכשיר"
-                    onChange={(e) => {
-                      addProductWithImage(e.target.files && e.target.files[0]);
-                      setAddMenuOpen(false);
-                    }}
-                  />
-                </label>
-                <button
-                  type="button"
-                  className="sup-fab-menu__item"
-                  role="menuitem"
-                  onClick={() => {
-                    addProduct();
-                    setAddMenuOpen(false);
-                  }}
-                >
-                  <span className="sup-fab-menu__emoji" aria-hidden="true">✏️</span>
-                  הזנה ידנית (מוצר ריק)
-                </button>
-              </div>
-            </>
-          )}
-          <button
-            type="button"
-            className={`sup-fab${addMenuOpen ? " sup-fab--open" : ""}`}
-            aria-label="הוספת מוצר"
-            aria-haspopup="true"
-            aria-expanded={addMenuOpen}
-            onClick={() => setAddMenuOpen((v) => !v)}
-          >
-            <span className="sup-fab__plus" aria-hidden="true">＋</span>
-            <span className="sup-fab__label">מוצר</span>
-          </button>
-        </div>
-      ) : (
+      {/* בעריכת המנהלת (בלי showFab) — כפתור הוספה רגיל בתחתית. בפורטל הספק
+          ההוספה עברה לשורה העליונה ליד "צילום קטלוג" (בלי הכפתור הצף). */}
+      {!showFab && (
         <Button variant="secondary" onClick={addProduct}>
           + הוספת מוצר
           {folderFilter && folderFilter !== "כללי" ? ` ל${folderFilter}` : ""}

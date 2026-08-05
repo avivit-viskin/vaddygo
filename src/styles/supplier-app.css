@@ -79,41 +79,41 @@
   gap: 10px;
   margin-bottom: 18px;
 }
+/* עיצוב רגוע: אריחים רכים ממולאים (בלי מסגרת), מספרים מעודנים */
 .sup-stat {
-  border: 1px solid var(--color-border);
+  border: none;
   border-radius: var(--radius-lg);
-  padding: 12px 8px;
+  padding: 14px 8px;
   text-align: center;
-  background: var(--color-surface);
+  background: var(--color-primary-light);
 }
 /* אריח לחיץ (מוצרים / מוכנים / דורש טיפול) — נראה ומתנהג ככפתור */
 .sup-stat--link {
   cursor: pointer;
   font-family: var(--font-family);
-  transition: border-color 0.15s ease, background 0.15s ease,
-    transform 0.1s ease;
+  transition: background 0.15s ease, transform 0.1s ease;
 }
 .sup-stat--link:hover {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light);
+  background: var(--color-border);
 }
 .sup-stat--link:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 .sup-stat__num {
-  font-size: 22px;
-  font-weight: 800;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--color-primary-dark);
   line-height: 1.1;
-  margin: 3px 0 1px;
+  margin: 2px 0 1px;
 }
 .sup-stat__label {
   font-size: 12px;
   color: var(--color-text-muted);
   font-weight: 400;
 }
+/* "דורש טיפול" — ענבר רך במקום צבע התראה חזק (רגוע יותר) */
 .sup-stat--warn .sup-stat__num {
-  color: var(--color-attention);
+  color: #c08a2e;
 }
 
 /* ── כרטיסי מוצר (תצוגה בדאשבורד) ── */

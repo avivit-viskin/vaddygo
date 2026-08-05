@@ -5,7 +5,7 @@ import "../styles/institutionAvatar.css";
   SupplierAvatar — עיגול בכותרת אזור הספק עם ראשי התיבות של שם העסק (המילה
   הראשונה + השנייה). לחיצה פותחת פופאפ קטן עם שם העסק המלא ומייל ההתחברות —
   בדיוק כמו אווטאר הגן בכניסת הוועד. משתמש בעיצוב המשותף (institutionAvatar.css);
-  הפופאפ מעוגן לצד ההתחלה (שמאל) כי האווטאר יושב בצד שמאל של ההדר.
+  האווטאר יושב בצד שמאל של ההדר, ולכן הפופאפ נפתח פנימה (ימינה) כדי שלא ייחתך.
 */
 function initials(name) {
   const words = (name || "").trim().split(/\s+/).filter(Boolean);
@@ -52,7 +52,7 @@ function SupplierAvatar({ name, email }) {
           className="inst-avatar__popup"
           role="dialog"
           aria-label="פרטי החשבון"
-          style={{ insetInlineEnd: "auto", insetInlineStart: 0 }}
+          style={{ insetInlineStart: "auto", insetInlineEnd: 0 }}
         >
           <strong className="inst-avatar__name">{name || "ספק"}</strong>
           {email ? (

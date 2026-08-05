@@ -1,0 +1,188 @@
+/*
+  report.css — הדוח השנתי להורים (פיצ'ר פרו). מעוצב כמסמך נקי על המסך,
+  ומותאם להדפסה/שמירה כ-PDF: בהדפסה מסתירים את כל שאר האתר ומשאירים רק את הדוח.
+*/
+.report-page {
+  max-width: 640px;
+  margin: 0 auto;
+}
+
+.report-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.report-toolbar__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* ===== המסמך ===== */
+.report {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  padding: 28px 24px;
+}
+
+.report__head {
+  text-align: center;
+  border-bottom: 2px solid var(--color-primary);
+  padding-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.report__eyebrow {
+  margin: 0 0 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  color: var(--color-link);
+}
+
+.report__title {
+  margin: 0 0 4px;
+  font-size: var(--font-size-2xl);
+}
+
+.report__sub {
+  margin: 0;
+  color: var(--color-text-muted);
+}
+
+/* אריחי תמצית */
+.report__hero {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 22px;
+}
+
+.report__stat {
+  background: var(--color-primary-light);
+  border-radius: var(--radius-md);
+  padding: 14px 10px;
+  text-align: center;
+}
+
+.report__stat--balance {
+  background: var(--color-primary);
+}
+
+.report__stat-num {
+  display: block;
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.report__stat-label {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.report__section {
+  margin-bottom: 22px;
+}
+
+.report__h2 {
+  font-size: var(--font-size-lg);
+  margin: 0 0 10px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.report__bar {
+  height: 10px;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  overflow: hidden;
+  margin-bottom: 12px;
+}
+
+.report__bar-fill {
+  height: 100%;
+  background: var(--color-primary-muted);
+  border-radius: 999px;
+}
+
+.report__table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.report__table th,
+.report__table td {
+  text-align: right;
+  padding: 9px 4px;
+  border-bottom: 1px solid var(--color-border);
+  font-size: var(--font-size-base);
+}
+
+.report__table th {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-weight: 700;
+}
+
+.report__num {
+  text-align: left;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  font-weight: 600;
+}
+
+.report__total-row td {
+  font-weight: 800;
+  border-bottom: none;
+  border-top: 2px solid var(--color-primary);
+}
+
+.report__empty {
+  color: var(--color-text-muted);
+  margin: 0;
+}
+
+.report__foot {
+  margin-top: 24px;
+  padding-top: 12px;
+  border-top: 1px solid var(--color-border);
+  text-align: center;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ===== הדפסה / שמירה כ-PDF =====
+   מסתירים את כל האתר ומשאירים רק את הדוח, פרוס על כל העמוד. */
+@media print {
+  body {
+    background: #fff;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .report,
+  .report * {
+    visibility: visible;
+  }
+  .report {
+    position: absolute;
+    inset: 0;
+    margin: 0;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .no-print {
+    display: none !important;
+  }
+}

@@ -33,6 +33,7 @@ import TeamSetupPage from "./pages/TeamSetupPage";
 import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import UpgradePage from "./pages/UpgradePage";
+import AnnualReportPage from "./pages/AnnualReportPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -262,6 +263,7 @@ function App() {
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/upgrade" element={<UpgradePage />} />
+          <Route path="/annual-report" element={<AnnualReportPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

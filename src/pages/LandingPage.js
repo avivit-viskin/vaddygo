@@ -78,13 +78,15 @@ function FeaturesMarquee() {
   );
 }
 
+// כל פיצ'ר עם אריח־אייקון צבעוני משלו (בסגנון אייקוני אפליקציה), אייקון לבן —
+// כדי שיהיה מגוון וצבעוני (כמו פייבוקס), לא אותו צ'יפ שחוזר על עצמו.
 const FEATURES = [
-  { icon: "wallet", title: "גבייה ותשלומים", text: "עוקבים מי שילם, שולחים בקשת תשלום, ורואים את היתרה בזמן אמת." },
-  { icon: "users", title: "תלמידים והורים", text: "רשימת התלמידים, פרטי הקשר וסטטוס התשלום של כל אחד — במקום אחד." },
-  { icon: "calendar", title: "לוח שנה ואירועים", text: "אירועים, ימי הולדת ותזכורות להורים — הכול מסונכרן אוטומטית." },
-  { icon: "gift", title: "מתנות וספקים", text: "מתכננים מתנות לחגים, בוחרים מקטלוג ספקים, ושומרים על התקציב." },
-  { icon: "folder", title: "קבצים ומסמכים", text: "כל הקבלות והמסמכים החשובים נגישים לכל חברי הוועד." },
-  { icon: "lock", title: "הרשאות לצוות", text: "מזמינים חברי ועד עם הרשאה מתאימה: ניהול, עריכה או צפייה בלבד." },
+  { icon: "wallet", title: "גבייה ותשלומים", text: "עוקבים מי שילם, שולחים בקשת תשלום, ורואים את היתרה בזמן אמת.", grad: "linear-gradient(135deg,#ff9ebb,#e0578f)", glow: "rgba(224,87,143,0.35)" },
+  { icon: "users", title: "תלמידים והורים", text: "רשימת התלמידים, פרטי הקשר וסטטוס התשלום של כל אחד — במקום אחד.", grad: "linear-gradient(135deg,#ffb27a,#f4885b)", glow: "rgba(244,136,91,0.35)" },
+  { icon: "calendar", title: "לוח שנה ואירועים", text: "אירועים, ימי הולדת ותזכורות להורים — הכול מסונכרן אוטומטית.", grad: "linear-gradient(135deg,#7ec8f0,#4a9fe0)", glow: "rgba(74,159,224,0.35)" },
+  { icon: "gift", title: "מתנות וספקים", text: "מתכננים מתנות לחגים, בוחרים מקטלוג ספקים, ושומרים על התקציב.", grad: "linear-gradient(135deg,#c89bf0,#a06fe0)", glow: "rgba(160,111,224,0.35)" },
+  { icon: "folder", title: "קבצים ומסמכים", text: "כל הקבלות והמסמכים החשובים נגישים לכל חברי הוועד.", grad: "linear-gradient(135deg,#7fd8c4,#3fb59a)", glow: "rgba(63,181,154,0.35)" },
+  { icon: "lock", title: "הרשאות לצוות", text: "מזמינים חברי ועד עם הרשאה מתאימה: ניהול, עריכה או צפייה בלבד.", grad: "linear-gradient(135deg,#ffce73,#f0a93f)", glow: "rgba(240,169,63,0.35)" },
 ];
 
 const STEPS = [
@@ -246,7 +248,12 @@ function LandingPage() {
         <div className="lp-grid">
           {FEATURES.map((f) => (
             <article className="lp-card" key={f.title}>
-              <span className="lp-card__icon"><Icon name={f.icon} size={26} /></span>
+              <span
+                className="lp-card__icon"
+                style={{ background: f.grad, color: "#fff", boxShadow: `0 10px 20px ${f.glow}` }}
+              >
+                <Icon name={f.icon} size={28} />
+              </span>
               <h3 className="lp-card__title">{f.title}</h3>
               <p className="lp-card__text">{f.text}</p>
             </article>

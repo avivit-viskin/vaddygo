@@ -215,11 +215,10 @@
 .lp-features__deco--2 { width: 280px; height: 280px; bottom: 10px; inset-inline-end: -100px; background: radial-gradient(circle, #f7e3cf, transparent 70%); opacity: 0.55; animation: lp-drift 11s ease-in-out infinite reverse; }
 .lp-features .lp-section__head, .lp-features .lp-grid { position: relative; z-index: 1; }
 .lp-features .lp-card { text-align: center; }
+/* גודל + תנועה בלבד — הצבע/הגרדיאנט לכל אריח מגיע inline לפי הפיצ'ר (צבע ייחודי) */
 .lp-features .lp-card__icon {
-  width: 64px; height: 64px;
-  background: linear-gradient(140deg, var(--lp-pink) 0%, #fce2ee 100%);
-  color: var(--lp-rose-dark);
-  box-shadow: 0 8px 18px rgba(194, 92, 138, 0.18);
+  width: 66px; height: 66px;
+  border-radius: 19px;
   animation: lp-bob 3.6s ease-in-out infinite;
 }
 .lp-features .lp-card:nth-child(2) .lp-card__icon { animation-delay: 0.2s; }

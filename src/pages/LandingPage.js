@@ -161,19 +161,13 @@ function LandingPage() {
 
   return (
     <div className="lp">
-      {/* ── ניווט עליון (לוגו בלבד — ההרשמה/כניסה נמצאות בבאנר) ── */}
-      <header className="lp-nav">
-        <div className="lp-nav__inner">
-          <span className="lp-nav__logo"><Logo /></span>
-        </div>
-      </header>
-
-      {/* ── גיבור ── */}
+      {/* ── גיבור (ממורכז; הלוגו במרכז מעל הכותרת, בלי סרגל עליון) ── */}
       <section className="lp-hero">
         <span className="lp-hero__blob lp-hero__blob--a" aria-hidden="true" />
         <span className="lp-hero__blob lp-hero__blob--b" aria-hidden="true" />
         <div className="lp-hero__inner">
           <div className="lp-hero__text">
+            <span className="lp-hero__brand"><Logo /></span>
             <h1 className="lp-hero__title">
               כל ניהול הוועד,<br />
               <mark>במקום אחד.</mark>

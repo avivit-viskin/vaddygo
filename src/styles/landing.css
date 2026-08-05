@@ -82,15 +82,18 @@
   bottom: -180px; inset-inline-end: 8%; width: 360px; height: 360px;
   background: radial-gradient(circle at 40% 40%, #f3e2cd, transparent 70%); opacity: 0.6;
 }
-.lp-hero__inner { position: relative; display: grid; grid-template-columns: 1fr; gap: 28px; align-items: center; }
+.lp-hero__inner { position: relative; display: flex; flex-direction: column; align-items: center; text-align: center; gap: 30px; }
+.lp-hero__text { max-width: 760px; }
+.lp-hero__brand { display: inline-block; margin-bottom: 22px; }
+.lp-hero__brand img, .lp-hero__brand svg { height: 46px; width: auto; }
 .lp-hero__title {
   margin: 0 0 18px; font-size: clamp(38px, 8.5vw, 70px); font-weight: 700;
   line-height: 1.06; letter-spacing: -0.02em; color: var(--lp-ink);
 }
 .lp-hero__title mark { background: linear-gradient(transparent 60%, var(--lp-pink) 60%); color: var(--lp-rose-dark); padding: 0 4px; }
-.lp-hero__sub { margin: 0 0 30px; font-size: clamp(17px, 2.5vw, 20px); font-weight: 400; color: var(--lp-ink-soft); max-width: 33em; }
-.lp-hero__cta { display: flex; flex-wrap: wrap; gap: 14px; }
-.lp-hero__note { display: flex; align-items: center; gap: 7px; margin: 18px 0 0; color: var(--lp-ink-soft); font-size: 15px; font-weight: 600; }
+.lp-hero__sub { margin: 0 auto 30px; font-size: clamp(17px, 2.5vw, 20px); font-weight: 400; color: var(--lp-ink-soft); max-width: 32em; }
+.lp-hero__cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
+.lp-hero__note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 18px 0 0; color: var(--lp-ink-soft); font-size: 15px; font-weight: 600; }
 .lp-hero__note svg { color: var(--lp-rose); }
 .lp-hero__art { display: flex; justify-content: center; }
 
@@ -181,8 +184,8 @@
 @keyframes lp-marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
 /* ══ מקטע כללי ══ */
-.lp-section { padding: 76px 22px; }
-.lp-section__head { text-align: center; max-width: 680px; margin: 0 auto 46px; }
+.lp-section { padding: 62px 22px; }
+.lp-section__head { text-align: center; max-width: 680px; margin: 0 auto 36px; }
 .lp-h2 { margin: 0 0 14px; font-size: clamp(29px, 4.6vw, 43px); font-weight: 700; letter-spacing: -0.02em; line-height: 1.12; color: var(--lp-ink); }
 .lp-lead { margin: 0; font-size: 18px; font-weight: 400; color: var(--lp-ink-soft); }
 
@@ -194,7 +197,7 @@
 .lp-card__text { margin: 0; color: var(--lp-ink-soft); font-size: 16px; font-weight: 400; }
 
 /* ══ מקטעים מתחלפים ══ */
-.lp-feature { padding: 72px 22px; }
+.lp-feature { padding: 62px 22px; }
 .lp-feature--tint { background: var(--lp-pink-tint); }
 .lp-feature__inner { display: flex; flex-direction: column; gap: 40px; align-items: center; }
 .lp-feature__text { flex: 1; }
@@ -267,7 +270,7 @@
 
 /* ══ מי אנחנו ══ */
 .lp-eyebrow { display: inline-block; color: var(--lp-rose); font-weight: 700; font-size: 14px; letter-spacing: 0.04em; margin-bottom: 10px; }
-.lp-about { padding: 76px 0; background: var(--lp-pink-tint); }
+.lp-about { padding: 62px 0; background: var(--lp-pink-tint); }
 .lp-about__inner { max-width: 1180px; margin: 0 auto; padding-inline: 22px; display: flex; flex-direction: column; gap: 40px; align-items: center; }
 .lp-about__text { max-width: 640px; }
 .lp-about__text p { margin: 0 0 16px; font-size: 17px; font-weight: 400; line-height: 1.75; color: var(--lp-ink-soft); }
@@ -280,6 +283,7 @@
 .lp-founder__role { font-size: 14px; color: var(--lp-ink-soft); }
 
 /* ══ שאלות ותשובות ══ */
+.lp-faq { background: var(--lp-pink-tint); }
 .lp-faq__list { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
 .lp-faq__item { background: #fff; border: 1px solid var(--lp-border); border-radius: 16px; box-shadow: var(--lp-shadow-sm); overflow: hidden; }
 .lp-faq__q {
@@ -304,8 +308,7 @@
   .lp-foot__inner { grid-template-columns: 1.6fr 1fr 1fr 1fr; }
 }
 @media (min-width: 960px) {
-  .lp-hero { padding: 76px 0 56px; }
-  .lp-hero__inner { grid-template-columns: 1.05fr 0.95fr; gap: 32px; }
+  .lp-hero { padding: 60px 0 52px; }
   .lp-phone { width: 320px; }
   .lp-feature__inner { flex-direction: row; gap: 64px; }
   .lp-feature--flip .lp-feature__inner { flex-direction: row-reverse; }

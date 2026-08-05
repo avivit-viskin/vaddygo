@@ -289,11 +289,19 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                             : "sup-prod__status--ok"
                         }`}
                       >
-                        {missing
-                          ? "⚠️ חסר מידע"
-                          : lowRes
-                          ? "⚠️ רזולוציה נמוכה"
-                          : "✔️ זמין"}
+                        {missing ? (
+                          <>
+                            <Icon name="warning" size={13} /> חסר מידע
+                          </>
+                        ) : lowRes ? (
+                          <>
+                            <Icon name="warning" size={13} /> רזולוציה נמוכה
+                          </>
+                        ) : (
+                          <>
+                            <Icon name="check-circle" size={13} /> זמין
+                          </>
+                        )}
                       </span>
                       {/* הודעת ההמלצה — זורמת בתוך הכרטיס כדי שלא תיחתך */}
                       {lowRes && openMsgSrc === product.imageUrl && (
@@ -319,7 +327,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                         className="sup-prod__edit"
                         onClick={() => goToProducts(folder.name)}
                       >
-                        ✏️ ערוך מוצר
+                        <Icon name="pencil" size={14} /> ערוך מוצר
                       </button>
                     </div>
                   </article>

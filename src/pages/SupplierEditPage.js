@@ -17,6 +17,7 @@ import {
 import VendorForm from "./gifts/VendorForm";
 import VendorPanel from "./gifts/VendorPanel";
 import Logo from "../components/Logo";
+import Icon from "../components/Icon";
 import Input from "../components/Input";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
@@ -50,11 +51,11 @@ import "../styles/supplier-app.css";
   הטוקן שבכתובת הוא ההרשאה. תפריט ☰ עם הגדרות, וכפתור וואטסאפ צף לפנייה אלינו.
 */
 const TABS = [
-  { key: "home", label: "בית", icon: "🏠" },
-  { key: "products", label: "מוצרים", icon: "📦" },
-  { key: "payments", label: "תשלומים", icon: "💳" },
-  { key: "socials", label: "רשתות", icon: "🔗" },
-  { key: "preview", label: "תצוגה", icon: "👁" },
+  { key: "home", label: "בית", icon: "home" },
+  { key: "products", label: "מוצרים", icon: "package" },
+  { key: "payments", label: "תשלומים", icon: "card" },
+  { key: "socials", label: "רשתות", icon: "link" },
+  { key: "preview", label: "תצוגה", icon: "eye" },
 ];
 
 function SupplierEditPage() {
@@ -512,7 +513,9 @@ function SupplierEditPage() {
             onClick={() => goTo(tab.key)}
             className={`sup-tab${view === tab.key ? " sup-tab--active" : ""}`}
           >
-            <span className="sup-tab__icon">{tab.icon}</span>
+            <span className="sup-tab__icon">
+              <Icon name={tab.icon} size={20} />
+            </span>
             <span>{tab.label}</span>
           </button>
         ))}
@@ -535,7 +538,7 @@ function SupplierEditPage() {
               }}
             >
               <h2 className="supplier-edit__login-title">
-                🔑 הגדרת כניסה קבועה — מייל וסיסמה
+                <Icon name="key" size={18} /> הגדרת כניסה קבועה — מייל וסיסמה
               </h2>
               <p className="supplier-edit__login-hint">
                 קבעו מייל וסיסמה, וכך תוכלו לחזור ולעדכן בכל עת דרך עמוד כניסת
@@ -587,7 +590,8 @@ function SupplierEditPage() {
           </div>
           <div style={{ marginTop: 16 }}>
             <Button variant="secondary" onClick={() => openShareCatalog("")}>
-              🔗 שיתוף כל הקטלוג <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
+              <Icon name="link" size={16} /> שיתוף כל הקטלוג{" "}
+              <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
             </Button>
           </div>
         </>
@@ -615,7 +619,9 @@ function SupplierEditPage() {
 
       {view === "payments" && (
         <>
-          <h2 className="sup-section-title">💳 אמצעי תשלום</h2>
+          <h2 className="sup-section-title">
+            <Icon name="card" size={22} /> אמצעי תשלום
+          </h2>
           <SupplierPayments vendor={vendor} onSave={handleSavePayments} />
         </>
       )}
@@ -623,7 +629,8 @@ function SupplierEditPage() {
       {view === "socials" && (
         <>
           <h2 className="sup-section-title">
-            🔗 רשתות חברתיות <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
+            <Icon name="link" size={22} /> רשתות חברתיות{" "}
+            <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
           </h2>
           <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
         </>
@@ -641,7 +648,9 @@ function SupplierEditPage() {
 
       {view === "settings" && (
         <>
-          <h2 className="sup-section-title">⚙️ הגדרות משתמש</h2>
+          <h2 className="sup-section-title">
+            <Icon name="settings" size={22} /> הגדרות משתמש
+          </h2>
           <p className="supplier-edit__intro" style={{ margin: "0 0 14px" }}>
             פרטי העסק והמידע הנוסף שהוועדים רואים בכרטיס שלך. כל שינוי שתשמרו
             יופיע <strong>מיד</strong> לוועדים.

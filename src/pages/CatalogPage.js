@@ -89,7 +89,7 @@ function CatalogPage() {
               target="_blank"
               rel="noreferrer"
             >
-              📖 קטלוג מלא
+              <Icon name="link" size={16} /> קטלוג מלא
             </a>
           )}
           {(vendor.socialLinks || []).map((link, i) => (

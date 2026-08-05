@@ -55,7 +55,7 @@ function SupplierChecklist({ vendor, onGoTo }) {
       }}
     >
       <p style={{ margin: "0 0 4px", fontWeight: 700 }}>
-        ✨ להשלמת הכרטיס ({doneCount}/{items.length})
+        <Icon name="star" size={16} /> להשלמת הכרטיס ({doneCount}/{items.length})
       </p>
       <p
         style={{

@@ -2,6 +2,7 @@ import { useState } from "react";
 import Input from "./Input";
 import Select from "./Select";
 import Button from "./Button";
+import Icon from "./Icon";
 import "../styles/supplier-app.css";
 
 /*
@@ -47,7 +48,9 @@ function SupplierPayments({ vendor, onSave }) {
   return (
     <form onSubmit={handleSubmit} noValidate>
       <div className="sup-card">
-        <h3 className="sup-card__title">⚡ אמצעי תשלום מהירים</h3>
+        <h3 className="sup-card__title">
+          <Icon name="wallet" size={20} /> אמצעי תשלום מהירים
+        </h3>
         <p className="sup-card__hint">
           מלאו רק את מה שרלוונטי לכם — כל אמצעי יופיע לוועד ככפתור ממותג
           (ביט / פייבוקס / אשראי).
@@ -77,7 +80,9 @@ function SupplierPayments({ vendor, onSave }) {
       </div>
 
       <div className="sup-card">
-        <h3 className="sup-card__title">🏦 העברה בנקאית</h3>
+        <h3 className="sup-card__title">
+          <Icon name="bank" size={20} /> העברה בנקאית
+        </h3>
         <p className="sup-card__hint">אופציונלי — למי שמעדיף להעביר לחשבון.</p>
         <Input
           id="pay-bank"
@@ -89,7 +94,9 @@ function SupplierPayments({ vendor, onSave }) {
       </div>
 
       <div className="sup-card">
-        <h3 className="sup-card__title">⚙️ הגדרות</h3>
+        <h3 className="sup-card__title">
+          <Icon name="settings" size={20} /> הגדרות
+        </h3>
         <Select
           id="pay-installments"
           label="פריסה לתשלומים (כמה תשלומים מותר לוועד)"

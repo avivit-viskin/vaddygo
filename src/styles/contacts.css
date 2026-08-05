@@ -1,0 +1,101 @@
+/*
+  contacts.css — ספר הקשרים והשליחה המרוכזת (פיצ'ר פרו).
+*/
+.contacts-broadcast {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 16px;
+  margin-bottom: 18px;
+}
+
+.contacts-broadcast__title {
+  margin: 0 0 10px;
+  font-size: var(--font-size-lg);
+}
+
+.contacts-textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+  resize: vertical;
+  margin-bottom: 10px;
+}
+
+.contacts-broadcast__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+}
+
+.contacts-broadcast__actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.contacts-list {
+  list-style: none;
+  padding: 0;
+  margin: 14px 0 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.contact-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.contact-row__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.contact-row__name {
+  font-weight: 700;
+}
+
+.contact-row__meta {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.contact-row__actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+.contact-row__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+.contact-row__btn--wa {
+  color: #25d366;
+  border-color: #b7ecc9;
+  background: #f0fbf4;
+}

@@ -38,6 +38,7 @@ import RemindersPage from "./pages/RemindersPage";
 import PollsPage from "./pages/PollsPage";
 import BackupPage from "./pages/BackupPage";
 import BrandingPage from "./pages/BrandingPage";
+import ContactsPage from "./pages/ContactsPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -272,6 +273,7 @@ function App() {
           <Route path="/polls" element={<PollsPage />} />
           <Route path="/backup" element={<BackupPage />} />
           <Route path="/branding" element={<BrandingPage />} />
+          <Route path="/contacts" element={<ContactsPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

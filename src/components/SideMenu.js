@@ -132,6 +132,14 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="image" size={18} /> מיתוג אישי לגן{" "}
           <ProBadge title="מיתוג אישי — פיצ'ר פרו" />
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/contacts")}
+        >
+          <Icon name="users" size={18} /> ספר קשרים ושליחה{" "}
+          <ProBadge title="ספר קשרים ושליחה מרוכזת — פיצ'ר פרו" />
+        </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
         <button

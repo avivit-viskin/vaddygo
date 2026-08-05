@@ -3,10 +3,10 @@ import { Link } from "react-router-dom";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import WhatsAppIcon from "../components/WhatsAppIcon";
+import FeatureArt from "../components/FeatureArt";
 import { whatsappUrl } from "../services/whatsapp";
 import homeShot from "../assets/screenshots/home.jpg";
 import studentsShot from "../assets/screenshots/students.jpg";
-import permissionsShot from "../assets/screenshots/permissions.jpg";
 import "../styles/landing.css";
 
 /*
@@ -78,15 +78,14 @@ function FeaturesMarquee() {
   );
 }
 
-// כל פיצ'ר עם אריח־אייקון צבעוני משלו (בסגנון אייקוני אפליקציה), אייקון לבן —
-// כדי שיהיה מגוון וצבעוני (כמו פייבוקס), לא אותו צ'יפ שחוזר על עצמו.
+// לכל פיצ'ר איור וקטורי צבעוני משלו (FeatureArt) — מגוון וייחודי, לא אייקון שחוזר.
 const FEATURES = [
-  { icon: "wallet", title: "גבייה ותשלומים", text: "עוקבים מי שילם, שולחים בקשת תשלום, ורואים את היתרה בזמן אמת.", grad: "linear-gradient(135deg,#ff9ebb,#e0578f)", glow: "rgba(224,87,143,0.35)" },
-  { icon: "users", title: "תלמידים והורים", text: "רשימת התלמידים, פרטי הקשר וסטטוס התשלום של כל אחד — במקום אחד.", grad: "linear-gradient(135deg,#ffb27a,#f4885b)", glow: "rgba(244,136,91,0.35)" },
-  { icon: "calendar", title: "לוח שנה ואירועים", text: "אירועים, ימי הולדת ותזכורות להורים — הכול מסונכרן אוטומטית.", grad: "linear-gradient(135deg,#7ec8f0,#4a9fe0)", glow: "rgba(74,159,224,0.35)" },
-  { icon: "gift", title: "מתנות וספקים", text: "מתכננים מתנות לחגים, בוחרים מקטלוג ספקים, ושומרים על התקציב.", grad: "linear-gradient(135deg,#c89bf0,#a06fe0)", glow: "rgba(160,111,224,0.35)" },
-  { icon: "folder", title: "קבצים ומסמכים", text: "כל הקבלות והמסמכים החשובים נגישים לכל חברי הוועד.", grad: "linear-gradient(135deg,#7fd8c4,#3fb59a)", glow: "rgba(63,181,154,0.35)" },
-  { icon: "lock", title: "הרשאות לצוות", text: "מזמינים חברי ועד עם הרשאה מתאימה: ניהול, עריכה או צפייה בלבד.", grad: "linear-gradient(135deg,#ffce73,#f0a93f)", glow: "rgba(240,169,63,0.35)" },
+  { art: "collect", title: "גבייה ותשלומים", text: "עוקבים מי שילם, שולחים בקשת תשלום, ורואים את היתרה בזמן אמת." },
+  { art: "students", title: "תלמידים והורים", text: "רשימת התלמידים, פרטי הקשר וסטטוס התשלום של כל אחד — במקום אחד." },
+  { art: "calendar", title: "לוח שנה ואירועים", text: "אירועים, ימי הולדת ותזכורות להורים — הכול מסונכרן אוטומטית." },
+  { art: "gifts", title: "מתנות וספקים", text: "מתכננים מתנות לחגים, בוחרים מקטלוג ספקים, ושומרים על התקציב." },
+  { art: "files", title: "קבצים ומסמכים", text: "כל הקבלות והמסמכים החשובים נגישים לכל חברי הוועד." },
+  { art: "team", title: "הרשאות לצוות", text: "מזמינים חברי ועד עם הרשאה מתאימה: ניהול, עריכה או צפייה בלבד." },
 ];
 
 const STEPS = [
@@ -248,12 +247,7 @@ function LandingPage() {
         <div className="lp-grid">
           {FEATURES.map((f) => (
             <article className="lp-card" key={f.title}>
-              <span
-                className="lp-card__icon"
-                style={{ background: f.grad, color: "#fff", boxShadow: `0 10px 20px ${f.glow}` }}
-              >
-                <Icon name={f.icon} size={28} />
-              </span>
+              <FeatureArt name={f.art} />
               <h3 className="lp-card__title">{f.title}</h3>
               <p className="lp-card__text">{f.text}</p>
             </article>
@@ -280,22 +274,35 @@ function LandingPage() {
         </div>
       </section>
 
-      {/* ── מקטע מתחלף 2: הרשאות (צילום אמיתי) ── */}
-      <section className="lp-feature lp-feature--flip">
-        <div className="lp-feature__inner">
-          <div className="lp-feature__text">
-            <h2 className="lp-h2">כל חבר ועד —<br />וההרשאה שמתאימה לו</h2>
+      {/* ── הרשאות לצוות — פריסה שונה (באנר ממורכז עם 3 כרטיסי תפקיד), כדי לשבור
+          את הדפוס של "טקסט + צילום מסך" ── */}
+      <section className="lp-roles-band">
+        <div className="lp-roles-band__inner">
+          <div className="lp-section__head">
+            <span className="lp-eyebrow">הרשאות לצוות</span>
+            <h2 className="lp-h2">כל חבר ועד — וההרשאה שמתאימה לו</h2>
             <p className="lp-lead">
-              מזמינים חברי ועד בקישור אחד, וכל אחד מקבל בדיוק את מה שהוא צריך:
-              ניהול מלא, עריכה, או צפייה בלבד. שקוף, מסודר, ובשליטה מלאה שלכם.
+              מזמינים חברי ועד בקישור אחד, וכל אחד מקבל בדיוק את מה שהוא צריך —
+              שקוף, מסודר, ובשליטה מלאה שלכם.
             </p>
-            <ul className="lp-checks">
-              <li><Icon name="check" size={20} /> הזמנה בקישור — בלי סיסמאות מסובכות</li>
-              <li><Icon name="check" size={20} /> ניהול / עריכה / צפייה בלבד</li>
-              <li><Icon name="check" size={20} /> הנתונים שלכם מוגנים ומופרדים לכל גן</li>
-            </ul>
           </div>
-          <div className="lp-feature__art"><Phone src={permissionsShot} alt="מסך חברי הוועד וההרשאות" /></div>
+          <div className="lp-roles-grid">
+            <div className="lp-role-card">
+              <span className="lp-role-card__ic lp-role-card__ic--owner"><Icon name="star" size={24} /></span>
+              <h3>בעלים / מנהלת</h3>
+              <p>גישה מלאה — כולל ניהול הצוות וההגדרות.</p>
+            </div>
+            <div className="lp-role-card">
+              <span className="lp-role-card__ic lp-role-card__ic--edit"><Icon name="pencil" size={24} /></span>
+              <h3>עריכה</h3>
+              <p>מוסיף ועורך תלמידים, תשלומים, אירועים ומתנות.</p>
+            </div>
+            <div className="lp-role-card">
+              <span className="lp-role-card__ic lp-role-card__ic--view"><Icon name="eye" size={24} /></span>
+              <h3>צפייה בלבד</h3>
+              <p>רואה הכול — בלי אפשרות לשנות דבר.</p>
+            </div>
+          </div>
         </div>
       </section>
 

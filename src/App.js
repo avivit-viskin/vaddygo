@@ -10,6 +10,7 @@ import PullToRefresh from "./components/PullToRefresh";
 import PageTransition from "./components/PageTransition";
 import ToastContainer from "./components/Toast";
 import ImportJobBanner from "./components/ImportJobBanner";
+import Spinner from "./components/Spinner";
 import HomePage from "./pages/HomePage";
 import StudentsPage from "./pages/StudentsPage";
 import StudentPaymentsPage from "./pages/StudentPaymentsPage";
@@ -57,6 +58,7 @@ import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { applyA11ySettings } from "./services/accessibility";
 import {
   isOnboardingComplete,
+  restoreOnboardingFromServer,
   syncInstitutionsFromServer,
 } from "./services/onboardingService";
 import {
@@ -115,19 +117,41 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   // מונה שמאלץ רינדור מחדש אחרי סנכרון המוסדות (כדי שההרשאה המעודכנת תיושם)
   const [, setSyncTick] = useState(0);
+  // משתמשת מחוברת שאין לה עותק מקומי של הגדרת הגן — קודם משחזרים מהשרת ורק אז
+  // מחליטים לאן לנתב (בית/אשף), כדי לא להבהב לאשף ההרשמה לפני שברור אם יש לה גן.
+  const [booting, setBooting] = useState(
+    () => isAuthenticated() && !isOnboardingComplete()
+  );
 
   // בעליית האפליקציה: מפעילים מעקב רק אם אושרו עוגיות מדידה, ומחילים את
-  // הגדרות הנגישות השמורות. בנוסף — מסנכרנים את המוסדות וההרשאות מהשרת בכל
-  // טעינה, כך שגם משתמש שכבר מחובר יקבל את ההרשאה העדכנית (למשל "צופה")
-  // בלי צורך להתחבר מחדש, וכפתורי העריכה ייחסמו בהתאם.
+  // הגדרות הנגישות השמורות. למשתמשת מחוברת: אם אין עותק מקומי של הגדרת הגן —
+  // משחזרים מהשרת (כדי לא לזרוק משתמשת חוזרת עם גן לאשף ההרשמה), ואז מסנכרנים
+  // את המוסדות וההרשאות (למשל "צופה") — הכול לפני הסרת מסך הטעינה.
   useEffect(() => {
     applyAnalyticsConsent(hasAnalyticsConsent());
     applyA11ySettings();
-    if (isAuthenticated()) {
-      syncInstitutionsFromServer()
-        .then(() => setSyncTick((n) => n + 1))
-        .catch(() => {});
+    if (!isAuthenticated()) {
+      return undefined;
     }
+    let alive = true;
+    (async () => {
+      try {
+        if (!isOnboardingComplete()) {
+          await restoreOnboardingFromServer();
+        }
+        await syncInstitutionsFromServer();
+      } catch {
+        // שקט — נשארים עם מה שקיים מקומית
+      } finally {
+        if (alive) {
+          setBooting(false);
+          setSyncTick((n) => n + 1);
+        }
+      }
+    })();
+    return () => {
+      alive = false;
+    };
   }, []);
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");
@@ -163,6 +187,24 @@ function App() {
         </Routes>
         <CookieConsent />
         <AccessibilityWidget />
+      </div>
+    );
+  }
+
+  // עדיין משחזרים נתונים למשתמשת מחוברת שאין לה עותק מקומי — טעינה קצרה במקום
+  // הבהוב לאשף ההרשמה, עד שברור אם יש לה גן בשרת (→ בית) או לא (→ אשף).
+  if (booting) {
+    return (
+      <div
+        dir="rtl"
+        style={{
+          minHeight: "100dvh",
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Spinner text="רגע, טוענים את הנתונים שלך…" />
       </div>
     );
   }

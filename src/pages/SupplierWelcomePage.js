@@ -1,16 +1,43 @@
+import { useState, useCallback } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
+import ErrorMessage from "../components/ErrorMessage";
+import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
+import { supplierLoginWithGoogle } from "../services/vendorsService";
+import { setSupplierSession } from "../services/supplierSession";
 import "../styles/onboarding.css";
 
 /*
   SupplierWelcomePage — מסך הפתיחה של פורטל הספקים, בעיצוב מסך הפתיחה של האתר
   (welcome / onboarding.css): לוגו, שם המערכת, ורקע בועות עדין. זו דלת הכניסה
-  לספקים — מי שכבר הגדיר מייל+סיסמה נכנס מכאן; ספק חדש מקבל קישור אישי מהוועד.
+  לספקים — הרשמה, כניסה עם מייל+סיסמה, או כניסה מהירה עם Google (כמו בוועד).
 */
 function SupplierWelcomePage() {
   const navigate = useNavigate();
+  const [googleError, setGoogleError] = useState("");
+
+  // כניסה מהירה עם Google — לספק שכבר קיים (מייל ההתחברות שלו הוא חשבון הגוגל).
+  // useCallback יציב כדי לא לאתחל את כפתור גוגל שוב ושוב.
+  const handleGoogle = useCallback(
+    async (credential) => {
+      setGoogleError("");
+      try {
+        const token = await supplierLoginWithGoogle(credential);
+        setSupplierSession(token);
+        navigate(`/supplier/${token}`);
+      } catch (err) {
+        setGoogleError(err.message || "לא הצלחנו להתחבר עם Google");
+      }
+    },
+    [navigate]
+  );
+  const handleGoogleError = useCallback(() => {
+    setGoogleError(
+      "לא הצלחנו לטעון את כניסת Google. אפשר להיכנס עם מייל וסיסמה."
+    );
+  }, []);
 
   return (
     <div className="welcome">
@@ -40,6 +67,17 @@ function SupplierWelcomePage() {
             כבר רשומים? כניסה
           </Button>
         </div>
+
+        {/* כניסה מהירה עם Google — כמו בכניסת הוועד */}
+        <div className="auth-divider">או</div>
+        <div className="google-signin-wrap">
+          <GoogleSignInButton
+            onCredential={handleGoogle}
+            onError={handleGoogleError}
+          />
+        </div>
+        {googleError && <ErrorMessage message={googleError} />}
+
         <p
           className="welcome__text"
           style={{

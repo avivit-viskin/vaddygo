@@ -116,6 +116,14 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="check-circle" size={18} /> סקרים והצבעות{" "}
           <ProBadge title="סקרים והצבעות — פיצ'ר פרו" />
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/backup")}
+        >
+          <Icon name="package" size={18} /> גיבוי והשוואת שנים{" "}
+          <ProBadge title="גיבוי והשוואה בין שנים — פיצ'ר פרו" />
+        </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
         <button

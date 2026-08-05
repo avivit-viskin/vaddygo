@@ -36,6 +36,7 @@ import UpgradePage from "./pages/UpgradePage";
 import AnnualReportPage from "./pages/AnnualReportPage";
 import RemindersPage from "./pages/RemindersPage";
 import PollsPage from "./pages/PollsPage";
+import BackupPage from "./pages/BackupPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -268,6 +269,7 @@ function App() {
           <Route path="/annual-report" element={<AnnualReportPage />} />
           <Route path="/reminders" element={<RemindersPage />} />
           <Route path="/polls" element={<PollsPage />} />
+          <Route path="/backup" element={<BackupPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

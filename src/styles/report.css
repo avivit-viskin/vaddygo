@@ -161,6 +161,26 @@
   color: var(--color-text-muted);
 }
 
+/* ===== גיבוי והשוואה בין שנים ===== */
+.backup-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 8px;
+}
+
+.tablewrap-scroll {
+  overflow-x: auto;
+}
+
+.report__del {
+  border: none;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+  padding: 2px;
+}
+
 /* ===== הדפסה / שמירה כ-PDF =====
    מסתירים את כל האתר ומשאירים רק את הדוח, פרוס על כל העמוד. */
 @media print {

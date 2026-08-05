@@ -343,7 +343,7 @@ function LandingPage() {
           <p className="lp-cta__sub">
             הצטרפו לוועדים שכבר מנהלים חכם עם VaddyGo — בחינם, בלי התחייבות.
           </p>
-          <Link className="lp-btn lp-btn--onDark lp-btn--lg" to="/register">הרשמה חינם</Link>
+          <Link className="lp-btn lp-btn--primary lp-btn--lg" to="/register">הרשמה חינם</Link>
           <p className="lp-cta__note">התחלה חינם · בלי כרטיס אשראי · הקמה ב-5 דקות</p>
         </div>
       </section>

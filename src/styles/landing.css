@@ -256,29 +256,30 @@
 .lp-step__title { margin: 0 0 7px; font-size: 22px; font-weight: 700; color: var(--lp-ink); }
 .lp-step__text { margin: 0; color: var(--lp-ink-soft); font-size: 16px; font-weight: 400; }
 
-/* ══ קאבר קריאה-לפעולה (גדול + רקע מעניין) ══ */
-.lp-cta { padding: 34px 22px 0; }
+/* ══ קאבר קריאה-לפעולה — כרטיס הזמנה חמים ורך ══ */
+.lp-cta { padding: 34px 22px 8px; }
 .lp-cta__inner {
   position: relative; overflow: hidden;
-  max-width: 1180px; margin: 0 auto;
-  padding: 96px 28px; text-align: center; color: #fff; border-radius: 40px;
+  max-width: 1040px; margin: 0 auto;
+  padding: 72px 28px; text-align: center; border-radius: 36px;
+  border: 1px solid #f2d7e3;
+  box-shadow: var(--lp-shadow-sm);
   background:
-    radial-gradient(600px 320px at 18% 18%, rgba(255, 232, 242, 0.28), transparent 60%),
-    radial-gradient(520px 320px at 86% 88%, rgba(255, 255, 255, 0.12), transparent 60%),
-    linear-gradient(135deg, #cf6f98 0%, #9c4468 100%);
+    radial-gradient(560px 320px at 50% -12%, #fde7f1, transparent 66%),
+    linear-gradient(160deg, #fbe1ed 0%, #f6efe2 100%);
 }
 .lp-cta__inner::before {
   content: ""; position: absolute; inset: 0; pointer-events: none;
-  background-image: radial-gradient(rgba(255, 255, 255, 0.12) 1.5px, transparent 1.5px);
-  background-size: 26px 26px; opacity: 0.5;
+  background-image: radial-gradient(rgba(194, 92, 138, 0.07) 1.6px, transparent 1.6px);
+  background-size: 24px 24px; opacity: 0.7;
 }
-.lp-cta__deco { position: absolute; border-radius: 50%; pointer-events: none; }
-.lp-cta__deco--1 { width: 260px; height: 260px; top: -90px; inset-inline-end: -70px; background: radial-gradient(circle at 40% 40%, rgba(255, 235, 244, 0.4), transparent 70%); }
-.lp-cta__deco--2 { width: 320px; height: 320px; bottom: -130px; inset-inline-start: -90px; background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.14), transparent 70%); }
-.lp-cta__title { position: relative; z-index: 1; margin: 0 0 12px; font-size: clamp(29px, 5vw, 46px); font-weight: 700; color: #fff; letter-spacing: -0.02em; }
-.lp-cta__sub { position: relative; z-index: 1; margin: 0 auto 30px; font-size: 19px; font-weight: 400; opacity: 0.96; max-width: 30em; }
+.lp-cta__deco { position: absolute; border-radius: 50%; pointer-events: none; filter: blur(4px); }
+.lp-cta__deco--1 { width: 210px; height: 210px; top: -70px; inset-inline-end: -50px; background: radial-gradient(circle, rgba(249, 207, 224, 0.9), transparent 70%); animation: lp-drift 10s ease-in-out infinite; }
+.lp-cta__deco--2 { width: 250px; height: 250px; bottom: -100px; inset-inline-start: -70px; background: radial-gradient(circle, rgba(247, 227, 207, 0.9), transparent 70%); animation: lp-drift 12s ease-in-out infinite reverse; }
+.lp-cta__title { position: relative; z-index: 1; margin: 0 0 12px; font-size: clamp(29px, 5vw, 46px); font-weight: 700; color: var(--lp-ink); letter-spacing: -0.02em; }
+.lp-cta__sub { position: relative; z-index: 1; margin: 0 auto 28px; font-size: 19px; font-weight: 400; color: var(--lp-ink-soft); max-width: 30em; }
 .lp-cta .lp-btn { position: relative; z-index: 1; }
-.lp-cta__note { position: relative; z-index: 1; margin: 18px 0 0; font-size: 14px; opacity: 0.85; }
+.lp-cta__note { position: relative; z-index: 1; margin: 18px 0 0; font-size: 14px; color: var(--lp-ink-soft); }
 
 /* ══ פוטר ══ */
 .lp-foot { margin-top: 56px; background: var(--lp-beige); border-top: 1px solid var(--lp-border); padding: 52px 22px 26px; }
@@ -337,10 +338,10 @@
   .lp-about__inner { flex-direction: row; gap: 56px; align-items: center; }
   .lp-about__text { flex: 1.4; }
   .lp-about__team { flex: 1; }
-  .lp-cta__inner { padding: 110px 40px; }
+  .lp-cta__inner { padding: 90px 44px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card, .lp-faq__icon,
-  .lp-features__deco, .lp-features .lp-card__icon { animation: none !important; transition: none; }
+  .lp-features__deco, .lp-features .lp-card__icon, .lp-cta__deco { animation: none !important; transition: none; }
 }

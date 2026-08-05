@@ -279,6 +279,24 @@
 .lp-founder__name { font-size: 18px; font-weight: 700; color: var(--lp-ink); }
 .lp-founder__role { font-size: 14px; color: var(--lp-ink-soft); }
 
+/* ══ שאלות ותשובות ══ */
+.lp-faq__list { max-width: 780px; margin: 0 auto; display: flex; flex-direction: column; gap: 12px; }
+.lp-faq__item { background: #fff; border: 1px solid var(--lp-border); border-radius: 16px; box-shadow: var(--lp-shadow-sm); overflow: hidden; }
+.lp-faq__q {
+  display: flex; align-items: center; justify-content: space-between; gap: 14px;
+  padding: 18px 22px; cursor: pointer; list-style: none;
+  font-weight: 700; font-size: 18px; color: var(--lp-ink);
+}
+.lp-faq__q::-webkit-details-marker { display: none; }
+.lp-faq__icon {
+  flex-shrink: 0; width: 28px; height: 28px; border-radius: 50%;
+  background: var(--lp-pink); color: var(--lp-rose-dark);
+  display: inline-flex; align-items: center; justify-content: center;
+  font-size: 20px; font-weight: 700; line-height: 1; transition: transform 0.2s ease;
+}
+.lp-faq__item[open] .lp-faq__icon { transform: rotate(45deg); }
+.lp-faq__a { padding: 0 22px 20px; color: var(--lp-ink-soft); font-size: 16px; line-height: 1.7; }
+
 /* ══ רספונסיב ══ */
 @media (min-width: 760px) {
   .lp-grid { grid-template-columns: repeat(3, 1fr); }
@@ -298,5 +316,5 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card { animation: none !important; transition: none; }
+  .lp-phone, .lp-chip, .lp-chip__swap, .lp-fmarquee__track, .lp-btn, .lp-card, .lp-faq__icon { animation: none !important; transition: none; }
 }

@@ -192,6 +192,7 @@ h3 {
   font-size: var(--font-size-base);
   font-weight: 600;
   cursor: pointer;
+  text-decoration: none; /* כפתורים שהם קישור (<a class="btn">) — בלי קו תחתון */
   box-shadow: var(--shadow-sm);
   transition: background-color 0.15s ease, box-shadow 0.15s ease,
     transform 0.1s ease;

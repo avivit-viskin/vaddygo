@@ -72,48 +72,51 @@
   border-bottom-color: var(--color-primary);
 }
 
-/* ── דאשבורד: אריחי סטטיסטיקה ── */
+/* ── דאשבורד: אריחי סטטיסטיקה — כרטיסים לבנים נקיים, כולם בשורה אחת ── */
 .sup-stats {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(78px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 7px;
   margin-bottom: 18px;
 }
-/* עיצוב רגוע: אריחים רכים ממולאים (בלי מסגרת), מספרים מעודנים */
 .sup-stat {
-  border: none;
-  border-radius: var(--radius-lg);
-  padding: 14px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px 3px;
   text-align: center;
-  background: var(--color-primary-light);
+  background: var(--color-surface);
+  box-shadow: 0 1px 4px rgba(120, 55, 80, 0.06);
 }
 /* אריח לחיץ (מוצרים / מוכנים / דורש טיפול) — נראה ומתנהג ככפתור */
 .sup-stat--link {
   cursor: pointer;
   font-family: var(--font-family);
-  transition: background 0.15s ease, transform 0.1s ease;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
 }
 .sup-stat--link:hover {
-  background: var(--color-border);
+  border-color: var(--color-primary-muted);
+  box-shadow: 0 4px 12px rgba(120, 55, 80, 0.12);
 }
 .sup-stat--link:active {
-  transform: scale(0.98);
+  transform: scale(0.97);
 }
 .sup-stat__num {
-  font-size: 20px;
-  font-weight: 700;
+  font-size: 19px;
+  font-weight: 800;
   color: var(--color-primary-dark);
-  line-height: 1.1;
-  margin: 2px 0 1px;
+  line-height: 1.05;
+  margin: 1px 0;
+  letter-spacing: -0.01em;
 }
 .sup-stat__label {
-  font-size: 12px;
+  font-size: 10.5px;
   color: var(--color-text-muted);
-  font-weight: 400;
+  font-weight: 500;
+  white-space: nowrap;
 }
 /* "דורש טיפול" — ענבר רך במקום צבע התראה חזק (רגוע יותר) */
 .sup-stat--warn .sup-stat__num {
-  color: #c08a2e;
+  color: #d08a2e;
 }
 
 /* ── כרטיסי מוצר (תצוגה בדאשבורד) ── */
@@ -389,6 +392,39 @@
   font-size: var(--font-size-sm);
   font-weight: 700;
   cursor: pointer;
+}
+
+/* ── ליטוש מסך התצוגה (VendorPanel) — כפתורי יצירת קשר אחידים, ברוחב מלא, בלי קו
+   תחתון (טוען אחרי gifts.css ולכן גובר). כך הכרטיס נראה מקצועי ואמין לוועד/ספק. ── */
+.vendor-panel__contact {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin: 6px 0 16px;
+}
+.vendor-panel__contact .btn,
+.vendor-panel__wa,
+.vendor-panel__catalog {
+  width: 100%;
+  justify-content: center;
+  text-decoration: none;
+}
+.vendor-panel__catalog {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  min-height: var(--touch-target);
+  padding: 10px 22px;
+  border-radius: 999px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  font-family: var(--font-family);
+  font-weight: 600;
+  font-size: var(--font-size-base);
+}
+.vendor-panel__catalog:hover {
+  border-color: var(--color-primary-muted);
 }
 
 @media (prefers-reduced-motion: reduce) {

@@ -743,7 +743,7 @@ function VendorForm({
           </div>
         )}
         <label className="vendor-form__upload">
-          📷 צילום קטלוג
+          <Icon name="image" size={16} /> צילום קטלוג
           <input
             type="file"
             accept="image/*"
@@ -756,7 +756,7 @@ function VendorForm({
           />
         </label>
         <label className="vendor-form__upload">
-          📥 ייבוא מקובץ (Excel / CSV / PDF)
+          <Icon name="folder" size={16} /> ייבוא מקובץ (Excel / CSV / PDF)
           <input
             type="file"
             accept=".csv,.txt,.xlsx,.xls,.pdf"
@@ -1116,7 +1116,7 @@ function VendorForm({
       {visibleProducts.length > 0 && (
         <div className="gift-form__actions" style={{ margin: "0 0 12px" }}>
           <Button type="submit" isLoading={isSubmitting}>
-            💾 שמירת השינויים
+            שמירת השינויים
           </Button>
         </div>
       )}
@@ -1426,7 +1426,7 @@ function VendorForm({
                 opacity: isSubmitting ? 0.6 : 1,
               }}
             >
-              💾 שמירה
+              שמירה
             </button>
           </div>
           </div>

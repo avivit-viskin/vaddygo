@@ -306,7 +306,7 @@ function VendorPanel({
             target="_blank"
             rel="noreferrer"
           >
-            📖 לקטלוג
+            <Icon name="link" size={16} /> לקטלוג
           </a>
         )}
       </div>

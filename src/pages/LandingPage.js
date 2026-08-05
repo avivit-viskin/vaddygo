@@ -16,7 +16,7 @@ import "../styles/landing.css";
 */
 
 const SUPPORT_PHONE = "054-4579179";
-const CONTACT_EMAIL = "avivitm91@gmail.com";
+const CONTACT_EMAIL = "hello@vaddygo.com";
 
 // תוכן שמתחלף בצ'יפים המרחפים (כדי שהבאנר "יזוז כל הזמן על שמות אחרים")
 const PAID = ["דנה כהן", "יואב אבני", "מיה לוי", "נועה בר", "איתי טל", "שירה רון", "עמית פז", "רוני דגן"];
@@ -161,13 +161,23 @@ function LandingPage() {
 
   return (
     <div className="lp">
-      {/* ── גיבור (ממורכז; הלוגו במרכז מעל הכותרת, בלי סרגל עליון) ── */}
+      {/* ── סרגל ניווט דביק: לוגו + כניסה + הרשמה (כפתור המרה שנשאר תמיד למעלה) ── */}
+      <header className="lp-nav">
+        <div className="lp-nav__inner">
+          <span className="lp-nav__logo"><Logo /></span>
+          <nav className="lp-nav__actions">
+            <Link className="lp-nav__login" to="/login">כניסה</Link>
+            <Link className="lp-btn lp-btn--primary lp-btn--sm" to="/register">הרשמה חינם</Link>
+          </nav>
+        </div>
+      </header>
+
+      {/* ── גיבור (ממורכז) ── */}
       <section className="lp-hero">
         <span className="lp-hero__blob lp-hero__blob--a" aria-hidden="true" />
         <span className="lp-hero__blob lp-hero__blob--b" aria-hidden="true" />
         <div className="lp-hero__inner">
           <div className="lp-hero__text">
-            <span className="lp-hero__brand"><Logo /></span>
             <h1 className="lp-hero__title">
               כל ניהול הוועד,<br />
               במקום אחד.

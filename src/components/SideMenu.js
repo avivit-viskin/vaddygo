@@ -100,6 +100,14 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="receipt" size={18} /> דוח שנתי להורים{" "}
           <ProBadge title="דוח שנתי — פיצ'ר פרו" />
         </button>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/reminders")}
+        >
+          <Icon name="bell" size={18} /> תזכורות אוטומטיות{" "}
+          <ProBadge title="תזכורות אוטומטיות — פיצ'ר פרו" />
+        </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
         <button

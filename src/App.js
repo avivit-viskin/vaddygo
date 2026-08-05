@@ -34,6 +34,7 @@ import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import UpgradePage from "./pages/UpgradePage";
 import AnnualReportPage from "./pages/AnnualReportPage";
+import RemindersPage from "./pages/RemindersPage";
 import PurchasePage from "./pages/PurchasePage";
 import CheckoutPage from "./pages/CheckoutPage";
 import CardReturnPage from "./pages/CardReturnPage";
@@ -264,6 +265,7 @@ function App() {
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/upgrade" element={<UpgradePage />} />
           <Route path="/annual-report" element={<AnnualReportPage />} />
+          <Route path="/reminders" element={<RemindersPage />} />
           <Route path="/pay" element={<CheckoutPage />} />
           <Route path="/pay/return" element={<CardReturnPage />} />
           <Route

@@ -479,6 +479,8 @@ namespace ParentCommitteeAPI.Services
             vendor.Name = dto.Name.Trim();
             vendor.CatalogUrl = dto.CatalogUrl.Trim();
             vendor.WhatsApp = dto.WhatsApp.Trim();
+            // מבצע: null = לא נשלח (שמירה חלקית) → משאירים את הקיים, לא מוחקים.
+            if (dto.Offer != null) vendor.Offer = dto.Offer.Trim();
             vendor.Category = dto.Category.Trim();
             vendor.City = dto.City.Trim();
             vendor.PaymentLink = dto.PaymentLink.Trim();
@@ -536,6 +538,7 @@ namespace ParentCommitteeAPI.Services
             HasLogin = !string.IsNullOrEmpty(vendor.LoginEmail),
             DeletionRequested = vendor.DeletionRequestedAt != null,
             Views = vendor.Views,
+            Offer = vendor.Offer,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

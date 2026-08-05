@@ -54,6 +54,10 @@ namespace ParentCommitteeAPI.Models
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 
+        /* מבצע/הצעה מיוחדת שהספק מפרסם — מוצג לוועדים בכרטיס הספק ובקטלוג (פיצ'ר
+           פרו). ריק = אין מבצע פעיל. */
+        public string Offer { get; set; } = string.Empty;
+
         public List<VendorProduct> Products { get; set; } = new();
         public List<VendorSocialLink> SocialLinks { get; set; } = new();
     }

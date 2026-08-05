@@ -230,6 +230,21 @@ function VendorPanel({
           {vendor.city}
         </p>
       )}
+      {vendor.offer && (
+        <div
+          style={{
+            background: "#fff6e0",
+            border: "1px solid #f0d488",
+            borderRadius: "var(--radius-md)",
+            padding: "8px 12px",
+            margin: "0 0 12px",
+            fontWeight: 600,
+            color: "#8a6d1a",
+          }}
+        >
+          🏷️ {vendor.offer}
+        </div>
+      )}
       <div className="vendor-panel__contact">
         {vendor.whatsApp && (
           <a

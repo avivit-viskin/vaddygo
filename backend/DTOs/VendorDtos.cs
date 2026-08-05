@@ -18,6 +18,11 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(100, ErrorMessage = "פרטי הוואטסאפ ארוכים מדי")]
         public string WhatsApp { get; set; } = string.Empty;
 
+        // מבצע/הצעה מיוחדת — nullable בכוונה (preserve-on-null): שמירה כללית שלא
+        // כוללת את השדה לא תמחק מבצע קיים.
+        [StringLength(200, ErrorMessage = "המבצע יכול להכיל עד 200 תווים")]
+        public string? Offer { get; set; }
+
         [StringLength(40, ErrorMessage = "הקטגוריה ארוכה מדי")]
         public string Category { get; set; } = string.Empty;
 
@@ -179,6 +184,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* מספר צפיות בקטלוג הציבורי — לדאשבורד הספק */
         public int Views { get; set; }
+
+        /* מבצע/הצעה מיוחדת שהספק מפרסם — מוצג לוועדים בכרטיס הספק ובקטלוג */
+        public string Offer { get; set; } = string.Empty;
     }
 
     public class VendorProductResponseDto

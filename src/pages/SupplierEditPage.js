@@ -27,6 +27,7 @@ import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
+import SupplierOffer from "../components/SupplierOffer";
 import SupplierPayments from "../components/SupplierPayments";
 import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
@@ -215,6 +216,10 @@ function SupplierEditPage() {
   }
   async function handleSaveSocials(socialLinks) {
     await updateVendorByToken(token, fullVendorPayload({ socialLinks }));
+    reload();
+  }
+  async function handleSaveOffer(offer) {
+    await updateVendorByToken(token, fullVendorPayload({ offer }));
     reload();
   }
 
@@ -576,6 +581,9 @@ function SupplierEditPage() {
               onGoTo={goTo}
               onShareCatalog={openShareCatalog}
             />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />
           </div>
           <div style={{ marginTop: 16 }}>
             <Button variant="secondary" onClick={() => openShareCatalog("")}>

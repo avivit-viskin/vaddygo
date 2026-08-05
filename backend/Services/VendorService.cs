@@ -33,7 +33,10 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<List<VendorResponseDto>> GetAllAsync()
         {
-            var vendors = await WithChildren(_db.Vendors).ToListAsync();
+            var vendors = await WithChildren(_db.Vendors)
+                .OrderByDescending(v => v.Featured)
+                .ThenBy(v => v.Name)
+                .ToListAsync();
             return vendors.Select(ToResponse).ToList();
         }
 
@@ -469,10 +472,24 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        /* מנהלת מסמנת/מבטלת "ספק מומלץ" (תג ומיקום עליון). */
+        public async Task<VendorResponseDto?> SetFeaturedAsync(int id, bool featured)
+        {
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return null;
+            }
+            vendor.Featured = featured;
+            await _db.SaveChangesAsync();
+            return ToResponse(vendor);
+        }
+
         public async Task<List<VendorDirectoryDto>> GetDirectoryAsync()
         {
             return await _db.Vendors
-                .OrderBy(v => v.Name)
+                .OrderByDescending(v => v.Featured)
+                .ThenBy(v => v.Name)
                 .Select(v => new VendorDirectoryDto
                 {
                     Id = v.Id,
@@ -481,6 +498,7 @@ namespace ParentCommitteeAPI.Services
                     City = v.City,
                     ProductCount = v.Products.Count,
                     WhatsApp = v.WhatsApp,
+                    Featured = v.Featured,
                 })
                 .ToListAsync();
         }
@@ -553,6 +571,7 @@ namespace ParentCommitteeAPI.Services
             Views = vendor.Views,
             Leads = vendor.Leads,
             Offer = vendor.Offer,
+            Featured = vendor.Featured,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

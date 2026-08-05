@@ -71,6 +71,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(new { editToken = token });
         }
 
+        // PUT: api/vendors/1/featured — סימון/ביטול "ספק מומלץ" (מנהלת VaddyGo בלבד)
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPut("{id}/featured")]
+        public async Task<ActionResult<VendorResponseDto>> SetFeatured(int id, [FromBody] SetFeaturedDto dto)
+        {
+            var updated = await _vendorService.SetFeaturedAsync(id, dto.Featured);
+            if (updated == null)
+                return NotFound(new { message = "ספק לא נמצא" });
+            return Ok(updated);
+        }
+
         // DELETE: api/vendors/1
         [Authorize(Roles = "SuperAdmin")]
         [HttpDelete("{id}")]

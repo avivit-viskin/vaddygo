@@ -190,6 +190,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* מבצע/הצעה מיוחדת שהספק מפרסם — מוצג לוועדים בכרטיס הספק ובקטלוג */
         public string Offer { get; set; } = string.Empty;
+
+        /* "ספק מומלץ" — תג "מומלץ" ומיקום עליון (בשליטת מנהלת VaddyGo) */
+        public bool Featured { get; set; }
     }
 
     public class VendorProductResponseDto
@@ -218,5 +221,12 @@ namespace ParentCommitteeAPI.DTOs
         public string City { get; set; } = string.Empty;
         public int ProductCount { get; set; }
         public string WhatsApp { get; set; } = string.Empty;
+        public bool Featured { get; set; }
+    }
+
+    /* גוף הבקשה לסימון/ביטול "ספק מומלץ" */
+    public class SetFeaturedDto
+    {
+        public bool Featured { get; set; }
     }
 }

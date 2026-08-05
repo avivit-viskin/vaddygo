@@ -24,6 +24,11 @@ export function recordLead(vendorId) {
   return api.post(`/api/public/vendors/${vendorId}/lead`).catch(() => {});
 }
 
+/* סימון/ביטול "ספק מומלץ" — מנהלת VaddyGo בלבד (נאכף בשרת). */
+export function setVendorFeatured(id, featured) {
+  return api.put(`/api/vendors/${id}/featured`, { featured });
+}
+
 export async function getVendors() {
   try {
     return await api.get("/api/vendors");

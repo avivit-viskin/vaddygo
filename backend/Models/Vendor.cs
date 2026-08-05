@@ -54,6 +54,9 @@ namespace ParentCommitteeAPI.Models
         /* מונה פניות — עולה בכל לחיצה של ועד על "בקשת הצעת מחיר". לדאשבורד הספק. */
         public int Leads { get; set; }
 
+        /* "ספק מומלץ" — מנהלת VaddyGo מדליקה; מקבל תג "מומלץ" ומיקום בראש הרשימה. */
+        public bool Featured { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

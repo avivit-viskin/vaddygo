@@ -6,7 +6,7 @@ import { formatShekels } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 import { getOnboarding } from "../../services/onboardingService";
-import { recordLead } from "../../services/vendorsService";
+import { recordLead, setVendorFeatured } from "../../services/vendorsService";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -93,6 +93,17 @@ function VendorPanel({
   // אמצעי התשלום שנבחר (מציג את פרטיו) + חשיפת פרטי החשבון (מיסוך עם עין)
   const [payMethod, setPayMethod] = useState(null);
   const [revealAccount, setRevealAccount] = useState(false);
+  // "ספק מומלץ" — מנהלת מדליקה/מכבה; אופטימי (מתעדכן מיד, נסוג אם השרת נכשל)
+  const [featured, setFeatured] = useState(!!vendor.featured);
+  async function toggleFeatured() {
+    const next = !featured;
+    setFeatured(next);
+    try {
+      await setVendorFeatured(vendor.id, next);
+    } catch {
+      setFeatured(!next);
+    }
+  }
   const folders = groupByFolder(vendor.products || []);
   // שם הגן — נכנס להודעת "בקשת הצעת מחיר" כדי שהפנייה תהיה ליד מזוהה
   const ganName = getOnboarding()?.ganName || "";
@@ -224,6 +235,23 @@ function VendorPanel({
   const whatsapp = whatsappUrlWithText(vendor.whatsApp, supplierMessage(null));
   return (
     <div className="vendor-panel">
+      {featured && (
+        <span
+          style={{
+            display: "inline-block",
+            background: "#fff3cd",
+            border: "1px solid #f0d488",
+            color: "#8a6d1a",
+            borderRadius: 999,
+            padding: "3px 12px",
+            fontWeight: 700,
+            fontSize: 13,
+            marginBottom: 10,
+          }}
+        >
+          ⭐ ספק מומלץ
+        </span>
+      )}
       {(vendor.category || vendor.city) && (
         <p className="vendor-panel__meta">
           {vendor.category}
@@ -539,6 +567,13 @@ function VendorPanel({
       {/* ניהול הספק — רק לבעלת האפליקציה (SuperAdmin); וועד רגיל רק צופה */}
       {!readOnly && (onEdit || onShareEditLink) && (
         <div className="vendor-panel__admin">
+          <button
+            type="button"
+            className="vendor-panel__share"
+            onClick={toggleFeatured}
+          >
+            {featured ? "בטל ספק מומלץ" : "⭐ סמן כספק מומלץ"}
+          </button>
           {onEdit && (
             <button type="button" className="vendor-panel__edit" onClick={onEdit}>
               <Icon name="pencil" size={16} /> עריכת פרטי הספק

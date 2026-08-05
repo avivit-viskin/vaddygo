@@ -23,6 +23,7 @@ import CategoryList from "./home/CategoryList";
 import SubgroupBreakdown from "./home/SubgroupBreakdown";
 import StaffBirthdays from "./home/StaffBirthdays";
 import ExpensesList from "./home/ExpensesList";
+import YearEndCleanupBanner from "./home/YearEndCleanupBanner";
 import Modal from "../components/Modal";
 import { getUser } from "../services/authService";
 import "../styles/home.css";
@@ -134,6 +135,8 @@ function HomePage() {
         </p>
       )}
       {error && <p className="home__offline">{error}</p>}
+
+      <YearEndCleanupBanner />
 
       <CollectionCard
         dashboard={dashboard}

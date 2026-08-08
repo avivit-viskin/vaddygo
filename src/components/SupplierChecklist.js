@@ -15,7 +15,8 @@ function SupplierChecklist({ vendor, onGoTo }) {
       view: "products",
     },
     {
-      done: products.some((p) => (p.name || "").trim()),
+      // שם המוצר אינו חובה — די בכך שנוסף מוצר (למשל תמונה בלבד)
+      done: products.length > 0,
       label: "מוצר ראשון",
       view: "products",
     },

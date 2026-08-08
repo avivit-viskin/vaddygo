@@ -3,6 +3,7 @@ import { useParams, useSearchParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getPublicCatalog } from "../services/vendorsService";
 import { groupByFolder } from "../services/vendorFolders";
+import { withDisplayNames } from "../services/vendorProducts";
 import { formatShekels } from "../services/format";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import Logo from "../components/Logo";
@@ -47,7 +48,8 @@ function CatalogPage() {
     );
   }
 
-  const allFolders = groupByFolder(vendor.products || []);
+  // מוצר בלי שם מוצג כ"מוצר N" לפי מקומו ברשימת הספק (ולא נעלם מהקטלוג)
+  const allFolders = groupByFolder(withDisplayNames(vendor.products || []));
   // אם הגיעו עם קישור לתיקייה מסוימת — מציגים רק אותה (קטלוג של תיקייה אחת)
   const folders =
     folderParam && allFolders.some((f) => f.name === folderParam)
@@ -121,7 +123,7 @@ function CatalogPage() {
                     <img
                       className="pub-card__img"
                       src={product.imageUrl}
-                      alt={product.name}
+                      alt={product.displayName}
                       loading="lazy"
                       onClick={() => setZoomImage(product.imageUrl)}
                       style={{ cursor: "zoom-in" }}
@@ -132,7 +134,9 @@ function CatalogPage() {
                     </div>
                   )}
                   <div className="pub-card__body">
-                    <span className="pub-card__name">{product.name}</span>
+                    <span className="pub-card__name">
+                      {product.displayName}
+                    </span>
                     {product.description && (
                       <>
                         {/* תיאור מקוצר ל-2 שורות (כרטיסים אחידים); "קרא עוד" מרחיב */}

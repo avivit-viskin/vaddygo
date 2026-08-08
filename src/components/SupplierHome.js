@@ -3,6 +3,7 @@ import EmptyState from "./EmptyState";
 import Icon from "./Icon";
 import { formatShekels } from "../services/format";
 import { groupByFolder } from "../services/vendorFolders";
+import { withDisplayNames } from "../services/vendorProducts";
 import "../styles/supplier-app.css";
 
 /*
@@ -73,7 +74,8 @@ function ProductCardImage({ src, alt, onLowRes, onBadgeClick }) {
 }
 
 function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
-  const products = (vendor?.products || []).filter((p) => (p.name || "").trim());
+  // מוצר בלי שם תקף לגמרי — הוא מוצג כ"מוצר N" לפי מקומו ברשימת הספק
+  const products = withDisplayNames(vendor?.products || []);
   // srcs של תמונות שזוהו כרזולוציה נמוכה (בטעינה) — נספרות גם הן כ"דורש טיפול"
   const [lowResSrcs, setLowResSrcs] = useState(() => new Set());
   const markLowRes = (src) =>
@@ -217,7 +219,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                     {product.imageUrl ? (
                       <ProductCardImage
                         src={product.imageUrl}
-                        alt={product.name}
+                        alt={product.displayName}
                         onLowRes={() => markLowRes(product.imageUrl)}
                         onBadgeClick={() =>
                           setOpenMsgSrc((s) =>
@@ -231,7 +233,9 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                       </div>
                     )}
                     <div className="sup-prod__body">
-                      <span className="sup-prod__name">{product.name}</span>
+                      <span className="sup-prod__name">
+                        {product.displayName}
+                      </span>
                       {product.description && (
                         <>
                           {/* תיאור — מקוצר ל-2 שורות כדי לשמור על גובה אחיד;
@@ -242,7 +246,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                               fontSize: 12,
                               lineHeight: 1.35,
                               color: "var(--color-text-muted)",
-                              ...(expandedDesc.has(product.id ?? product.name)
+                              ...(expandedDesc.has(product.id ?? product.displayName)
                                 ? {}
                                 : {
                                     display: "-webkit-box",
@@ -258,7 +262,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                             <button
                               type="button"
                               onClick={() =>
-                                toggleDesc(product.id ?? product.name)
+                                toggleDesc(product.id ?? product.displayName)
                               }
                               style={{
                                 alignSelf: "flex-start",
@@ -272,7 +276,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                                 cursor: "pointer",
                               }}
                             >
-                              {expandedDesc.has(product.id ?? product.name)
+                              {expandedDesc.has(product.id ?? product.displayName)
                                 ? "קרא פחות"
                                 : "קרא עוד ..."}
                             </button>

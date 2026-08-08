@@ -5,6 +5,7 @@ import Icon from "../../components/Icon";
 import { formatShekels } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
+import { withDisplayNames } from "../../services/vendorProducts";
 import { getOnboarding } from "../../services/onboardingService";
 import { recordLead, setVendorFeatured } from "../../services/vendorsService";
 
@@ -104,7 +105,8 @@ function VendorPanel({
       setFeatured(!next);
     }
   }
-  const folders = groupByFolder(vendor.products || []);
+  // מוצר בלי שם מוצג כ"מוצר N" לפי מקומו ברשימת הספק (ולא נעלם מהתצוגה)
+  const folders = groupByFolder(withDisplayNames(vendor.products || []));
   // שם הגן — נכנס להודעת "בקשת הצעת מחיר" כדי שהפנייה תהיה ליד מזוהה
   const ganName = getOnboarding()?.ganName || "";
   // אמצעי התשלום הזמינים — מוצגים לוועד כאייקונים ממותגים (רק מה שהספק מילא)
@@ -152,7 +154,7 @@ function VendorPanel({
                 <img
                   className="vendor-panel__image"
                   src={product.imageUrl}
-                  alt={product.name}
+                  alt={product.displayName}
                   loading="lazy"
                   onClick={() => setZoomImage(product.imageUrl)}
                   style={{ cursor: "zoom-in" }}
@@ -162,7 +164,7 @@ function VendorPanel({
                 className="vendor-panel__product-name"
                 style={{ display: "flex", flexDirection: "column", gap: 2 }}
               >
-                <span>{product.name}</span>
+                <span>{product.displayName}</span>
                 {product.description && (
                   <span
                     style={{ fontSize: 13, color: "#8a7d84", lineHeight: 1.35 }}

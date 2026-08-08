@@ -3,7 +3,12 @@ import Button from "../../components/Button";
 import Icon from "../../components/Icon";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
+import SuccessDialog from "../../components/SuccessDialog";
 import { FOLDER_PRESETS } from "../../services/vendorFolders";
+import {
+  productDisplayName,
+  hasProductContent,
+} from "../../services/vendorProducts";
 import { VENDOR_CATEGORIES } from "../../services/vendorCategories";
 import { fileToResizedDataUrl } from "../../services/imageUpload";
 import {
@@ -183,6 +188,8 @@ function VendorForm({
   const [nameError, setNameError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [importMsg, setImportMsg] = useState("");
+  // חלון "נשמר בהצלחה" אחרי שמירה מוצלחת (בקשת בעלת המוצר, 08.08.2026)
+  const [savedOpen, setSavedOpen] = useState(false);
 
   function updateItem(setter, index, patch) {
     setter((prev) =>
@@ -447,10 +454,12 @@ function VendorForm({
         paymentBit: paymentBit.trim(),
         paymentBankInfo: paymentBankInfo.trim(),
         paymentInstallments: Number(paymentInstallments) || 0,
+        // שם המוצר אינו חובה — נשמר כל מוצר שיש בו תוכן כלשהו (תמונה/מחיר/
+        // תיאור/תיקייה). רק שורה ריקה לגמרי, שנוצרה ולא מולאה, לא נשמרת.
         products: products
-          .filter((product) => product.name.trim())
+          .filter(hasProductContent)
           .map((product) => ({
-            name: product.name.trim(),
+            name: (product.name || "").trim(),
             description: (product.description || "").trim(),
             price: Number(product.price) || 0,
             imageUrl: (product.imageUrl || "").trim(),
@@ -463,6 +472,8 @@ function VendorForm({
             url: link.url.trim(),
           })),
       });
+      // הגיעו לכאן = onSave לא זרק, כלומר השמירה הצליחה
+      setSavedOpen(true);
     } finally {
       setIsSubmitting(false);
     }
@@ -1183,7 +1194,7 @@ function VendorForm({
               )}
               <span className="vendor-form__product-summary">
                 <span className="vendor-form__product-title-sm">
-                  {(product.name || "").trim() || `מוצר ${index + 1}`}
+                  {productDisplayName(product, index)}
                 </span>
                 <span className="vendor-form__product-meta-sm">
                   {Number(product.price) > 0 ? `${product.price} ₪` : "בלי מחיר"}
@@ -1363,7 +1374,7 @@ function VendorForm({
             {product.imageUrl ? (
               <VendorThumb
                 src={product.imageUrl}
-                alt={`תמונת ${product.name || "המוצר"}`}
+                alt={`תמונת ${productDisplayName(product, index)}`}
                 onLowRes={() => markLowRes(product.imageUrl)}
               />
             ) : (
@@ -1512,6 +1523,14 @@ function VendorForm({
           </Button>
         )}
       </div>
+
+      {/* אישור שמירה — בקשת בעלת המוצר: אחרי "שמור" רואים חלון ברור שנשמר,
+          ולא רק הודעה קטנה שחולפת. */}
+      <SuccessDialog
+        isOpen={savedOpen}
+        message="השינויים נשמרו ✓"
+        onClose={() => setSavedOpen(false)}
+      />
     </form>
   );
 }

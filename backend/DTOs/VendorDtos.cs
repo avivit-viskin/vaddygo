@@ -52,7 +52,9 @@ namespace ParentCommitteeAPI.DTOs
 
     public class VendorProductDto
     {
-        [Required(ErrorMessage = "שם המוצר הוא שדה חובה")]
+        /* שם המוצר אינו חובה (החלטת בעלת המוצר, 08.08.2026): ספק שמעלה תמונות
+           מהטלפון רוצה לשמור קודם ולתת שמות אחר כך. מוצר בלי שם מוצג בממשק
+           כ"מוצר N" לפי מיקומו ברשימה. */
         [StringLength(80, ErrorMessage = "שם המוצר יכול להכיל עד 80 תווים")]
         public string Name { get; set; } = string.Empty;
 

@@ -16,7 +16,8 @@ const PIE_COLORS = [
 ];
 
 function SupplierReports({ vendor }) {
-  const products = (vendor?.products || []).filter((p) => (p.name || "").trim());
+  // כל מוצר נספר, גם בלי שם (שם אינו חובה) — אחרת הדוח יראה פחות מוצרים מהאמת
+  const products = vendor?.products || [];
   const total = products.length;
   const views = vendor?.views || 0;
   const leads = vendor?.leads || 0;

@@ -34,12 +34,15 @@ for (const path of PUBLIC_PAGES) {
   });
 }
 
-test("כניסה לכתובת לא-מוכרת מפנה למסך כניסה/פתיחה (לא קורסת)", async ({ page }) => {
+test("כניסה לכתובת לא-מוכרת מפנה לדף הנחיתה (לא קורסת)", async ({ page }) => {
   const crashes = [];
   page.on("pageerror", (err) => crashes.push(err.message));
 
   await page.goto("/some-unknown-page", { waitUntil: "load" });
+  // גולש לא-מחובר שמגיע לכתובת לא-מוכרת מנותב לדף הנחיתה (/) — לא לדף לבן ולא
+  // נתקע על הכתובת השבורה. (עד להוספת דף הנחיתה הניתוב היה ל-/welcome או /login.)
   await expect(page.locator("#root")).not.toBeEmpty();
-  await expect(page).toHaveURL(/\/(login|welcome)/);
+  await expect(page).toHaveURL(/\/$/);
+  await expect(page.getByRole("link", { name: /הרשמה/ }).first()).toBeVisible();
   expect(crashes, "קריסות JS בניתוב לכתובת לא-מוכרת").toEqual([]);
 });

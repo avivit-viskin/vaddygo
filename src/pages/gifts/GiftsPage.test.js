@@ -143,3 +143,61 @@ test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמ
     "https://x.test/cup.jpg"
   );
 });
+
+test("סינון ספקים לפי מיקום מציג רק את הספקים מאותה עיר", async () => {
+  localStorage.setItem(
+    "vaadygo.vendors",
+    JSON.stringify([
+      { id: 1, name: "מתנות בלב", city: "חיפה", products: [] },
+      { id: 2, name: "בלונים ועוד", city: "תל אביב", products: [] },
+    ])
+  );
+
+  render(<GiftsPage />);
+
+  // לפני סינון — שני הספקים מוצגים
+  expect(
+    await screen.findByRole("button", { name: /מתנות בלב/ })
+  ).toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: /בלונים ועוד/ })
+  ).toBeInTheDocument();
+
+  userEvent.click(screen.getByRole("button", { name: "חיפה" }));
+
+  expect(screen.getByRole("button", { name: /מתנות בלב/ })).toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /בלונים ועוד/ })
+  ).not.toBeInTheDocument();
+});
+
+test("סינון קטגוריה ומיקום פועלים יחד, ומצב ריק כשאין התאמה", async () => {
+  localStorage.setItem(
+    "vaadygo.vendors",
+    JSON.stringify([
+      { id: 1, name: "מתנות בלב", category: "מתנות", city: "חיפה", products: [] },
+      {
+        id: 2,
+        name: "בלונים ועוד",
+        category: "הסעדה",
+        city: "תל אביב",
+        products: [],
+      },
+    ])
+  );
+
+  render(<GiftsPage />);
+  await screen.findByRole("button", { name: /מתנות בלב/ });
+
+  // קטגוריה "מתנות" (חיפה) יחד עם מיקום "תל אביב" — אין ספק שעונה לשניהם
+  userEvent.click(screen.getByRole("button", { name: "מתנות" }));
+  userEvent.click(screen.getByRole("button", { name: "תל אביב" }));
+
+  expect(
+    screen.queryByRole("button", { name: /מתנות בלב/ })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.queryByRole("button", { name: /בלונים ועוד/ })
+  ).not.toBeInTheDocument();
+  expect(screen.getByText(/אין ספקים שמתאימים לסינון/)).toBeInTheDocument();
+});

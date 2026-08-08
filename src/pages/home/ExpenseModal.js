@@ -134,7 +134,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="איזה יופי שחלף האירוע האחרון! עכשיו כדאי לעדכן כדי שנמשיך לנהל נכון 💜"
+      title="כדאי לעדכן כדי שנמשיך לנהל נכון"
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input

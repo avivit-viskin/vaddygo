@@ -29,6 +29,7 @@ import PendingEventExpenses from "./gifts/PendingEventExpenses";
 import BudgetRecommendation from "./gifts/BudgetRecommendation";
 import GiftCard from "./gifts/GiftCard";
 import GiftForm from "./gifts/GiftForm";
+import FilterChips from "../components/FilterChips";
 import VendorPanel from "./gifts/VendorPanel";
 import VendorForm from "./gifts/VendorForm";
 import "../styles/gifts.css";
@@ -56,8 +57,9 @@ function GiftsPage() {
   // קישור עריכה אישי שנוצר לספק (לשליחה אליו); null = אין מודאל פתוח
   const [editLink, setEditLink] = useState(null);
   const [linkCopied, setLinkCopied] = useState(false);
-  // סינון הספקים לפי קטגוריה (גילוי); "" = הכל
+  // סינון הספקים לפי קטגוריה ולפי מיקום (גילוי); "" = הכל
   const [vendorFilter, setVendorFilter] = useState("");
+  const [vendorCityFilter, setVendorCityFilter] = useState("");
   // ספק שממתין לאישור מחיקה (מודאל אישור); null = סגור
   const [approvingVendor, setApprovingVendor] = useState(null);
   // ספק שהמנהלת בחרה למחוק ישירות (מודאל אישור); null = סגור
@@ -87,14 +89,22 @@ function GiftsPage() {
     () => new Map(vendors.map((vendor) => [vendor.id, vendor])),
     [vendors]
   );
-  // הקטגוריות שקיימות בפועל אצל הספקים — לכפתורי הסינון (גילוי)
+  // הקטגוריות והמיקומים שקיימים בפועל אצל הספקים — לכפתורי הסינון (גילוי).
+  // מציגים רק ערכים שקיימים בפועל, כדי שלא ייווצר סינון שמחזיר רשימה ריקה.
   const vendorCategories = useMemo(
     () => [...new Set(vendors.map((v) => v.category).filter(Boolean))],
     [vendors]
   );
-  const visibleVendors = vendorFilter
-    ? vendors.filter((v) => v.category === vendorFilter)
-    : vendors;
+  const vendorCities = useMemo(
+    () => [...new Set(vendors.map((v) => v.city).filter(Boolean))],
+    [vendors]
+  );
+  // שני הסינונים פועלים יחד (קטגוריה וגם מיקום)
+  const visibleVendors = vendors.filter(
+    (v) =>
+      (!vendorFilter || v.category === vendorFilter) &&
+      (!vendorCityFilter || v.city === vendorCityFilter)
+  );
   // סך ששולם לכל ספק (הוצאות המקושרות אליו) — למעקב "תשלומים לספקים"
   const vendorPaidById = useMemo(() => {
     const map = {};
@@ -281,26 +291,23 @@ function GiftsPage() {
           <EmptyState icon="🛍️" message="עדיין אין ספקים — אפשר להוסיף ספק ראשון." />
         ) : (
           <>
-            {vendorCategories.length > 0 && (
-              <div className="vendors__filters">
-                <button
-                  type="button"
-                  className={`vendors__filter${!vendorFilter ? " vendors__filter--active" : ""}`}
-                  onClick={() => setVendorFilter("")}
-                >
-                  הכל
-                </button>
-                {vendorCategories.map((cat) => (
-                  <button
-                    key={cat}
-                    type="button"
-                    className={`vendors__filter${vendorFilter === cat ? " vendors__filter--active" : ""}`}
-                    onClick={() => setVendorFilter(cat)}
-                  >
-                    {cat}
-                  </button>
-                ))}
-              </div>
+            <FilterChips
+              label="קטגוריה"
+              options={vendorCategories}
+              value={vendorFilter}
+              onChange={setVendorFilter}
+            />
+            <FilterChips
+              label="מיקום"
+              options={vendorCities}
+              value={vendorCityFilter}
+              onChange={setVendorCityFilter}
+            />
+            {visibleVendors.length === 0 && (
+              <EmptyState
+                icon="🔎"
+                message="אין ספקים שמתאימים לסינון — אפשר ללחוץ על 'הכל'."
+              />
             )}
             <ul className="vendors">
               {visibleVendors.map((vendor) => (

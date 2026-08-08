@@ -742,19 +742,23 @@ function VendorForm({
             )}
           </div>
         )}
-        <label className="vendor-form__upload">
-          <Icon name="image" size={16} /> צילום קטלוג
-          <input
-            type="file"
-            accept="image/*"
-            capture="environment"
-            className="vendor-form__file"
-            aria-label="צילום קטלוג לזיהוי מוצרים"
-            onChange={(e) =>
-              beginPhotoImport(e.target.files && e.target.files[0])
-            }
-          />
-        </label>
+        {/* "צילום קטלוג" מוצג רק בעריכת המנהלת (בלי showFab). בפורטל הספק הוסר
+            לבקשת בעלת המוצר — שם כבר יש "הוספת מוצר ▾ → צילום מוצר". */}
+        {!showFab && (
+          <label className="vendor-form__upload">
+            <Icon name="image" size={16} /> צילום קטלוג
+            <input
+              type="file"
+              accept="image/*"
+              capture="environment"
+              className="vendor-form__file"
+              aria-label="צילום קטלוג לזיהוי מוצרים"
+              onChange={(e) =>
+                beginPhotoImport(e.target.files && e.target.files[0])
+              }
+            />
+          </label>
+        )}
         <label className="vendor-form__upload">
           <Icon name="folder" size={16} /> ייבוא מקובץ (Excel / CSV / PDF)
           <input

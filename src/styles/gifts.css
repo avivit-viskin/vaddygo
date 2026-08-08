@@ -253,12 +253,20 @@
   white-space: nowrap;
 }
 
-/* ── גילוי ספקים: סינון לפי קטגוריה + תווית קטגוריה/עיר ── */
+/* ── גילוי ספקים: סינון לפי קטגוריה ומיקום + תווית קטגוריה/עיר ── */
 .vendors__filters {
   display: flex;
   flex-wrap: wrap;
+  align-items: center;
   gap: 6px;
   margin-bottom: 10px;
+}
+/* תווית השורה ("קטגוריה:" / "מיקום:") — מבדילה בין שתי שורות הסינון */
+.vendors__filter-label {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+  margin-inline-end: 2px;
 }
 .vendors__filter {
   border: 1px solid var(--color-border);

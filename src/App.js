@@ -54,6 +54,7 @@ import LandingPage from "./pages/LandingPage";
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import AccessibilityWidget from "./components/AccessibilityWidget";
+import AddToHomeScreen from "./components/AddToHomeScreen";
 import { applyAnalyticsConsent } from "./services/analytics";
 import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { applyA11ySettings } from "./services/accessibility";
@@ -332,6 +333,7 @@ function App() {
       </main>
       {!isFullScreen && <WhatsAppFab />}
       {!isFullScreen && <BottomNav />}
+      {!isFullScreen && <AddToHomeScreen />}
       <CookieConsent />
       <AccessibilityWidget />
     </div>

@@ -13,10 +13,11 @@ import "../styles/install-prompt.css";
 const DISMISS_KEY = "vaadygo.a2hsDismissed";
 
 function isStandalone() {
-  return (
-    window.matchMedia("(display-mode: standalone)").matches ||
-    window.navigator.standalone === true
-  );
+  // matchMedia לא קיים בכל סביבה (למשל jsdom בטסטים) — מגינים
+  const standaloneDisplay =
+    typeof window.matchMedia === "function" &&
+    window.matchMedia("(display-mode: standalone)").matches;
+  return Boolean(standaloneDisplay || window.navigator.standalone);
 }
 
 function isIOS() {

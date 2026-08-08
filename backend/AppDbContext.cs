@@ -25,6 +25,9 @@ namespace ParentCommitteeAPI
         public DbSet<Expense> Expenses { get; set; }
         public DbSet<GroupMember> GroupMembers { get; set; }
         public DbSet<GroupInvite> GroupInvites { get; set; }
+        public DbSet<Poll> Polls { get; set; }
+        public DbSet<PollOption> PollOptions { get; set; }
+        public DbSet<PollVote> PollVotes { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -38,6 +41,18 @@ namespace ParentCommitteeAPI
             // חברוּת ייחודית לכל (גן, משתמש); טוקן הזמנה ייחודי לחיפוש מהיר.
             modelBuilder.Entity<GroupMember>().HasIndex(m => new { m.GroupId, m.UserId }).IsUnique();
             modelBuilder.Entity<GroupInvite>().HasIndex(i => i.Token).IsUnique();
+
+            // כתובת הסקר הציבורית — ייחודית ומאונדקסת (כל פתיחת קישור מחפשת לפיה).
+            modelBuilder.Entity<Poll>().HasIndex(p => p.PublicToken).IsUnique();
+            // האפשרויות נמחקות יחד עם הסקר — אין להן חיים משל עצמן.
+            modelBuilder.Entity<Poll>()
+                .HasMany(p => p.Options)
+                .WithOne(o => o.Poll!)
+                .HasForeignKey(o => o.PollId)
+                .OnDelete(DeleteBehavior.Cascade);
+            // הצבעה אחת לכל מצביע בכל סקר — הבסיס למניעת הצבעה כפולה בטעות.
+            modelBuilder.Entity<PollVote>()
+                .HasIndex(v => new { v.PollId, v.VoterKey }).IsUnique();
         }
     }
 }

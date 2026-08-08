@@ -160,3 +160,75 @@
   font-weight: 700;
   color: var(--color-text-muted);
 }
+
+/* ── הודעות מצב בכרטיס הסקר ── */
+.poll-card__closed {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.poll-card__hint {
+  margin: 8px 0 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* ── הסקר הציבורי: מה שההורים רואים בקישור ── */
+.public-poll {
+  min-height: 100dvh;
+  background: var(--color-bg);
+  padding: 24px 16px 40px;
+}
+
+.public-poll__header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.public-poll__brand {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.public-poll__card {
+  max-width: 520px;
+  margin: 0 auto;
+}
+
+/* אזור מגע נדיב לבחירת אפשרות (44px+), כפי שדורשת הנגישות */
+.public-poll__choice {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 44px;
+  padding: 8px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  cursor: pointer;
+}
+
+.public-poll__choice:hover {
+  background: var(--color-primary-light);
+}
+
+.public-poll__choice input {
+  width: 20px;
+  height: 20px;
+  accent-color: var(--color-primary);
+}
+
+.public-poll__thanks {
+  margin: 12px 0 0;
+  font-weight: 600;
+  color: var(--color-primary-dark);
+}

@@ -38,6 +38,7 @@ import UsageStatsPage from "./pages/UsageStatsPage";
 import AnnualReportPage from "./pages/AnnualReportPage";
 import RemindersPage from "./pages/RemindersPage";
 import PollsPage from "./pages/PollsPage";
+import PublicPollPage from "./pages/PublicPollPage";
 import BackupPage from "./pages/BackupPage";
 import BrandingPage from "./pages/BrandingPage";
 import ContactsPage from "./pages/ContactsPage";
@@ -163,19 +164,23 @@ function App() {
   const isSupplierEdit = location.pathname.startsWith("/supplier/");
   // קטלוג ציבורי של ספק (/catalog/:id) — ציבורי ובמסך מלא
   const isCatalog = location.pathname.startsWith("/catalog/");
+  // סקר ציבורי להורים (/poll/:token) — ההורים אינם מחוברים, כמו /join ו-/catalog
+  const isPublicPoll = location.pathname.startsWith("/poll/");
   const isFullScreen =
     FULL_SCREEN_ROUTES.includes(location.pathname) ||
     isPurchase ||
     isJoin ||
     isSupplierEdit ||
-    isCatalog;
+    isCatalog ||
+    isPublicPoll;
   // מסך הכניסה מקבל רקע מונפש במסך מלא — מנטרלים את מסגרת ה-app-main (רוחב/ריפוד)
   const isLoginRoute = location.pathname === "/login";
   const isPublic =
     PUBLIC_ROUTES.includes(location.pathname) ||
     isJoin ||
     isSupplierEdit ||
-    isCatalog;
+    isCatalog ||
+    isPublicPoll;
   const activeInstitution = getActiveInstitution();
 
   // הגנת ניתוב: כל מי שאינו מחובר ומגיע לכתובת שאינה ציבורית → דף הנחיתה
@@ -278,6 +283,8 @@ function App() {
           <Route path="/join/:token" element={<JoinPage />} />
           <Route path="/supplier/:token" element={<SupplierEditPage />} />
           <Route path="/catalog/:id" element={<CatalogPage />} />
+          {/* סקר ציבורי — כאן ההורים עונים; אין להם חשבון במערכת */}
+          <Route path="/poll/:token" element={<PublicPollPage />} />
           <Route path="/directory" element={<DirectoryPage />} />
           <Route path="/supplier-login" element={<SupplierLoginPage />} />
           <Route path="/suppliers" element={<SupplierWelcomePage />} />

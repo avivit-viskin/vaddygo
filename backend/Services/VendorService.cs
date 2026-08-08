@@ -62,6 +62,7 @@ namespace ParentCommitteeAPI.Services
                 PaymentInstallments = dto.PaymentInstallments,
                 Products = MapProducts(dto.Products),
                 SocialLinks = MapSocialLinks(dto.SocialLinks),
+                CreatedAt = DateTime.UtcNow,
             };
 
             _db.Vendors.Add(vendor);
@@ -283,6 +284,7 @@ namespace ParentCommitteeAPI.Services
                 LoginEmail = email,
                 PasswordHash = PasswordHasher.Hash(password),
                 EditToken = Guid.NewGuid().ToString("N"),
+                CreatedAt = DateTime.UtcNow,
             };
             _db.Vendors.Add(vendor);
             await _db.SaveChangesAsync();

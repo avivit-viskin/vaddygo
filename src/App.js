@@ -34,6 +34,7 @@ import TeamSetupPage from "./pages/TeamSetupPage";
 import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
 import AiAssistantPage from "./pages/AiAssistantPage";
 import UpgradePage from "./pages/UpgradePage";
+import UsageStatsPage from "./pages/UsageStatsPage";
 import AnnualReportPage from "./pages/AnnualReportPage";
 import RemindersPage from "./pages/RemindersPage";
 import PollsPage from "./pages/PollsPage";
@@ -310,6 +311,9 @@ function App() {
           <Route path="/cookies" element={<CookiesPage />} />
           <Route path="/assistant" element={<AiAssistantPage />} />
           <Route path="/upgrade" element={<UpgradePage />} />
+          {/* נתוני שימוש — למנהלת VaddyGo; העמוד עצמו חוסם מי שאינה SuperAdmin,
+              והשרת אוכף זאת שוב ב-[Authorize(Roles = "SuperAdmin")] */}
+          <Route path="/admin/usage" element={<UsageStatsPage />} />
           <Route path="/annual-report" element={<AnnualReportPage />} />
           <Route path="/reminders" element={<RemindersPage />} />
           <Route path="/polls" element={<PollsPage />} />

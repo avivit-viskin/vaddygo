@@ -48,6 +48,11 @@ namespace ParentCommitteeAPI.Models
            null = אין בקשה. המחיקה בפועל מתבצעת רק אחרי אישור המנהלת (SuperAdmin). */
         public DateTime? DeletionRequestedAt { get; set; }
 
+        /* מתי נוצר הכרטיס — למדידת קצב הצטרפות הספקים במסך נתוני השימוש של
+           המנהלת. Nullable בכוונה: לספקים שנוצרו לפני שהשדה הוסף אין תאריך
+           אמיתי, ועדיף "לא ידוע" על פני תאריך מומצא. */
+        public DateTime? CreatedAt { get; set; }
+
         /* מונה צפיות בקטלוג הציבורי — עולה בכל פתיחה של /catalog/{id}. לדאשבורד הספק. */
         public int Views { get; set; }
 

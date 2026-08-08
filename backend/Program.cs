@@ -59,6 +59,8 @@ builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+// נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
+builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
 // ניקוי סוף שנת לימודים — שירות + משימת רקע יומית שמריצה אותו
 builder.Services.AddScoped<IYearEndCleanupService, YearEndCleanupService>();
 builder.Services.AddHostedService<YearEndCleanupBackgroundService>();

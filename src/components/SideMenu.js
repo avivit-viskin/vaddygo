@@ -6,7 +6,7 @@ import InstitutionSwitcher from "./InstitutionSwitcher";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
-import { logout } from "../services/authService";
+import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import ProBadge from "./ProBadge";
@@ -114,6 +114,20 @@ function SideMenu({ isOpen, onClose }) {
         >
           <Icon name="bell" size={18} /> הגדרות התראות
         </button>
+
+        {/* אזור המנהלת — מוצג רק ל-SuperAdmin (בעלת VaddyGo), לא לוועדים */}
+        {isSuperAdmin() && (
+          <>
+            <h3 className="sidemenu__title">ניהול VaddyGo</h3>
+            <button
+              type="button"
+              className="sidemenu__action"
+              onClick={() => go("/admin/usage")}
+            >
+              <Icon name="chart" size={18} /> נתוני שימוש
+            </button>
+          </>
+        )}
 
         <div className="sidemenu__footer">
           <a

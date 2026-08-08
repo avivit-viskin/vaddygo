@@ -98,11 +98,9 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
   const leads = vendor?.leads || 0;
   const folders = groupByFolder(products);
 
-  // תיקיות נפתחות/נסגרות (אקורדיון): התיקייה הראשונה פתוחה כברירת מחדל, השאר
-  // מקופלות — כדי לראות רצף של תיקיות ולהגיע בקלות לזו שרוצים.
-  const [openFolders, setOpenFolders] = useState(
-    () => new Set(folders[0] ? [folders[0].name] : [])
-  );
+  // תיקיות נפתחות/נסגרות (אקורדיון): כולן סגורות כברירת מחדל — רואים רצף נקי של
+  // כותרות התיקיות ופותחים בלחיצה את זו שרוצים.
+  const [openFolders, setOpenFolders] = useState(() => new Set());
   const toggleFolder = (name) =>
     setOpenFolders((prev) => {
       const next = new Set(prev);

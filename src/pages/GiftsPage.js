@@ -32,6 +32,7 @@ import GiftForm from "./gifts/GiftForm";
 import FilterChips from "../components/FilterChips";
 import VendorPanel from "./gifts/VendorPanel";
 import VendorForm from "./gifts/VendorForm";
+import VendorReportModal from "./gifts/VendorReportModal";
 import "../styles/gifts.css";
 
 /*
@@ -64,6 +65,8 @@ function GiftsPage() {
   const [approvingVendor, setApprovingVendor] = useState(null);
   // ספק שהמנהלת בחרה למחוק ישירות (מודאל אישור); null = סגור
   const [deletingVendor, setDeletingVendor] = useState(null);
+  // ספק שהמנהלת פתחה את הדוח שלו (התקדמות + סטטיסטיקות); null = סגור
+  const [reportVendor, setReportVendor] = useState(null);
 
   const load = useCallback(async () => {
     setIsLoading(true);
@@ -376,6 +379,31 @@ function GiftsPage() {
                       <WhatsAppIcon size={24} />
                     </a>
                   )}
+                  {/* דוח הספק — למנהלת בלבד: התקדמות הכרטיס, צפיות ופניות,
+                      ואפשרות לשתף את הדוח עם הספק. */}
+                  {canManageVendors && (
+                    <button
+                      type="button"
+                      onClick={() => setReportVendor(vendor)}
+                      aria-label={`דוח של ${vendor.name}`}
+                      title="דוח הספק"
+                      style={{
+                        flexShrink: 0,
+                        display: "inline-flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        width: 44,
+                        height: 44,
+                        borderRadius: "50%",
+                        background: "var(--color-primary-light)",
+                        border: "1px solid var(--color-border)",
+                        color: "var(--color-primary-dark)",
+                        cursor: "pointer",
+                      }}
+                    >
+                      <Icon name="chart" size={20} />
+                    </button>
+                  )}
                   {/* מחיקת ספק — למנהלת בלבד, עם אישור. אדום עדין כדי לא לבלוט מדי. */}
                   {canManageVendors && (
                     <button
@@ -413,6 +441,12 @@ function GiftsPage() {
       </Card>
 
       <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
+
+      {/* דוח ספק למנהלת — התקדמות הכרטיס + צפיות/פניות + שיתוף עם הספק */}
+      <VendorReportModal
+        vendor={reportVendor}
+        onClose={() => setReportVendor(null)}
+      />
 
       {/* טופס מתנה */}
       <Modal

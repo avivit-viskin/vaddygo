@@ -1,43 +1,16 @@
 import Icon from "./Icon";
+import { vendorChecklist } from "../services/vendorProgress";
 
 /*
   SupplierChecklist — צ'ק-ליסט התחלה לספק: מראה מה עוד חסר כדי שהכרטיס יהיה
   מלא ומזמין ללקוח (וואטסאפ, מוצר, תמונה, אמצעי תשלום, כניסה קבועה). מבוסס על
   מה שכבר נשמר; כשהכל הושלם — נעלם. עוזר לספק חדש לדעת בדיוק מה לעשות.
+
+  הפריטים עצמם מוגדרים ב-services/vendorProgress — אותו מקור בדיוק שממנו
+  המנהלת רואה את דוח ההתקדמות של הספק, כדי ששני הצדדים יראו אותו דבר.
 */
 function SupplierChecklist({ vendor, onGoTo }) {
-  const products = vendor?.products || [];
-  // view = לאיזה דף הקישור "מילוי »" מוביל כדי להשלים את הפריט
-  const items = [
-    {
-      done: Boolean(vendor?.whatsApp),
-      label: "מספר וואטסאפ ליצירת קשר",
-      view: "products",
-    },
-    {
-      // שם המוצר אינו חובה — די בכך שנוסף מוצר (למשל תמונה בלבד)
-      done: products.length > 0,
-      label: "מוצר ראשון",
-      view: "products",
-    },
-    {
-      done: products.some((p) => (p.imageUrl || "").trim()),
-      label: "תמונה לפחות למוצר אחד",
-      view: "products",
-    },
-    {
-      done: Boolean(
-        vendor?.paymentLink || vendor?.paymentBit || vendor?.paymentBankInfo
-      ),
-      label: "אמצעי תשלום",
-      view: "payments",
-    },
-    {
-      done: Boolean(vendor?.hasLogin),
-      label: "הגדרת כניסה קבועה (מייל וסיסמה)",
-      view: "home",
-    },
-  ];
+  const items = vendorChecklist(vendor);
   const doneCount = items.filter((i) => i.done).length;
 
   // הכל הושלם — אין צורך בצ'ק-ליסט
@@ -56,7 +29,7 @@ function SupplierChecklist({ vendor, onGoTo }) {
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {items.map((item) => (
           <li
-            key={item.label}
+            key={item.key}
             style={{
               display: "flex",
               alignItems: "center",

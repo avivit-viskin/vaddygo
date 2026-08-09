@@ -49,10 +49,11 @@ test('הניווט התחתון מציג את חמשת המסכים', () => {
   expect(nav).toHaveTextContent('קבצים');
 });
 
-test('מסך התלמידים מציג מצב טעינה בזמן שמחכים לשרת', () => {
+test('מסך התלמידים מציג מצב טעינה בזמן שמחכים לשרת', async () => {
   global.fetch = jest.fn(() => new Promise(() => {}));
   renderAt('/students');
-  expect(screen.getByRole('status')).toBeInTheDocument();
+  // המסכים נטענים לפי דרישה (lazy), ולכן ממתינים לחבילה לפני הבדיקה
+  expect(await screen.findByRole('status')).toBeInTheDocument();
 });
 
 test('מסך התלמידים מציג מצב ריק כשאין תלמידים', async () => {
@@ -86,11 +87,16 @@ test('מסך התלמידים מציג שגיאה ידידותית כשהשרת 
   expect(await screen.findByText(/לא הצלחנו להתחבר לשרת/)).toBeInTheDocument();
 });
 
-test('משתמשת לא מחוברת מופנית ממסך פנימי לדף הנחיתה', () => {
+test('משתמשת לא מחוברת מופנית ממסך פנימי לדף הנחיתה', async () => {
   localStorage.removeItem('vaadygo.token');
   renderAt('/students');
   // בלי token אין גישה למסך פנימי — מגיעים לדף הנחיתה הציבורי, שממנו נרשמים
-  expect(
-    screen.getAllByRole('link', { name: 'הרשמה חינם' }).length
-  ).toBeGreaterThan(0);
+  // (דף הנחיתה נטען לפי דרישה — lazy — ולכן ממתינים לו עם timeout ארוך יותר,
+  // כי טעינת החבילה ב-CI איטית יותר מ-1000ms של ברירת המחדל)
+  const links = await screen.findAllByRole(
+    'link',
+    { name: 'הרשמה חינם' },
+    { timeout: 5000 }
+  );
+  expect(links.length).toBeGreaterThan(0);
 });

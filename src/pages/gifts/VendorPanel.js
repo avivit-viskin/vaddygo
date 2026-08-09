@@ -12,6 +12,7 @@ import {
   setVendorFeatured,
   setVendorPro,
 } from "../../services/vendorsService";
+import RfqModal from "../../components/RfqModal";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -120,6 +121,8 @@ function VendorPanel({
       setIsPro(!next);
     }
   }
+  // טופס "בקשת הצעת מחיר" (RFQ) לספק Pro — נפתח מהכפתור באזור יצירת הקשר
+  const [rfqOpen, setRfqOpen] = useState(false);
   // מוצר בלי שם מוצג כ"מוצר N" לפי מקומו ברשימת הספק (ולא נעלם מהתצוגה)
   const folders = groupByFolder(withDisplayNames(vendor.products || []));
   // שם הגן — נכנס להודעת "בקשת הצעת מחיר" כדי שהפנייה תהיה ליד מזוהה
@@ -292,19 +295,31 @@ function VendorPanel({
         </div>
       )}
       <div className="vendor-panel__contact">
-        {vendor.whatsApp && (
-          <a
+        {/* ספק Pro — כפתור פותח טופס בקשת הצעת מחיר מובנה (נשמר בתיבת הפניות שלו);
+            ספק שאינו Pro — פנייה בוואטסאפ + מונה, כמו קודם */}
+        {isPro ? (
+          <button
+            type="button"
             className="btn btn--primary"
-            href={whatsappUrlWithText(
-              vendor.whatsApp,
-              quoteRequestMessage(vendor.name, ganName)
-            )}
-            target="_blank"
-            rel="noreferrer"
-            onClick={() => !readOnly && recordLead(vendor.id)}
+            onClick={() => setRfqOpen(true)}
           >
             <Icon name="message" size={16} /> בקשת הצעת מחיר
-          </a>
+          </button>
+        ) : (
+          vendor.whatsApp && (
+            <a
+              className="btn btn--primary"
+              href={whatsappUrlWithText(
+                vendor.whatsApp,
+                quoteRequestMessage(vendor.name, ganName)
+              )}
+              target="_blank"
+              rel="noreferrer"
+              onClick={() => !readOnly && recordLead(vendor.id)}
+            >
+              <Icon name="message" size={16} /> בקשת הצעת מחיר
+            </a>
+          )
         )}
         {whatsapp && (
           <a
@@ -327,6 +342,12 @@ function VendorPanel({
           </a>
         )}
       </div>
+
+      <RfqModal
+        vendor={vendor}
+        isOpen={rfqOpen}
+        onClose={() => setRfqOpen(false)}
+      />
 
       {hasPayInfo && (
         <div

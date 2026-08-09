@@ -7,6 +7,7 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
 import { supplierLoginWithGoogle } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
+import { toastSuccess } from "../services/toastBus";
 import "../styles/onboarding.css";
 
 /*
@@ -38,6 +39,32 @@ function SupplierWelcomePage() {
       "לא הצלחנו לטעון את כניסת Google. אפשר להיכנס עם מייל וסיסמה."
     );
   }, []);
+
+  // שיתוף דף ההרשמה לספקים — כדי שספק יירשם בעצמו בלי שנרשום אותו מראש. משתפים
+  // את /suppliers (הדף הזה, שכולל "הרשמת ספק חדש"); באפליקציה עצמאית אין שורת
+  // כתובת, ולכן פותחים את תפריט השיתוף של המכשיר, ואם אין — מעתיקים ללוח.
+  async function shareSupplierPortal() {
+    const url = `${window.location.origin}/suppliers`;
+    const shareData = {
+      title: "הצטרפות כספק ל-VaddyGo",
+      text: "מוזמנים להצטרף כספקים ל-VaddyGo — לנהל קטלוג מוצרים שוועדי הורים רואים ומזמינים ממנו:",
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toastSuccess("הקישור להרשמת ספקים הועתק — אפשר להדביק ולשלוח 🙂");
+    } catch {
+      toastSuccess(url);
+    }
+  }
 
   return (
     <div className="welcome">
@@ -77,6 +104,33 @@ function SupplierWelcomePage() {
           />
         </div>
         {googleError && <ErrorMessage message={googleError} />}
+
+        <p
+          className="welcome__text"
+          style={{
+            margin: "16px 0 0",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          רוצים להזמין ספק להירשם בעצמו?{" "}
+          <button
+            type="button"
+            onClick={shareSupplierPortal}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "inherit",
+              color: "var(--color-primary-dark)",
+              fontWeight: 700,
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            שיתוף דף ההרשמה
+          </button>
+        </p>
 
         <p
           className="welcome__text"

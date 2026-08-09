@@ -11,6 +11,7 @@ export const FOLDER_PRESETS = [
   "שבועות",
   "סוף שנה",
   "מתנות לצוות",
+  "יום הולדת",
 ];
 
 const GENERAL = "כללי";

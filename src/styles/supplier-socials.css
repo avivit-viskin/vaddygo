@@ -1,0 +1,28 @@
+/*
+  supplier-socials — פריסת עורך הרשתות החברתיות (עורך מבוסס-שורות עם השלמה
+  אוטומטית). פריסה בלבד (flex/gap) — הצבעים והשדות עצמם מגיעים ממערכת העיצוב.
+*/
+.social-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  margin-bottom: 10px;
+}
+
+/* שם הרשת צר, הקישור רחב — שניהם מתמתחים כשיש מקום, ונשברים לשורות בנייד */
+.social-row__name {
+  flex: 1 1 130px;
+  min-width: 120px;
+}
+.social-row__url {
+  flex: 2 1 220px;
+  min-width: 160px;
+}
+.social-row__remove {
+  flex: 0 0 auto;
+}
+
+.social-add {
+  margin-bottom: 14px;
+}

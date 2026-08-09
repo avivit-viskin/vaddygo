@@ -183,6 +183,7 @@ function LandingPage() {
         <div className="lp-nav__inner">
           <span className="lp-nav__logo"><Logo /></span>
           <nav className="lp-nav__actions">
+            <Link className="lp-nav__login" to="/suppliers">כניסת ספקים</Link>
             <Link className="lp-nav__login" to="/login">כניסה</Link>
             <Link className="lp-btn lp-btn--primary lp-btn--sm" to="/register">הרשמה חינם</Link>
           </nav>
@@ -209,6 +210,9 @@ function LandingPage() {
               <Link className="lp-btn lp-btn--ghost lp-btn--lg" to="/login">יש לי כבר חשבון</Link>
             </div>
             <p className="lp-hero__note"><Icon name="check" size={16} /> התחלה חינם · בלי כרטיס אשראי</p>
+            <p className="lp-hero__supplier">
+              ספק/עסק? <Link to="/suppliers">כניסת ספקים ←</Link>
+            </p>
           </div>
 
           <div className="lp-hero__art">
@@ -415,6 +419,7 @@ function LandingPage() {
             <h4>התחלה</h4>
             <Link to="/register">הרשמה חינם</Link>
             <Link to="/login">כניסה לחשבון</Link>
+            <Link to="/suppliers">כניסת ספקים</Link>
           </div>
         </div>
         <p className="lp-foot__copy">© {new Date().getFullYear()} VaddyGo · כל הזכויות שמורות</p>

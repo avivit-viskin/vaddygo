@@ -107,6 +107,9 @@
 .lp-hero__cta { display: flex; flex-wrap: wrap; gap: 14px; justify-content: center; }
 .lp-hero__note { display: flex; align-items: center; justify-content: center; gap: 7px; margin: 18px 0 0; color: var(--lp-ink-soft); font-size: 15px; font-weight: 600; }
 .lp-hero__note svg { color: var(--lp-rose); }
+.lp-hero__supplier { margin: 10px 0 0; color: var(--lp-ink-soft); font-size: 14px; font-weight: 600; }
+.lp-hero__supplier a { color: var(--lp-rose); font-weight: 700; text-decoration: none; }
+.lp-hero__supplier a:hover { color: var(--lp-rose-dark); text-decoration: underline; }
 .lp-hero__art { display: flex; justify-content: center; }
 
 /* ══ במה: טלפון + צ'יפים מרחפים ══ */

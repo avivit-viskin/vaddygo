@@ -1315,6 +1315,7 @@ function VendorForm({
               placeholder="מחיר ₪"
             />
             <input
+              id={`product-folder-${index}`}
               className="field__input vendor-form__folder"
               aria-label={`תיקייה/חג למוצר ${index + 1}`}
               list="vendor-folder-presets"
@@ -1322,7 +1323,7 @@ function VendorForm({
               onChange={(e) =>
                 updateItem(setProducts, index, { folder: e.target.value })
               }
-              placeholder="תיקייה/חג (ראש השנה, פסח...)"
+              placeholder="תיקייה/חג (ראש השנה, יום הולדת, אחר...)"
             />
           </div>
 
@@ -1368,6 +1369,46 @@ function VendorForm({
                 </button>
               );
             })}
+            {/* "אחר" — תיקייה מותאמת בהקלדה חופשית (יום הולדת מיוחד, אירוע וכו') */}
+            {(() => {
+              const custom =
+                !!(product.folder || "").trim() &&
+                !FOLDER_PRESETS.includes(product.folder);
+              return (
+                <button
+                  type="button"
+                  onClick={() => {
+                    // מעבר לתיקייה מותאמת: מנקים בחירת-חג קיימת וממקדים את שדה ההקלדה
+                    if (!custom) {
+                      updateItem(setProducts, index, { folder: "" });
+                    }
+                    const el = document.getElementById(`product-folder-${index}`);
+                    if (el) {
+                      el.focus();
+                    }
+                  }}
+                  style={{
+                    border: custom
+                      ? "1px solid var(--color-primary-dark)"
+                      : "1px dashed var(--color-border)",
+                    background: custom
+                      ? "var(--color-primary-light)"
+                      : "var(--color-surface)",
+                    color: custom
+                      ? "var(--color-primary-dark)"
+                      : "var(--color-text-muted)",
+                    borderRadius: 999,
+                    padding: "4px 10px",
+                    fontSize: "var(--font-size-sm)",
+                    fontFamily: "var(--font-family)",
+                    fontWeight: custom ? 700 : 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {custom ? `אחר: ${product.folder}` : "אחר…"}
+                </button>
+              );
+            })()}
           </div>
 
           <div className="vendor-form__image">

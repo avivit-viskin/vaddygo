@@ -597,10 +597,20 @@ function SupplierEditPage() {
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />
           </div>
           <div style={{ marginTop: 16 }}>
-            <Button variant="secondary" onClick={() => openShareCatalog("")}>
-              <Icon name="link" size={16} /> שיתוף כל הקטלוג{" "}
-              <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
-            </Button>
+            {vendor.isPro ? (
+              <Button variant="secondary" onClick={() => openShareCatalog("")}>
+                <Icon name="link" size={16} /> שיתוף כל הקטלוג{" "}
+                <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
+              </Button>
+            ) : (
+              <p
+                className="supplier-edit__login-hint"
+                style={{ color: "var(--color-text-muted)" }}
+              >
+                👑 שיתוף קטלוג ממותג — פיצ'ר של מסלול פרו. לפתיחה, פנו למנהלת
+                VaddyGo.
+              </p>
+            )}
           </div>
         </>
       )}
@@ -640,7 +650,16 @@ function SupplierEditPage() {
             <Icon name="link" size={22} /> רשתות חברתיות{" "}
             <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
           </h2>
-          <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
+          {vendor.isPro ? (
+            <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
+          ) : (
+            <p
+              className="supplier-edit__login-hint"
+              style={{ color: "var(--color-text-muted)" }}
+            >
+              👑 רשתות חברתיות — פיצ'ר של מסלול פרו. לפתיחה, פנו למנהלת VaddyGo.
+            </p>
+          )}
         </>
       )}
 
@@ -822,24 +841,26 @@ function SupplierEditPage() {
             <Button variant="secondary">פתיחת הקטלוג</Button>
           </a>
         </div>
-        <div style={{ textAlign: "center", marginTop: 18 }}>
-          <img
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(
-              buildCatalogUrl(shareCatalogFolder)
-            )}`}
-            alt="קוד QR לקטלוג"
-            width={180}
-            height={180}
-            style={{
-              borderRadius: 8,
-              border: "1px solid var(--color-border)",
-            }}
-          />
-          <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
-            📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
-            לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
-          </p>
-        </div>
+        {vendor.isPro && (
+          <div style={{ textAlign: "center", marginTop: 18 }}>
+            <img
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(
+                buildCatalogUrl(shareCatalogFolder)
+              )}`}
+              alt="קוד QR לקטלוג"
+              width={180}
+              height={180}
+              style={{
+                borderRadius: 8,
+                border: "1px solid var(--color-border)",
+              }}
+            />
+            <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
+              📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
+              לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
+            </p>
+          </div>
+        )}
       </Modal>
 
       <ConfirmDialog

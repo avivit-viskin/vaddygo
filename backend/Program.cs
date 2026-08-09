@@ -22,9 +22,23 @@ if (!string.IsNullOrEmpty(port))
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlite(builder.Configuration.GetConnectionString("Default") ?? "Data Source=vaadygo.db"));
 
-// CORS — בפיתוח רק localhost:3000; דומיין הייצור יוגדר ב-Cors:AllowedOrigins (משתני סביבה ב-Railway)
+// CORS — בפיתוח רק localhost:3000; דומיין הייצור מוגדר ב-Cors:AllowedOrigins
+// (משתני סביבה ב-Railway: Cors__AllowedOrigins__0).
 var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>()
     ?? new[] { "http://localhost:3000" };
+
+// הקשחת ייצור (fail-closed): "*" פותח את ה-API לכל אתר באינטרנט — אסור בייצור.
+// היעדר הגדרה אינו מסוכן (נשארים עם localhost בלבד = יותר מחמיר), ולכן שם רק
+// מזהירים בלוג במקום להפיל שרת שכבר עובד.
+if (!builder.Environment.IsDevelopment())
+{
+    if (allowedOrigins.Any(o => o.Trim() == "*"))
+    {
+        throw new InvalidOperationException(
+            "Cors:AllowedOrigins אינו יכול להכיל \"*\" בייצור — יש לציין את הדומיין המדויק של הפרונט.");
+    }
+}
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("AllowFrontend", policy =>
@@ -66,6 +80,9 @@ builder.Services.AddScoped<IPollService, PollService>();
 // ניקוי סוף שנת לימודים — שירות + משימת רקע יומית שמריצה אותו
 builder.Services.AddScoped<IYearEndCleanupService, YearEndCleanupService>();
 builder.Services.AddHostedService<YearEndCleanupBackgroundService>();
+// גיבוי אוטומטי של המסד — שירות + משימת רקע (בעלייה ואז כל X שעות)
+builder.Services.AddScoped<IDatabaseBackupService, SqliteBackupService>();
+builder.Services.AddHostedService<DatabaseBackupBackgroundService>();
 
 // סליקת אשראי — ספק לפי Payments:Provider. mock=סימולטור לפיתוח/בדיקות, payplus=פרודקשן.
 var paymentProvider = builder.Configuration["Payments:Provider"] ?? "mock";
@@ -127,6 +144,17 @@ var app = builder.Build();
 // בנוסף: קידום מנהלת VaddyGo לתפקיד SuperAdmin לפי המייל שמוגדר ב-
 // Admin:SuperAdminEmail (משתנה סביבה Admin__SuperAdminEmail), כדי שתוכל לנהל
 // ספקים. אידמפוטנטי — רץ בכל עלייה ומקדם רק אם המשתמש קיים ועדיין לא SuperAdmin.
+// ייצור שנשאר עם ברירת המחדל של הפיתוח (localhost בלבד) הוא בטוח, אבל הפרונט
+// לא יצליח לדבר עם השרת. מזהירים בלוג כדי שהתקלה לא "תיעלם" בשקט — אין כאן
+// חשיפה, ולכן מזהירים ולא מפילים שרת שכבר עובד.
+if (!app.Environment.IsDevelopment() &&
+    allowedOrigins.All(o => o.Contains("localhost", StringComparison.OrdinalIgnoreCase)))
+{
+    app.Logger.LogWarning(
+        "Cors:AllowedOrigins contains only localhost — the production frontend will be blocked. " +
+        "Set Cors__AllowedOrigins__0 to the frontend URL.");
+}
+
 using (var scope = app.Services.CreateScope())
 {
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();

@@ -104,12 +104,14 @@
 
 **⚠️ לפני פריסת הבקאנד:** ‏main כולל אכיפת אבטחה גורפת בשרת. הפרונט כבר שולח token, אז זרם הרשמה→כניסה→שימוש עובד; אבל חובה להגדיר `Jwt__Key` (מחרוזת אקראית ארוכה) ב-Railway Variables — אחרת נעשה שימוש במפתח פיתוח חלש.
 
-## שלב 11 — הקשחת ייצור 🔄 `[Claude Opus, 09.08.2026]` (Health Checks ✅)
+## שלב 11 — הקשחת ייצור ✅ `[Claude Opus, 09.08.2026]` (מעבר PostgreSQL דחוי בהחלטת בעלת המוצר)
 
-☐ מעבר ל-SQL Server (החלפת connection string) · ☐ גיבויים אוטומטיים · ✅ Monitoring + Health Checks [Claude Code, 09.07.2026] · ☐ CORS לדומיין הייצור בלבד
+⏸️ מעבר ל-PostgreSQL (**דחוי בהחלטת בעלת המוצר, 21.07.2026**) · ✅ גיבויים אוטומטיים [Claude Opus, 09.08.2026] · ✅ Monitoring + Health Checks [Claude Code, 09.07.2026] · ✅ CORS לדומיין הייצור בלבד [Claude Opus, 09.08.2026]
 
 - ✅ **Health Check** — `GET /api/health` (`HealthController`, ‏`[AllowAnonymous]` כדי שבודק הבריאות של Railway לא ייחסם ע"י אכיפת ה-token משלב 10): מחזיר 200 כשהשרת והמסד זמינים (בודק `Database.CanConnectAsync`), ו-503 אם אין גישה למסד. אומת מקצה-לקצה: 200 בלי token מול 401 ל-`/api/students` בלי token. **מומלץ להגדיר את הנתיב הזה כ-Health Check Path ב-Railway.**
-- ☐ שאר ההקשחה (SQL Server, גיבויים, CORS לדומיין הייצור) — תלוי בפריסה בפועל ובדומיין, לביצוע יחד עם עליית הבקאנד ל-Railway.
+- ✅ **גיבויים אוטומטיים** — `IDatabaseBackupService`/`SqliteBackupService` + `DatabaseBackupBackgroundService`: גיבוי בעלייה ואז כל 24 שעות, בשיטת `VACUUM INTO` (עותק עקבי של מסד חי, בלי לעצור את השרת), לתיקיית `backups` ליד המסד — ב-Railway בתוך ה-Volume ב-`/data`, כלומר שורד פריסה מחדש. נשמרים 7 הגיבויים האחרונים והישנים נמחקים. הגדרות: `Backup__Enabled` / `Backup__IntervalHours` / `Backup__KeepCount` / `Backup__Directory`. כשל בגיבוי נרשם בלוג ולא מפיל את השרת.
+- ✅ **CORS לדומיין הייצור בלבד** — הוקשח: בייצור `"*"` ברשימת המקורות **מפיל את העלייה** (fail-closed, כמו שער ה-JWT), וייצור שנשאר בטעות עם `localhost` בלבד רושם אזהרה ברורה בלוג (בטוח, אבל הפרונט ייחסם). הדומיין עצמו מוגדר ב-`Cors__AllowedOrigins__0` ב-Railway.
+- ⏸️ **מעבר ל-PostgreSQL — דחוי בהחלטת בעלת המוצר (21.07.2026):** לא דחוף ואינו סוגר פרצת אבטחה; המעבר כרוך בסיכון לאובדן נתונים וייעשה כשיהיו הרבה לקוחות. עד אז הגיבוי האוטומטי (למעלה) הוא ההגנה על הנתונים.
 
 ## שלב 12 — בקשות בעלת המוצר ✅ `[Claude Opus, 08-09.08.2026]`
 

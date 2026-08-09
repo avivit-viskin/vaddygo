@@ -1,6 +1,7 @@
 import Icon from "./Icon";
 import BrandName from "./BrandName";
 import { whatsappUrlWithText } from "../services/whatsapp";
+import { toastSuccess } from "../services/toastBus";
 import "../styles/sidemenu.css";
 
 /*
@@ -30,6 +31,37 @@ function SupplierSideMenu({
     "שלום, אשמח לעזרה עם פורטל הספקים של VaddyGo 🙂"
   );
 
+  // שיתוף הקישור לפורטל הספקים (הזמנת ספקים חדשים). באפליקציה עצמאית אין שורת
+  // כתובת, ולכן פותחים את תפריט השיתוף של המכשיר (navigator.share); אם לא נתמך —
+  // מעתיקים את הקישור ללוח. משתפים את /suppliers בלבד (ציבורי) — לא את קישור
+  // העריכה האישי שהוא סוד.
+  async function sharePortal() {
+    const url = `${window.location.origin}/suppliers`;
+    const shareData = {
+      title: "פורטל הספקים של VaddyGo",
+      text: "מוזמנים להצטרף כספקים ל-VaddyGo — לנהל קטלוג מוצרים שוועדי הורים רואים ומזמינים ממנו:",
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        onClose();
+        return;
+      } catch {
+        /* המשתמשת ביטלה את השיתוף — לא עושים כלום */
+        return;
+      }
+    }
+    // אין שיתוף מובנה (בעיקר במחשב) — מעתיקים את הקישור
+    try {
+      await navigator.clipboard.writeText(url);
+      toastSuccess("הקישור לפורטל הספקים הועתק — אפשר להדביק ולשלוח 🙂");
+    } catch {
+      toastSuccess(url);
+    }
+    onClose();
+  }
+
   return (
     <div className="sidemenu-overlay" onClick={onClose}>
       <aside
@@ -48,6 +80,15 @@ function SupplierSideMenu({
             ✕
           </button>
         </div>
+
+        <h3 className="sidemenu__title">שיתוף</h3>
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={sharePortal}
+        >
+          <Icon name="link" size={18} /> שיתוף פורטל הספקים
+        </button>
 
         <h3 className="sidemenu__title">החשבון וההגדרות</h3>
         <button

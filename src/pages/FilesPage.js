@@ -16,6 +16,7 @@ import {
 } from "../services/filesService";
 import FolderForm from "./files/FolderForm";
 import ReceiptsCard from "./files/ReceiptsCard";
+import ProGate from "../components/ProGate";
 import WhatsAppIcon from "../components/WhatsAppIcon";
 import { whatsappShareUrl } from "../services/whatsapp";
 import { isActiveReadOnly } from "../services/institutionsService";
@@ -51,7 +52,9 @@ function FilesPage() {
 
   return (
     <div className="files">
-      <ReceiptsCard />
+      <ProGate feature="receipts" label="קבלות והוצאות">
+        <ReceiptsCard />
+      </ProGate>
 
       <Card
         title={

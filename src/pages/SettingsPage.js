@@ -19,6 +19,7 @@ import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
 import TeamManager from "../components/TeamManager";
+import ProGate from "../components/ProGate";
 import { isActiveReadOnly } from "../services/institutionsService";
 import "../styles/settings.css";
 
@@ -141,7 +142,9 @@ function SettingsPage() {
           <p className="settings__hint">
             כאן אפשר להוסיף חברי ועד, לשנות את ההרשאה של כל אחד, או להסיר.
           </p>
-          <TeamManager />
+          <ProGate feature="teamRoles" label="ניהול צוות והרשאות">
+            <TeamManager />
+          </ProGate>
         </Card>
       ),
     },

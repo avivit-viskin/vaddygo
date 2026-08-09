@@ -87,8 +87,17 @@ function mockServer(initialStudents, paymentsByStudent = {}) {
   });
 }
 
+// המשתמשת מסומנת כמנויה (pro) כדי שפעולות הפרו (בקשת תשלום גורפת) יוצגו כרגיל
+beforeEach(() => {
+  localStorage.setItem(
+    "vaadygo.user",
+    JSON.stringify({ username: "avivit", plan: "pro" })
+  );
+});
+
 afterEach(() => {
   delete global.fetch;
+  localStorage.clear();
 });
 
 test("מציג מונה עם מספר התלמידים וכרטיס לכל תלמיד", async () => {

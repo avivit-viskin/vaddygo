@@ -10,6 +10,7 @@ import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import ProBadge from "./ProBadge";
+import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
 
 /*
@@ -81,6 +82,11 @@ function SideMenu({ isOpen, onClose }) {
           type="button"
           className="sidemenu__action"
           onClick={() => {
+            // ניהול כמה מוסדות = פיצ'ר פרו: אם נעול — מפנים לעמוד השדרוג
+            if (isFeatureLocked("multiInstitution")) {
+              go("/upgrade");
+              return;
+            }
             setAddError("");
             setNewName("");
             setIsAddOpen(true);

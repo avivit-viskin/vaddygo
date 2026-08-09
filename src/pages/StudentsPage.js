@@ -28,6 +28,7 @@ import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
 import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
+import ProGate from "../components/ProGate";
 import "../styles/students.css";
 
 /*
@@ -285,7 +286,9 @@ function StudentsPage() {
             <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
               📄 ייבוא מקובץ
             </Button>
-            <BulkPaymentRequestButton students={visibleStudents} />
+            <ProGate feature="bulkReminders" label="בקשת תשלום בוואטסאפ">
+              <BulkPaymentRequestButton students={visibleStudents} />
+            </ProGate>
           </div>
         )}
       </div>

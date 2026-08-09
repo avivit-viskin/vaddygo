@@ -25,6 +25,28 @@ import HomePage from "./pages/HomePage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import Footer from "./components/Footer";
+import CookieConsent from "./components/CookieConsent";
+import AccessibilityWidget from "./components/AccessibilityWidget";
+import AddToHomeScreen from "./components/AddToHomeScreen";
+import { applyAnalyticsConsent, trackPageView } from "./services/analytics";
+import { hasAnalyticsConsent } from "./services/cookieConsentService";
+import { applyA11ySettings } from "./services/accessibility";
+import {
+  isOnboardingComplete,
+  restoreOnboardingFromServer,
+  syncInstitutionsFromServer,
+} from "./services/onboardingService";
+import {
+  isAuthenticated,
+  isSubscriptionExpired,
+} from "./services/authService";
+import {
+  getActiveInstitution,
+  isActiveReadOnly,
+} from "./services/institutionsService";
+import { isRouteLocked } from "./services/plan";
+import "./styles/readonly.css";
 
 // ── מסכי הוועד (נטענים בכניסה אליהם מהניווט התחתון/התפריט) ──
 const StudentsPage = lazy(() => import("./pages/StudentsPage"));
@@ -74,28 +96,6 @@ const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
 const AccessibilityPage = lazy(() => import("./pages/legal/AccessibilityPage"));
 const CookiesPage = lazy(() => import("./pages/legal/CookiesPage"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
-import Footer from "./components/Footer";
-import CookieConsent from "./components/CookieConsent";
-import AccessibilityWidget from "./components/AccessibilityWidget";
-import AddToHomeScreen from "./components/AddToHomeScreen";
-import { applyAnalyticsConsent, trackPageView } from "./services/analytics";
-import { hasAnalyticsConsent } from "./services/cookieConsentService";
-import { applyA11ySettings } from "./services/accessibility";
-import {
-  isOnboardingComplete,
-  restoreOnboardingFromServer,
-  syncInstitutionsFromServer,
-} from "./services/onboardingService";
-import {
-  isAuthenticated,
-  isSubscriptionExpired,
-} from "./services/authService";
-import {
-  getActiveInstitution,
-  isActiveReadOnly,
-} from "./services/institutionsService";
-import { isRouteLocked } from "./services/plan";
-import "./styles/readonly.css";
 
 /*
   App — שלד האפליקציה: כותרת עליונה, אזור התוכן לפי הנתיב, וניווט תחתון קבוע.

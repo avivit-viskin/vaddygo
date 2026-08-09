@@ -31,6 +31,7 @@ import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
 import SupplierOffer from "../components/SupplierOffer";
 import SupplierReports from "../components/SupplierReports";
+import SupplierLeads from "../components/SupplierLeads";
 import SupplierPayments from "../components/SupplierPayments";
 import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
@@ -592,6 +593,9 @@ function SupplierEditPage() {
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierReports vendor={vendor} />
+          </div>
+          <div style={{ marginTop: 16 }}>
+            <SupplierLeads token={token} isPro={vendor?.isPro} />
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />

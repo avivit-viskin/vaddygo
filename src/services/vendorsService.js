@@ -29,6 +29,11 @@ export function setVendorFeatured(id, featured) {
   return api.put(`/api/vendors/${id}/featured`, { featured });
 }
 
+/* פתיחה/סגירה של מסלול פרו לספק — מנהלת VaddyGo בלבד (נאכף בשרת). */
+export function setVendorPro(id, isPro) {
+  return api.put(`/api/vendors/${id}/pro`, { isPro });
+}
+
 export async function getVendors() {
   try {
     return await api.get("/api/vendors");

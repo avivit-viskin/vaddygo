@@ -46,6 +46,7 @@ namespace ParentCommitteeAPI.Services
         Task<VendorResponseDto?> GetPublicCatalogAsync(int id);
         Task<bool> RecordLeadAsync(int id);
         Task<VendorResponseDto?> SetFeaturedAsync(int id, bool featured);
+        Task<VendorResponseDto?> SetProAsync(int id, bool isPro);
         /* מדריך הספקים הציבורי — רשימה קלילה לגלישה/סינון. */
         Task<List<VendorDirectoryDto>> GetDirectoryAsync();
     }

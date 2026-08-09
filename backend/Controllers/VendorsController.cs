@@ -82,6 +82,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/vendors/1/pro — פתיחה/סגירה של מסלול פרו לספק (מנהלת VaddyGo בלבד)
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPut("{id}/pro")]
+        public async Task<ActionResult<VendorResponseDto>> SetPro(int id, [FromBody] SetProDto dto)
+        {
+            var updated = await _vendorService.SetProAsync(id, dto.IsPro);
+            if (updated == null)
+                return NotFound(new { message = "ספק לא נמצא" });
+            return Ok(updated);
+        }
+
         // DELETE: api/vendors/1
         [Authorize(Roles = "SuperAdmin")]
         [HttpDelete("{id}")]

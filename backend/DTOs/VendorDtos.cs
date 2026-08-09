@@ -199,6 +199,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* "ספק מומלץ" — תג "מומלץ" ומיקום עליון (בשליטת מנהלת VaddyGo) */
         public bool Featured { get; set; }
+
+        /* מסלול פרו לספק — פותח את פיצ'רי הפרו (בשליטת מנהלת VaddyGo) */
+        public bool IsPro { get; set; }
     }
 
     public class VendorProductResponseDto
@@ -234,5 +237,11 @@ namespace ParentCommitteeAPI.DTOs
     public class SetFeaturedDto
     {
         public bool Featured { get; set; }
+    }
+
+    /* גוף הבקשה לפתיחה/סגירה של מסלול פרו לספק */
+    public class SetProDto
+    {
+        public bool IsPro { get; set; }
     }
 }

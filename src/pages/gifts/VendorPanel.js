@@ -7,7 +7,11 @@ import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 import { withDisplayNames } from "../../services/vendorProducts";
 import { getOnboarding } from "../../services/onboardingService";
-import { recordLead, setVendorFeatured } from "../../services/vendorsService";
+import {
+  recordLead,
+  setVendorFeatured,
+  setVendorPro,
+} from "../../services/vendorsService";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -103,6 +107,17 @@ function VendorPanel({
       await setVendorFeatured(vendor.id, next);
     } catch {
       setFeatured(!next);
+    }
+  }
+  // מסלול פרו לספק — מנהלת פותחת/סוגרת; אופטימי (נסוג אם השרת נכשל)
+  const [isPro, setIsPro] = useState(!!vendor.isPro);
+  async function togglePro() {
+    const next = !isPro;
+    setIsPro(next);
+    try {
+      await setVendorPro(vendor.id, next);
+    } catch {
+      setIsPro(!next);
     }
   }
   // מוצר בלי שם מוצג כ"מוצר N" לפי מקומו ברשימת הספק (ולא נעלם מהתצוגה)
@@ -575,6 +590,13 @@ function VendorPanel({
             onClick={toggleFeatured}
           >
             {featured ? "בטל ספק מומלץ" : "⭐ סמן כספק מומלץ"}
+          </button>
+          <button
+            type="button"
+            className="vendor-panel__share"
+            onClick={togglePro}
+          >
+            {isPro ? "סגור מסלול פרו לספק" : "👑 פתח מסלול פרו לספק"}
           </button>
           {onEdit && (
             <button type="button" className="vendor-panel__edit" onClick={onEdit}>

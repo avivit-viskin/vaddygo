@@ -494,6 +494,19 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(vendor);
         }
 
+        /* מנהלת פותחת/סוגרת מסלול פרו לספק (פותח את פיצ'רי הפרו של הספק). */
+        public async Task<VendorResponseDto?> SetProAsync(int id, bool isPro)
+        {
+            var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
+            if (vendor == null)
+            {
+                return null;
+            }
+            vendor.IsPro = isPro;
+            await _db.SaveChangesAsync();
+            return ToResponse(vendor);
+        }
+
         public async Task<List<VendorDirectoryDto>> GetDirectoryAsync()
         {
             return await _db.Vendors
@@ -581,6 +594,7 @@ namespace ParentCommitteeAPI.Services
             Leads = vendor.Leads,
             Offer = vendor.Offer,
             Featured = vendor.Featured,
+            IsPro = vendor.IsPro,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,

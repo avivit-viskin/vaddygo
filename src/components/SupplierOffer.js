@@ -22,15 +22,35 @@ function SupplierOffer({ vendor, onSave }) {
     }
   }
 
+  const boxStyle = {
+    border: "1px solid var(--color-border)",
+    borderRadius: "var(--radius-md)",
+    padding: 14,
+    background: "var(--color-surface)",
+  };
+
+  // פיצ'ר פרו: פתוח רק לספק שמסלול הפרו שלו פעיל (מנהלת VaddyGo פותחת).
+  if (!vendor?.isPro) {
+    return (
+      <div style={boxStyle}>
+        <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
+          🏷️ מבצע / הצעה מיוחדת <ProBadge title="פיצ'ר פרו" />
+        </h3>
+        <p
+          style={{
+            margin: 0,
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          זהו פיצ'ר של מסלול הפרו 👑 — לפתיחה, פנו למנהלת VaddyGo.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div
-      style={{
-        border: "1px solid var(--color-border)",
-        borderRadius: "var(--radius-md)",
-        padding: 14,
-        background: "var(--color-surface)",
-      }}
-    >
+    <div style={boxStyle}>
       <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
         🏷️ מבצע / הצעה מיוחדת <ProBadge title="מבצע לוועדים — פיצ'ר פרו" />
       </h3>

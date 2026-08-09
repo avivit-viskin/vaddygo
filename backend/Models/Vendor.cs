@@ -62,6 +62,10 @@ namespace ParentCommitteeAPI.Models
         /* "ספק מומלץ" — מנהלת VaddyGo מדליקה; מקבל תג "מומלץ" ומיקום בראש הרשימה. */
         public bool Featured { get; set; }
 
+        /* מסלול פרו לספק — מנהלת VaddyGo פותחת; פותח לספק את פיצ'רי הפרו
+           (מבצע מיוחד, רשתות חברתיות, קטלוג ממותג, QR). ברירת מחדל: לא. */
+        public bool IsPro { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

@@ -7,14 +7,22 @@ import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { formatShekels } from "../services/format";
 import { beginActivation } from "../services/institutionsService";
+import { grantProLocally, PRO_UNLOCK_CODE } from "../services/plan";
 import "../styles/checkout.css";
 
 /*
   CheckoutPage — מסך תשלום (דמו). מציג סכום וטופס כרטיס אשראי ומדמה תשלום מוצלח,
   אבל אינו מחייב באמת ואינו שולח/שומר את פרטי הכרטיס בשום מקום — placeholder עד
   שתחובר סליקה אמיתית. הסכום והתיאור מגיעים מפרמטרים בכתובת (?amount=&for=).
+  פתיחת פרו למנהלת: מזינים את קוד הפתיחה במקום מספר כרטיס (עד סליקה אמיתית).
 */
+const isUnlockCode = (card) => card.replace(/\s/g, "") === PRO_UNLOCK_CODE;
+
 function validateCard(values) {
+  // קוד פתיחת פרו — מדלגים על שאר הוולידציה (מזינים אותו במקום מספר כרטיס)
+  if (isUnlockCode(values.card)) {
+    return {};
+  }
   const errors = {};
   if (!values.holder.trim()) {
     errors.holder = "יש להזין את שם בעל/ת הכרטיס";
@@ -49,13 +57,20 @@ function CheckoutPage() {
   }
 
   const [isPaid, setIsPaid] = useState(false);
+  const [proUnlocked, setProUnlocked] = useState(false);
   const { values, errors, isSubmitting, handleChange, handleSubmit } = useForm(
     { holder: "", card: "", expiry: "", cvv: "" },
     validateCard
   );
 
-  // דמו בלבד: אין חיוב אמיתי ואין שליחת נתונים — רק המתנה קצרה ואז "הצלחה".
+  // דמו בלבד: אין חיוב אמיתי ואין שליחת נתונים. קוד הפתיחה → פותח פרו מיד.
   async function pay() {
+    if (isUnlockCode(values.card)) {
+      grantProLocally();
+      setProUnlocked(true);
+      setIsPaid(true);
+      return;
+    }
     await new Promise((resolve) => setTimeout(resolve, 1000));
     setIsPaid(true);
   }
@@ -66,19 +81,31 @@ function CheckoutPage() {
         <Card>
           <div className="checkout__success">
             <div className="checkout__success-icon" aria-hidden="true">
-              <Icon name="check-circle" size={56} />
+              <Icon name={proUnlocked ? "crown" : "check-circle"} size={56} />
             </div>
-            <h2>התשלום התקבל בהצלחה!</h2>
-            <p className="checkout__paid-amount">{formatShekels(amount)}</p>
-            <p className="checkout__demo-note">
-              הדגמה — לא בוצע חיוב אמיתי. סליקה אמיתית תחובר בהמשך.
-            </p>
-            {activateId ? (
-              <Button onClick={continueAfterPurchase}>המשך להגדרת המוסד</Button>
+            {proUnlocked ? (
+              <>
+                <h2>מצב PRO נפתח! 👑</h2>
+                <p className="checkout__demo-note">
+                  כל הכלים המתקדמים פתוחים לך עכשיו במכשיר הזה.
+                </p>
+                <Button onClick={() => navigate("/")}>המשך לאפליקציה</Button>
+              </>
             ) : (
-              <Link to="/" className="checkout__back">
-                <Button variant="secondary">חזרה לבית</Button>
-              </Link>
+              <>
+                <h2>התשלום התקבל בהצלחה!</h2>
+                <p className="checkout__paid-amount">{formatShekels(amount)}</p>
+                <p className="checkout__demo-note">
+                  הדגמה — לא בוצע חיוב אמיתי. סליקה אמיתית תחובר בהמשך.
+                </p>
+                {activateId ? (
+                  <Button onClick={continueAfterPurchase}>המשך להגדרת המוסד</Button>
+                ) : (
+                  <Link to="/" className="checkout__back">
+                    <Button variant="secondary">חזרה לבית</Button>
+                  </Link>
+                )}
+              </>
             )}
           </div>
         </Card>

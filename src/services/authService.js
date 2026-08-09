@@ -89,6 +89,18 @@ export function isSuperAdmin() {
 }
 
 /*
+  מעדכן מקומית את מסלול המשתמשת (free/pro) במכשיר הזה — לפתיחת פרו בצד הלקוח
+  (שלב ביניים עד שהמסלול יגיע מהשרת). לא עושה כלום אם אין משתמשת מחוברת.
+*/
+export function setLocalPlan(plan) {
+  const user = getUser();
+  if (!user) {
+    return;
+  }
+  localStorage.setItem(USER_KEY, JSON.stringify({ ...user, plan }));
+}
+
+/*
   מנקה את כל הנתונים המקומיים שקשורים למשתמש/מוסד (מוסדות, אשף, צוות, אירועים,
   מתנות, תקציבים, התראות שנקראו, הגדרות) — כל מפתחות vaadygo.* חוץ מפרטי ההזדהות.
 */

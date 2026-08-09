@@ -72,6 +72,7 @@ import {
   getActiveInstitution,
   isActiveReadOnly,
 } from "./services/institutionsService";
+import { isRouteLocked } from "./services/plan";
 import "./styles/readonly.css";
 
 /*
@@ -226,6 +227,12 @@ function App() {
   // מסך החידוש עצמו) פטורים, כדי לא ליצור לולאת הפניה.
   if (isAuthenticated() && !isPublic && isSubscriptionExpired()) {
     return <Navigate to="/subscription-expired" replace />;
+  }
+
+  // עמוד פרו (דוחות/תזכורות/סקרים/גיבוי/מיתוג/קשרים/עוזרת AI) למי שאינה מנויה →
+  // מפנים לעמוד השדרוג, שם אפשר לשדרג/לפתוח פרו.
+  if (isAuthenticated() && !isPublic && isRouteLocked(location.pathname)) {
+    return <Navigate to="/upgrade" replace />;
   }
 
   return (

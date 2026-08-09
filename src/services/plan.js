@@ -1,22 +1,24 @@
-import { getUser } from "./authService";
+import { getUser, setLocalPlan } from "./authService";
 
 /*
-  plan.js — הבחנת חינם ↔ פרו (שלב א': תשתית בלבד).
+  plan.js — הבחנת חינם ↔ פרו.
 
-  התוכנית אושרה במסמך "VaddyGo — חינם מול פרו": ליבת הוועד חינם, ומעליה מסלול
-  פרו (₪149/שנה) של אוטומציות, עוזרת AI וניהול בקנה מידה גדול.
+  ליבת הוועד חינם, ומעליה מסלול פרו (₪149/שנה) של אוטומציות, עוזרת AI, כלים
+  מתקדמים וניהול בקנה מידה גדול.
 
-  ⚠️ עדיין *לא* נאכף: PRO_ENFORCED=false → כל הפיצ'רים פתוחים לכולם. הכתר 👑
-  במסכים הוא סימון שיווקי בלבד ("מה יהיה פרו"). כשיוחלט להפעיל את ההבחנה
-  (ואחרי שיהיה מנגנון תשלום/הענקת פרו) — מדליקים PRO_ENFORCED, ו-isFeatureLocked
-  יתחיל לחסום פיצ'רי פרו למי שאינו מנוי.
+  ✅ האכיפה מופעלת (PRO_ENFORCED=true): פיצ'רי/עמודי פרו חסומים למי שאינה מנויה,
+  ומפנים אותה לעמוד השדרוג. פתיחת פרו (למנהלת, עד חיבור סליקה אמיתית): מזינים את
+  קוד הפתיחה במקום מספר כרטיס במסך התשלום → grantProLocally מסמן את המכשיר כמנוי.
 */
 
 // מחיר המנוי השנתי לפרו (תואם למסמך התמחור; ניתן לשינוי)
 export const PRO_PRICE = 149;
 
-// מתג-אב: כל עוד false — שום פיצ'ר לא נחסם (רק תגית כתר מוצגת).
-export const PRO_ENFORCED = false;
+// מתג-אב לאכיפת פרו. true → פיצ'רי פרו נחסמים למי שאינה מנויה.
+export const PRO_ENFORCED = true;
+
+// קוד פתיחת פרו (מוזן במקום מספר כרטיס במסך התשלום) — שלב ביניים עד סליקה אמיתית.
+export const PRO_UNLOCK_CODE = "1234";
 
 // פיצ'רי הפרו שאושרו (מפתח → תווית עברית להצגה בעמוד השדרוג ובכל מקום אחר)
 export const PRO_FEATURES = {
@@ -28,6 +30,23 @@ export const PRO_FEATURES = {
   receipts: "ניהול קבלות בצילום",
   reports: "דוחות, ייצוא ל-Excel והיסטוריה רב-שנתית",
   prioritySupport: "תמיכה מועדפת",
+  // כלים ייעודיים (עמודים) שגם הם פרו
+  reminders: "תזכורות אוטומטיות",
+  polls: "סקרים והצבעות",
+  backup: "גיבוי והשוואת שנים",
+  branding: "מיתוג אישי לגן",
+  contacts: "ספר קשרים ושליחה מרוכזת",
+};
+
+// מיפוי נתיב → מפתח פיצ'ר פרו, לחסימת עמודי פרו מרוכזת (ב-App).
+export const PRO_ROUTES = {
+  "/assistant": "ai",
+  "/annual-report": "reports",
+  "/reminders": "reminders",
+  "/polls": "polls",
+  "/backup": "backup",
+  "/branding": "branding",
+  "/contacts": "contacts",
 };
 
 /* האם למשתמשת יש מנוי פרו. ברירת מחדל: לא (חינם). */
@@ -42,8 +61,19 @@ export function isProFeature(key) {
 
 /*
   האם פיצ'ר חסום עבור המשתמשת כרגע. חסום רק אם ההבחנה מופעלת (PRO_ENFORCED),
-  זהו פיצ'ר פרו, והמשתמשת אינה מנויה. בשלב א' (PRO_ENFORCED=false) — תמיד false.
+  זהו פיצ'ר פרו, והמשתמשת אינה מנויה.
 */
 export function isFeatureLocked(key) {
   return PRO_ENFORCED && isProFeature(key) && !isPro();
+}
+
+/* האם הנתיב הנוכחי הוא עמוד פרו חסום (למשתמשת שאינה מנויה). */
+export function isRouteLocked(pathname) {
+  const key = PRO_ROUTES[pathname];
+  return key ? isFeatureLocked(key) : false;
+}
+
+/* פתיחת פרו מקומית — מסמן את המשתמשת כמנויה במכשיר הזה. */
+export function grantProLocally() {
+  setLocalPlan("pro");
 }

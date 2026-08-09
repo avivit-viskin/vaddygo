@@ -17,6 +17,8 @@ function renderAt(path) {
   );
 }
 
+afterEach(() => localStorage.clear());
+
 test("מציג פס הדגמה, סכום ותיאור מהכתובת, וטופס כרטיס", () => {
   renderAt("/pay?amount=750&for=חוגים");
   expect(screen.getByText(/מסך הדגמה/)).toBeInTheDocument();
@@ -48,4 +50,20 @@ test("תשלום עם פרטים תקינים מציג מסך הצלחה (הדג
     await screen.findByText(/התשלום התקבל בהצלחה/, {}, { timeout: 2500 })
   ).toBeInTheDocument();
   expect(screen.getByText(/לא בוצע חיוב אמיתי/)).toBeInTheDocument();
+});
+
+test("קוד 1234 במקום מספר כרטיס פותח מצב PRO", async () => {
+  localStorage.setItem(
+    "vaadygo.user",
+    JSON.stringify({ username: "avivit", plan: "free" })
+  );
+  renderAt("/pay?pro=1");
+
+  fireEvent.change(screen.getByLabelText("מספר כרטיס"), {
+    target: { value: "1234" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /שלם/ }));
+
+  expect(await screen.findByText(/מצב PRO נפתח/)).toBeInTheDocument();
+  expect(JSON.parse(localStorage.getItem("vaadygo.user")).plan).toBe("pro");
 });

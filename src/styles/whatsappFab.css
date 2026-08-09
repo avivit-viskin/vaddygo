@@ -1,0 +1,34 @@
+/*
+  whatsappFab.css — עיצוב הכפתור הצף של וואטסאפ. נטען יחד עם הרכיב WhatsAppFab
+  (ולא רק דרך ai.css), כדי שיוצג נכון גם בפורטל הספק — שם ai.css לא נטען
+  (פיצול קוד / chunks נפרדים). אחרת הכפתור מאבד רקע ומיקום (נראה לבן וזז).
+*/
+.whatsapp-fab {
+  position: fixed;
+  /* מעל הניווט התחתון כולל אזור-הבטוח של הטלפון — כדי שלא יתנגש בו/יוסתר */
+  bottom: calc(var(--bottom-nav-height, 64px) + env(safe-area-inset-bottom, 0px) + 16px);
+  left: 12px;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background-color: #25d366;
+  color: #ffffff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+  z-index: 40;
+}
+
+.whatsapp-fab__icon {
+  font-size: 28px;
+  line-height: 1;
+}
+
+/* מסך רחב (מחשב): הכפתור הצף צמוד לקצה הכרטיס הממורכז, לא לקצה המסך הרחוק */
+@media (min-width: 768px) {
+  .whatsapp-fab {
+    left: calc(50% - 320px + 12px);
+  }
+}

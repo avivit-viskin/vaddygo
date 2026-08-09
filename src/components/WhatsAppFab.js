@@ -1,5 +1,6 @@
 import { whatsappUrl } from "../services/whatsapp";
 import WhatsAppIcon from "./WhatsAppIcon";
+import "../styles/whatsappFab.css";
 
 /*
   WhatsAppFab — כפתור צף ל"צור קשר" בוואטסאפ עם התמיכה, מוצג ליד עוזרת ה-AI

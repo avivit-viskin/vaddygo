@@ -7,6 +7,11 @@ import FilesPage from "../FilesPage";
 */
 beforeEach(() => {
   localStorage.clear();
+  // המשתמשת מסומנת כמנויה (pro) כדי שכרטיס הקבלות (פיצ'ר פרו) יוצג כרגיל בבדיקה
+  localStorage.setItem(
+    "vaadygo.user",
+    JSON.stringify({ username: "avivit", plan: "pro" })
+  );
 });
 
 test("מצב ריק: הזמנה להוסיף תיקייה ראשונה", async () => {

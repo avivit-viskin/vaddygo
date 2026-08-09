@@ -5,6 +5,7 @@ import Icon from "../components/Icon";
 import BrandName from "../components/BrandName";
 import { PRO_PRICE, PRO_FEATURES, isPro } from "../services/plan";
 import { whatsappUrl } from "../services/whatsapp";
+import { PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/pro.css";
 
 /*
@@ -90,15 +91,13 @@ function UpgradePage() {
             </p>
           ) : (
             <>
-              <Link
-                to={`/pay?pro=1&amount=${PRO_PRICE}&for=${encodeURIComponent(
-                  "מנוי פרו"
-                )}`}
-              >
-                <Button variant="brand">
-                  <Icon name="card" size={16} /> מעבר לתשלום ושדרוג
-                </Button>
-              </Link>
+              {PRO_PAYMENT_URL && (
+                <a href={PRO_PAYMENT_URL} target="_blank" rel="noreferrer">
+                  <Button variant="brand">
+                    <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+                  </Button>
+                </a>
+              )}
               <a href={contactUrl} target="_blank" rel="noreferrer">
                 <Button variant="secondary">
                   <Icon name="message" size={16} /> אשמח לשמוע עוד

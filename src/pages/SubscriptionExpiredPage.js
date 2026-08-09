@@ -5,6 +5,7 @@ import Card from "../components/Card";
 import Icon from "../components/Icon";
 import { logout } from "../services/authService";
 import { whatsappUrl } from "../services/whatsapp";
+import { PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/onboarding.css";
 
 /*
@@ -38,14 +39,26 @@ function SubscriptionExpiredPage() {
           והתקציב. כדי להמשיך להשתמש, צריך רק לחדש את המנוי.
         </p>
         <div className="auth-page__actions">
+          {PRO_PAYMENT_URL && (
+            <a
+              href={PRO_PAYMENT_URL}
+              target="_blank"
+              rel="noreferrer"
+              style={{ textDecoration: "none", display: "block" }}
+            >
+              <Button>
+                <Icon name="card" size={16} /> חידוש המנוי (תשלום מאובטח)
+              </Button>
+            </a>
+          )}
           <a
             href={renewHref}
             target="_blank"
             rel="noreferrer"
             style={{ textDecoration: "none", display: "block" }}
           >
-            <Button>
-              <Icon name="message" size={16} /> חידוש המנוי בוואטסאפ
+            <Button variant="secondary">
+              <Icon name="message" size={16} /> חידוש בוואטסאפ
             </Button>
           </a>
           <Button variant="secondary" onClick={handleLogout}>

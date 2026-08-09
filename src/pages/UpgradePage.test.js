@@ -3,6 +3,11 @@ import { MemoryRouter } from "react-router-dom";
 import UpgradePage from "./UpgradePage";
 import { PRO_PRICE } from "../services/plan";
 
+// קישור תשלום Grow מוגדר — לבדוק שכפתור "מעבר לתשלום מאובטח" מפנה אליו
+jest.mock("../config/payment", () => ({
+  PRO_PAYMENT_URL: "https://pay.grow.link/test-vaddygo-pro",
+}));
+
 afterEach(() => localStorage.clear());
 
 function renderPage() {
@@ -30,8 +35,10 @@ test("מרכז את כל כלי הפרו כקישורים למסכים שלהם"
   ).toBe("/contacts");
 });
 
-test("כפתור השדרוג מוביל למסך התשלום הפנימי (שם אפשר לפתוח פרו)", () => {
+test("כפתור השדרוג מפנה לעמוד התשלום המאובטח של Grow", () => {
   renderPage();
-  const payLink = screen.getByRole("link", { name: /מעבר לתשלום/ });
-  expect(payLink.getAttribute("href")).toContain("/pay");
+  const payLink = screen.getByRole("link", { name: /מעבר לתשלום מאובטח/ });
+  expect(payLink.getAttribute("href")).toBe(
+    "https://pay.grow.link/test-vaddygo-pro"
+  );
 });

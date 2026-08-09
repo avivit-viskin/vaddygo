@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, lazy, Suspense } from "react";
 import { Routes, Route, Navigate, useLocation, Link } from "react-router-dom";
 import Logo from "./components/Logo";
 import Icon from "./components/Icon";
@@ -11,52 +11,74 @@ import PageTransition from "./components/PageTransition";
 import ToastContainer from "./components/Toast";
 import ImportJobBanner from "./components/ImportJobBanner";
 import Spinner from "./components/Spinner";
+/*
+  טעינת מסכים לפי דרישה (code splitting).
+
+  עד היום כל מסכי המערכת נארזו לקובץ אחד, כך שהורה שפותח קישור לסקר או לקטלוג
+  בנייד הוריד גם את מסכי הגבייה, הספקים והדוחות — שלא ישמשו אותו לעולם. עכשיו
+  כל מסך הוא חבילה נפרדת שנטענת רק כשנכנסים אליו.
+
+  **בטעינה מיידית (לא lazy)** נשארים רק המסכים של הפתיחה — מסך הבית ומסכי
+  הכניסה/הרשמה — כדי שהמסך הראשון לא יהבהב בספינר.
+*/
 import HomePage from "./pages/HomePage";
-import StudentsPage from "./pages/StudentsPage";
-import StudentPaymentsPage from "./pages/StudentPaymentsPage";
-import CalendarPage from "./pages/CalendarPage";
-import GiftsPage from "./pages/GiftsPage";
-import FilesPage from "./pages/FilesPage";
 import WelcomePage from "./pages/WelcomePage";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
-import JoinPage from "./pages/JoinPage";
-import SupplierEditPage from "./pages/SupplierEditPage";
-import SupplierWelcomePage from "./pages/SupplierWelcomePage";
-import SupplierRegisterPage from "./pages/SupplierRegisterPage";
-import CatalogPage from "./pages/CatalogPage";
-import DirectoryPage from "./pages/DirectoryPage";
-import SupplierLoginPage from "./pages/SupplierLoginPage";
-import SupplierForgotPasswordPage from "./pages/SupplierForgotPasswordPage";
-import ForgotPasswordPage from "./pages/ForgotPasswordPage";
-import OnboardingWizard from "./pages/onboarding/OnboardingWizard";
-import TeamSetupPage from "./pages/TeamSetupPage";
-import SubscriptionExpiredPage from "./pages/SubscriptionExpiredPage";
-import AiAssistantPage from "./pages/AiAssistantPage";
-import UpgradePage from "./pages/UpgradePage";
-import UsageStatsPage from "./pages/UsageStatsPage";
-import AnnualReportPage from "./pages/AnnualReportPage";
-import RemindersPage from "./pages/RemindersPage";
-import PollsPage from "./pages/PollsPage";
-import PublicPollPage from "./pages/PublicPollPage";
-import BackupPage from "./pages/BackupPage";
-import BrandingPage from "./pages/BrandingPage";
-import ContactsPage from "./pages/ContactsPage";
-import PurchasePage from "./pages/PurchasePage";
-import CheckoutPage from "./pages/CheckoutPage";
-import CardReturnPage from "./pages/CardReturnPage";
-import CollectionSettingsPage from "./pages/CollectionSettingsPage";
-import SettingsPage from "./pages/SettingsPage";
-import PrivacyPage from "./pages/legal/PrivacyPage";
-import TermsPage from "./pages/legal/TermsPage";
-import AccessibilityPage from "./pages/legal/AccessibilityPage";
-import CookiesPage from "./pages/legal/CookiesPage";
-import LandingPage from "./pages/LandingPage";
+
+// ── מסכי הוועד (נטענים בכניסה אליהם מהניווט התחתון/התפריט) ──
+const StudentsPage = lazy(() => import("./pages/StudentsPage"));
+const StudentPaymentsPage = lazy(() => import("./pages/StudentPaymentsPage"));
+const CalendarPage = lazy(() => import("./pages/CalendarPage"));
+const GiftsPage = lazy(() => import("./pages/GiftsPage"));
+const FilesPage = lazy(() => import("./pages/FilesPage"));
+const OnboardingWizard = lazy(() => import("./pages/onboarding/OnboardingWizard"));
+const TeamSetupPage = lazy(() => import("./pages/TeamSetupPage"));
+const CollectionSettingsPage = lazy(() => import("./pages/CollectionSettingsPage"));
+const SettingsPage = lazy(() => import("./pages/SettingsPage"));
+const ForgotPasswordPage = lazy(() => import("./pages/ForgotPasswordPage"));
+const SubscriptionExpiredPage = lazy(() => import("./pages/SubscriptionExpiredPage"));
+const PurchasePage = lazy(() => import("./pages/PurchasePage"));
+const CheckoutPage = lazy(() => import("./pages/CheckoutPage"));
+const CardReturnPage = lazy(() => import("./pages/CardReturnPage"));
+
+// ── כלי הפרו (נכנסים אליהם מדי פעם, לא בכל שימוש) ──
+const AiAssistantPage = lazy(() => import("./pages/AiAssistantPage"));
+const UpgradePage = lazy(() => import("./pages/UpgradePage"));
+const UsageStatsPage = lazy(() => import("./pages/UsageStatsPage"));
+const AnnualReportPage = lazy(() => import("./pages/AnnualReportPage"));
+const RemindersPage = lazy(() => import("./pages/RemindersPage"));
+const PollsPage = lazy(() => import("./pages/PollsPage"));
+const BackupPage = lazy(() => import("./pages/BackupPage"));
+const BrandingPage = lazy(() => import("./pages/BrandingPage"));
+const ContactsPage = lazy(() => import("./pages/ContactsPage"));
+
+// ── פורטל הספקים — עולם שלם שהוועד לעולם לא פותח (וההפך) ──
+const SupplierEditPage = lazy(() => import("./pages/SupplierEditPage"));
+const SupplierWelcomePage = lazy(() => import("./pages/SupplierWelcomePage"));
+const SupplierRegisterPage = lazy(() => import("./pages/SupplierRegisterPage"));
+const SupplierLoginPage = lazy(() => import("./pages/SupplierLoginPage"));
+const SupplierForgotPasswordPage = lazy(() =>
+  import("./pages/SupplierForgotPasswordPage")
+);
+const DirectoryPage = lazy(() => import("./pages/DirectoryPage"));
+
+// ── מסכים ציבוריים שהורים פותחים מקישור (כאן החיסכון הגדול ביותר) ──
+const JoinPage = lazy(() => import("./pages/JoinPage"));
+const CatalogPage = lazy(() => import("./pages/CatalogPage"));
+const PublicPollPage = lazy(() => import("./pages/PublicPollPage"));
+
+// ── עמודים משפטיים ודף הנחיתה ──
+const PrivacyPage = lazy(() => import("./pages/legal/PrivacyPage"));
+const TermsPage = lazy(() => import("./pages/legal/TermsPage"));
+const AccessibilityPage = lazy(() => import("./pages/legal/AccessibilityPage"));
+const CookiesPage = lazy(() => import("./pages/legal/CookiesPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 import Footer from "./components/Footer";
 import CookieConsent from "./components/CookieConsent";
 import AccessibilityWidget from "./components/AccessibilityWidget";
 import AddToHomeScreen from "./components/AddToHomeScreen";
-import { applyAnalyticsConsent } from "./services/analytics";
+import { applyAnalyticsConsent, trackPageView } from "./services/analytics";
 import { hasAnalyticsConsent } from "./services/cookieConsentService";
 import { applyA11ySettings } from "./services/accessibility";
 import {
@@ -157,6 +179,19 @@ function App() {
       alive = false;
     };
   }, []);
+
+  // מעקב צפיות עמוד בכל מעבר מסך (SPA). מדלגים על הרינדור הראשון כי צפיית העמוד
+  // הראשונה כבר נשלחת ברגע אישור העוגיות (בתוך analytics.load). לא עושה כלום עד
+  // שאושרו עוגיות מדידה.
+  const firstView = useRef(true);
+  useEffect(() => {
+    if (firstView.current) {
+      firstView.current = false;
+      return;
+    }
+    trackPageView(location.pathname + location.search);
+  }, [location]);
+
   // מסך רכישה/הפעלת מוסד מוצג במסך מלא (בלי כותרת וניווט)
   const isPurchase = location.pathname.startsWith("/institutions/");
   // עמוד הצטרפות לגן דרך קישור הזמנה (/join/:token) — ציבורי ובמסך מלא
@@ -189,10 +224,12 @@ function App() {
   if (!isAuthenticated() && !isPublic) {
     return (
       <div dir="rtl">
-        <Routes>
-          <Route path="/" element={<LandingPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+        <Suspense fallback={<Spinner text="רגע, טוענים…" />}>
+          <Routes>
+            <Route path="/" element={<LandingPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
         <CookieConsent />
         <AccessibilityWidget />
       </div>
@@ -273,6 +310,8 @@ function App() {
         </div>
       )}
       <main className={`app-main${isLoginRoute ? " app-main--login" : ""}`}>
+        {/* מסכים נטענים לפי דרישה — עד שהחבילה מגיעה מוצג ספינר קצר */}
+        <Suspense fallback={<Spinner text="רגע, טוענים…" />}>
         <Routes>
           <Route
             path="/"
@@ -343,6 +382,7 @@ function App() {
           />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
+        </Suspense>
         {!isFullScreen && <Footer />}
       </main>
       {!isFullScreen && <WhatsAppFab />}

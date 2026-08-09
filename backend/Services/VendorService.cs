@@ -481,6 +481,88 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
+        /* שומר בקשת הצעת מחיר מלאה (RFQ) לתיבת הספק, ומגדיל את מונה הפניות. */
+        public async Task<bool> CreateLeadAsync(int vendorId, int? groupId, LeadCreateDto dto)
+        {
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.Id == vendorId);
+            if (vendor == null)
+            {
+                return false;
+            }
+            _db.Leads.Add(new Lead
+            {
+                VendorId = vendorId,
+                GroupId = groupId,
+                CommitteeName = (dto.CommitteeName ?? string.Empty).Trim(),
+                Subject = (dto.Subject ?? string.Empty).Trim(),
+                Quantity = dto.Quantity,
+                EventDate = dto.EventDate,
+                Budget = dto.Budget,
+                Message = (dto.Message ?? string.Empty).Trim(),
+                ContactName = (dto.ContactName ?? string.Empty).Trim(),
+                ContactPhone = (dto.ContactPhone ?? string.Empty).Trim(),
+                Status = "new",
+                CreatedAt = DateTime.UtcNow,
+            });
+            vendor.Leads += 1;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        /* פניות הספק לפי טוקן העריכה (חדשות למעלה). null אם הטוקן לא נמצא. */
+        public async Task<IReadOnlyList<LeadResponseDto>?> GetLeadsByEditTokenAsync(string token)
+        {
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return null;
+            }
+            var leads = await _db.Leads
+                .Where(l => l.VendorId == vendor.Id)
+                .OrderByDescending(l => l.CreatedAt)
+                .ToListAsync();
+            return leads.Select(ToLeadResponse).ToList();
+        }
+
+        /* עדכון סטטוס פנייה — רק אם הפנייה שייכת לספק של הטוקן וסטטוס חוקי. */
+        public async Task<bool> UpdateLeadStatusAsync(string token, int leadId, string status)
+        {
+            var allowed = new[] { "new", "quoted", "won", "closed" };
+            if (!allowed.Contains(status))
+            {
+                return false;
+            }
+            var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (vendor == null)
+            {
+                return false;
+            }
+            var lead = await _db.Leads
+                .FirstOrDefaultAsync(l => l.Id == leadId && l.VendorId == vendor.Id);
+            if (lead == null)
+            {
+                return false;
+            }
+            lead.Status = status;
+            await _db.SaveChangesAsync();
+            return true;
+        }
+
+        private static LeadResponseDto ToLeadResponse(Lead l) => new()
+        {
+            Id = l.Id,
+            CommitteeName = l.CommitteeName,
+            Subject = l.Subject,
+            Quantity = l.Quantity,
+            EventDate = l.EventDate,
+            Budget = l.Budget,
+            Message = l.Message,
+            ContactName = l.ContactName,
+            ContactPhone = l.ContactPhone,
+            Status = l.Status,
+            CreatedAt = l.CreatedAt,
+        };
+
         /* מנהלת מסמנת/מבטלת "ספק מומלץ" (תג ומיקום עליון). */
         public async Task<VendorResponseDto?> SetFeaturedAsync(int id, bool featured)
         {

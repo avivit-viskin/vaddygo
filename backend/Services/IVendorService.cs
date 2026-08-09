@@ -45,6 +45,15 @@ namespace ParentCommitteeAPI.Services
         /* קטלוג ציבורי לקריאה בלבד (לשיתוף) — כרטיס הספק בלי פרטי תשלום/כניסה. */
         Task<VendorResponseDto?> GetPublicCatalogAsync(int id);
         Task<bool> RecordLeadAsync(int id);
+
+        /* תיבת הפניות (RFQ) של הספק — פיצ'ר פרו.
+           CreateLead שומר בקשת הצעת מחיר מלאה (ומגדיל גם את מונה הפניות);
+           GetLeads מחזיר את פניות הספק לפי הטוקן (חדשות למעלה);
+           UpdateLeadStatus מעדכן סטטוס פנייה (רק אם היא שייכת לספק של הטוקן). */
+        Task<bool> CreateLeadAsync(int vendorId, int? groupId, LeadCreateDto dto);
+        Task<IReadOnlyList<LeadResponseDto>?> GetLeadsByEditTokenAsync(string token);
+        Task<bool> UpdateLeadStatusAsync(string token, int leadId, string status);
+
         Task<VendorResponseDto?> SetFeaturedAsync(int id, bool featured);
         Task<VendorResponseDto?> SetProAsync(int id, bool isPro);
         /* מדריך הספקים הציבורי — רשימה קלילה לגלישה/סינון. */

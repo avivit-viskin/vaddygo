@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
 
@@ -209,11 +210,47 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(vendor);
         }
 
-        // POST: api/public/vendors/{id}/lead — ועד לחץ "בקשת הצעת מחיר" (מונה פניות)
+        // POST: api/public/vendors/{id}/lead — ועד שולח "בקשת הצעת מחיר" (RFQ).
+        // עם גוף (פרטי הבקשה) → נשמרת פנייה מלאה בתיבת הספק; בלי גוף → רק מונה הפניות.
         [HttpPost("{id:int}/lead")]
-        public async Task<IActionResult> Lead(int id)
+        public async Task<IActionResult> Lead(
+            int id,
+            [FromBody(EmptyBodyBehavior = EmptyBodyBehavior.Allow)] LeadCreateDto? dto = null)
         {
+            var hasDetails = dto != null && !string.IsNullOrWhiteSpace(
+                $"{dto.Subject}{dto.Message}{dto.ContactPhone}{dto.ContactName}");
+            if (hasDetails)
+            {
+                var groupId = int.TryParse(Request.Headers["X-Institution"], out var g)
+                    ? g
+                    : (int?)null;
+                var created = await _vendorService.CreateLeadAsync(id, groupId, dto!);
+                if (!created)
+                    return NotFound(new { message = "הספק לא נמצא" });
+                return NoContent();
+            }
             await _vendorService.RecordLeadAsync(id);
+            return NoContent();
+        }
+
+        // GET: api/public/vendors/{token}/leads — תיבת הפניות (RFQ) של הספק, לפי הטוקן.
+        [HttpGet("{token}/leads")]
+        public async Task<ActionResult<IEnumerable<LeadResponseDto>>> Leads(string token)
+        {
+            var leads = await _vendorService.GetLeadsByEditTokenAsync(token);
+            if (leads == null)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            return Ok(leads);
+        }
+
+        // PUT: api/public/vendors/{token}/leads/{leadId}/status — הספק מעדכן סטטוס פנייה.
+        [HttpPut("{token}/leads/{leadId:int}/status")]
+        public async Task<IActionResult> UpdateLeadStatus(
+            string token, int leadId, [FromBody] LeadStatusDto dto)
+        {
+            var ok = await _vendorService.UpdateLeadStatusAsync(token, leadId, dto.Status);
+            if (!ok)
+                return BadRequest(new { message = "לא ניתן לעדכן את הסטטוס" });
             return NoContent();
         }
     }

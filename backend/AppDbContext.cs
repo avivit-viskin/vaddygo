@@ -28,6 +28,7 @@ namespace ParentCommitteeAPI
         public DbSet<Poll> Polls { get; set; }
         public DbSet<PollOption> PollOptions { get; set; }
         public DbSet<PollVote> PollVotes { get; set; }
+        public DbSet<Lead> Leads { get; set; }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -53,6 +54,9 @@ namespace ParentCommitteeAPI
             // הצבעה אחת לכל מצביע בכל סקר — הבסיס למניעת הצבעה כפולה בטעות.
             modelBuilder.Entity<PollVote>()
                 .HasIndex(v => new { v.PollId, v.VoterKey }).IsUnique();
+
+            // תיבת הפניות של הספק נשלפת לפי VendorId — אינדקס לשליפה מהירה.
+            modelBuilder.Entity<Lead>().HasIndex(l => l.VendorId);
         }
     }
 }

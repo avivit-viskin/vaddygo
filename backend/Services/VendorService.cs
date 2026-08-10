@@ -634,12 +634,26 @@ namespace ParentCommitteeAPI.Services
         private static IQueryable<Vendor> WithChildren(IQueryable<Vendor> query) =>
             query.Include(v => v.Products).Include(v => v.SocialLinks);
 
+        /*
+          שם המוצר אינו חובה (החלטת בעלת המוצר, 08.08.2026) — ספק שמצלם מוצרים
+          בטלפון שומר קודם ונותן שמות אחר כך, ובממשק המוצר מוצג כ"מוצר N".
+          לכן **לא** מסננים לפי שם; מסננים רק שורה **ריקה לגמרי** (בלי שם, תיאור,
+          מחיר, תמונה ותיקייה) — כזו נוצרת מלחיצה על "הוספת מוצר" בלי מילוי,
+          ואין טעם לשמור אותה.
+        */
+        private static bool HasContent(VendorProductDto p) =>
+            !string.IsNullOrWhiteSpace(p.Name)
+            || !string.IsNullOrWhiteSpace(p.Description)
+            || p.Price > 0
+            || !string.IsNullOrWhiteSpace(p.ImageUrl)
+            || !string.IsNullOrWhiteSpace(p.Folder);
+
         private static List<VendorProduct> MapProducts(List<VendorProductDto> products) =>
             products
-                .Where(p => !string.IsNullOrWhiteSpace(p.Name))
+                .Where(HasContent)
                 .Select(p => new VendorProduct
                 {
-                    Name = p.Name.Trim(),
+                    Name = (p.Name ?? string.Empty).Trim(),
                     Description = (p.Description ?? string.Empty).Trim(),
                     Price = p.Price,
                     ImageUrl = p.ImageUrl.Trim(),

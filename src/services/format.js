@@ -20,6 +20,17 @@ export function formatDayMonth(isoDate) {
   });
 }
 
+/*
+  formatUnit — יחידת המידה של המוצר לתצוגה ליד המחיר. אם הספק כתב רק מספר
+  (כמות) — מוסיפים אוטומטית "יח'": "10" → "10 יח'". טקסט אחר (מארז / ק"ג /
+  "10 יח'") מוצג כמו שהוא. ריק → "".
+*/
+export function formatUnit(unit) {
+  const u = (unit || "").trim();
+  if (!u) return "";
+  return /^\d+(\.\d+)?$/.test(u) ? `${u} יח'` : u;
+}
+
 /* "2023-05-08" ← "8.5.2023" (תאריך מלא; פירוק ידני כדי לא להיות תלוי באזור זמן) */
 export function formatBirthday(isoDate) {
   if (!isoDate) return "";

@@ -2,7 +2,7 @@ import { useState } from "react";
 import EmptyState from "../../components/EmptyState";
 import WhatsAppIcon from "../../components/WhatsAppIcon";
 import Icon from "../../components/Icon";
-import { formatShekels } from "../../services/format";
+import { formatShekels, formatUnit } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 import { withDisplayNames } from "../../services/vendorProducts";
@@ -193,7 +193,7 @@ function VendorPanel({
               </div>
               <span className="vendor-panel__price">
                 {formatShekels(product.price)}
-                {product.unit ? ` ל-${product.unit}` : ""}
+                {formatUnit(product.unit) ? ` ל-${formatUnit(product.unit)}` : ""}
               </span>
             </li>
           ))}

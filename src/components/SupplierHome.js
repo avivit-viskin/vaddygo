@@ -1,7 +1,7 @@
 import { useState } from "react";
 import EmptyState from "./EmptyState";
 import Icon from "./Icon";
-import { formatShekels } from "../services/format";
+import { formatShekels, formatUnit } from "../services/format";
 import { groupByFolder } from "../services/vendorFolders";
 import { withDisplayNames } from "../services/vendorProducts";
 import "../styles/supplier-app.css";
@@ -283,7 +283,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                       )}
                       <span className="sup-prod__price">
                         {formatShekels(product.price)}
-                        {product.unit ? ` ל-${product.unit}` : ""}
+                        {formatUnit(product.unit) ? ` ל-${formatUnit(product.unit)}` : ""}
                       </span>
                       <span
                         className={`sup-prod__status ${

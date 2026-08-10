@@ -4,7 +4,7 @@ import useApi from "../hooks/useApi";
 import { getPublicCatalog } from "../services/vendorsService";
 import { groupByFolder } from "../services/vendorFolders";
 import { withDisplayNames } from "../services/vendorProducts";
-import { formatShekels } from "../services/format";
+import { formatShekels, formatUnit } from "../services/format";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
@@ -185,7 +185,7 @@ function CatalogPage() {
                     )}
                     <span className="pub-card__price">
                       {formatShekels(product.price)}
-                      {product.unit ? ` ל-${product.unit}` : ""}
+                      {formatUnit(product.unit) ? ` ל-${formatUnit(product.unit)}` : ""}
                     </span>
                   </div>
                 </article>

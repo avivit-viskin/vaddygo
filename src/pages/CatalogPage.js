@@ -185,7 +185,7 @@ function CatalogPage() {
                     )}
                     <span className="pub-card__price">
                       {formatShekels(product.price)}
-                      {product.unit ? ` / ${product.unit}` : ""}
+                      {product.unit ? ` ל-${product.unit}` : ""}
                     </span>
                   </div>
                 </article>

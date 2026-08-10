@@ -1370,12 +1370,12 @@ function VendorForm({
             />
             <input
               className="field__input vendor-form__unit"
-              aria-label={`יחידת מידה למוצר ${index + 1}`}
+              aria-label={`כמות ויחידה למוצר ${index + 1} (למשל: 10 יח')`}
               value={product.unit || ""}
               onChange={(e) =>
                 updateItem(setProducts, index, { unit: e.target.value })
               }
-              placeholder="יח' / מארז"
+              placeholder="למשל: 10 יח'"
             />
             <input
               id={`product-folder-${index}`}

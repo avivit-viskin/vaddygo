@@ -193,7 +193,7 @@ function VendorPanel({
               </div>
               <span className="vendor-panel__price">
                 {formatShekels(product.price)}
-                {product.unit ? ` / ${product.unit}` : ""}
+                {product.unit ? ` ל-${product.unit}` : ""}
               </span>
             </li>
           ))}

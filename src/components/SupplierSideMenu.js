@@ -15,6 +15,7 @@ const SUPPORT_PHONE = "054-4579179";
 
 function SupplierSideMenu({
   isOpen,
+  isPro,
   onClose,
   onUpgrade,
   onSettings,
@@ -91,8 +92,8 @@ function SupplierSideMenu({
             onUpgrade();
           }}
         >
-          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
-          <ProBadge title="כל כלי הפרו של הספק במקום אחד" />
+          שדרוגי פרו{" "}
+          <ProBadge title="כל כלי הפרו של הספק במקום אחד" isPro={isPro} />
         </button>
 
         <h3 className="sidemenu__title">שיתוף</h3>

@@ -103,7 +103,7 @@ function SideMenu({ isOpen, onClose }) {
           className="sidemenu__action sidemenu__upgrade"
           onClick={() => go("/upgrade")}
         >
-          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
+          שדרוגי פרו{" "}
           <ProBadge title="כל כלי הפרו במקום אחד" />
         </button>
 

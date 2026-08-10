@@ -11,3 +11,17 @@
 export const PRO_PAYMENT_URL =
   process.env.REACT_APP_PRO_PAYMENT_URL ||
   "https://pay.grow.link/MTAzODcx~2e4901218c89fe0e314cda81ad69aedd-MzgwMTEwMg";
+
+/*
+  קישור התשלום למסלול הפרו של **הספקים** (₪1,200 לשנה) — עמוד תשלום נפרד
+  ב-GROW, כי הסכום שונה מזה של הוועד.
+
+  ⚠️ צריך קישור משלך: יוצרים ב-GROW עמוד תשלום נוסף על סך ₪1,200 ומדביקים
+  את הכתובת כאן בין המרכאות (או מגדירים ב-Railway, בשירות הפרונט, משתנה בשם
+  REACT_APP_SUPPLIER_PRO_PAYMENT_URL — כך אפשר לשנות בלי לגעת בקוד).
+
+  כל עוד ריק — כפתור הרכישה בפורטל הספק **אינו מוצג**, במקום להוביל לשום מקום.
+  לא ממציאים כאן כתובת: קישור תשלום שגוי = כסף שנכנס לחשבון הלא-נכון.
+*/
+export const SUPPLIER_PRO_PAYMENT_URL =
+  process.env.REACT_APP_SUPPLIER_PRO_PAYMENT_URL || "";

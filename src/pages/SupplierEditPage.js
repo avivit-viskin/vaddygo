@@ -611,7 +611,7 @@ function SupplierEditPage() {
               {vendor.isPro && (
                 <>
                   {" "}
-                  <ProBadge title="קטלוג ממותג — פיצ'ר פרו" />
+                  <ProBadge title="קטלוג ממותג — פיצ'ר פרו" isPro={vendor?.isPro} />
                 </>
               )}
             </Button>
@@ -652,7 +652,7 @@ function SupplierEditPage() {
         <>
           <h2 className="sup-section-title">
             <Icon name="link" size={22} /> רשתות חברתיות{" "}
-            <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
+            <ProBadge title="רשתות חברתיות — פיצ'ר פרו" isPro={vendor?.isPro} />
           </h2>
           {vendor.isPro ? (
             <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
@@ -699,6 +699,7 @@ function SupplierEditPage() {
 
       <SupplierSideMenu
         isOpen={isMenuOpen}
+        isPro={vendor?.isPro}
         onClose={() => setIsMenuOpen(false)}
         onUpgrade={() => setUpgradeOpen(true)}
         onSettings={() => goTo("settings")}
@@ -721,7 +722,7 @@ function SupplierEditPage() {
       <Modal
         isOpen={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        title="שדרוגי פרו 👑"
+        title="שדרוגי פרו"
       >
         <SupplierUpgrade vendor={vendor} token={token} />
       </Modal>
@@ -870,7 +871,7 @@ function SupplierEditPage() {
             />
             <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
               📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
-              לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
+              לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" isPro={vendor?.isPro} />
             </p>
           </div>
         )}

@@ -34,7 +34,7 @@ function SupplierOffer({ vendor, onSave }) {
     return (
       <div style={boxStyle}>
         <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
-          🏷️ מבצע / הצעה מיוחדת <ProBadge title="פיצ'ר פרו" />
+          🏷️ מבצע / הצעה מיוחדת <ProBadge title="פיצ'ר פרו" isPro={vendor?.isPro} />
         </h3>
         <p
           style={{
@@ -52,7 +52,7 @@ function SupplierOffer({ vendor, onSave }) {
   return (
     <div style={boxStyle}>
       <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
-        🏷️ מבצע / הצעה מיוחדת <ProBadge title="מבצע לוועדים — פיצ'ר פרו" />
+        🏷️ מבצע / הצעה מיוחדת <ProBadge title="מבצע לוועדים — פיצ'ר פרו" isPro={vendor?.isPro} />
       </h3>
       <p
         style={{

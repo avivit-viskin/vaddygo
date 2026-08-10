@@ -64,9 +64,12 @@ function UpgradePage() {
     <div className="upgrade-page">
       <Card>
         <div className="upgrade-hero">
-          <span className="upgrade-crown">
-            <Icon name="crown" size={40} title="פרו" />
-          </span>
+          {/* הכתר הוא סימן ש*טרם* נרכש — נעלם ברגע שהמסלול פעיל */}
+          {!alreadyPro && (
+            <span className="upgrade-crown">
+              <Icon name="crown" size={40} title="פרו" />
+            </span>
+          )}
           <h2 className="upgrade-title">
             שדרוגי <BrandName /> פרו
           </h2>
@@ -151,7 +154,7 @@ function UpgradePage() {
               <Icon name="check-circle" size={16} />
               <span>
                 {ganName ? `הגן ${ganName} כבר במסלול פרו` : "את כבר במסלול פרו"} —
-                כל הכלים פתוחים לך 👑
+                כל הכלים פתוחים לך
               </span>
             </p>
           ) : (

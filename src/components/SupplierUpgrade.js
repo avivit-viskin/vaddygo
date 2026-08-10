@@ -1,9 +1,7 @@
-import { useState } from "react";
 import Button from "./Button";
 import Icon from "./Icon";
 import BrandName from "./BrandName";
-import { whatsappUrlWithText } from "../services/whatsapp";
-import { startVendorProCheckout } from "../services/vendorsService";
+import { SUPPLIER_PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -14,7 +12,6 @@ import "../styles/upgrade-extras.css";
   אם הספק כבר פרו — מציג חיווי שהמסלול פעיל.
 */
 const SUPPLIER_PRO_PRICE = 1200; // ₪ לשנה (תואם למסמך התמחור)
-const SUPPORT_PHONE = "054-4579179";
 
 // יכולות הפרו של הספק — תואם למה שנעול היום ב-vendor.isPro בפורטל הספקים.
 const SUPPLIER_PRO_FEATURES = [
@@ -50,38 +47,17 @@ const SUPPLIER_PRO_FEATURES = [
   },
 ];
 
-function SupplierUpgrade({ vendor, token }) {
+function SupplierUpgrade({ vendor }) {
   const alreadyPro = !!vendor?.isPro;
-  // תשלום מקוון מוצג רק כשמחוברת סליקה אמיתית (השרת מחליט) — אחרת חוזרים
-  // לפתיחה בתיאום אישי, כדי שספק לא יגיע לעמוד תשלום שאינו גובה.
-  const canPayOnline = !!vendor?.proCheckoutAvailable;
-  const [isStarting, setIsStarting] = useState(false);
-  const [checkoutError, setCheckoutError] = useState("");
-
   /*
-    פותח תשלום בשרת ומעביר את הספק לעמוד המאובטח של חברת הסליקה. אנחנו לא
-    נוגעים בפרטי הכרטיס, והמסלול נפתח רק כשחברת הסליקה מאשרת לשרת שלנו.
-  */
-  async function startCheckout() {
-    setIsStarting(true);
-    setCheckoutError("");
-    try {
-      const paymentUrl = await startVendorProCheckout(token);
-      window.location.href = paymentUrl;
-    } catch (err) {
-      setCheckoutError(
-        err.message || "לא הצלחנו לפתוח את עמוד התשלום. אפשר לנסות שוב."
-      );
-      setIsStarting(false);
-    }
-  }
-  const contactUrl = whatsappUrlWithText(
-    SUPPORT_PHONE,
-    `היי, אשמח לשדרג את הכרטיס שלי (${
-      vendor?.name || "ספק"
-    }) ב-VaddyGo למסלול פרו 👑`
-  );
+    הרכישה מתבצעת בעמוד תשלום של **GROW** (החלטת בעלת המוצר, 10.08.2026) —
+    לא בוואטסאפ ולא בתוך המערכת. אנחנו רק מפנים לשם; פרטי הכרטיס אינם עוברים
+    דרך VaddyGo ואינם נשמרים אצלנו.
 
+    כל עוד לא הוגדר קישור (ראו config/payment.js) הכפתור אינו מוצג — עדיף
+    שלא תהיה רכישה מאשר כפתור שמוביל לשום מקום או לעמוד תשלום שגוי.
+  */
+  const paymentUrl = SUPPLIER_PRO_PAYMENT_URL;
   // כבר פרו — לא מציגים מחיר/פיצ'רים, רק אישור שהמסלול נרכש והכול מוכן.
   if (alreadyPro) {
     return (
@@ -90,7 +66,7 @@ function SupplierUpgrade({ vendor, token }) {
           <span className="upgrade-crown">
             <Icon name="check-circle" size={40} title="פרו פעיל" />
           </span>
-          <h2 className="upgrade-title">מסלול פרו נרכש בהצלחה 👑</h2>
+          <h2 className="upgrade-title">מסלול פרו נרכש בהצלחה</h2>
           <p className="upgrade-subtitle">
             כל הפיצ'רים מוכנים ופעילים בכרטיס שלך — אפשר להתחיל לעבוד ולקבל יותר
             הזמנות מהוועדים.
@@ -137,42 +113,27 @@ function SupplierUpgrade({ vendor, token }) {
       </div>
 
       <div className="upgrade-actions">
-        {canPayOnline ? (
-          <>
-            <p className="upgrade-note">
-              <Icon name="lock" size={15} />
-              <span>
-                התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם
-                עוברים דרך VaddyGo ואינם נשמרים אצלנו.
-              </span>
-            </p>
-            <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
-              <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+        <p className="upgrade-note">
+          <Icon name="lock" size={15} />
+          <span>
+            התשלום מתבצע בעמוד מאובטח של GROW — פרטי הכרטיס אינם עוברים דרך
+            VaddyGo ואינם נשמרים אצלנו. המסלול נפתח מיד לאחר אישור התשלום.
+          </span>
+        </p>
+
+        {paymentUrl ? (
+          <a href={paymentUrl} target="_blank" rel="noreferrer">
+            <Button variant="brand">
+              <Icon name="card" size={16} /> רכישת מסלול פרו
             </Button>
-            {checkoutError && (
-              <p className="field__error" role="alert">
-                {checkoutError}
-              </p>
-            )}
-            <p className="upgrade-note">
-              <Icon name="message" size={15} />
-              <span>מעדיפים לדבר קודם? נשמח לעזור בוואטסאפ 🙂</span>
-            </p>
-          </>
+          </a>
         ) : (
-          /* בלי סליקה מחוברת לא מציגים כפתור תשלום — ספק שילחץ יגיע לעמוד
-             שאינו גובה באמת. במקום זה, פתיחה בתיאום אישי, כמו עד היום. */
+          /* בלי קישור תשלום מוגדר אין מה ללחוץ — מסבירים במקום להוביל לשומקום */
           <p className="upgrade-note">
-            <Icon name="crown" size={15} />
-            <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
+            <Icon name="clock" size={15} />
+            <span>הרכישה המקוונת תיפתח כאן בקרוב.</span>
           </p>
         )}
-        <a href={contactUrl} target="_blank" rel="noreferrer">
-          <Button variant={canPayOnline ? "secondary" : "brand"}>
-            <Icon name="message" size={16} />{" "}
-            {canPayOnline ? "דברו איתנו" : "לשדרוג — דברו איתנו"}
-          </Button>
-        </a>
       </div>
     </div>
   );

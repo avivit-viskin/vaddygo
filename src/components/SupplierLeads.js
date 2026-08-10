@@ -67,7 +67,7 @@ function SupplierLeads({ token, isPro }) {
     return (
       <div style={box}>
         <h3 className="sup-section-title" style={{ marginTop: 0 }}>
-          📨 תיבת פניות <ProBadge title="פיצ'ר פרו" />
+          📨 תיבת פניות <ProBadge title="פיצ'ר פרו" isPro={isPro} />
         </h3>
         <p style={{ margin: 0, fontSize: "var(--font-size-sm)", color: "var(--color-text-muted)" }}>
           כאן יופיעו בקשות הצעת מחיר מוועדים — עם כל הפרטים ואפשרות לחזור בלחיצה.

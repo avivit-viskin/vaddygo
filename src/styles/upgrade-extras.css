@@ -1,0 +1,87 @@
+/*
+  upgrade-extras — תוספות למסך הפרו (UpgradePage):
+  1) חיווי "נעול" כשלוחצים על כלי לפני רכישת פרו.
+  2) ריבוע "עוד יכולות" — עוזר AI, הרשאות צוות ועוד, עם אייקון ותיאור.
+  קובץ נפרד כדי לא להתנגש ב-pro.css. הצבעים/רדיוסים ממערכת העיצוב בלבד.
+*/
+
+/* ── חיווי נעילה (נלחץ כלי לפני שדרוג) ── */
+.upgrade-locked-msg {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-attention);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.upgrade-locked-msg svg {
+  flex-shrink: 0;
+  color: var(--color-attention);
+}
+
+/* כלי שעדיין נעול — חיווי עדין */
+.upgrade-tool--locked {
+  opacity: 0.94;
+}
+.upgrade-tool--locked .upgrade-tool__arrow {
+  color: var(--color-attention);
+}
+
+/* ── ריבוע "עוד יכולות" ── */
+.upgrade-more {
+  margin: 6px 0 16px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+}
+.upgrade-more__title {
+  margin: 0 0 12px;
+  font-size: var(--font-size-lg);
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+.upgrade-more__list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+.upgrade-more__item {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.upgrade-more__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: 10px;
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  flex-shrink: 0;
+}
+.upgrade-more__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.upgrade-more__label {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.upgrade-more__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.5;
+}

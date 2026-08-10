@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import Card from "../components/Card";
 import Button from "../components/Button";
@@ -7,6 +8,7 @@ import { PRO_PRICE, PRO_FEATURES, isPro } from "../services/plan";
 import { whatsappUrl } from "../services/whatsapp";
 import { PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/pro.css";
+import "../styles/upgrade-extras.css";
 
 /*
   UpgradePage (/upgrade) — מרכז הפרו: כל כלי הפרו במקום אחד (כל אחד מוביל למסך
@@ -24,16 +26,38 @@ const PRO_TOOLS = [
   { path: "/contacts", icon: "users", label: "ספר קשרים ושליחה", desc: "כל ההורים במקום אחד + שליחה מרוכזת" },
 ];
 
-const ALSO_INCLUDED = [
-  PRO_FEATURES.ai,
-  PRO_FEATURES.multiInstitution,
-  PRO_FEATURES.teamRoles,
-  PRO_FEATURES.prioritySupport,
+// "עוד יכולות" — יכולות שכלולות במסלול אך אין להן כרטיס-כלי משלהן למעלה:
+// עוזר ה-AI, ריבוי מוסדות, הרשאות צוות ותמיכה בעדיפות. מוצגות בריבוע נפרד עם
+// אייקון ותיאור, במקום שורת טקסט קטנה.
+const MORE_FEATURES = [
+  {
+    label: PRO_FEATURES.ai,
+    icon: "robot",
+    desc: "עוזר חכם שעונה על שאלות, מסכם נתונים ומנסח הודעות להורים — בעברית.",
+  },
+  {
+    label: PRO_FEATURES.teamRoles,
+    icon: "users",
+    desc: "הרשאות לצוות הוועד: ניהול מלא, עריכה או צפייה בלבד — כל אחד לפי תפקידו.",
+  },
+  {
+    label: PRO_FEATURES.multiInstitution,
+    icon: "school",
+    desc: "ניהול כמה גנים או כיתות מאותו חשבון, עם מעבר מהיר ביניהם.",
+  },
+  {
+    label: PRO_FEATURES.prioritySupport,
+    icon: "message",
+    desc: "מענה מהיר ואישי לכל שאלה, ישירות בוואטסאפ.",
+  },
 ];
 
 function UpgradePage() {
   const navigate = useNavigate();
   const alreadyPro = isPro();
+  // כשספק/ועד שאינו פרו לוחץ על כלי — לא מנווטים, אלא מציגים הודעה שהשירות
+  // נפתח עם השדרוג (המשתמשת ביקשה חיווי ברור לפני הרכישה).
+  const [lockedMsg, setLockedMsg] = useState(false);
   const contactUrl = `${whatsappUrl(SUPPORT_PHONE)}?text=${encodeURIComponent(
     "היי, אשמח לשמוע עוד על מסלול הפרו של VaddyGo 🙂"
   )}`;
@@ -57,10 +81,29 @@ function UpgradePage() {
           </p>
         </div>
 
+        {lockedMsg && !alreadyPro && (
+          <p className="upgrade-locked-msg" role="status">
+            <Icon name="lock" size={16} />
+            <span>
+              הכלי הזה נפתח במסלול הפרו. אפשר לשדרג כאן למטה ולקבל גישה מיידית 🙂
+            </span>
+          </p>
+        )}
+
         <ul className="upgrade-tools">
           {PRO_TOOLS.map((tool) => (
             <li key={tool.path}>
-              <Link to={tool.path} className="upgrade-tool">
+              <Link
+                to={tool.path}
+                className={`upgrade-tool${alreadyPro ? "" : " upgrade-tool--locked"}`}
+                onClick={(e) => {
+                  // לפני רכישת פרו — לא מנווטים לכלי, אלא מציגים חיווי שהוא נעול
+                  if (!alreadyPro) {
+                    e.preventDefault();
+                    setLockedMsg(true);
+                  }
+                }}
+              >
                 <span className="upgrade-tool__icon">
                   <Icon name={tool.icon} size={22} />
                 </span>
@@ -69,14 +112,30 @@ function UpgradePage() {
                   <span className="upgrade-tool__desc">{tool.desc}</span>
                 </span>
                 <span className="upgrade-tool__arrow" aria-hidden="true">
-                  ‹
+                  {alreadyPro ? "‹" : <Icon name="lock" size={16} />}
                 </span>
               </Link>
             </li>
           ))}
         </ul>
 
-        <p className="upgrade-also">כולל גם: {ALSO_INCLUDED.join(" · ")}</p>
+        {/* עוד יכולות שכלולות במסלול — עוזר AI, הרשאות צוות, ריבוי מוסדות ותמיכה */}
+        <div className="upgrade-more">
+          <h3 className="upgrade-more__title">עוד יכולות שכלולות במסלול</h3>
+          <ul className="upgrade-more__list">
+            {MORE_FEATURES.map((f) => (
+              <li key={f.label} className="upgrade-more__item">
+                <span className="upgrade-more__icon">
+                  <Icon name={f.icon} size={20} />
+                </span>
+                <span className="upgrade-more__body">
+                  <span className="upgrade-more__label">{f.label}</span>
+                  <span className="upgrade-more__desc">{f.desc}</span>
+                </span>
+              </li>
+            ))}
+          </ul>
+        </div>
 
         <p className="upgrade-note">
           <Icon name="crown" size={15} />

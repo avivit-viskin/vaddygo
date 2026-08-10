@@ -134,6 +134,10 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
+            // פתיחת הפורטל דרך הקישור נחשבת "כניסה אחרונה" — כדי שגם ספק שנכנס
+            // בקישור (בלי מייל/Google) יופיע בדוח המנהלת כפעיל, לא רק ספק עם סיסמה.
+            vendor.LastLoginAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
             var dto = ToResponse(vendor);
             // רק כאן (תצוגת הספק עצמו דרך הטוקן) חושפים את מייל ההתחברות — לא בוועד/קטלוג
             dto.LoginEmail = vendor.LoginEmail;

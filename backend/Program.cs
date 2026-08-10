@@ -75,6 +75,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 // נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
+// תמונת המנויים (פרו של ועדים וספקים) למסך המנהלת
+builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 // סקרים — הוועד יוצר, ההורים עונים בקישור ציבורי
 builder.Services.AddScoped<IPollService, PollService>();
 // ניקוי סוף שנת לימודים — שירות + משימת רקע יומית שמריצה אותו

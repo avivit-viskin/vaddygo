@@ -8,6 +8,7 @@ import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
 import SupplierCleanup from "./admin/SupplierCleanup";
 import ProTestControl from "./admin/ProTestControl";
+import SubscriptionsCard from "./admin/SubscriptionsCard";
 import ResetDisplayControl from "./admin/ResetDisplayControl";
 import { getUsageStats } from "../services/usageStatsService";
 import { applyBaseline, getBaseline } from "../services/usageBaseline";
@@ -91,7 +92,9 @@ function UsageStatsPage() {
               onChange={bump}
             />
             <SupplierCleanup />
-            {/* מתג פרו לבדיקות — פותח/נועל את המוסד הפעיל בדפדפן הזה בלבד */}
+            {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}
+            <SubscriptionsCard />
+            {/* פתיחה/סגירה של פרו למוסד הפעיל (נשמר בשרת) */}
             <ProTestControl />
           </>
         )}

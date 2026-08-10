@@ -1,0 +1,110 @@
+/*
+  subscriptions — טבלת המנויים במסך ניהול VaddyGo. co-located עם
+  SubscriptionsCard (אחרי פיצול-הקוד ה-CSS לא זמין אוטומטית בכל chunk).
+*/
+.subs {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.subs__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 10px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.subs__summary {
+  margin: 0 0 16px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.subs__warn {
+  color: #a65b00;
+  font-weight: 700;
+}
+
+.subs__group + .subs__group {
+  margin-top: 18px;
+}
+
+.subs__group-title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+}
+
+.subs__empty {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.subs__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* שם | סטטוס | תוקף — בנייד השדות נשברים לשורות במקום להצטמצם */
+.subs__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-bg);
+}
+
+.subs__name {
+  flex: 1;
+  min-width: 120px;
+  font-weight: 600;
+}
+
+.subs__until {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+/* הסטטוס נושא משמעות (כסף שנכנס / עומד להיפסק) — ולכן צבע, לא רק טקסט */
+.subs__pill {
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.subs__pill--good {
+  background: #e7f5e9;
+  color: #2e7d32;
+}
+.subs__pill--warn {
+  background: #fdf2e0;
+  color: #a65b00;
+}
+.subs__pill--bad {
+  background: #fdecea;
+  color: #c0392b;
+}
+.subs__pill--muted {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}

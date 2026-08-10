@@ -15,10 +15,14 @@ namespace ParentCommitteeAPI.Controllers
     public class AdminController : ControllerBase
     {
         private readonly IUsageStatsService _usageStats;
+        private readonly ISubscriptionsService _subscriptions;
 
-        public AdminController(IUsageStatsService usageStats)
+        public AdminController(
+            IUsageStatsService usageStats,
+            ISubscriptionsService subscriptions)
         {
             _usageStats = usageStats;
+            _subscriptions = subscriptions;
         }
 
         // GET: api/admin/usage
@@ -26,6 +30,13 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult<UsageStatsDto>> GetUsage()
         {
             return Ok(await _usageStats.GetUsageAsync());
+        }
+
+        // GET: api/admin/subscriptions — מי במסלול פרו ועד מתי (ועדים וספקים)
+        [HttpGet("subscriptions")]
+        public async Task<ActionResult<SubscriptionsDto>> GetSubscriptions()
+        {
+            return Ok(await _subscriptions.GetAsync());
         }
     }
 }

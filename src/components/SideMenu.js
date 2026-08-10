@@ -9,6 +9,7 @@ import Button from "./Button";
 import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
+import ProBadge from "./ProBadge";
 import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
 
@@ -93,7 +94,8 @@ function SideMenu({ isOpen, onClose }) {
             setIsAddOpen(true);
           }}
         >
-          <Icon name="plus" size={18} /> הוסף מוסד
+          <Icon name="plus" size={18} /> הוסף מוסד{" "}
+          <ProBadge title="הוספת מוסד נוסף — פיצ'ר פרו" />
         </button>
 
         <button
@@ -101,7 +103,8 @@ function SideMenu({ isOpen, onClose }) {
           className="sidemenu__action sidemenu__upgrade"
           onClick={() => go("/upgrade")}
         >
-          שדרוגי פרו
+          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
+          <ProBadge title="כל כלי הפרו במקום אחד" />
         </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>

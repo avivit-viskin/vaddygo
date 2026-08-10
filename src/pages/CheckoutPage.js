@@ -91,11 +91,11 @@ function CheckoutPage() {
         <Card>
           <div className="checkout__success">
             <div className="checkout__success-icon" aria-hidden="true">
-              <Icon name="check-circle" size={56} />
+              <Icon name={proUnlocked ? "crown" : "check-circle"} size={56} />
             </div>
             {proUnlocked ? (
               <>
-                <h2>מצב PRO נפתח!</h2>
+                <h2>מצב PRO נפתח! 👑</h2>
                 <p className="checkout__demo-note">
                   כל הכלים המתקדמים פתוחים לך עכשיו במכשיר הזה.
                 </p>

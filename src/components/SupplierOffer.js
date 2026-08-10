@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Button from "./Button";
+import ProBadge from "./ProBadge";
 
 /*
   SupplierOffer — עורך "מבצע/הצעה מיוחדת" של הספק (פיצ'ר פרו). מה שנשמר כאן
@@ -33,7 +34,7 @@ function SupplierOffer({ vendor, onSave }) {
     return (
       <div style={boxStyle}>
         <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
-          🏷️ מבצע / הצעה מיוחדת
+          🏷️ מבצע / הצעה מיוחדת <ProBadge title="פיצ'ר פרו" />
         </h3>
         <p
           style={{
@@ -42,7 +43,7 @@ function SupplierOffer({ vendor, onSave }) {
             color: "var(--color-text-muted)",
           }}
         >
-          זהו פיצ'ר של מסלול הפרו — לפתיחה, פנו למנהלת VaddyGo.
+          זהו פיצ'ר של מסלול הפרו 👑 — לפתיחה, פנו למנהלת VaddyGo.
         </p>
       </div>
     );
@@ -51,7 +52,7 @@ function SupplierOffer({ vendor, onSave }) {
   return (
     <div style={boxStyle}>
       <h3 style={{ margin: "0 0 4px", fontSize: "var(--font-size-lg)" }}>
-        🏷️ מבצע / הצעה מיוחדת
+        🏷️ מבצע / הצעה מיוחדת <ProBadge title="מבצע לוועדים — פיצ'ר פרו" />
       </h3>
       <p
         style={{

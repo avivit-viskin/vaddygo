@@ -24,6 +24,7 @@ import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
+import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierUpgrade from "../components/SupplierUpgrade";
 import SupplierAvatar from "../components/SupplierAvatar";
@@ -609,6 +610,8 @@ function SupplierEditPage() {
               <Icon name="link" size={16} /> שיתוף כל הקטלוג (כל התיקיות)
               {vendor.isPro && (
                 <>
+                  {" "}
+                  <ProBadge title="קטלוג ממותג — פיצ'ר פרו" />
                 </>
               )}
             </Button>
@@ -648,7 +651,8 @@ function SupplierEditPage() {
       {view === "socials" && (
         <>
           <h2 className="sup-section-title">
-            <Icon name="link" size={22} /> רשתות חברתיות
+            <Icon name="link" size={22} /> רשתות חברתיות{" "}
+            <ProBadge title="רשתות חברתיות — פיצ'ר פרו" />
           </h2>
           {vendor.isPro ? (
             <SupplierSocials vendor={vendor} onSave={handleSaveSocials} />
@@ -657,7 +661,7 @@ function SupplierEditPage() {
               className="supplier-edit__login-hint"
               style={{ color: "var(--color-text-muted)" }}
             >
-              רשתות חברתיות — פיצ'ר של מסלול פרו. לפתיחה, פנו למנהלת VaddyGo.
+              👑 רשתות חברתיות — פיצ'ר של מסלול פרו. לפתיחה, פנו למנהלת VaddyGo.
             </p>
           )}
         </>
@@ -717,7 +721,7 @@ function SupplierEditPage() {
       <Modal
         isOpen={upgradeOpen}
         onClose={() => setUpgradeOpen(false)}
-        title="שדרוגי פרו"
+        title="שדרוגי פרו 👑"
       >
         <SupplierUpgrade vendor={vendor} token={token} />
       </Modal>
@@ -866,7 +870,7 @@ function SupplierEditPage() {
             />
             <p className="supplier-edit__login-hint" style={{ marginTop: 8 }}>
               📇 קוד QR לקטלוג — לכרטיס ביקור, שלט או פלייר. סורקים ומגיעים ישר
-              לקטלוג.
+              לקטלוג. <ProBadge title="QR לקטלוג — פיצ'ר פרו" />
             </p>
           </div>
         )}

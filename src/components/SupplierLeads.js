@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
+import ProBadge from "./ProBadge";
 import WhatsAppIcon from "./WhatsAppIcon";
 import { getSupplierLeads, updateLeadStatus } from "../services/leadsService";
 import { whatsappUrlWithText } from "../services/whatsapp";
@@ -66,11 +67,11 @@ function SupplierLeads({ token, isPro }) {
     return (
       <div style={box}>
         <h3 className="sup-section-title" style={{ marginTop: 0 }}>
-          📨 תיבת פניות
+          📨 תיבת פניות <ProBadge title="פיצ'ר פרו" />
         </h3>
         <p style={{ margin: 0, fontSize: "var(--font-size-sm)", color: "var(--color-text-muted)" }}>
           כאן יופיעו בקשות הצעת מחיר מוועדים — עם כל הפרטים ואפשרות לחזור בלחיצה.
-          זהו פיצ'ר של מסלול הפרו — לפתיחה, פנו למנהלת VaddyGo.
+          זהו פיצ'ר של מסלול הפרו 👑 — לפתיחה, פנו למנהלת VaddyGo.
         </p>
       </div>
     );

@@ -1,6 +1,7 @@
 import { Link } from "react-router-dom";
 import { isFeatureLocked } from "../services/plan";
 import Button from "./Button";
+import Icon from "./Icon";
 
 /*
   ProGate — עוטף פעולת/כפתור פרו. אם הפיצ'ר נעול (המשתמשת אינה מנויה) — מציג
@@ -14,7 +15,7 @@ function ProGate({ feature, label, variant = "secondary", children }) {
   return (
     <Link to="/upgrade" className="pro-gate">
       <Button variant={variant}>
-        {label}
+        <Icon name="crown" size={15} /> {label}
       </Button>
     </Link>
   );

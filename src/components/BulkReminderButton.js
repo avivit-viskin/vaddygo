@@ -8,6 +8,7 @@ import Button from "./Button";
 import Icon from "./Icon";
 import Select from "./Select";
 import CopyMessageButton from "./CopyMessageButton";
+import ProBadge from "./ProBadge";
 import "../styles/payments.css";
 
 /*
@@ -58,7 +59,7 @@ function BulkReminderButton({ unpaidStudents, totalStudents = 0 }) {
   return (
     <>
       <Button variant="secondary" onClick={open}>
-        📣 תזכורת לחייבים
+        📣 תזכורת לחייבים <ProBadge title="תזכורת גורפת — פיצ'ר פרו" />
       </Button>
       <Modal
         isOpen={isOpen}

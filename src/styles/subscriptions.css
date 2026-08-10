@@ -31,6 +31,25 @@
   font-weight: 700;
 }
 
+/* מסנן "רק פעילים" — מסתיר פג / לא מנוי מהתצוגה */
+.subs__filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.subs__filter input {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--color-link);
+}
+
 .subs__group + .subs__group {
   margin-top: 18px;
 }

@@ -22,7 +22,14 @@ import "../../styles/subscriptions.css";
 
   בערוץ הספקים אפשר גם לבחור כמה ולמחוק אותם בבת אחת (ניקוי נתוני בדיקה). גנים
   (ועדי הורים) אינם ניתנים למחיקה מכאן — מחיקת גן היא הרסנית ומחוץ למסך הזה.
+
+  מסנן "רק פעילים" מסתיר מהתצוגה את מי שאינו משלם כרגע (פג / לא מנוי) — בלי
+  למחוק כלום. ההעדפה נשמרת מקומית כדי שהתצוגה תישאר כפי שהמנהלת בחרה.
 */
+// "מנוי פעיל" = משלם עכשיו (פעיל + פג בקרוב). השאר (פג / לא מנוי) = לא פעיל.
+const ACTIVE_STATUSES = ["active", "expiring"];
+const SUBS_FILTER_KEY = "vaadygo.subs.activeOnly";
+
 function SubscriptionList({ title, icon, rows, selected, onToggle }) {
   const selectable = typeof onToggle === "function";
   if (!rows || rows.length === 0) {
@@ -72,6 +79,21 @@ function SubscriptionsCard() {
   const { data, isLoading, error, reload } = useApi(
     useCallback(() => getSubscriptions(), [])
   );
+  const [activeOnly, setActiveOnly] = useState(
+    () => localStorage.getItem(SUBS_FILTER_KEY) === "1"
+  );
+  function toggleActiveOnly(on) {
+    setActiveOnly(on);
+    try {
+      localStorage.setItem(SUBS_FILTER_KEY, on ? "1" : "0");
+    } catch {
+      // אם localStorage חסום — עדיין עובד לפגישה הנוכחית
+    }
+  }
+  const onlyActive = (rows) =>
+    activeOnly
+      ? (rows || []).filter((r) => ACTIVE_STATUSES.includes(r.status))
+      : rows || [];
   const [selected, setSelected] = useState(() => new Set());
   const [bulkConfirm, setBulkConfirm] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
@@ -139,15 +161,24 @@ function SubscriptionsCard() {
             )}
           </p>
 
+          <label className="subs__filter">
+            <input
+              type="checkbox"
+              checked={activeOnly}
+              onChange={(e) => toggleActiveOnly(e.target.checked)}
+            />
+            הצג רק פעילים (הסתר פג / לא מנוי)
+          </label>
+
           <SubscriptionList
             title="ועדי הורים"
             icon="users"
-            rows={data.committees}
+            rows={onlyActive(data.committees)}
           />
           <SubscriptionList
             title="ספקים"
             icon="tag"
-            rows={data.suppliers}
+            rows={onlyActive(data.suppliers)}
             selected={selected}
             onToggle={toggleSelected}
           />

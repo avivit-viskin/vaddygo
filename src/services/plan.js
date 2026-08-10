@@ -49,8 +49,20 @@ export const PRO_ROUTES = {
   "/contacts": "contacts",
 };
 
+// דגל פתיחת-פרו מקומי. בתוך namespace של vaadygo.* — ולכן נמחק אוטומטית כשמשתמש
+// *אחר* מתחבר במכשיר (clearCachedAppData), אבל נשמר בכניסה חוזרת של אותו משתמש
+// (כי plan מהשרת עדיין ריק). כך הפתיחה ב-1234 לא "נעלמת" בכל התחברות מחדש.
+const PRO_UNLOCK_KEY = "vaadygo.proUnlock";
+
 /* האם למשתמשת יש מנוי פרו. ברירת מחדל: לא (חינם). */
 export function isPro() {
+  try {
+    if (localStorage.getItem(PRO_UNLOCK_KEY) === "1") {
+      return true;
+    }
+  } catch {
+    // אין localStorage — ממשיכים לבדוק לפי plan
+  }
   return getUser()?.plan === "pro";
 }
 
@@ -73,7 +85,22 @@ export function isRouteLocked(pathname) {
   return key ? isFeatureLocked(key) : false;
 }
 
-/* פתיחת פרו מקומית — מסמן את המשתמשת כמנויה במכשיר הזה. */
+/* פתיחת פרו מקומית — מסמן את המשתמשת כמנויה במכשיר הזה (נשמר גם בין כניסות). */
 export function grantProLocally() {
+  try {
+    localStorage.setItem(PRO_UNLOCK_KEY, "1");
+  } catch {
+    // אין localStorage — לפחות נסמן על אובייקט המשתמש הנוכחי
+  }
   setLocalPlan("pro");
+}
+
+/* ביטול פתיחת פרו מקומית (למשל לבדיקת המצב הנעול). */
+export function revokeProLocally() {
+  try {
+    localStorage.removeItem(PRO_UNLOCK_KEY);
+  } catch {
+    // ignore
+  }
+  setLocalPlan("free");
 }

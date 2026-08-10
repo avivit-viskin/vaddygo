@@ -53,3 +53,11 @@ test("grantProLocally — הופך את המשתמשת למנויה (pro) במכ
   grantProLocally();
   expect(isPro()).toBe(true);
 });
+
+test("פתיחת פרו נשמרת גם אחרי כניסה מחדש (כשהשרת לא מחזיר plan)", () => {
+  localStorage.setItem(USER_KEY, JSON.stringify({ username: "a", plan: "free" }));
+  grantProLocally();
+  // כניסה חוזרת: המשתמש נטען מחדש מהשרת בלי plan — הפתיחה עדיין תקפה
+  localStorage.setItem(USER_KEY, JSON.stringify({ username: "a" }));
+  expect(isPro()).toBe(true);
+});

@@ -1,6 +1,5 @@
 import { useState } from "react";
 import Button from "../../components/Button";
-import Icon from "../../components/Icon";
 import {
   isPro,
   grantProLocally,
@@ -68,7 +67,7 @@ function ProTestControl() {
   return (
     <section className="pro-test">
       <h3 className="pro-test__title">
-        <Icon name="crown" size={18} /> מסלול פרו של המוסד
+        מסלול פרו של המוסד
       </h3>
 
       <p className="pro-test__target">

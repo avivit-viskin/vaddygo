@@ -27,12 +27,12 @@ beforeEach(() => {
   window.location = { href: "", origin: "https://app.test" };
 });
 
-test("ספק שאינו פרו רואה מחיר וכפתור תשלום מאובטח", () => {
+test("ספק שאינו פרו רואה מחיר וכפתור רכישה בתשלום מאובטח", () => {
   render(<SupplierUpgrade vendor={vendor} token="tok1" />);
 
   expect(screen.getByText(/1,200/)).toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: /מעבר לתשלום מאובטח/ })
+    screen.getByRole("button", { name: /רכישת מסלול פרו — תשלום מאובטח/ })
   ).toBeInTheDocument();
   // מובהר שפרטי הכרטיס לא עוברים דרכנו
   expect(screen.getByText(/אינם עוברים דרך VaddyGo/)).toBeInTheDocument();
@@ -42,7 +42,7 @@ test("לחיצה מעבירה לעמוד התשלום שהשרת החזיר", as
   startVendorProCheckout.mockResolvedValue("https://pay.test/abc");
   render(<SupplierUpgrade vendor={vendor} token="tok1" />);
 
-  userEvent.click(screen.getByRole("button", { name: /מעבר לתשלום מאובטח/ }));
+  userEvent.click(screen.getByRole("button", { name: /רכישת מסלול פרו — תשלום מאובטח/ }));
 
   await waitFor(() =>
     expect(startVendorProCheckout).toHaveBeenCalledWith("tok1")
@@ -54,7 +54,7 @@ test("כשל בפתיחת התשלום מוצג ולא מפיל את המסך", 
   startVendorProCheckout.mockRejectedValue(new Error("השרת אינו זמין"));
   render(<SupplierUpgrade vendor={vendor} token="tok1" />);
 
-  userEvent.click(screen.getByRole("button", { name: /מעבר לתשלום מאובטח/ }));
+  userEvent.click(screen.getByRole("button", { name: /רכישת מסלול פרו — תשלום מאובטח/ }));
 
   expect(await screen.findByText("השרת אינו זמין")).toBeInTheDocument();
   expect(window.location.href).toBe("");
@@ -73,12 +73,14 @@ test("בלי סליקה מחוברת אין כפתור תשלום — רק פנ�
     />
   );
 
+  // הרכישה עדיין מוצגת — אבל מושלמת מולנו ולא בעמוד תשלום שאינו גובה
   expect(
-    screen.queryByRole("button", { name: /מעבר לתשלום מאובטח/ })
+    screen.queryByRole("button", { name: /תשלום מאובטח/ })
   ).not.toBeInTheDocument();
   expect(
-    screen.getByRole("button", { name: /לשדרוג — דברו איתנו/ })
+    screen.getByRole("button", { name: "רכישת מסלול פרו" })
   ).toBeInTheDocument();
+  expect(screen.getByText(/ואנחנו פותחים לך את המסלול/)).toBeInTheDocument();
   expect(screen.getByText(/1,200/)).toBeInTheDocument();
 });
 
@@ -87,6 +89,6 @@ test("ספק שכבר פרו רואה אישור ולא כפתור תשלום", 
 
   expect(screen.getByText(/מסלול פרו נרכש בהצלחה/)).toBeInTheDocument();
   expect(
-    screen.queryByRole("button", { name: /מעבר לתשלום מאובטח/ })
+    screen.queryByRole("button", { name: /רכישת מסלול פרו — תשלום מאובטח/ })
   ).not.toBeInTheDocument();
 });

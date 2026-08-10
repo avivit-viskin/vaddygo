@@ -11,7 +11,6 @@ import Button from "./Button";
 import Icon from "./Icon";
 import CopyMessageButton from "./CopyMessageButton";
 import WhatsAppIcon from "./WhatsAppIcon";
-import ProBadge from "./ProBadge";
 import "../styles/payments.css";
 
 /*
@@ -94,8 +93,7 @@ function BulkPaymentRequestButton({ students = [] }) {
         onClick={open}
         disabled={students.length === 0}
       >
-        <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ{" "}
-        <ProBadge title="בקשת תשלום גורפת — פיצ'ר פרו" />
+        <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ
       </Button>
       <Modal
         isOpen={isOpen}

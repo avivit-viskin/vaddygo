@@ -5,7 +5,6 @@ import Select from "./Select";
 import Spinner from "./Spinner";
 import ConfirmDialog from "./ConfirmDialog";
 import WhatsAppIcon from "./WhatsAppIcon";
-import ProBadge from "./ProBadge";
 import {
   ROLES,
   roleLabel,
@@ -124,7 +123,6 @@ function TeamManager() {
   return (
     <>
       <div className="pro-inline-head">
-        <ProBadge title="תפקידי צוות והרשאות — פיצ'ר פרו" />
         <span>ניהול הרשאות מתקדם לצוות</span>
       </div>
       <ul className="roles-legend">

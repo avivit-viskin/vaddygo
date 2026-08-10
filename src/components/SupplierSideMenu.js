@@ -1,6 +1,5 @@
 import Icon from "./Icon";
 import BrandName from "./BrandName";
-import ProBadge from "./ProBadge";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import { toastSuccess } from "../services/toastBus";
 import "../styles/sidemenu.css";
@@ -91,8 +90,7 @@ function SupplierSideMenu({
             onUpgrade();
           }}
         >
-          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
-          <ProBadge title="כל כלי הפרו של הספק במקום אחד" />
+          שדרוגי פרו
         </button>
 
         <h3 className="sidemenu__title">שיתוף</h3>

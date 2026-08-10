@@ -79,7 +79,7 @@ function SupplierUpgrade({ vendor, token }) {
     SUPPORT_PHONE,
     `היי, אשמח לשדרג את הכרטיס שלי (${
       vendor?.name || "ספק"
-    }) ב-VaddyGo למסלול פרו 👑`
+    }) ב-VaddyGo למסלול פרו`
   );
 
   // כבר פרו — לא מציגים מחיר/פיצ'רים, רק אישור שהמסלול נרכש והכול מוכן.
@@ -90,7 +90,7 @@ function SupplierUpgrade({ vendor, token }) {
           <span className="upgrade-crown">
             <Icon name="check-circle" size={40} title="פרו פעיל" />
           </span>
-          <h2 className="upgrade-title">מסלול פרו נרכש בהצלחה 👑</h2>
+          <h2 className="upgrade-title">מסלול פרו נרכש בהצלחה</h2>
           <p className="upgrade-subtitle">
             כל הפיצ'רים מוכנים ופעילים בכרטיס שלך — אפשר להתחיל לעבוד ולקבל יותר
             הזמנות מהוועדים.
@@ -103,9 +103,6 @@ function SupplierUpgrade({ vendor, token }) {
   return (
     <div className="upgrade-page">
       <div className="upgrade-hero">
-        <span className="upgrade-crown">
-          <Icon name="crown" size={40} title="פרו" />
-        </span>
         <h2 className="upgrade-title">
           שדרוגי <BrandName /> פרו
         </h2>
@@ -136,43 +133,54 @@ function SupplierUpgrade({ vendor, token }) {
         </ul>
       </div>
 
+      {/*
+        כפתור הרכישה מוצג **תמיד** — הספק צריך לראות איך קונים.
+        מה שמשתנה הוא איך הרכישה מושלמת:
+        • יש סליקה מחוברת → עמוד תשלום מאובטח של חברת הסליקה.
+        • אין סליקה (המצב היום) → פנייה בוואטסאפ שמשלימה את הרכישה מולנו.
+        לעולם לא שולחים ספק לעמוד תשלום שאינו גובה באמת.
+      */}
       <div className="upgrade-actions">
+        <p className="upgrade-note">
+          <Icon name={canPayOnline ? "lock" : "message"} size={15} />
+          <span>
+            {canPayOnline
+              ? "התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם עוברים דרך VaddyGo ואינם נשמרים אצלנו."
+              : "משאירים לנו הודעה קצרה בוואטסאפ, ואנחנו פותחים לך את המסלול ומסדירים איתך את התשלום."}
+          </span>
+        </p>
+
         {canPayOnline ? (
-          <>
-            <p className="upgrade-note">
-              <Icon name="lock" size={15} />
-              <span>
-                התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם
-                עוברים דרך VaddyGo ואינם נשמרים אצלנו.
-              </span>
-            </p>
-            <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
-              <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+          <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
+            <Icon name="card" size={16} /> רכישת מסלול פרו — תשלום מאובטח
+          </Button>
+        ) : (
+          <a href={contactUrl} target="_blank" rel="noreferrer">
+            <Button variant="brand">
+              <Icon name="message" size={16} /> רכישת מסלול פרו
             </Button>
-            {checkoutError && (
-              <p className="field__error" role="alert">
-                {checkoutError}
-              </p>
-            )}
+          </a>
+        )}
+
+        {checkoutError && (
+          <p className="field__error" role="alert">
+            {checkoutError}
+          </p>
+        )}
+
+        {canPayOnline && (
+          <>
             <p className="upgrade-note">
               <Icon name="message" size={15} />
               <span>מעדיפים לדבר קודם? נשמח לעזור בוואטסאפ 🙂</span>
             </p>
+            <a href={contactUrl} target="_blank" rel="noreferrer">
+              <Button variant="secondary">
+                <Icon name="message" size={16} /> דברו איתנו
+              </Button>
+            </a>
           </>
-        ) : (
-          /* בלי סליקה מחוברת לא מציגים כפתור תשלום — ספק שילחץ יגיע לעמוד
-             שאינו גובה באמת. במקום זה, פתיחה בתיאום אישי, כמו עד היום. */
-          <p className="upgrade-note">
-            <Icon name="crown" size={15} />
-            <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
-          </p>
         )}
-        <a href={contactUrl} target="_blank" rel="noreferrer">
-          <Button variant={canPayOnline ? "secondary" : "brand"}>
-            <Icon name="message" size={16} />{" "}
-            {canPayOnline ? "דברו איתנו" : "לשדרוג — דברו איתנו"}
-          </Button>
-        </a>
       </div>
     </div>
   );

@@ -7,7 +7,6 @@ import {
   removeInstitution,
 } from "../services/institutionsService";
 import { deleteGroup } from "../services/groupsService";
-import { isProInstitution } from "../services/plan";
 import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
@@ -86,21 +85,6 @@ function InstitutionSwitcher({ onClose }) {
             >
               <span className="institutions__name">
                 <Icon name="school" size={16} /> {institution.name}
-                {/* כתר ליד מוסד שאינו פרו (רמז לשדרוג). נעלם ברגע שהמוסד משדרג. */}
-                {!isProInstitution(institution) && (
-                  <span
-                    className="institutions__crown"
-                    title="לא במסלול פרו — אפשר לשדרג"
-                    style={{
-                      display: "inline-flex",
-                      verticalAlign: "middle",
-                      marginInlineStart: 5,
-                      color: "var(--color-attention)",
-                    }}
-                  >
-                    <Icon name="crown" size={14} />
-                  </span>
-                )}
               </span>
               {institution.id === active?.id ? (
                 <span className="institutions__badge">פעיל</span>

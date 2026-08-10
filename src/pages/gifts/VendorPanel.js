@@ -618,7 +618,7 @@ function VendorPanel({
             className="vendor-panel__share"
             onClick={togglePro}
           >
-            {isPro ? "סגור מסלול פרו לספק" : "👑 פתח מסלול פרו לספק"}
+            {isPro ? "סגור מסלול פרו לספק" : "פתח מסלול פרו לספק"}
           </button>
           {onEdit && (
             <button type="button" className="vendor-panel__edit" onClick={onEdit}>

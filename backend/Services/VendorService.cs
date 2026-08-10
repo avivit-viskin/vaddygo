@@ -150,6 +150,7 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
             ApplyWrite(vendor, dto);
+            vendor.LastEditedAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor self-updated via edit token (Id: {VendorId})", vendor.Id);
             return ToResponse(vendor);
@@ -206,8 +207,9 @@ namespace ParentCommitteeAPI.Services
             if (string.IsNullOrEmpty(vendor.EditToken))
             {
                 vendor.EditToken = Guid.NewGuid().ToString("N");
-                await _db.SaveChangesAsync();
             }
+            vendor.LastLoginAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
             return vendor.EditToken;
         }
 
@@ -250,8 +252,9 @@ namespace ParentCommitteeAPI.Services
             if (string.IsNullOrEmpty(vendor.EditToken))
             {
                 vendor.EditToken = Guid.NewGuid().ToString("N");
-                await _db.SaveChangesAsync();
             }
+            vendor.LastLoginAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor logged in with Google (Id: {VendorId})", vendor.Id);
             return vendor.EditToken;
         }
@@ -732,6 +735,8 @@ namespace ParentCommitteeAPI.Services
             DeletionRequested = vendor.DeletionRequestedAt != null,
             Views = vendor.Views,
             Leads = vendor.Leads,
+            LastLoginAt = vendor.LastLoginAt,
+            LastEditedAt = vendor.LastEditedAt,
             Offer = vendor.Offer,
             Featured = vendor.Featured,
             IsPro = vendor.IsPro,

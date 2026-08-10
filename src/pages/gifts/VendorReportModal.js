@@ -15,8 +15,25 @@ import "../../styles/vendor-report.css";
 
   התוכן אינו משוכפל: הסטטיסטיקות מגיעות מ-SupplierReports (אותו רכיב שהספק
   רואה בפורטל שלו) וההתקדמות מ-services/vendorProgress (אותו מקור שממנו נבנה
-  הצ'ק-ליסט של הספק). כאן רק מוסיפים את מבט המנהלת ואת השיתוף.
+  הצ'ק-ליסט של הספק). כאן רק מוסיפים את מבט המנהלת: פעילות (כניסה/עריכה
+  אחרונה), התמונות של הספק, והשיתוף.
 */
+// תאריך+שעה קצרים בעברית, או "עדיין לא" כשאין (ספק שלא התחבר/ערך, או לפני השדה).
+function formatWhen(iso) {
+  if (!iso) {
+    return "עדיין לא";
+  }
+  try {
+    const d = new Date(iso);
+    return `${d.toLocaleDateString("he-IL")} ${d.toLocaleTimeString("he-IL", {
+      hour: "2-digit",
+      minute: "2-digit",
+    })}`;
+  } catch {
+    return "לא ידוע";
+  }
+}
+
 function VendorReportModal({ vendor, onClose }) {
   if (!vendor) {
     return null;
@@ -24,6 +41,10 @@ function VendorReportModal({ vendor, onClose }) {
 
   const { items, done, total, percent, missing } = vendorProgress(vendor);
   const reportText = vendorReportText(vendor);
+  // התמונות שהספק העלה — כדי שהמנהלת "תראה את התמונות שלו" בלי לצאת מהדוח
+  const productImages = (vendor.products || [])
+    .map((p) => p.imageUrl)
+    .filter(Boolean);
 
   return (
     <Modal isOpen onClose={onClose} title={`דוח ספק — ${vendor.name}`}>
@@ -83,6 +104,44 @@ function VendorReportModal({ vendor, onClose }) {
         </ul>
 
         <SupplierReports vendor={vendor} />
+
+        {/* פעילות הספק — מתי התחבר ומתי ערך לאחרונה (עד כמה הוא פעיל) */}
+        <div className="vendor-report__activity">
+          <p className="vendor-report__activity-row">
+            <Icon name="clock" size={15} /> כניסה אחרונה:{" "}
+            <strong>{formatWhen(vendor.lastLoginAt)}</strong>
+          </p>
+          <p className="vendor-report__activity-row">
+            <Icon name="pencil" size={15} /> עריכה אחרונה:{" "}
+            <strong>{formatWhen(vendor.lastEditedAt)}</strong>
+          </p>
+          {vendor.createdAt && (
+            <p className="vendor-report__activity-row">
+              <Icon name="calendar" size={15} /> נרשם:{" "}
+              <strong>{formatWhen(vendor.createdAt)}</strong>
+            </p>
+          )}
+        </div>
+
+        {/* התמונות של הספק — תצוגה מקדימה, כדי לראות מה הוא מציג לוועדים */}
+        {productImages.length > 0 && (
+          <div>
+            <p className="vendor-report__images-title">
+              התמונות של הספק ({productImages.length})
+            </p>
+            <div className="vendor-report__images">
+              {productImages.map((src, i) => (
+                <img
+                  key={i}
+                  src={src}
+                  alt=""
+                  className="vendor-report__thumb"
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          </div>
+        )}
 
         <div>
           <p

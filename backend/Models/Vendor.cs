@@ -59,6 +59,11 @@ namespace ParentCommitteeAPI.Models
         /* מונה פניות — עולה בכל לחיצה של ועד על "בקשת הצעת מחיר". לדאשבורד הספק. */
         public int Leads { get; set; }
 
+        /* מתי הספק התחבר לאחרונה (מייל/Google) ומתי ערך לאחרונה את הכרטיס/המוצרים —
+           לדוח הספק של המנהלת ("כמה הספק פעיל"). null = עדיין לא קרה / לפני שהשדה הוסף. */
+        public DateTime? LastLoginAt { get; set; }
+        public DateTime? LastEditedAt { get; set; }
+
         /* "ספק מומלץ" — מנהלת VaddyGo מדליקה; מקבל תג "מומלץ" ומיקום בראש הרשימה. */
         public bool Featured { get; set; }
 

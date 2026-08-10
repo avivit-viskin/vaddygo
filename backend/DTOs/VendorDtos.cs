@@ -212,6 +212,11 @@ namespace ParentCommitteeAPI.DTOs
         /* מספר פניות (לחיצות "בקשת הצעת מחיר") — לדאשבורד הספק */
         public int Leads { get; set; }
 
+        /* מתי הספק התחבר לאחרונה ומתי ערך לאחרונה את הכרטיס — לדוח הספק של המנהלת.
+           null = עדיין לא קרה / לפני שהשדה הוסף. */
+        public DateTime? LastLoginAt { get; set; }
+        public DateTime? LastEditedAt { get; set; }
+
         /* מבצע/הצעה מיוחדת שהספק מפרסם — מוצג לוועדים בכרטיס הספק ובקטלוג */
         public string Offer { get; set; } = string.Empty;
 

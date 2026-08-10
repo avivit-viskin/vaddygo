@@ -10,3 +10,46 @@
 .form-actions.vendor-report__actions .btn {
   flex: 1 1 160px;
 }
+
+/* ── פעילות הספק (כניסה/עריכה אחרונה) ── */
+.vendor-report__activity {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+.vendor-report__activity-row {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.vendor-report__activity-row strong {
+  color: var(--color-text);
+  font-weight: 700;
+}
+
+/* ── תמונות הספק ── */
+.vendor-report__images-title {
+  margin: 0 0 8px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.vendor-report__images {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vendor-report__thumb {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+}

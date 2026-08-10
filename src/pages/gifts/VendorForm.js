@@ -36,6 +36,22 @@ const MIN_GOOD_DIMENSION = 350;
 // וקטור (SVG) — חד בכל גודל, ולכן לא נבדק לרזולוציה נמוכה (naturalWidth שלו לא אמין)
 const isVectorSrc = (s) => /^data:image\/svg|\.svg(\?|#|$)/i.test(s || "");
 
+// יחידת מידה למוצר: כמות (מספר) + יחידה נבחרת, נשמרות יחד במחרוזת אחת
+// (product.unit), למשל "10 יח'". splitUnit מפרק בחזרה לכמות+יחידה לאכלוס הטופס,
+// joinUnit מחבר בחזרה (כמות בלבד / יחידה בלבד / שניהם).
+const PRESET_UNITS = ["יח'", "מארז", 'ק"ג'];
+function splitUnit(value) {
+  const s = (value || "").trim();
+  const m = s.match(/^(\d+(?:\.\d+)?)\s*(.*)$/);
+  return m ? { qty: m[1], word: m[2].trim() } : { qty: "", word: s };
+}
+function joinUnit(qty, word) {
+  const q = (qty || "").trim();
+  const w = (word || "").trim();
+  if (q && w) return `${q} ${w}`;
+  return q || w;
+}
+
 /* תמונה ממוזערת של מוצר בטופס — עם סימן קריאה לחיץ אם הרזולוציה נמוכה. הלחיצה
    פותחת הודעה עם המלצת הגודל, ומדווחת להורה (onLowRes) כדי לספור "דורש טיפול". */
 function VendorThumb({ src, alt, onLowRes }) {
@@ -180,6 +196,16 @@ function VendorForm({
       const next = new Set(prev);
       if (next.has(index)) next.delete(index);
       else next.add(index);
+      return next;
+    });
+  // מוצרים שבורר היחידה שלהם על "אחר" (יחידה מותאמת) — נשמר כדי שהמצב יחזיק
+  // גם כשעדיין לא הוקלד טקסט מותאם (ואי אפשר להסיק זאת מהמחרוזת הריקה)
+  const [customUnitRows, setCustomUnitRows] = useState(() => new Set());
+  const setCustomUnit = (index, on) =>
+    setCustomUnitRows((prev) => {
+      const next = new Set(prev);
+      if (on) next.add(index);
+      else next.delete(index);
       return next;
     });
   const [moveOpen, setMoveOpen] = useState(false);
@@ -1368,15 +1394,71 @@ function VendorForm({
               }
               placeholder="מחיר ₪"
             />
-            <input
-              className="field__input vendor-form__unit"
-              aria-label={`כמות ויחידה למוצר ${index + 1} (למשל: 10 יח')`}
-              value={product.unit || ""}
-              onChange={(e) =>
-                updateItem(setProducts, index, { unit: e.target.value })
-              }
-              placeholder="למשל: 10 יח'"
-            />
+            {(() => {
+              const { qty, word } = splitUnit(product.unit);
+              const selectVal = PRESET_UNITS.includes(word)
+                ? word
+                : word || customUnitRows.has(index)
+                ? "אחר"
+                : "יח'";
+              const custom = selectVal === "אחר" ? word : "";
+              return (
+                <>
+                  <input
+                    className="field__input vendor-form__qty"
+                    aria-label={`כמות למוצר ${index + 1}`}
+                    type="number"
+                    min="0"
+                    value={qty}
+                    onChange={(e) =>
+                      updateItem(setProducts, index, {
+                        unit: joinUnit(e.target.value, word),
+                      })
+                    }
+                    placeholder="כמות"
+                  />
+                  <select
+                    className="field__input vendor-form__unit"
+                    aria-label={`יחידה למוצר ${index + 1}`}
+                    value={selectVal}
+                    onChange={(e) => {
+                      const sel = e.target.value;
+                      setCustomUnit(index, sel === "אחר");
+                      updateItem(setProducts, index, {
+                        unit: joinUnit(
+                          qty,
+                          sel === "אחר"
+                            ? PRESET_UNITS.includes(word)
+                              ? ""
+                              : word
+                            : sel
+                        ),
+                      });
+                    }}
+                  >
+                    {PRESET_UNITS.map((u) => (
+                      <option key={u} value={u}>
+                        {u}
+                      </option>
+                    ))}
+                    <option value="אחר">אחר…</option>
+                  </select>
+                  {selectVal === "אחר" && (
+                    <input
+                      className="field__input vendor-form__unit-custom"
+                      aria-label={`יחידה מותאמת למוצר ${index + 1}`}
+                      value={custom}
+                      onChange={(e) =>
+                        updateItem(setProducts, index, {
+                          unit: joinUnit(qty, e.target.value),
+                        })
+                      }
+                      placeholder="יחידה (למשל: מגש)"
+                    />
+                  )}
+                </>
+              );
+            })()}
             <input
               id={`product-folder-${index}`}
               className="field__input vendor-form__folder"

@@ -571,11 +571,20 @@
 }
 
 .vendor-form__price {
-  flex: 0 0 100px;
+  flex: 0 0 92px;
+}
+
+.vendor-form__qty {
+  flex: 0 0 70px;
 }
 
 .vendor-form__unit {
-  flex: 0 0 110px;
+  flex: 0 0 88px;
+}
+
+.vendor-form__unit-custom {
+  flex: 1 1 120px;
+  min-width: 100px;
 }
 
 .vendor-form__folder {

@@ -52,6 +52,9 @@ const SUPPLIER_PRO_FEATURES = [
 
 function SupplierUpgrade({ vendor, token }) {
   const alreadyPro = !!vendor?.isPro;
+  // תשלום מקוון מוצג רק כשמחוברת סליקה אמיתית (השרת מחליט) — אחרת חוזרים
+  // לפתיחה בתיאום אישי, כדי שספק לא יגיע לעמוד תשלום שאינו גובה.
+  const canPayOnline = !!vendor?.proCheckoutAvailable;
   const [isStarting, setIsStarting] = useState(false);
   const [checkoutError, setCheckoutError] = useState("");
 
@@ -134,26 +137,40 @@ function SupplierUpgrade({ vendor, token }) {
       </div>
 
       <div className="upgrade-actions">
-        <p className="upgrade-note">
-          <Icon name="lock" size={15} />
-          <span>התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם
-          עוברים דרך VaddyGo ואינם נשמרים אצלנו.</span>
-        </p>
-        <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
-          <Icon name="card" size={16} /> מעבר לתשלום מאובטח
-        </Button>
-        {checkoutError && (
-          <p className="field__error" role="alert">
-            {checkoutError}
+        {canPayOnline ? (
+          <>
+            <p className="upgrade-note">
+              <Icon name="lock" size={15} />
+              <span>
+                התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם
+                עוברים דרך VaddyGo ואינם נשמרים אצלנו.
+              </span>
+            </p>
+            <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
+              <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+            </Button>
+            {checkoutError && (
+              <p className="field__error" role="alert">
+                {checkoutError}
+              </p>
+            )}
+            <p className="upgrade-note">
+              <Icon name="message" size={15} />
+              <span>מעדיפים לדבר קודם? נשמח לעזור בוואטסאפ 🙂</span>
+            </p>
+          </>
+        ) : (
+          /* בלי סליקה מחוברת לא מציגים כפתור תשלום — ספק שילחץ יגיע לעמוד
+             שאינו גובה באמת. במקום זה, פתיחה בתיאום אישי, כמו עד היום. */
+          <p className="upgrade-note">
+            <Icon name="crown" size={15} />
+            <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
           </p>
         )}
-        <p className="upgrade-note">
-          <Icon name="message" size={15} />
-          <span>מעדיפים לדבר קודם? נשמח לעזור בוואטסאפ 🙂</span>
-        </p>
         <a href={contactUrl} target="_blank" rel="noreferrer">
-          <Button variant="secondary">
-            <Icon name="message" size={16} /> דברו איתנו
+          <Button variant={canPayOnline ? "secondary" : "brand"}>
+            <Icon name="message" size={16} />{" "}
+            {canPayOnline ? "דברו איתנו" : "לשדרוג — דברו איתנו"}
           </Button>
         </a>
       </div>

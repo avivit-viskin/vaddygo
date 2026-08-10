@@ -269,6 +269,15 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<IActionResult> ProCheckout(
             string token, [FromBody] ProCheckoutDto? dto)
         {
+            // בלי סליקה אמיתית לא פותחים תשלום כלל — עדיף להפנות לוואטסאפ
+            // מאשר לשלוח ספק לעמוד תשלום מדומה שלא באמת גובה.
+            if (!_vendorProPayments.IsAvailable)
+            {
+                return StatusCode(503, new
+                {
+                    message = "התשלום המקוון עדיין אינו פעיל. אפשר לפנות אלינו בוואטסאפ ונפתח את המסלול."
+                });
+            }
             var returnUrl = (dto?.ReturnUrl ?? string.Empty).Trim();
             if (returnUrl.Length == 0)
             {

@@ -132,6 +132,8 @@ namespace ParentCommitteeAPI.Services
             var dto = ToResponse(vendor);
             // רק כאן (תצוגת הספק עצמו דרך הטוקן) חושפים את מייל ההתחברות — לא בוועד/קטלוג
             dto.LoginEmail = vendor.LoginEmail;
+            // האם להציג לספק כפתור תשלום — רק כשמחוברת סליקה אמיתית
+            dto.ProCheckoutAvailable = IsRealClearingConfigured();
             return dto;
         }
 
@@ -659,6 +661,16 @@ namespace ParentCommitteeAPI.Services
             _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
             vendor.Products = MapProducts(dto.Products);
             vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
+        }
+
+        /*
+          האם מחוברת סליקה אמיתית. ‏"mock" הוא סימולטור הפיתוח — עם ספק מדומה
+          אסור להציע לספק אמיתי "תשלום מאובטח", כי הוא יגיע לעמוד שאינו מחייב.
+        */
+        private bool IsRealClearingConfigured()
+        {
+            var provider = _config["Payments:Provider"] ?? "mock";
+            return !string.Equals(provider, "mock", StringComparison.OrdinalIgnoreCase);
         }
 
         /* ספק נטען תמיד עם המוצרים והקישורים החברתיים שלו */

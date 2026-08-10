@@ -14,6 +14,9 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IVendorProPaymentService
     {
+        /* האם מחוברת סליקה אמיתית (ולא הסימולטור) — כלומר אפשר באמת לגבות. */
+        bool IsAvailable { get; }
+
         /* פותח תשלום לשדרוג פרו ומחזיר את כתובת עמוד התשלום. null אם הטוקן שגוי. */
         Task<string?> StartCheckoutAsync(string editToken, string returnUrl);
 
@@ -52,6 +55,17 @@ namespace ParentCommitteeAPI.Services
 
         public bool OwnsTransaction(string transactionRef) =>
             (transactionRef ?? string.Empty).StartsWith(RefPrefix, StringComparison.Ordinal);
+
+        public bool IsAvailable
+        {
+            get
+            {
+                // "mock" = סימולטור פיתוח. אסור לשלוח ספק אמיתי לעמוד תשלום
+                // שאינו מחייב — עדיף לומר "לא זמין" מאשר להעמיד פנים שנגבה כסף.
+                var provider = _config["Payments:Provider"] ?? "mock";
+                return !string.Equals(provider, "mock", StringComparison.OrdinalIgnoreCase);
+            }
+        }
 
         public async Task<string?> StartCheckoutAsync(string editToken, string returnUrl)
         {

@@ -223,6 +223,14 @@ namespace ParentCommitteeAPI.DTOs
 
         /* הספק מסומן "כשר" — תגית ליד שם הספק */
         public bool IsKosher { get; set; }
+
+        /*
+          האם רכישת פרו בכרטיס אשראי זמינה כרגע — כלומר האם מחוברת סליקה
+          אמיתית. false כשהמערכת עדיין על ספק הסליקה המדומה (החלטת בעלת המוצר:
+          לא לחבר סליקה עד שיהיו מספיק ספקים משלמים). הלקוח מסתיר את כפתור
+          התשלום כשזה false, כדי שספק אמיתי לא יגיע לעמוד תשלום מדומה.
+        */
+        public bool ProCheckoutAvailable { get; set; }
     }
 
     public class VendorProductResponseDto

@@ -12,7 +12,14 @@ jest.mock("../services/vendorsService", () => ({
   מפנה לעמוד התשלום של חברת הסליקה — ולא פותח פרו בעצמו (הפתיחה נעשית רק
   אחרי אישור משרת-לשרת).
 */
-const vendor = { id: 1, name: "מתנות בלב", isPro: false };
+// ברירת המחדל בבדיקות: סליקה מחוברת (proCheckoutAvailable) — ובלעדיה יש
+// בדיקה נפרדת שמוודאת שהכפתור אינו מוצג כלל.
+const vendor = {
+  id: 1,
+  name: "מתנות בלב",
+  isPro: false,
+  proCheckoutAvailable: true,
+};
 
 beforeEach(() => {
   jest.clearAllMocks();
@@ -51,6 +58,28 @@ test("כשל בפתיחת התשלום מוצג ולא מפיל את המסך", 
 
   expect(await screen.findByText("השרת אינו זמין")).toBeInTheDocument();
   expect(window.location.href).toBe("");
+});
+
+/*
+  הבדיקה החשובה כרגע: כל עוד לא מחוברת סליקה (החלטת בעלת המוצר — ₪500 לחודש
+  לא מוצדקים לפני שיש ספקים משלמים), אסור שספק יראה "תשלום מאובטח" ויגיע
+  לעמוד שאינו גובה. במצב הזה חוזרים לפתיחה בתיאום אישי.
+*/
+test("בלי סליקה מחוברת אין כפתור תשלום — רק פנייה בוואטסאפ", () => {
+  render(
+    <SupplierUpgrade
+      vendor={{ ...vendor, proCheckoutAvailable: false }}
+      token="tok1"
+    />
+  );
+
+  expect(
+    screen.queryByRole("button", { name: /מעבר לתשלום מאובטח/ })
+  ).not.toBeInTheDocument();
+  expect(
+    screen.getByRole("button", { name: /לשדרוג — דברו איתנו/ })
+  ).toBeInTheDocument();
+  expect(screen.getByText(/1,200/)).toBeInTheDocument();
 });
 
 test("ספק שכבר פרו רואה אישור ולא כפתור תשלום", () => {

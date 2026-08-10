@@ -382,24 +382,24 @@
   gap: 2px;
 }
 
-/* צבע ייעודי לכל אמצעי תשלום (הצבעים של בעלת המוצר) */
-/* בלי רקע מסביב — ההיכר בקו-העליון ובסכום בצבע המותג הבוהק של כל אמצעי */
+/* צבע ייעודי לכל אמצעי תשלום (הצבעים של בעלת המוצר) — רקע רך בצבע המותג של כל
+   אמצעי (ביט טורקיז, פייבוקס כחול, מזומן תכלת), עם קו-עליון וסכום בצבע הבוהק. */
 .methods__item--bit {
-  background: transparent;
+  background: var(--color-bit-tint);
   border-top-color: var(--color-bit);
 }
 .methods__item--bit .methods__amount {
   color: var(--color-bit);
 }
 .methods__item--paybox {
-  background: transparent;
+  background: var(--color-paybox-tint);
   border-top-color: var(--color-paybox);
 }
 .methods__item--paybox .methods__amount {
   color: var(--color-paybox);
 }
 .methods__item--cash {
-  background: transparent;
+  background: var(--color-money-tint);
   border-top-color: var(--color-money);
 }
 .methods__item--cash .methods__amount {

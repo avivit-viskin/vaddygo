@@ -1,17 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import FilesPage from "../FilesPage";
+import { grantProLocally } from "../../services/plan";
 
 /*
   טסטים למסך הקבצים (UI_SPEC ס' 13). אין שרת בטסטים — השירות נופל ל-localStorage.
 */
 beforeEach(() => {
   localStorage.clear();
-  // המשתמשת מסומנת כמנויה (pro) כדי שכרטיס הקבלות (פיצ'ר פרו) יוצג כרגיל בבדיקה
-  localStorage.setItem(
-    "vaadygo.user",
-    JSON.stringify({ username: "avivit", plan: "pro" })
-  );
+  // פותחים פרו לגן הפעיל (פרו לכל גן בנפרד) כדי שכרטיס הקבלות (פיצ'ר פרו) יוצג
+  // כרגיל בבדיקה. אין מוסד פעיל בטסט → נפתח לגן "default".
+  localStorage.setItem("vaadygo.user", JSON.stringify({ username: "avivit" }));
+  grantProLocally();
 });
 
 test("מצב ריק: הזמנה להוסיף תיקייה ראשונה", async () => {

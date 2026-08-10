@@ -1,4 +1,4 @@
-import { getUser, setLocalPlan } from "./authService";
+import { getActiveInstitution } from "./institutionsService";
 
 /*
   plan.js — הבחנת חינם ↔ פרו.
@@ -8,7 +8,10 @@ import { getUser, setLocalPlan } from "./authService";
 
   ✅ האכיפה מופעלת (PRO_ENFORCED=true): פיצ'רי/עמודי פרו חסומים למי שאינה מנויה,
   ומפנים אותה לעמוד השדרוג. פתיחת פרו (למנהלת, עד חיבור סליקה אמיתית): מזינים את
-  קוד הפתיחה במקום מספר כרטיס במסך התשלום → grantProLocally מסמן את המכשיר כמנוי.
+  קוד הפתיחה במקום מספר כרטיס במסך התשלום → grantProLocally פותח פרו **לגן הפעיל**.
+
+  💡 פרו הוא לכל גן (מוסד) בנפרד: פתיחה בגן אחד לא מדליקה פרו בגן אחר. לכן
+  isPro() נבדק תמיד מול הגן הפעיל (getActiveInstitution), ולא כדגל גלובלי למכשיר.
 */
 
 // מחיר המנוי השנתי לפרו (תואם למסמך התמחור; ניתן לשינוי)
@@ -49,21 +52,55 @@ export const PRO_ROUTES = {
   "/contacts": "contacts",
 };
 
-// דגל פתיחת-פרו מקומי. בתוך namespace של vaadygo.* — ולכן נמחק אוטומטית כשמשתמש
-// *אחר* מתחבר במכשיר (clearCachedAppData), אבל נשמר בכניסה חוזרת של אותו משתמש
-// (כי plan מהשרת עדיין ריק). כך הפתיחה ב-1234 לא "נעלמת" בכל התחברות מחדש.
+// פתיחת-פרו מקומית — לפי גן (מוסד), לא גלובלית: שומרים רשימת מזהי-גנים שנפתחו,
+// כדי שפתיחה בגן אחד לא תדליק פרו בגן אחר. בתוך namespace של vaadygo.* — ולכן
+// נמחק אוטומטית כשמשתמש *אחר* מתחבר במכשיר (clearCachedAppData), אבל נשמר בכניסה
+// חוזרת של אותו משתמש (כי plan מהשרת עדיין ריק). כך הפתיחה ב-1234 לא "נעלמת".
 const PRO_UNLOCK_KEY = "vaadygo.proUnlock";
 
-/* האם למשתמשת יש מנוי פרו. ברירת מחדל: לא (חינם). */
-export function isPro() {
+// מזהה יציב לגן הפעיל — מזהה ה-Group בשרת אם קיים, אחרת המזהה המקומי.
+function currentGanKey() {
+  const active = getActiveInstitution();
+  const key = active?.serverGroupId ?? active?.id;
+  return key != null ? String(key) : "default";
+}
+
+// קורא את קבוצת מזהי-הגנים שנפתחו. מהגר פורמט ישן ("1" = פתיחה גלובלית) לפתיחת
+// הגן הפעיל בלבד — כדי שהמעבר למודל לפי-גן לא ייקח פרו ממי שכבר פתח בעבר.
+function readUnlockedSet() {
+  let raw;
   try {
-    if (localStorage.getItem(PRO_UNLOCK_KEY) === "1") {
-      return true;
-    }
+    raw = localStorage.getItem(PRO_UNLOCK_KEY);
   } catch {
-    // אין localStorage — ממשיכים לבדוק לפי plan
+    return new Set();
   }
-  return getUser()?.plan === "pro";
+  if (!raw) {
+    return new Set();
+  }
+  if (raw === "1") {
+    const migrated = new Set([currentGanKey()]);
+    writeUnlockedSet(migrated);
+    return migrated;
+  }
+  try {
+    const arr = JSON.parse(raw);
+    return new Set(Array.isArray(arr) ? arr.map(String) : []);
+  } catch {
+    return new Set();
+  }
+}
+
+function writeUnlockedSet(set) {
+  try {
+    localStorage.setItem(PRO_UNLOCK_KEY, JSON.stringify([...set]));
+  } catch {
+    // אין localStorage — הפתיחה פשוט לא תישמר במכשיר
+  }
+}
+
+/* האם לגן הפעיל יש מנוי פרו. ברירת מחדל: לא (חינם). לפי גן — לא גלובלי. */
+export function isPro() {
+  return readUnlockedSet().has(currentGanKey());
 }
 
 /* האם המפתח שייך לפיצ'רי הפרו */
@@ -85,22 +122,16 @@ export function isRouteLocked(pathname) {
   return key ? isFeatureLocked(key) : false;
 }
 
-/* פתיחת פרו מקומית — מסמן את המשתמשת כמנויה במכשיר הזה (נשמר גם בין כניסות). */
+/* פתיחת פרו מקומית — מסמן את **הגן הפעיל בלבד** כמנוי (נשמר גם בין כניסות). */
 export function grantProLocally() {
-  try {
-    localStorage.setItem(PRO_UNLOCK_KEY, "1");
-  } catch {
-    // אין localStorage — לפחות נסמן על אובייקט המשתמש הנוכחי
-  }
-  setLocalPlan("pro");
+  const set = readUnlockedSet();
+  set.add(currentGanKey());
+  writeUnlockedSet(set);
 }
 
-/* ביטול פתיחת פרו מקומית (למשל לבדיקת המצב הנעול). */
+/* ביטול פתיחת פרו מקומית לגן הפעיל (למשל לבדיקת המצב הנעול). */
 export function revokeProLocally() {
-  try {
-    localStorage.removeItem(PRO_UNLOCK_KEY);
-  } catch {
-    // ignore
-  }
-  setLocalPlan("free");
+  const set = readUnlockedSet();
+  set.delete(currentGanKey());
+  writeUnlockedSet(set);
 }

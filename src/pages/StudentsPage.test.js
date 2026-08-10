@@ -2,6 +2,7 @@ import { render, screen, waitFor } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";
 import StudentsPage from "./StudentsPage";
+import { grantProLocally } from "../services/plan";
 
 /*
   טסטים למסך התלמידים המלא (שלב 2): מונה, חיפוש, סינון,
@@ -87,12 +88,14 @@ function mockServer(initialStudents, paymentsByStudent = {}) {
   });
 }
 
-// המשתמשת מסומנת כמנויה (pro) כדי שפעולות הפרו (בקשת תשלום גורפת) יוצגו כרגיל
+// פותחים פרו לגן הפעיל (פרו הוא לכל גן בנפרד) כדי שפעולות הפרו — בקשת תשלום
+// גורפת — יוצגו כרגיל. אין מוסד פעיל בטסט → נפתח לגן "default".
 beforeEach(() => {
   localStorage.setItem(
     "vaadygo.user",
-    JSON.stringify({ username: "avivit", plan: "pro" })
+    JSON.stringify({ username: "avivit" })
   );
+  grantProLocally();
 });
 
 afterEach(() => {

@@ -1,6 +1,7 @@
 import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import CheckoutPage from "./CheckoutPage";
+import { isPro } from "../services/plan";
 
 /*
   טסטים למסך התשלום (דמו): הצגת סכום מהכתובת, ולידציה, ומעבר למסך הצלחה.
@@ -65,5 +66,6 @@ test("קוד 1234 במקום מספר כרטיס פותח מצב PRO", async () 
   fireEvent.click(screen.getByRole("button", { name: /שלם/ }));
 
   expect(await screen.findByText(/מצב PRO נפתח/)).toBeInTheDocument();
-  expect(JSON.parse(localStorage.getItem("vaadygo.user")).plan).toBe("pro");
+  // פרו נפתח לגן הפעיל (אין מוסד פעיל בטסט → נפתח לגן "default")
+  expect(isPro()).toBe(true);
 });

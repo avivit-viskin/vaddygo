@@ -5,6 +5,7 @@ import Button from "../components/Button";
 import Icon from "../components/Icon";
 import BrandName from "../components/BrandName";
 import { PRO_PRICE, PRO_FEATURES, isPro } from "../services/plan";
+import { getActiveInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { PRO_PAYMENT_URL } from "../config/payment";
 import "../styles/pro.css";
@@ -55,6 +56,8 @@ const MORE_FEATURES = [
 function UpgradePage() {
   const navigate = useNavigate();
   const alreadyPro = isPro();
+  // הפרו הוא לכל גן בנפרד — מציגים על איזה גן חל השדרוג, כדי שברור מה משדרגים.
+  const ganName = getActiveInstitution()?.name;
   // כשספק/ועד שאינו פרו לוחץ על כלי — לא מנווטים, אלא מציגים הודעה שהשירות
   // נפתח עם השדרוג (המשתמשת ביקשה חיווי ברור לפני הרכישה).
   const [lockedMsg, setLockedMsg] = useState(false);
@@ -74,8 +77,13 @@ function UpgradePage() {
           </h2>
           <p className="upgrade-price">
             <span className="upgrade-price__num">₪{PRO_PRICE}</span>
-            <span className="upgrade-price__per"> / שנה לארגון</span>
+            <span className="upgrade-price__per"> / שנה לגן</span>
           </p>
+          {ganName && (
+            <p className="upgrade-subtitle">
+              השדרוג חל על הגן <strong>{ganName}</strong> — כל גן משודרג בנפרד.
+            </p>
+          )}
           <p className="upgrade-subtitle">
             כל מה שיש בחינם — ובנוסף כל הכלים המתקדמים האלה, במקום אחד:
           </p>
@@ -146,7 +154,10 @@ function UpgradePage() {
           {alreadyPro ? (
             <p className="upgrade-note">
               <Icon name="check-circle" size={16} />
-              <span>את כבר במסלול פרו — כל הכלים פתוחים לך 👑</span>
+              <span>
+                {ganName ? `הגן ${ganName} כבר במסלול פרו` : "את כבר במסלול פרו"} —
+                כל הכלים פתוחים לך 👑
+              </span>
             </p>
           ) : (
             <>

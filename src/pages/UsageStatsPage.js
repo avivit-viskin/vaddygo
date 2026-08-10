@@ -6,6 +6,7 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
+import SupplierCleanup from "./admin/SupplierCleanup";
 import { getUsageStats } from "../services/usageStatsService";
 import { isSuperAdmin } from "../services/authService";
 
@@ -73,6 +74,7 @@ function UsageStatsPage() {
               completedLabel="כרטיס מוכן להצגה לוועדים"
               stoppedLabel="נרשמו ולא השלימו את הכרטיס"
             />
+            <SupplierCleanup />
           </>
         )}
       </Card>

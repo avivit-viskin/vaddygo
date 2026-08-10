@@ -57,6 +57,24 @@ function SupplierUpgrade({ vendor }) {
     }) ב-VaddyGo למסלול פרו 👑`
   );
 
+  // כבר פרו — לא מציגים מחיר/פיצ'רים, רק אישור שהמסלול נרכש והכול מוכן.
+  if (alreadyPro) {
+    return (
+      <div className="upgrade-page">
+        <div className="upgrade-hero">
+          <span className="upgrade-crown">
+            <Icon name="check-circle" size={40} title="פרו פעיל" />
+          </span>
+          <h2 className="upgrade-title">מסלול פרו נרכש בהצלחה 👑</h2>
+          <p className="upgrade-subtitle">
+            כל הפיצ'רים מוכנים ופעילים בכרטיס שלך — אפשר להתחיל לעבוד ולקבל יותר
+            הזמנות מהוועדים.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="upgrade-page">
       <div className="upgrade-hero">
@@ -94,24 +112,15 @@ function SupplierUpgrade({ vendor }) {
       </div>
 
       <div className="upgrade-actions">
-        {alreadyPro ? (
-          <p className="upgrade-note">
-            <Icon name="check-circle" size={16} />
-            <span>הכרטיס שלך כבר במסלול פרו — כל הכלים פתוחים לך 👑</span>
-          </p>
-        ) : (
-          <>
-            <p className="upgrade-note">
-              <Icon name="crown" size={15} />
-              <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
-            </p>
-            <a href={contactUrl} target="_blank" rel="noreferrer">
-              <Button variant="brand">
-                <Icon name="message" size={16} /> לשדרוג — דברו איתנו
-              </Button>
-            </a>
-          </>
-        )}
+        <p className="upgrade-note">
+          <Icon name="crown" size={15} />
+          <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
+        </p>
+        <a href={contactUrl} target="_blank" rel="noreferrer">
+          <Button variant="brand">
+            <Icon name="message" size={16} /> לשדרוג — דברו איתנו
+          </Button>
+        </a>
       </div>
     </div>
   );

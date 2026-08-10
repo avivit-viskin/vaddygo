@@ -605,20 +605,16 @@ function SupplierEditPage() {
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />
           </div>
           <div style={{ marginTop: 16 }}>
-            {vendor.isPro ? (
-              <Button variant="secondary" onClick={() => openShareCatalog("")}>
-                <Icon name="link" size={16} /> שיתוף כל הקטלוג{" "}
-                <ProBadge title="שיתוף קטלוג ממותג — פיצ'ר פרו" />
-              </Button>
-            ) : (
-              <p
-                className="supplier-edit__login-hint"
-                style={{ color: "var(--color-text-muted)" }}
-              >
-                👑 שיתוף קטלוג ממותג — פיצ'ר של מסלול פרו. לפתיחה, פנו למנהלת
-                VaddyGo.
-              </p>
-            )}
+            {/* שיתוף כל הקטלוג (כל התיקיות) — פתוח לכולם. לספק פרו הקטלוג ממותג. */}
+            <Button variant="secondary" onClick={() => openShareCatalog("")}>
+              <Icon name="link" size={16} /> שיתוף כל הקטלוג (כל התיקיות)
+              {vendor.isPro && (
+                <>
+                  {" "}
+                  <ProBadge title="קטלוג ממותג — פיצ'ר פרו" />
+                </>
+              )}
+            </Button>
           </div>
         </>
       )}

@@ -121,7 +121,7 @@ function PublicPollPage() {
 
           {showResults ? (
             <p className="public-poll__thanks">
-              {voteError ? "" : "תודה! התשובה נקלטה 💜 "}סה״כ {total} תשובות.
+              {voteError ? "" : "תודה! התשובה נקלטה. "}סה״כ {total} תשובות.
             </p>
           ) : (
             <Button onClick={send} isLoading={isSending}>

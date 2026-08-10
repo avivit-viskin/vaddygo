@@ -290,9 +290,13 @@ function VendorPanel({
             margin: "0 0 12px",
             fontWeight: 600,
             color: "#8a6d1a",
+            display: "flex",
+            alignItems: "center",
+            gap: 6,
           }}
         >
-          🏷️ {vendor.offer}
+          <Icon name="tag" size={16} />
+          {vendor.offer}
         </div>
       )}
       <div className="vendor-panel__contact">

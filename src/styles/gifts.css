@@ -380,6 +380,7 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: stretch;
 }
 
 .vendor-panel__whatsapp {
@@ -393,12 +394,20 @@
   align-items: center;
 }
 
+/* "לקטלוג" מעוצב ככפתור מסגרת אחיד (במקום קישור-טקסט), כדי שיהיה מיושר באותה
+   שורה עם כפתורי "בקשת הצעת מחיר" ו-WhatsApp — אותו גובה, ריפוד וצורת גלולה. */
 .vendor-panel__catalog {
   color: var(--color-primary-dark);
-  font-weight: 500;
+  font-weight: 600;
   min-height: 44px;
+  padding: 10px 20px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  text-decoration: none;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
 }
 
 .vendor-panel__socials {

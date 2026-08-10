@@ -1,7 +1,12 @@
 import { useState } from "react";
 import Button from "../../components/Button";
 import Icon from "../../components/Icon";
-import { isPro, grantProLocally, revokeProLocally } from "../../services/plan";
+import {
+  isPro,
+  grantProLocally,
+  revokeProLocally,
+  canUnlockProWithoutPaying,
+} from "../../services/plan";
 import { getActiveInstitution } from "../../services/institutionsService";
 import "../../styles/pro-test.css";
 
@@ -23,6 +28,12 @@ function ProTestControl() {
   const [unlocked, setUnlocked] = useState(() => isPro());
   const institution = getActiveInstitution();
   const name = institution?.name || "המוסד הפעיל";
+
+  // שכבת הגנה שנייה: העמוד כולו כבר חסום למי שאינה מנהלת, אבל הרכיב בודק גם
+  // בעצמו — כדי שהעברה שלו למסך אחר בעתיד לא תחשוף בטעות פתיחת פרו חינם.
+  if (!canUnlockProWithoutPaying()) {
+    return null;
+  }
 
   function toggle() {
     if (unlocked) {

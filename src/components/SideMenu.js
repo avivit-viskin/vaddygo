@@ -10,6 +10,7 @@ import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import ProBadge from "./ProBadge";
+import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
 
 /*
@@ -81,14 +82,20 @@ function SideMenu({ isOpen, onClose }) {
           type="button"
           className="sidemenu__action"
           onClick={() => {
-            // ניהול ומעבר בין מוסדות פתוחים לכולם (חינם). כל מוסד משודרג לפרו
-            // בנפרד — אפשר גן אחד בסיסי וגן אחר פרו.
+            // הוספת מוסד נוסף = פיצ'ר פרו (החלטת בעלת המוצר, 10.08.2026).
+            // מעבר בין מוסדות קיימים נשאר חינם — רק ההוספה חסומה, ומי שאינה
+            // מנויה מגיעה לעמוד השדרוג במקום לטופס.
+            if (isFeatureLocked("multiInstitution")) {
+              go("/upgrade");
+              return;
+            }
             setAddError("");
             setNewName("");
             setIsAddOpen(true);
           }}
         >
-          <Icon name="plus" size={18} /> הוסף מוסד
+          <Icon name="plus" size={18} /> הוסף מוסד{" "}
+          <ProBadge title="הוספת מוסד נוסף — פיצ'ר פרו" />
         </button>
 
         <button

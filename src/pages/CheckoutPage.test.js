@@ -53,10 +53,10 @@ test("תשלום עם פרטים תקינים מציג מסך הצלחה (הדג
   expect(screen.getByText(/לא בוצע חיוב אמיתי/)).toBeInTheDocument();
 });
 
-test("קוד 1234 במקום מספר כרטיס פותח מצב PRO", async () => {
+test("קוד 1234 פותח מצב PRO — למנהלת VaddyGo", async () => {
   localStorage.setItem(
     "vaadygo.user",
-    JSON.stringify({ username: "avivit", plan: "free" })
+    JSON.stringify({ username: "avivit", plan: "free", role: "SuperAdmin" })
   );
   renderAt("/pay?pro=1");
 
@@ -68,4 +68,26 @@ test("קוד 1234 במקום מספר כרטיס פותח מצב PRO", async () 
   expect(await screen.findByText(/מצב PRO נפתח/)).toBeInTheDocument();
   // פרו נפתח לגן הפעיל (אין מוסד פעיל בטסט → נפתח לגן "default")
   expect(isPro()).toBe(true);
+});
+
+/*
+  הבדיקה החשובה מבחינה עסקית: קוד הפתיחה נמצא בקובץ ה-JavaScript הציבורי של
+  האתר, ולכן כל לקוחה יכולה למצוא אותו. אצל מי שאינה מנהלת הוא חייב להתנהג
+  כמספר כרטיס לא תקין — אחרת ערוץ ההכנסה של VaddyGo נסגר בשקט.
+*/
+test("אצל לקוחה רגילה קוד 1234 אינו פותח PRO אלא נדחה כמספר כרטיס", async () => {
+  localStorage.setItem(
+    "vaadygo.user",
+    JSON.stringify({ username: "committee", plan: "free", role: "Member" })
+  );
+  renderAt("/pay?pro=1");
+
+  fireEvent.change(screen.getByLabelText("מספר כרטיס"), {
+    target: { value: "1234" },
+  });
+  fireEvent.click(screen.getByRole("button", { name: /שלם/ }));
+
+  expect(screen.getByText(/מספר כרטיס לא תקין/)).toBeInTheDocument();
+  expect(screen.queryByText(/מצב PRO נפתח/)).not.toBeInTheDocument();
+  expect(isPro()).toBe(false);
 });

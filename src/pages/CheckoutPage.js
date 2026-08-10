@@ -7,7 +7,11 @@ import Button from "../components/Button";
 import Icon from "../components/Icon";
 import { formatShekels } from "../services/format";
 import { beginActivation } from "../services/institutionsService";
-import { grantProLocally, PRO_UNLOCK_CODE } from "../services/plan";
+import {
+  grantProLocally,
+  PRO_UNLOCK_CODE,
+  canUnlockProWithoutPaying,
+} from "../services/plan";
 import "../styles/checkout.css";
 
 /*
@@ -16,7 +20,13 @@ import "../styles/checkout.css";
   שתחובר סליקה אמיתית. הסכום והתיאור מגיעים מפרמטרים בכתובת (?amount=&for=).
   פתיחת פרו למנהלת: מזינים את קוד הפתיחה במקום מספר כרטיס (עד סליקה אמיתית).
 */
-const isUnlockCode = (card) => card.replace(/\s/g, "") === PRO_UNLOCK_CODE;
+/*
+  קוד הפתיחה תקף **רק למנהלת VaddyGo**. הקוד עצמו נארז לתוך ה-JavaScript
+  הציבורי של האתר, ולכן בלי הבדיקה הזו כל לקוחה שנתקלת בו הייתה פותחת לעצמה
+  פרו בחינם. אצל כל אחת אחרת הקוד מתנהג פשוט כמספר כרטיס לא תקין.
+*/
+const isUnlockCode = (card) =>
+  canUnlockProWithoutPaying() && card.replace(/\s/g, "") === PRO_UNLOCK_CODE;
 
 function validateCard(values) {
   // קוד פתיחת פרו — מדלגים על שאר הוולידציה (מזינים אותו במקום מספר כרטיס)

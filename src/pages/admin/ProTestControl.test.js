@@ -3,9 +3,13 @@ import userEvent from "@testing-library/user-event";
 import ProTestControl from "./ProTestControl";
 import { isPro } from "../../services/plan";
 import { getActiveInstitution } from "../../services/institutionsService";
+import { isSuperAdmin } from "../../services/authService";
 
 jest.mock("../../services/institutionsService", () => ({
   getActiveInstitution: jest.fn(),
+}));
+jest.mock("../../services/authService", () => ({
+  isSuperAdmin: jest.fn(() => true),
 }));
 
 /*
@@ -14,7 +18,14 @@ jest.mock("../../services/institutionsService", () => ({
 */
 beforeEach(() => {
   localStorage.clear();
+  isSuperAdmin.mockReturnValue(true);
   getActiveInstitution.mockReturnValue({ id: "inst-1", name: "רעות בדיקת הרשאות" });
+});
+
+test("מי שאינה מנהלת לא רואה את המתג בכלל", () => {
+  isSuperAdmin.mockReturnValue(false);
+  const { container } = render(<ProTestControl />);
+  expect(container).toBeEmptyDOMElement();
 });
 
 test("מציג את שם המוסד הפעיל ואת המצב הנעול כברירת מחדל", () => {

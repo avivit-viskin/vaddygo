@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ProBadge from "./ProBadge";
 import WhatsAppIcon from "./WhatsAppIcon";
 import { getSupplierLeads, updateLeadStatus } from "../services/leadsService";
@@ -9,6 +9,8 @@ import { formatShekels, formatDayMonth } from "../services/format";
   SupplierLeads — תיבת הפניות (בקשות הצעת מחיר / RFQ) של הספק (פיצ'ר Pro).
   מציג את הבקשות שוועדים שלחו: מה מבקשים, כמות/תאריך/תקציב, הודעה ופרטי קשר,
   עם כפתורי חזרה (וואטסאפ/טלפון) וסימון סטטוס לניהול. הנתונים לפי טוקן הספק.
+  נטען בכניסה, בלחיצה על "רענון", וגם כשחוזרים ללשונית (focus) — כך שפנייה
+  חדשה מופיעה בלי לטעון מחדש את כל הפורטל.
 */
 const STATUS = {
   new: { label: "חדש", color: "#c25c8a" },
@@ -28,23 +30,28 @@ const box = {
 function SupplierLeads({ token, isPro }) {
   const [leads, setLeads] = useState(null);
   const [error, setError] = useState("");
+  const [refreshing, setRefreshing] = useState(false);
 
-  useEffect(() => {
+  const load = useCallback(() => {
     if (!isPro || !token) {
-      return undefined;
+      return;
     }
-    let alive = true;
+    setRefreshing(true);
+    setError("");
     getSupplierLeads(token)
-      .then((data) => {
-        if (alive) setLeads(Array.isArray(data) ? data : []);
-      })
-      .catch((err) => {
-        if (alive) setError(err.message || "לא הצלחנו לטעון את הפניות");
-      });
-    return () => {
-      alive = false;
-    };
+      .then((data) => setLeads(Array.isArray(data) ? data : []))
+      .catch((err) => setError(err.message || "לא הצלחנו לטעון את הפניות"))
+      .finally(() => setRefreshing(false));
   }, [token, isPro]);
+
+  // טעינה בכניסה + רענון אוטומטי כשחוזרים ללשונית (מספיק לשלוח פנייה בכרטיס
+  // הספק, לחזור לפורטל, והיא כבר כאן)
+  useEffect(() => {
+    load();
+    const onFocus = () => load();
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [load]);
 
   async function changeStatus(id, status) {
     setLeads((prev) => prev.map((l) => (l.id === id ? { ...l, status } : l)));
@@ -72,14 +79,34 @@ function SupplierLeads({ token, isPro }) {
 
   return (
     <div style={box}>
-      <h3 className="sup-section-title" style={{ marginTop: 0 }}>
-        📨 תיבת פניות{" "}
-        {Array.isArray(leads) && leads.length > 0 && (
-          <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>
-            ({leads.length})
-          </span>
-        )}
-      </h3>
+      <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
+        <h3 className="sup-section-title" style={{ margin: 0, flex: 1 }}>
+          📨 תיבת פניות{" "}
+          {Array.isArray(leads) && leads.length > 0 && (
+            <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>
+              ({leads.length})
+            </span>
+          )}
+        </h3>
+        <button
+          type="button"
+          onClick={load}
+          disabled={refreshing}
+          style={{
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+            borderRadius: 8,
+            padding: "6px 12px",
+            fontFamily: "var(--font-family)",
+            fontSize: "var(--font-size-sm)",
+            fontWeight: 600,
+            color: "var(--color-primary-dark)",
+            cursor: refreshing ? "default" : "pointer",
+          }}
+        >
+          {refreshing ? "מרענן…" : "↻ רענון"}
+        </button>
+      </div>
 
       {error && <p className="field__error">{error}</p>}
       {!error && leads === null && (
@@ -87,7 +114,7 @@ function SupplierLeads({ token, isPro }) {
       )}
       {!error && Array.isArray(leads) && leads.length === 0 && (
         <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
-          עדיין אין פניות. כשוועד ישלח בקשת הצעת מחיר — היא תופיע כאן.
+          עדיין אין פניות. כשוועד ישלח בקשת הצעת מחיר — היא תופיע כאן (אפשר גם ללחוץ "רענון").
         </p>
       )}
 

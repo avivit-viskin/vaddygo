@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { getUser } from "../services/authService";
+import { isPro } from "../services/plan";
+import Icon from "./Icon";
 import "../styles/institutionAvatar.css";
 
 /*
@@ -48,6 +50,16 @@ function InstitutionAvatar({ name }) {
       >
         {ganInitials(name)}
       </button>
+      {/* כתר על הגן הפעיל כשאינו פרו (רמז לשדרוג); נעלם ברגע שהגן משדרג */}
+      {!isPro() && (
+        <span
+          className="inst-avatar__crown"
+          title="לא במסלול פרו — אפשר לשדרג"
+          aria-hidden="true"
+        >
+          <Icon name="crown" size={13} />
+        </span>
+      )}
       {open && (
         <div className="inst-avatar__popup" role="dialog" aria-label="פרטי הגן">
           <strong className="inst-avatar__name">{name}</strong>

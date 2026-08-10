@@ -121,6 +121,24 @@ export function isPro() {
   return readUnlockedSet().has(currentGanKey());
 }
 
+/*
+  האם למוסד מסוים (לא בהכרח הפעיל) יש פרו — לפי אותו מפתח-גן ואותה קבוצת-פתיחה
+  שמשמשים את isPro(). משמש להצגת "כתר שדרוג" ליד כל מוסד שאינו פרו (והסתרתו
+  ברגע שהמוסד משדרג).
+*/
+export function isProInstitution(institution) {
+  if (!institution) {
+    return false;
+  }
+  const key =
+    institution.serverGroupId != null
+      ? String(institution.serverGroupId)
+      : institution.id != null
+        ? String(institution.id)
+        : "default";
+  return readUnlockedSet().has(key);
+}
+
 /* האם המפתח שייך לפיצ'רי הפרו */
 export function isProFeature(key) {
   return Object.prototype.hasOwnProperty.call(PRO_FEATURES, key);

@@ -58,11 +58,35 @@
   border-radius: var(--radius-md);
   background: var(--color-surface);
 }
+.supplier-cleanup__bulk {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 0 0 10px;
+}
+.supplier-cleanup__selectall {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text);
+  cursor: pointer;
+}
+.supplier-cleanup__check {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--color-link);
+}
 .supplier-cleanup__info {
   display: flex;
   flex-direction: column;
   gap: 2px;
   min-width: 0;
+  flex: 1;
 }
 .supplier-cleanup__name {
   font-weight: 700;

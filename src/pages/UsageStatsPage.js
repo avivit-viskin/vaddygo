@@ -7,6 +7,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
 import SupplierCleanup from "./admin/SupplierCleanup";
+import ProTestControl from "./admin/ProTestControl";
 import ResetDisplayControl from "./admin/ResetDisplayControl";
 import { getUsageStats } from "../services/usageStatsService";
 import { applyBaseline, getBaseline } from "../services/usageBaseline";
@@ -90,6 +91,8 @@ function UsageStatsPage() {
               onChange={bump}
             />
             <SupplierCleanup />
+            {/* מתג פרו לבדיקות — פותח/נועל את המוסד הפעיל בדפדפן הזה בלבד */}
+            <ProTestControl />
           </>
         )}
       </Card>

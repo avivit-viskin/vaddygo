@@ -1,0 +1,12 @@
+/*
+  vendor-report — יישור כפתורי הפעולה בדוח הספק (שיתוף בוואטסאפ / העתקה / סגירה).
+  co-located עם VendorReportModal. שומר על .form-actions הכללי ורק מוסיף גלישה
+  ורוחב-בסיס אחיד, כך שהכפתורים מיושרים באותה שורה בדסקטופ, ונשברים יפה (כל אחד
+  ברוחב מלא) בנייד — במקום להידחס. selector כפול-מחלקה כדי לנצח את .form-actions .btn.
+*/
+.form-actions.vendor-report__actions {
+  flex-wrap: wrap;
+}
+.form-actions.vendor-report__actions .btn {
+  flex: 1 1 160px;
+}

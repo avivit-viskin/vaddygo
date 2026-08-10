@@ -6,6 +6,7 @@ import CopyMessageButton from "../../components/CopyMessageButton";
 import SupplierReports from "../../components/SupplierReports";
 import { vendorProgress, vendorReportText } from "../../services/vendorProgress";
 import { whatsappUrlWithText } from "../../services/whatsapp";
+import "../../styles/vendor-report.css";
 
 /*
   VendorReportModal — הדוח של ספק בעיניי המנהלת (SuperAdmin): כמה הכרטיס שלו
@@ -95,13 +96,12 @@ function VendorReportModal({ vendor, onClose }) {
               ? "אפשר לשלוח לספק את הדוח כדי שיֵדע מה נשאר להשלים."
               : "הכרטיס של הספק מלא — אפשר לשלוח לו את הדוח כעדכון."}
           </p>
-          <div className="form-actions">
+          <div className="form-actions vendor-report__actions">
             <a
               className="btn btn--primary"
               href={whatsappUrlWithText(vendor.whatsApp, reportText)}
               target="_blank"
               rel="noreferrer"
-              style={{ textDecoration: "none" }}
             >
               <WhatsAppIcon size={18} /> שיתוף הדוח בוואטסאפ
             </a>

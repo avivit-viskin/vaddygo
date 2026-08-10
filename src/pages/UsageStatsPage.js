@@ -1,4 +1,4 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import useApi from "../hooks/useApi";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
@@ -7,7 +7,9 @@ import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
 import SupplierCleanup from "./admin/SupplierCleanup";
+import ResetDisplayControl from "./admin/ResetDisplayControl";
 import { getUsageStats } from "../services/usageStatsService";
+import { applyBaseline, getBaseline } from "../services/usageBaseline";
 import { isSuperAdmin } from "../services/authService";
 
 /*
@@ -20,6 +22,9 @@ import { isSuperAdmin } from "../services/authService";
 */
 function UsageStatsPage() {
   const isAdmin = isSuperAdmin();
+  // כפייה על רענון אחרי "איפוס תצוגה" (קו-הבסיס נשמר ב-localStorage ונקרא ברינדור)
+  const [, forceRerender] = useState(0);
+  const bump = () => forceRerender((n) => n + 1);
   // מי שאינה מנהלת לא פונה לשרת בכלל — אין טעם בבקשה שתחזור 403
   const fetcher = useCallback(
     () => (isAdmin ? getUsageStats() : Promise.resolve(null)),
@@ -63,16 +68,26 @@ function UsageStatsPage() {
             <UsageFunnel
               title="ועדי הורים"
               icon="users"
-              funnel={data.committees}
+              funnel={applyBaseline(data.committees, getBaseline("committees"))}
               completedLabel="השלימו את הגדרת הגן"
               stoppedLabel="נרשמו ולא סיימו את האשף"
+            />
+            <ResetDisplayControl
+              funnelKey="committees"
+              current={data.committees}
+              onChange={bump}
             />
             <UsageFunnel
               title="ספקים"
               icon="tag"
-              funnel={data.suppliers}
+              funnel={applyBaseline(data.suppliers, getBaseline("suppliers"))}
               completedLabel="כרטיס מוכן להצגה לוועדים"
               stoppedLabel="נרשמו ולא השלימו את הכרטיס"
+            />
+            <ResetDisplayControl
+              funnelKey="suppliers"
+              current={data.suppliers}
+              onChange={bump}
             />
             <SupplierCleanup />
           </>

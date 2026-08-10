@@ -14,6 +14,7 @@ import { paymentMethodIcon } from "../services/paymentMethods";
 import { formatShekels } from "../services/format";
 import Modal from "./Modal";
 import Button from "./Button";
+import PaymentMethodIcon from "./PaymentMethodIcon";
 import Icon from "./Icon";
 import Spinner from "./Spinner";
 import ErrorMessage from "./ErrorMessage";
@@ -163,7 +164,9 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button>ביט</Button>
+            <Button>
+              <PaymentMethodIcon method="bit" /> ביט
+            </Button>
           </a>
         )}
         {links.paybox && (
@@ -173,7 +176,9 @@ function PaymentRequestContent({ student, fullName }) {
             target="_blank"
             rel="noreferrer"
           >
-            <Button>פייבוקס</Button>
+            <Button>
+              <PaymentMethodIcon method="paybox" /> פייבוקס
+            </Button>
           </a>
         )}
         <a

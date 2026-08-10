@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: LOCKED by [Claude Opus (product unit), 2026-08-10 07:52]
+STATUS: FREE
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

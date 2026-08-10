@@ -51,6 +51,9 @@ builder.Services.AddCors(options =>
 
 builder.Services.AddControllers();
 
+// הגבלת קצב על נקודות הקצה הפתוחות (ניחוש סיסמאות / הצפה)
+builder.Services.AddVaddyGoRateLimiting();
+
 // רישום השכבות ב-DI: ‏Repository גנרי (DAL) ו-Services (BL)
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 // בקרת גישה לפי המשתמש המחובר (בעלות) — נדרש גישה ל-HttpContext כדי לקרוא את ה-JWT
@@ -178,7 +181,10 @@ using (var scope = app.Services.CreateScope())
     }
 }
 
-// טיפול שגיאות מרכזי — עוטף את כל הבקשות, ראשון ב-pipeline
+// כותרות אבטחה על כל תשובה — ראשון, כדי שיחולו גם על תשובות שגיאה
+app.UseMiddleware<SecurityHeadersMiddleware>();
+
+// טיפול שגיאות מרכזי — עוטף את כל הבקשות
 app.UseMiddleware<ErrorHandlingMiddleware>();
 
 // הפעל CORS
@@ -189,6 +195,8 @@ if (app.Environment.IsDevelopment())
 {
     app.UseHttpsRedirection();
 }
+
+app.UseRateLimiter();
 
 app.UseAuthentication();
 app.UseAuthorization();

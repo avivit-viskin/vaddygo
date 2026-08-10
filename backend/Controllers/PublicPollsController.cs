@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
@@ -16,6 +17,7 @@ namespace ParentCommitteeAPI.Controllers
     [ApiController]
     [Route("api/public/polls")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.Public)]
     public class PublicPollsController : ControllerBase
     {
         private readonly IPollService _polls;

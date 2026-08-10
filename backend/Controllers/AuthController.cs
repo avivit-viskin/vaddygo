@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
@@ -22,6 +23,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/auth/register
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("register")]
         public async Task<ActionResult<AuthResponseDto>> Register([FromBody] RegisterDto dto)
         {
@@ -33,6 +35,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/auth/login
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("login")]
         public async Task<ActionResult<AuthResponseDto>> Login([FromBody] LoginDto dto)
         {
@@ -44,6 +47,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/auth/google — כניסה/הרשמה עם Google (מאמת את ה-credential מול גוגל)
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("google")]
         public async Task<ActionResult<AuthResponseDto>> Google([FromBody] GoogleLoginDto dto)
         {
@@ -67,6 +71,7 @@ namespace ParentCommitteeAPI.Controllers
         // POST: api/auth/forgot-password — איפוס שלב 1: שליחת קוד למייל.
         // תמיד מחזיר הצלחה כללית (לא חושף אם המייל רשום).
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("forgot-password")]
         public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto dto)
         {
@@ -76,6 +81,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/auth/reset-password — איפוס שלב 2: קוד + סיסמה חדשה.
         [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto dto)
         {

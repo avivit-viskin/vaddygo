@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using ParentCommitteeAPI.DTOs;
@@ -15,6 +16,7 @@ namespace ParentCommitteeAPI.Controllers
     [ApiController]
     [Route("api/public/vendors")]
     [AllowAnonymous]
+    [EnableRateLimiting(RateLimitPolicies.Public)]
     public class PublicVendorsController : ControllerBase
     {
         private readonly IVendorService _vendorService;

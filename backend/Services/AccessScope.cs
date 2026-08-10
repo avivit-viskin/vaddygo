@@ -48,6 +48,13 @@ namespace ParentCommitteeAPI.Services
 
         /* האם הגן הנתון שייך למשתמש המחובר (לבדיקות בעלות על משאב לפי id / IDOR). */
         Task<bool> CanAccessGroupAsync(int? groupId);
+
+        /*
+          האם לגן יש מסלול פרו פעיל. זהו מקור האמת לחסימת פיצ'רי פרו בשרת —
+          הלקוח יכול להציג מה שירצה, אבל הנתונים עצמם נחסמים כאן.
+          גן שאינו קיים / null → false (אין גישה = אין פרו).
+        */
+        Task<bool> IsGroupProAsync(int? groupId);
     }
 
     public class AccessScope : IAccessScope
@@ -142,6 +149,18 @@ namespace ParentCommitteeAPI.Services
             }
             var accessible = await AccessibleGroupIdsAsync();
             return accessible.Contains(groupId.Value);
+        }
+
+        public async Task<bool> IsGroupProAsync(int? groupId)
+        {
+            if (groupId == null)
+            {
+                return false;
+            }
+            var group = await _db.Groups
+                .AsNoTracking()
+                .FirstOrDefaultAsync(g => g.Id == groupId.Value);
+            return ProPolicy.IsActive(group);
         }
 
         public async Task<string?> GetRoleAsync(int? groupId)

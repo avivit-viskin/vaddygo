@@ -17,6 +17,11 @@ namespace ParentCommitteeAPI.DTOs
         public decimal TotalPerChild { get; set; }
         public decimal CollectionGoal { get; set; }
 
+        /* מסלול פרו של המוסד — נקבע בשרת בלבד. IsPro כאן הוא "פרו **פעיל**"
+           (הדגל דלוק והתוקף לא עבר), כדי שהלקוח לא יצטרך לחשב תפוגה בעצמו. */
+        public bool IsPro { get; set; }
+        public DateTime? ProValidUntil { get; set; }
+
         // הרשאת המשתמש המחובר בגן הזה: "manager" | "editor" | "viewer".
         // מאפשר ללקוח להתאים את הממשק (להסתיר עריכה מ"צופה"). ברירת מחדל manager.
         public string Role { get; set; } = "manager";
@@ -73,6 +78,16 @@ namespace ParentCommitteeAPI.DTOs
         public string? BankName { get; set; }
         public string? Branch { get; set; }
         public string? Account { get; set; }
+    }
+
+    /*
+      GroupProDto — פתיחה/סגירה של מסלול פרו למוסד (מנהלת VaddyGo בלבד).
+      ValidUntil = תוקף המנוי; null = בלי תאריך תפוגה (פתיחה ידנית).
+    */
+    public class GroupProDto
+    {
+        public bool IsPro { get; set; }
+        public DateTime? ValidUntil { get; set; }
     }
 
     /*

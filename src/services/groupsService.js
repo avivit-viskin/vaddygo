@@ -33,3 +33,13 @@ export function renameGroup(groupId, name) {
 export function deleteGroup(groupId) {
   return api.del(`/api/groups/${groupId}`);
 }
+
+/*
+  פתיחה/סגירה של מסלול פרו למוסד — **מנהלת VaddyGo בלבד** (השרת אוכף ומחזיר
+  403 לכל אחת אחרת). זהו מקור האמת לפרו: מכאן הוא חל בכל מכשיר ובכל דפדפן,
+  והשרת חוסם בפועל את פיצ'רי הפרו למוסד שאינו מנוי.
+  validUntil: תאריך ISO או null (בלי תאריך תפוגה).
+*/
+export function setGroupPro(groupId, isPro, validUntil = null) {
+  return api.put(`/api/groups/${groupId}/pro`, { isPro, validUntil });
+}

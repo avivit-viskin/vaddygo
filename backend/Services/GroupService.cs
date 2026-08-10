@@ -344,6 +344,31 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group);
         }
 
+        /*
+          פתיחה/סגירה של מסלול פרו למוסד. **בכוונה אין כאן בדיקת בעלות** (בשונה
+          משאר העדכונים): מנהלת VaddyGo פותחת פרו למוסדות של לקוחות, שאינם שלה.
+          ההרשאה נאכפת בקונטרולר ב-[Authorize(Roles = "SuperAdmin")].
+        */
+        public async Task<GroupResponseDto?> SetProAsync(int id, bool isPro, DateTime? validUntil)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+
+            group.IsPro = isPro;
+            // סגירת פרו מנקה גם את התוקף, כדי שלא יישאר תאריך "מרחף" ממנוי קודם
+            group.ProValidUntil = isPro ? validUntil : null;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation(
+                "Group pro set (Id: {GroupId}, IsPro: {IsPro}, Until: {Until})",
+                id, isPro, validUntil);
+            return ToResponse(group);
+        }
+
         private static Dictionary<string, decimal> ParseHolidayBudgets(string? json)
         {
             if (string.IsNullOrWhiteSpace(json))
@@ -384,6 +409,9 @@ namespace ParentCommitteeAPI.Services
                 }).ToList(),
                 TotalPerChild = totalPerChild,
                 CollectionGoal = totalPerChild * group.ChildrenCount,
+                // "פרו פעיל" מחושב כאן (דגל + תוקף) כדי שהלקוח לא יחשב תפוגה בעצמו
+                IsPro = ProPolicy.IsActive(group),
+                ProValidUntil = group.ProValidUntil,
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),

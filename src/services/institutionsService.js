@@ -237,6 +237,10 @@ export function syncServerGroups(groups) {
       existing.name = g.name || existing.name;
       existing.role = role;
       existing.activated = true;
+      // פרו מגיע מהשרת ומחליף כל ערך מקומי — הוא ערוץ ההכנסה, ולכן מקור האמת
+      // היחיד שלו הוא השרת (ראו plan.js).
+      existing.isPro = Boolean(g.isPro);
+      existing.proValidUntil = g.proValidUntil || null;
     } else {
       const inst = {
         id: `inst-server-${g.id}`,
@@ -246,6 +250,8 @@ export function syncServerGroups(groups) {
         onboarding: g.onboarding || null,
         serverGroupId: g.id,
         role,
+        isPro: Boolean(g.isPro),
+        proValidUntil: g.proValidUntil || null,
       };
       byServerId.set(g.id, inst);
       list.push(inst);

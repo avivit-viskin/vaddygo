@@ -20,6 +20,16 @@ namespace ParentCommitteeAPI.Models
            לא נאסף באשף — נקבע בשרת לפי התאריך; מוצג בכותרת מסך הבית. */
         public int Year { get; set; }
 
+        /* מסלול פרו של המוסד — **מקור האמת** (החלטת בעלת המוצר, 10.08.2026).
+           עד היום פרו נשמר רק בדפדפן, ולכן כל אחד יכול היה לפתוח אותו לעצמו.
+           מעכשיו הדגל יושב בשרת, נקבע רק ע"י מנהלת VaddyGo (או ע"י אישור תשלום),
+           והשרת חוסם בפועל את פיצ'רי הפרו למוסד שאינו מנוי.
+
+           ProValidUntil = תוקף המנוי (כולל). null = בלי תאריך תפוגה (פתוח עד
+           שייסגר ידנית) — כך אפשר גם מנוי שנתי וגם פתיחה ידנית, בלי שדה נוסף. */
+        public bool IsPro { get; set; }
+        public DateTime? ProValidUntil { get; set; }
+
         public int ChildrenCount { get; set; }
         public int StaffCount { get; set; }
         public string Subgroups { get; set; } = string.Empty;

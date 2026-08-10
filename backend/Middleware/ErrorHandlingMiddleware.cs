@@ -27,6 +27,13 @@ namespace ParentCommitteeAPI.Middleware
                 context.Response.StatusCode = StatusCodes.Status403Forbidden;
                 await context.Response.WriteAsJsonAsync(new { message = forbidden.Message });
             }
+            catch (ProRequiredException proRequired)
+            {
+                // צריך מסלול פרו — 402 (Payment Required) ולא 403, כדי שהלקוח
+                // יוכל להציע שדרוג במקום להציג "אין לך הרשאה".
+                context.Response.StatusCode = StatusCodes.Status402PaymentRequired;
+                await context.Response.WriteAsJsonAsync(new { message = proRequired.Message });
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unhandled exception on {Method} {Path}",

@@ -116,8 +116,21 @@ function writeUnlockedSet(set) {
   }
 }
 
-/* האם לגן הפעיל יש מנוי פרו. ברירת מחדל: לא (חינם). לפי גן — לא גלובלי. */
+/*
+  האם לגן הפעיל יש מנוי פרו.
+
+  **מקור האמת הוא השרת** (‏`Group.IsPro`, מגיע דרך סנכרון המוסדות): שם הדגל
+  נקבע ושם הוא נאכף בפועל — פיצ'רי פרו מוחזרים ב-402 למוסד שאינו מנוי, גם אם
+  הלקוח יטען אחרת. הבדיקה כאן היא רק כדי שהממשק יציג את המצב הנכון.
+
+  הפתיחה המקומית נשארת כרשת-ביטחון בלבד: מוסד שעדיין לא סונכרן מהשרת (נוצר
+  אופליין, או שהשרת לא היה זמין) לא ייחסם בממשק סתם בגלל חוסר נתונים.
+*/
 export function isPro() {
+  const active = getActiveInstitution();
+  if (active?.isPro) {
+    return true;
+  }
   return readUnlockedSet().has(currentGanKey());
 }
 
@@ -129,6 +142,10 @@ export function isPro() {
 export function isProInstitution(institution) {
   if (!institution) {
     return false;
+  }
+  // קודם האמת מהשרת, ורק אחריה הפתיחה המקומית (ראו isPro)
+  if (institution.isPro) {
+    return true;
   }
   const key =
     institution.serverGroupId != null

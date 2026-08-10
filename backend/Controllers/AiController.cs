@@ -14,16 +14,28 @@ namespace ParentCommitteeAPI.Controllers
     public class AiController : ControllerBase
     {
         private readonly IAiService _aiService;
+        private readonly IAccessScope _access;
 
-        public AiController(IAiService aiService)
+        public AiController(IAiService aiService, IAccessScope access)
         {
             _aiService = aiService;
+            _access = access;
         }
 
         // POST: api/ai/ask
         [HttpPost("ask")]
-        public async Task<ActionResult<AiResponseDto>> Ask([FromBody] AiAskDto dto)
+        public async Task<ActionResult<AiResponseDto>> Ask(
+            [FromBody] AiAskDto dto,
+            [FromHeader(Name = "X-Institution")] int? institution = null)
         {
+            // אכיפת פרו בשרת: העוזרת היא פיצ'ר פרו, וכל קריאה עולה כסף אמיתי
+            // לספק ה-AI — ולכן דווקא כאן חשוב שהחסימה לא תהיה רק בממשק.
+            var scoped = await _access.ScopeGroupIdAsync(institution);
+            if (!await _access.IsGroupProAsync(scoped))
+            {
+                throw new ProRequiredException("עוזרת ה-AI היא פיצ'ר של מסלול פרו.");
+            }
+
             if (!_aiService.IsConfigured)
             {
                 return StatusCode(503, new

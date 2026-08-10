@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Services;
@@ -105,6 +106,20 @@ namespace ParentCommitteeAPI.Controllers
             int id, [FromBody] Dictionary<string, decimal> budgets)
         {
             var updated = await _groupService.UpdateHolidayBudgetsAsync(id, budgets ?? new());
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
+        // PUT: api/groups/1/pro — פתיחה/סגירה של מסלול פרו למוסד.
+        // מנהלת VaddyGo בלבד: זהו ערוץ ההכנסה, ולכן לקוחה אינה יכולה לפתוח
+        // לעצמה מנוי. האכיפה בפועל של הפיצ'רים נעשית מול הדגל הזה בשרת.
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpPut("{id}/pro")]
+        public async Task<ActionResult<GroupResponseDto>> SetPro(
+            int id, [FromBody] GroupProDto dto)
+        {
+            var updated = await _groupService.SetProAsync(id, dto.IsPro, dto.ValidUntil);
             if (updated == null)
                 return NotFound(new { message = "גן לא נמצא" });
             return Ok(updated);

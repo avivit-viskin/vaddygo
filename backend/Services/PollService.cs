@@ -62,6 +62,12 @@ namespace ParentCommitteeAPI.Services
             {
                 throw new ForbiddenException();
             }
+            // אכיפת פרו בשרת: סקרים הם פיצ'ר פרו. הלקוח כבר חוסם את המסך, אבל
+            // הנתונים עצמם נחסמים כאן — אחרת עקיפה של הממשק הייתה מספיקה.
+            if (!await _access.IsGroupProAsync(scoped))
+            {
+                throw new ProRequiredException("סקרים והצבעות הם פיצ'ר של מסלול פרו.");
+            }
 
             var poll = new Poll
             {

@@ -8,6 +8,7 @@ import { formatShekels } from "../services/format";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
+import KosherBadge from "../components/KosherBadge";
 import WhatsAppIcon from "../components/WhatsAppIcon";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -65,7 +66,10 @@ function CatalogPage() {
         <div className="pub-hero__logo">
           <Logo />
         </div>
-        <h1 className="pub-hero__name">{vendor.name}</h1>
+        <h1 className="pub-hero__name">
+          {vendor.name}
+          {vendor.isKosher && <> <KosherBadge /></>}
+        </h1>
         {(vendor.category || vendor.city) && (
           <p className="pub-hero__meta">
             {vendor.category}
@@ -181,6 +185,7 @@ function CatalogPage() {
                     )}
                     <span className="pub-card__price">
                       {formatShekels(product.price)}
+                      {product.unit ? ` / ${product.unit}` : ""}
                     </span>
                   </div>
                 </article>

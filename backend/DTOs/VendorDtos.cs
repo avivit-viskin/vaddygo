@@ -29,6 +29,9 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(60, ErrorMessage = "שם העיר/אזור ארוך מדי")]
         public string City { get; set; } = string.Empty;
 
+        // הספק מסמן "כשר" — מוצג כתגית ליד שמו
+        public bool IsKosher { get; set; }
+
         [StringLength(300, ErrorMessage = "קישור התשלום ארוך מדי")]
         public string PaymentLink { get; set; } = string.Empty;
 
@@ -71,6 +74,9 @@ namespace ParentCommitteeAPI.DTOs
 
         [StringLength(40, ErrorMessage = "שם התיקייה ארוך מדי")]
         public string Folder { get; set; } = string.Empty;
+
+        [StringLength(20, ErrorMessage = "יחידת המידה ארוכה מדי")]
+        public string Unit { get; set; } = string.Empty;
     }
 
     public class VendorSocialLinkDto
@@ -202,6 +208,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* מסלול פרו לספק — פותח את פיצ'רי הפרו (בשליטת מנהלת VaddyGo) */
         public bool IsPro { get; set; }
+
+        /* הספק מסומן "כשר" — תגית ליד שם הספק */
+        public bool IsKosher { get; set; }
     }
 
     public class VendorProductResponseDto
@@ -212,6 +221,7 @@ namespace ParentCommitteeAPI.DTOs
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public string Folder { get; set; } = string.Empty;
+        public string Unit { get; set; } = string.Empty;
     }
 
     public class VendorSocialLinkResponseDto
@@ -231,6 +241,7 @@ namespace ParentCommitteeAPI.DTOs
         public int ProductCount { get; set; }
         public string WhatsApp { get; set; } = string.Empty;
         public bool Featured { get; set; }
+        public bool IsKosher { get; set; }
     }
 
     /* גוף הבקשה לסימון/ביטול "ספק מומלץ" */

@@ -7,6 +7,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
+import KosherBadge from "../components/KosherBadge";
 import { getGifts, addGift, updateGift, deleteGift } from "../services/giftsService";
 import {
   getVendors,
@@ -325,7 +326,10 @@ function GiftsPage() {
                     onClick={() => setOpenVendor(vendor)}
                   >
                     <span className="vendors__info">
-                      <span className="vendors__name">{vendor.name}</span>
+                      <span className="vendors__name">
+                        {vendor.name}
+                        {vendor.isKosher && <> <KosherBadge /></>}
+                      </span>
                       {vendor.category && (
                         <span className="vendors__cat">
                           {vendor.category}
@@ -470,7 +474,12 @@ function GiftsPage() {
       <Modal
         isOpen={openVendor != null && editingVendor === null}
         onClose={() => setOpenVendor(null)}
-        title={openVendor?.name}
+        title={
+          <>
+            {openVendor?.name}
+            {openVendor?.isKosher && <> <KosherBadge /></>}
+          </>
+        }
       >
         {openVendor != null && (
           <VendorPanel

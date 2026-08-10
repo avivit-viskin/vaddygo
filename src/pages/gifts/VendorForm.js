@@ -148,6 +148,7 @@ function VendorForm({
     savedCat && !isPresetCat && savedCat !== "אחר" ? savedCat : ""
   );
   const [city, setCity] = useState(vendor?.city || "");
+  const [isKosher, setIsKosher] = useState(!!vendor?.isKosher);
   const [paymentLink, setPaymentLink] = useState(vendor?.paymentLink || "");
   const [paymentBit, setPaymentBit] = useState(vendor?.paymentBit || "");
   const [paymentBankInfo, setPaymentBankInfo] = useState(
@@ -450,6 +451,7 @@ function VendorForm({
         whatsApp: whatsApp.trim(),
         category: (category === "אחר" ? customCategory : category).trim(),
         city: city.trim(),
+        isKosher,
         paymentLink: paymentLink.trim(),
         paymentBit: paymentBit.trim(),
         paymentBankInfo: paymentBankInfo.trim(),
@@ -464,6 +466,7 @@ function VendorForm({
             price: Number(product.price) || 0,
             imageUrl: (product.imageUrl || "").trim(),
             folder: (product.folder || "").trim(),
+            unit: (product.unit || "").trim(),
           })),
         socialLinks: socialLinks
           .filter((link) => (link.url || "").trim())
@@ -578,6 +581,24 @@ function VendorForm({
             placeholder="הקלידו את סוג המוצרים"
           />
         )}
+        <label
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            marginTop: 6,
+            cursor: "pointer",
+            fontWeight: 600,
+          }}
+        >
+          <input
+            type="checkbox"
+            checked={isKosher}
+            onChange={(e) => setIsKosher(e.target.checked)}
+            style={{ width: 18, height: 18, cursor: "pointer" }}
+          />
+          העסק כשר — תוצג תגית «כשר» ליד שם העסק
+        </label>
       </div>
 
       <div className="sup-card">
@@ -1346,6 +1367,15 @@ function VendorForm({
                 updateItem(setProducts, index, { price: e.target.value })
               }
               placeholder="מחיר ₪"
+            />
+            <input
+              className="field__input vendor-form__unit"
+              aria-label={`יחידת מידה למוצר ${index + 1}`}
+              value={product.unit || ""}
+              onChange={(e) =>
+                updateItem(setProducts, index, { unit: e.target.value })
+              }
+              placeholder="יח' / מארז"
             />
             <input
               id={`product-folder-${index}`}

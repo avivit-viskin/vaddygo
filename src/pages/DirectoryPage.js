@@ -6,6 +6,7 @@ import Logo from "../components/Logo";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
+import KosherBadge from "../components/KosherBadge";
 import "../styles/supplier-public.css";
 
 /*
@@ -93,7 +94,10 @@ function DirectoryPage() {
           {filtered.map((v) => (
             <li key={v.id}>
               <Link className="pub-vendor" to={`/catalog/${v.id}`}>
-                <div className="pub-vendor__name">{v.name}</div>
+                <div className="pub-vendor__name">
+                  {v.name}
+                  {v.isKosher && <> <KosherBadge /></>}
+                </div>
                 <div className="pub-vendor__meta">
                   {v.category}
                   {v.category && v.city ? " · " : ""}

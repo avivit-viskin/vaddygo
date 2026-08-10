@@ -567,15 +567,20 @@
 .vendor-form__row {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
 }
 
 .vendor-form__price {
-  flex: 0 0 110px;
+  flex: 0 0 100px;
+}
+
+.vendor-form__unit {
+  flex: 0 0 90px;
 }
 
 .vendor-form__folder {
   flex: 1;
-  min-width: 0;
+  min-width: 140px;
 }
 
 /* שורת רשת חברתית (תווית + קישור + הסרה) — שורה אחת פשוטה */

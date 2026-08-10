@@ -283,6 +283,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                       )}
                       <span className="sup-prod__price">
                         {formatShekels(product.price)}
+                        {product.unit ? ` / ${product.unit}` : ""}
                       </span>
                       <span
                         className={`sup-prod__status ${

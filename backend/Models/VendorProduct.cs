@@ -19,6 +19,9 @@ namespace ParentCommitteeAPI.Models
         /* התיקייה/חג שאליו שייך המוצר (ראש השנה, סוכות, מתנות לצוות...). ריק = ללא. */
         public string Folder { get; set; } = string.Empty;
 
+        /* יחידת המידה שהמחיר מתייחס אליה (למשל: יח', מארז, ק"ג). ריק = ללא. */
+        public string Unit { get; set; } = string.Empty;
+
         public int VendorId { get; set; }
         public Vendor? Vendor { get; set; }
     }

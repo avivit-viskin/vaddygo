@@ -66,6 +66,9 @@ namespace ParentCommitteeAPI.Models
            (מבצע מיוחד, רשתות חברתיות, קטלוג ממותג, QR). ברירת מחדל: לא. */
         public bool IsPro { get; set; }
 
+        /* הספק מסומן "כשר" — מוצג כתגית ליד שם הספק. הספק עצמו מדליק/מכבה. */
+        public bool IsKosher { get; set; }
+
         /* מספר טלפון או קישור וואטסאפ של הספק — בלקוח נבנה ממנו כפתור wa.me */
         public string WhatsApp { get; set; } = string.Empty;
 

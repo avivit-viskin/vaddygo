@@ -632,6 +632,7 @@ namespace ParentCommitteeAPI.Services
                     ProductCount = v.Products.Count,
                     WhatsApp = v.WhatsApp,
                     Featured = v.Featured,
+                    IsKosher = v.IsKosher,
                 })
                 .ToListAsync();
         }
@@ -647,6 +648,7 @@ namespace ParentCommitteeAPI.Services
             if (dto.Offer != null) vendor.Offer = dto.Offer.Trim();
             vendor.Category = dto.Category.Trim();
             vendor.City = dto.City.Trim();
+            vendor.IsKosher = dto.IsKosher;
             vendor.PaymentLink = dto.PaymentLink.Trim();
             vendor.PaymentBit = dto.PaymentBit.Trim();
             // פייבוקס: null = השדה לא נשלח (שמירה כללית) → משאירים כמו שהוא, לא מוחקים.
@@ -687,6 +689,7 @@ namespace ParentCommitteeAPI.Services
                     Price = p.Price,
                     ImageUrl = p.ImageUrl.Trim(),
                     Folder = (p.Folder ?? string.Empty).Trim(),
+                    Unit = (p.Unit ?? string.Empty).Trim(),
                 })
                 .ToList();
 
@@ -720,6 +723,7 @@ namespace ParentCommitteeAPI.Services
             Offer = vendor.Offer,
             Featured = vendor.Featured,
             IsPro = vendor.IsPro,
+            IsKosher = vendor.IsKosher,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {
                 Id = p.Id,
@@ -728,6 +732,7 @@ namespace ParentCommitteeAPI.Services
                 Price = p.Price,
                 ImageUrl = p.ImageUrl,
                 Folder = p.Folder,
+                Unit = p.Unit,
             }).ToList(),
             SocialLinks = vendor.SocialLinks.Select(l => new VendorSocialLinkResponseDto
             {

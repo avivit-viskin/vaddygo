@@ -124,6 +124,7 @@ function SupplierEditPage() {
       whatsApp: vendor?.whatsApp || "",
       category: vendor?.category || "",
       city: vendor?.city || "",
+      isKosher: vendor?.isKosher || false,
       paymentLink: vendor?.paymentLink || "",
       paymentBit: vendor?.paymentBit || "",
       paymentBankInfo: vendor?.paymentBankInfo || "",
@@ -134,6 +135,7 @@ function SupplierEditPage() {
         price: p.price,
         imageUrl: p.imageUrl,
         folder: p.folder || "",
+        unit: p.unit || "",
       })),
       socialLinks: (vendor?.socialLinks || []).map((l) => ({
         label: l.label || "",

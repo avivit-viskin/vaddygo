@@ -57,7 +57,35 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("User registered (Id: {UserId})", user.Id);
 
+            // מודיעים לבעלת VaddyGo שנרשם ועד/משתמש חדש (Resend שולח לכתובת הבעלים)
+            await NotifyOwnerAsync(
+                "משתמש חדש נרשם ל-VaddyGo 🎉",
+                "שלום 🙂\n\n" +
+                "נרשם חבר/ת ועד חדש/ה ל-VaddyGo:\n\n" +
+                $"שם: {user.Username}\n" +
+                $"מייל: {user.Email}\n\n" +
+                "צוות VaddyGo 💜");
+
             return new AuthResult(BuildResponse(user), null);
+        }
+
+        // מודיע לבעלת VaddyGo (SuperAdmin) על אירוע — Resend שולח לכתובת הבעלים.
+        // כישלון שליחה לא מפיל את ההרשמה (עטוף ב-try/catch ונרשם ללוג).
+        private async Task NotifyOwnerAsync(string subject, string body)
+        {
+            var adminEmail = (_config["Admin:SuperAdminEmail"] ?? string.Empty).Trim();
+            if (adminEmail.Length == 0)
+            {
+                return;
+            }
+            try
+            {
+                await _email.SendAsync(adminEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send owner new-signup email");
+            }
         }
 
         public async Task<AuthResult> LoginAsync(LoginDto dto)

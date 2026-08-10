@@ -289,7 +289,36 @@ namespace ParentCommitteeAPI.Services
             _db.Vendors.Add(vendor);
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor self-registered (Id: {VendorId})", vendor.Id);
+
+            // מודיעים לבעלת VaddyGo שנרשם ספק חדש (Resend שולח לכתובת הבעלים)
+            await NotifyOwnerAsync(
+                "ספק חדש נרשם ל-VaddyGo 🎉",
+                "שלום 🙂\n\n" +
+                "נרשם עסק/ספק חדש לפורטל הספקים של VaddyGo:\n\n" +
+                $"שם העסק: {vendor.Name}\n" +
+                $"מייל להתחברות: {vendor.LoginEmail}\n\n" +
+                "צוות VaddyGo 💜");
+
             return (vendor.EditToken, null);
+        }
+
+        // מודיע לבעלת VaddyGo (SuperAdmin) על אירוע — Resend שולח לכתובת הבעלים.
+        // כישלון שליחה לא מפיל את ההרשמה (עטוף ב-try/catch ונרשם ללוג).
+        private async Task NotifyOwnerAsync(string subject, string body)
+        {
+            var adminEmail = (_config["Admin:SuperAdminEmail"] ?? string.Empty).Trim();
+            if (adminEmail.Length == 0)
+            {
+                return;
+            }
+            try
+            {
+                await _email.SendAsync(adminEmail, subject, body);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send owner new-signup email");
+            }
         }
 
         public async Task RequestPasswordResetAsync(string email)

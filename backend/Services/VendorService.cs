@@ -48,6 +48,7 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<VendorResponseDto> CreateAsync(VendorCreateDto dto)
         {
+            EnsureWithinLimits(dto.Products);
             var vendor = new Vendor
             {
                 Name = dto.Name.Trim(),
@@ -664,6 +665,7 @@ namespace ParentCommitteeAPI.Services
            רשימות הבנים (מוצרים/רשתות) מוחלפות כולן — פשוט ותואם לטופס. */
         private void ApplyWrite(Vendor vendor, VendorWriteDto dto)
         {
+            EnsureWithinLimits(dto.Products);
             vendor.Name = dto.Name.Trim();
             vendor.CatalogUrl = dto.CatalogUrl.Trim();
             vendor.WhatsApp = dto.WhatsApp.Trim();
@@ -688,6 +690,23 @@ namespace ParentCommitteeAPI.Services
           האם קישור העריכה של הספק עדיין בתוקף. כל אחזור לפי טוקן עובר כאן —
           כך אין מסלול שנשכח ונשאר פתוח לנצח (ראו VendorTokenPolicy).
         */
+        /*
+          תקרת גודל לכרטיס — נבדקת בכל מסלול שמירה (יצירה ע"י המנהלת, עריכה
+          ע"י המנהלת, ועריכה עצמית של הספק). נזרקת חריגה במקום להחזיר null,
+          כדי שההודעה תגיע למשתמש כפי שהיא ולא תיראה כמו "ספק לא נמצא".
+        */
+        private void EnsureWithinLimits(List<VendorProductDto>? products)
+        {
+            var error = VendorLimits.Validate(
+                products,
+                _config.GetValue("Vendors:MaxProducts", VendorLimits.DefaultMaxProducts),
+                _config.GetValue("Vendors:MaxImageBytes", VendorLimits.DefaultMaxImageBytes));
+            if (error != null)
+            {
+                throw new PayloadTooLargeException(error);
+            }
+        }
+
         private bool IsTokenValid(Vendor? vendor) =>
             VendorTokenPolicy.IsValid(
                 vendor,

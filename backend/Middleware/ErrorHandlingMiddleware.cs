@@ -34,6 +34,12 @@ namespace ParentCommitteeAPI.Middleware
                 context.Response.StatusCode = StatusCodes.Status402PaymentRequired;
                 await context.Response.WriteAsJsonAsync(new { message = proRequired.Message });
             }
+            catch (PayloadTooLargeException tooLarge)
+            {
+                // חריגה מתקרת תוכן (למשל סך התמונות בכרטיס) — 413 עם הסבר מה למחוק
+                context.Response.StatusCode = StatusCodes.Status413PayloadTooLarge;
+                await context.Response.WriteAsJsonAsync(new { message = tooLarge.Message });
+            }
             catch (Exception exception)
             {
                 _logger.LogError(exception, "Unhandled exception on {Method} {Path}",

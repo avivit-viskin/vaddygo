@@ -121,6 +121,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/public/vendors/login — התחברות ספק; מאמת מייל+סיסמה ומחזיר
         // את טוקן העריכה (הלקוח ממשיך איתו לעמוד העריכה).
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("login")]
         public async Task<ActionResult> Login([FromBody] VendorLoginDto dto)
         {
@@ -132,6 +133,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/public/vendors/google-login — כניסת ספק עם Google. מאמת את ה-
         // credential מול גוגל, מוצא ספק לפי מייל ההתחברות, ומחזיר את טוקן העריכה.
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("google-login")]
         public async Task<ActionResult> GoogleLogin([FromBody] GoogleLoginDto dto)
         {
@@ -146,6 +148,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/public/vendors/register — הרשמת ספק חדש בעצמו (שם+מייל+סיסמה).
         // נוצר ספק חדש עם טוקן עריכה, והלקוח ממשיך איתו לעמוד מילוי הכרטיס.
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("register")]
         public async Task<ActionResult> Register([FromBody] VendorRegisterDto dto)
         {
@@ -158,6 +161,7 @@ namespace ParentCommitteeAPI.Controllers
 
         // POST: api/public/vendors/forgot-password — שולח קוד איפוס למייל שהספק הגדיר.
         // תמיד מחזיר הצלחה כללית (לא חושף אם המייל רשום) — מונע enumeration.
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("forgot-password")]
         public async Task<ActionResult> ForgotPassword([FromBody] VendorForgotPasswordDto dto)
         {
@@ -166,6 +170,7 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         // POST: api/public/vendors/reset-password — איפוס הסיסמה עם הקוד שהתקבל במייל.
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
         [HttpPost("reset-password")]
         public async Task<ActionResult> ResetPassword([FromBody] VendorResetPasswordDto dto)
         {

@@ -1,5 +1,6 @@
 import Icon from "./Icon";
 import BrandName from "./BrandName";
+import ProBadge from "./ProBadge";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import { toastSuccess } from "../services/toastBus";
 import "../styles/sidemenu.css";
@@ -15,6 +16,7 @@ const SUPPORT_PHONE = "054-4579179";
 function SupplierSideMenu({
   isOpen,
   onClose,
+  onUpgrade,
   onSettings,
   onChangeName,
   onChangePassword,
@@ -80,6 +82,18 @@ function SupplierSideMenu({
             ✕
           </button>
         </div>
+
+        <button
+          type="button"
+          className="sidemenu__action sidemenu__upgrade"
+          onClick={() => {
+            onClose();
+            onUpgrade();
+          }}
+        >
+          <Icon name="crown" size={18} /> שדרוגי פרו{" "}
+          <ProBadge title="כל כלי הפרו של הספק במקום אחד" />
+        </button>
 
         <h3 className="sidemenu__title">שיתוף</h3>
         <button

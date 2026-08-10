@@ -26,6 +26,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import ConfirmDialog from "../components/ConfirmDialog";
 import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
+import SupplierUpgrade from "../components/SupplierUpgrade";
 import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
@@ -81,6 +82,7 @@ function SupplierEditPage() {
   const [credSaving, setCredSaving] = useState(false);
   // תפריט הצד, בקשת מחיקה, שינוי סיסמה, והגדרות עוגיות
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [upgradeOpen, setUpgradeOpen] = useState(false);
   const [deleteAsking, setDeleteAsking] = useState(false);
   const [deleteSent, setDeleteSent] = useState(false);
   const [pwModalOpen, setPwModalOpen] = useState(false);
@@ -700,6 +702,7 @@ function SupplierEditPage() {
       <SupplierSideMenu
         isOpen={isMenuOpen}
         onClose={() => setIsMenuOpen(false)}
+        onUpgrade={() => setUpgradeOpen(true)}
         onSettings={() => goTo("settings")}
         onChangeName={() => {
           setBizName(vendor?.name || "");
@@ -716,6 +719,14 @@ function SupplierEditPage() {
         onLogout={handleLogout}
       />
       <WhatsAppFab />
+
+      <Modal
+        isOpen={upgradeOpen}
+        onClose={() => setUpgradeOpen(false)}
+        title="שדרוגי פרו 👑"
+      >
+        <SupplierUpgrade vendor={vendor} />
+      </Modal>
 
       <Modal
         isOpen={pwModalOpen}

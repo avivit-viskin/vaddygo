@@ -26,7 +26,6 @@ export const PRO_UNLOCK_CODE = "1234";
 // פיצ'רי הפרו שאושרו (מפתח → תווית עברית להצגה בעמוד השדרוג ובכל מקום אחר)
 export const PRO_FEATURES = {
   ai: "עוזרת AI מלאה",
-  multiInstitution: "ניהול כמה מוסדות בחשבון אחד",
   teamRoles: "תפקידי צוות והרשאות (מנהל/עורך/צופה)",
   bulkReminders: "תזכורת ובקשת תשלום גורפת לכל החייבים",
   budgetAssistant: "עוזרת תקציב חכמה (חגים ↔ מתנות)",

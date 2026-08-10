@@ -10,7 +10,6 @@ import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import ProBadge from "./ProBadge";
-import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
 
 /*
@@ -82,18 +81,14 @@ function SideMenu({ isOpen, onClose }) {
           type="button"
           className="sidemenu__action"
           onClick={() => {
-            // ניהול כמה מוסדות = פיצ'ר פרו: אם נעול — מפנים לעמוד השדרוג
-            if (isFeatureLocked("multiInstitution")) {
-              go("/upgrade");
-              return;
-            }
+            // ניהול ומעבר בין מוסדות פתוחים לכולם (חינם). כל מוסד משודרג לפרו
+            // בנפרד — אפשר גן אחד בסיסי וגן אחר פרו.
             setAddError("");
             setNewName("");
             setIsAddOpen(true);
           }}
         >
-          <Icon name="plus" size={18} /> הוסף מוסד{" "}
-          <ProBadge title="ניהול כמה מוסדות — פיצ'ר פרו" />
+          <Icon name="plus" size={18} /> הוסף מוסד
         </button>
 
         <button

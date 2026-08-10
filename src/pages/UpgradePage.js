@@ -42,11 +42,6 @@ const MORE_FEATURES = [
     desc: "הרשאות לצוות הוועד: ניהול מלא, עריכה או צפייה בלבד — כל אחד לפי תפקידו.",
   },
   {
-    label: PRO_FEATURES.multiInstitution,
-    icon: "school",
-    desc: "ניהול כמה גנים או כיתות מאותו חשבון, עם מעבר מהיר ביניהם.",
-  },
-  {
     label: PRO_FEATURES.prioritySupport,
     icon: "message",
     desc: "מענה מהיר ואישי לכל שאלה, ישירות בוואטסאפ.",

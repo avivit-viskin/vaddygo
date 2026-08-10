@@ -7,6 +7,8 @@ import FeatureArt from "../components/FeatureArt";
 import { whatsappUrl } from "../services/whatsapp";
 import homeShot from "../assets/screenshots/home.jpg";
 import studentsShot from "../assets/screenshots/students.jpg";
+import shovalPhoto from "../assets/team/shoval.jpg";
+import avivitPhoto from "../assets/team/avivit.jpg";
 import "../styles/landing.css";
 
 /*
@@ -98,8 +100,20 @@ const STEPS = [
 ];
 
 const FOUNDERS = [
-  { name: "שובל לוי", role: "מייסדת ויזמית" },
-  { name: "אביבית ויסקין", role: "מייסדת ויזמית" },
+  {
+    name: "שובל לוי",
+    role: "מייסדת ומנכ״לית",
+    photo: shovalPhoto,
+    // מיקוד הקרופ העגול על הפנים (תמונת פורטרט — פנים בחלק העליון)
+    pos: "50% 22%",
+  },
+  {
+    name: "אביבית ויסקין",
+    role: "מייסדת ומנכ״לית",
+    photo: avivitPhoto,
+    // תמונת רוחב, הדמות בצד ימין — מסיטים את הקרופ ימינה אל הפנים
+    pos: "68% 26%",
+  },
 ];
 
 const FAQ = [
@@ -343,7 +357,17 @@ function LandingPage() {
           <div className="lp-about__team">
             {FOUNDERS.map((f) => (
               <div className="lp-founder" key={f.name}>
-                <span className="lp-founder__ava">{initials(f.name)}</span>
+                <span className="lp-founder__ava">
+                  {f.photo ? (
+                    <img
+                      src={f.photo}
+                      alt={f.name}
+                      style={{ objectPosition: f.pos }}
+                    />
+                  ) : (
+                    initials(f.name)
+                  )}
+                </span>
                 <b className="lp-founder__name">{f.name}</b>
                 <span className="lp-founder__role">{f.role}</span>
               </div>

@@ -305,7 +305,7 @@
 .lp-about__text em { color: var(--lp-rose-dark); font-style: normal; font-weight: 700; }
 .lp-about__team { display: flex; gap: 22px; justify-content: center; flex-wrap: wrap; }
 .lp-founder { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 3px; background: #fff; border: 1px solid var(--lp-border); border-radius: 22px; padding: 24px 22px; box-shadow: var(--lp-shadow-sm); min-width: 150px; }
-.lp-founder__ava { width: 84px; height: 84px; border-radius: 50%; background: var(--lp-pink); color: var(--lp-rose-dark); font-weight: 800; font-size: 26px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 8px; overflow: hidden; }
+.lp-founder__ava { width: 108px; height: 108px; border-radius: 50%; background: var(--lp-pink); color: var(--lp-rose-dark); font-weight: 800; font-size: 30px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 10px; overflow: hidden; border: 3px solid #fff; box-shadow: 0 4px 14px rgba(120, 70, 90, 0.15); }
 .lp-founder__ava img { width: 100%; height: 100%; object-fit: cover; }
 .lp-founder__name { font-size: 18px; font-weight: 700; color: var(--lp-ink); }
 .lp-founder__role { font-size: 14px; color: var(--lp-ink-soft); }

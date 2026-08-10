@@ -183,7 +183,13 @@ function LandingPage() {
         <div className="lp-nav__inner">
           <span className="lp-nav__logo"><Logo /></span>
           <nav className="lp-nav__actions">
-            <Link className="lp-nav__login" to="/suppliers">כניסת ספקים</Link>
+            <Link
+              className="lp-nav__login"
+              to="/suppliers"
+              style={{ marginInlineEnd: 12 }}
+            >
+              כניסת ספקים
+            </Link>
             <Link className="lp-nav__login" to="/login">כניסה</Link>
             <Link className="lp-btn lp-btn--primary lp-btn--sm" to="/register">הרשמה חינם</Link>
           </nav>

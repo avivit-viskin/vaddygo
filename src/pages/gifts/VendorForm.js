@@ -645,6 +645,19 @@ function VendorForm({
       {!hideProducts && (
         <>
       <p className="vendor-form__products-title">מוצרים</p>
+      {showFab && (
+        <p
+          style={{
+            margin: "0 0 10px",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+            lineHeight: 1.55,
+          }}
+        >
+          💡 לתמונה חדה: מומלץ להעלות תמונה מרובעת של לפחות 800×800 פיקסלים
+          (JPG · PNG · WebP). לייבוא רשימת מוצרים בבת אחת: Excel · CSV · PDF.
+        </p>
+      )}
       <div
         style={{
           display: "flex",
@@ -734,6 +747,22 @@ function VendorForm({
                       }}
                     />
                   </label>
+                  <label role="menuitem" className="sup-fab-menu__item">
+                    <span className="sup-fab-menu__emoji" aria-hidden="true">
+                      📄
+                    </span>{" "}
+                    ייבוא מקובץ (Excel / CSV / PDF)
+                    <input
+                      type="file"
+                      accept=".csv,.txt,.xlsx,.xls,.pdf"
+                      className="vendor-form__file"
+                      aria-label="ייבוא מוצרים מקובץ"
+                      onChange={(e) => {
+                        beginFileImport(e.target.files && e.target.files[0]);
+                        setAddMenuOpen(false);
+                      }}
+                    />
+                  </label>
                   <button
                     type="button"
                     role="menuitem"
@@ -770,18 +799,22 @@ function VendorForm({
             />
           </label>
         )}
-        <label className="vendor-form__upload">
-          <Icon name="folder" size={16} /> ייבוא מקובץ (Excel / CSV / PDF)
-          <input
-            type="file"
-            accept=".csv,.txt,.xlsx,.xls,.pdf"
-            className="vendor-form__file"
-            aria-label="ייבוא מוצרים מקובץ"
-            onChange={(e) =>
-              beginFileImport(e.target.files && e.target.files[0])
-            }
-          />
-        </label>
+        {/* בפורטל הספק ייבוא-הקובץ עבר לתוך תפריט "הוספת מוצר ▾"; הכפתור הנפרד
+            נשאר רק בעריכת המנהלת (בלי showFab). */}
+        {!showFab && (
+          <label className="vendor-form__upload">
+            <Icon name="folder" size={16} /> ייבוא מקובץ (Excel / CSV / PDF)
+            <input
+              type="file"
+              accept=".csv,.txt,.xlsx,.xls,.pdf"
+              className="vendor-form__file"
+              aria-label="ייבוא מוצרים מקובץ"
+              onChange={(e) =>
+                beginFileImport(e.target.files && e.target.files[0])
+              }
+            />
+          </label>
+        )}
         <a
           style={{ fontSize: "var(--font-size-sm)", fontWeight: 600 }}
           href={TEMPLATE_HREF}

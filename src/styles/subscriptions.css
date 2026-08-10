@@ -71,10 +71,38 @@
   background: var(--color-bg);
 }
 
+.subs__check {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
+  cursor: pointer;
+  accent-color: var(--color-link);
+}
+
 .subs__name {
   flex: 1;
   min-width: 120px;
   font-weight: 600;
+}
+
+/* בחירה מרובה — מחיקת ספקים נבחרים */
+.subs__bulk {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-top: 12px;
+}
+.subs__confirm-q {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: var(--color-error);
+}
+.subs__ok {
+  margin: 12px 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-success);
 }
 
 .subs__until {

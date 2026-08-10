@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import "../styles/footer.css";
 
 /*
   Footer — קישורים לעמודים המשפטיים בתחתית התוכן (מעל הניווט התחתון).

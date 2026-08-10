@@ -1,0 +1,35 @@
+/*
+  footer.css — עיצוב הפוטר (קישורים משפטיים + כניסת ספקים + קרדיט). נטען יחד עם
+  רכיב Footer כדי שיוצג נכון בכל דף — גם כשהעמודים המשפטיים (legal.css) לא נטענים
+  (פיצול קוד). אחרת הקישורים מאבדים את המרכוז ונדחפים לצד.
+*/
+.app-footer {
+  text-align: center;
+  padding: 16px 12px 8px;
+  margin-top: 12px;
+  border-top: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.app-footer__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--font-size-sm);
+}
+
+.app-footer__links a {
+  color: var(--color-primary-dark);
+  text-decoration: none;
+}
+
+.app-footer__links a:hover {
+  text-decoration: underline;
+}
+
+.app-footer__copy {
+  margin: 8px 0 0;
+  font-size: 12px;
+}

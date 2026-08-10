@@ -153,6 +153,23 @@ export async function dismissVendorDeletion(id) {
   return api.post(`/api/vendors/${id}/dismiss-deletion`);
 }
 
+/*
+  רכישת מסלול פרו על ידי הספק עצמו. מחזיר את כתובת עמוד התשלום המאובטח של ספק
+  הסליקה — שאליה מפנים את הספק. המסלול נפתח בפועל רק כשספק הסליקה מאשר את
+  התשלום לשרת שלנו (webhook), ולא בחזרה לדפדפן.
+*/
+export async function startVendorProCheckout(token) {
+  // כתובת נקייה בלי פרמטרים: ספקי סליקה מוסיפים פרמטרים משלהם לכתובת החזרה,
+  // ושרשור על query קיים יוצר כתובת שבורה. הפורטל ממילא טוען את מצב הפרו
+  // מהשרת בכניסה, ולכן אין צורך לסמן "שולם" בכתובת.
+  const returnUrl = `${window.location.origin}/supplier/${token}`;
+  const { paymentUrl } = await api.post(
+    `/api/public/vendors/${token}/pro-checkout`,
+    { returnUrl }
+  );
+  return paymentUrl;
+}
+
 /* קטלוג ציבורי לקריאה של ספק (לשיתוף) — בלי פרטי תשלום/כניסה. */
 export async function getPublicCatalog(id) {
   return api.get(`/api/public/vendors/catalog/${id}`);

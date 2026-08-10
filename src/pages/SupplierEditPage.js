@@ -723,7 +723,7 @@ function SupplierEditPage() {
         onClose={() => setUpgradeOpen(false)}
         title="שדרוגי פרו 👑"
       >
-        <SupplierUpgrade vendor={vendor} />
+        <SupplierUpgrade vendor={vendor} token={token} />
       </Modal>
 
       <Modal

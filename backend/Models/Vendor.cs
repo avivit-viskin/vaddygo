@@ -66,6 +66,15 @@ namespace ParentCommitteeAPI.Models
            (מבצע מיוחד, רשתות חברתיות, קטלוג ממותג, QR). ברירת מחדל: לא. */
         public bool IsPro { get; set; }
 
+        /* תוקף מסלול הפרו של הספק (כולל). null = בלי תאריך תפוגה — כך פתיחה
+           ידנית של המנהלת ומנוי שנתי בתשלום חיים באותם שדות. */
+        public DateTime? ProValidUntil { get; set; }
+
+        /* מזהה עסקת הסליקה האחרונה שנפתחה לשדרוג פרו. כשה-webhook מהספק חוזר,
+           הוא נושא את המזהה הזה — וכך יודעים **לאיזה ספק** לפתוח את המסלול.
+           ריק = לא נפתחה עסקה. */
+        public string ProTransactionRef { get; set; } = string.Empty;
+
         /* הספק מסומן "כשר" — מוצג כתגית ליד שם הספק. הספק עצמו מדליק/מכבה. */
         public bool IsKosher { get; set; }
 

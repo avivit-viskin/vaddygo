@@ -1,7 +1,9 @@
+import { useState } from "react";
 import Button from "./Button";
 import Icon from "./Icon";
 import BrandName from "./BrandName";
 import { whatsappUrlWithText } from "../services/whatsapp";
+import { startVendorProCheckout } from "../services/vendorsService";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -48,8 +50,28 @@ const SUPPLIER_PRO_FEATURES = [
   },
 ];
 
-function SupplierUpgrade({ vendor }) {
+function SupplierUpgrade({ vendor, token }) {
   const alreadyPro = !!vendor?.isPro;
+  const [isStarting, setIsStarting] = useState(false);
+  const [checkoutError, setCheckoutError] = useState("");
+
+  /*
+    פותח תשלום בשרת ומעביר את הספק לעמוד המאובטח של חברת הסליקה. אנחנו לא
+    נוגעים בפרטי הכרטיס, והמסלול נפתח רק כשחברת הסליקה מאשרת לשרת שלנו.
+  */
+  async function startCheckout() {
+    setIsStarting(true);
+    setCheckoutError("");
+    try {
+      const paymentUrl = await startVendorProCheckout(token);
+      window.location.href = paymentUrl;
+    } catch (err) {
+      setCheckoutError(
+        err.message || "לא הצלחנו לפתוח את עמוד התשלום. אפשר לנסות שוב."
+      );
+      setIsStarting(false);
+    }
+  }
   const contactUrl = whatsappUrlWithText(
     SUPPORT_PHONE,
     `היי, אשמח לשדרג את הכרטיס שלי (${
@@ -113,12 +135,25 @@ function SupplierUpgrade({ vendor }) {
 
       <div className="upgrade-actions">
         <p className="upgrade-note">
-          <Icon name="crown" size={15} />
-          <span>לפתיחת המסלול נשמח לעזור — בהודעה קצרה בוואטסאפ 🙂</span>
+          <Icon name="lock" size={15} />
+          <span>התשלום מתבצע בעמוד מאובטח של חברת הסליקה — פרטי הכרטיס אינם
+          עוברים דרך VaddyGo ואינם נשמרים אצלנו.</span>
+        </p>
+        <Button variant="brand" onClick={startCheckout} isLoading={isStarting}>
+          <Icon name="card" size={16} /> מעבר לתשלום מאובטח
+        </Button>
+        {checkoutError && (
+          <p className="field__error" role="alert">
+            {checkoutError}
+          </p>
+        )}
+        <p className="upgrade-note">
+          <Icon name="message" size={15} />
+          <span>מעדיפים לדבר קודם? נשמח לעזור בוואטסאפ 🙂</span>
         </p>
         <a href={contactUrl} target="_blank" rel="noreferrer">
-          <Button variant="brand">
-            <Icon name="message" size={16} /> לשדרוג — דברו איתנו
+          <Button variant="secondary">
+            <Icon name="message" size={16} /> דברו איתנו
           </Button>
         </a>
       </div>

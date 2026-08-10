@@ -24,6 +24,7 @@ namespace ParentCommitteeAPI.Services
         private readonly AppDbContext _db;
         private readonly IAccessScope _access;
         private readonly IPaymentGateway _gateway;
+        private readonly IVendorProPaymentService _vendorPro;
         private readonly IConfiguration _config;
         private readonly ILogger<CardPaymentService> _logger;
 
@@ -31,12 +32,14 @@ namespace ParentCommitteeAPI.Services
             AppDbContext db,
             IAccessScope access,
             IPaymentGateway gateway,
+            IVendorProPaymentService vendorPro,
             IConfiguration config,
             ILogger<CardPaymentService> logger)
         {
             _db = db;
             _access = access;
             _gateway = gateway;
+            _vendorPro = vendorPro;
             _config = config;
             _logger = logger;
         }
@@ -157,6 +160,13 @@ namespace ParentCommitteeAPI.Services
             {
                 _logger.LogWarning("Card webhook rejected (invalid/unverified)");
                 return false;
+            }
+
+            // ניתוב לפי מזהה העסקה: לספק הסליקה יש כתובת webhook אחת לכל המערכת,
+            // ולכן כאן מפרידים בין תשלומי גבייה של הורים לבין רכישת פרו של ספק.
+            if (_vendorPro.OwnsTransaction(result.TransactionRef))
+            {
+                return await _vendorPro.ConfirmAsync(result.TransactionRef, result.Success);
             }
 
             // מזהה העסקה עשוי לכסות כמה קטגוריות (בקשת תשלום לכל התלמיד) — מסמנים את כולן.

@@ -95,6 +95,8 @@ else
     builder.Services.AddScoped<IPaymentGateway, MockPaymentGateway>();
 }
 builder.Services.AddScoped<ICardPaymentService, CardPaymentService>();
+// רכישת מסלול פרו על ידי הספק עצמו (סליקה) — משתמש באותו IPaymentGateway
+builder.Services.AddScoped<IVendorProPaymentService, VendorProPaymentService>();
 
 // אבטחה (fail-closed): בייצור חובה מפתח JWT אמיתי. אם חסר, או שהוא מפתח-הפיתוח
 // הציבורי — השרת לא יעלה, כדי שלא נרוץ בטעות עם מפתח שאפשר לזייף איתו טוקנים.

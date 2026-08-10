@@ -53,6 +53,18 @@ namespace ParentCommitteeAPI.DTOs
         public List<VendorSocialLinkDto> SocialLinks { get; set; } = new();
     }
 
+    /*
+      ProCheckoutDto — פתיחת תשלום לשדרוג פרו של ספק. ReturnUrl היא הכתובת
+      שאליה ספק הסליקה יחזיר את הספק אחרי התשלום (מגיעה מהלקוח, כי הכתובת
+      תלויה בסביבה). פתיחת המסלול עצמה נעשית רק מה-webhook.
+    */
+    public class ProCheckoutDto
+    {
+        [Required(ErrorMessage = "חסרה כתובת חזרה")]
+        [StringLength(500)]
+        public string ReturnUrl { get; set; } = string.Empty;
+    }
+
     public class VendorProductDto
     {
         /* שם המוצר אינו חובה (החלטת בעלת המוצר, 08.08.2026): ספק שמעלה תמונות

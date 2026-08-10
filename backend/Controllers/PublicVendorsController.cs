@@ -18,10 +18,15 @@ namespace ParentCommitteeAPI.Controllers
     public class PublicVendorsController : ControllerBase
     {
         private readonly IVendorService _vendorService;
+        private readonly IVendorProPaymentService _vendorProPayments;
         private readonly IAiService _aiService;
 
-        public PublicVendorsController(IVendorService vendorService, IAiService aiService)
+        public PublicVendorsController(
+            IVendorService vendorService,
+            IAiService aiService,
+            IVendorProPaymentService vendorProPayments)
         {
+            _vendorProPayments = vendorProPayments;
             _vendorService = vendorService;
             _aiService = aiService;
         }
@@ -252,6 +257,27 @@ namespace ParentCommitteeAPI.Controllers
             if (!ok)
                 return BadRequest(new { message = "לא ניתן לעדכן את הסטטוס" });
             return NoContent();
+        }
+
+        /*
+          POST: api/public/vendors/{token}/pro-checkout — הספק רוכש מסלול פרו.
+          פותח עמוד תשלום מאובטח אצל ספק הסליקה ומחזיר את כתובתו; המסלול נפתח
+          בפועל רק כשמגיע אישור משרת-לשרת (webhook) — לעולם לא לפי חזרת הדפדפן,
+          שאותה אפשר לזייף.
+        */
+        [HttpPost("{token}/pro-checkout")]
+        public async Task<IActionResult> ProCheckout(
+            string token, [FromBody] ProCheckoutDto? dto)
+        {
+            var returnUrl = (dto?.ReturnUrl ?? string.Empty).Trim();
+            if (returnUrl.Length == 0)
+            {
+                return BadRequest(new { message = "חסרה כתובת חזרה" });
+            }
+            var paymentUrl = await _vendorProPayments.StartCheckoutAsync(token, returnUrl);
+            if (paymentUrl == null)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            return Ok(new { paymentUrl });
         }
     }
 }

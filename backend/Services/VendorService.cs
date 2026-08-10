@@ -107,12 +107,15 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            // מייצרים טוקן פעם אחת ומחזירים אותו יציב — כדי שהקישור לא ישתנה בכל בקשה
-            if (string.IsNullOrEmpty(vendor.EditToken))
+            // קישור בתוקף — מחזירים אותו כמו שהוא, כדי שלא ישתנה בכל בקשה.
+            // קישור שפג (או שלא היה) — מייצרים חדש, וזה מבטל את הישן. כך
+            // "הפקת קישור" משמשת גם כביטול קישור שהודלף.
+            if (!IsTokenValid(vendor))
             {
                 vendor.EditToken = Guid.NewGuid().ToString("N");
+                vendor.EditTokenIssuedAt = DateTime.UtcNow;
                 await _db.SaveChangesAsync();
-                _logger.LogInformation("Vendor edit link generated (Id: {VendorId})", id);
+                _logger.LogInformation("Vendor edit link issued (Id: {VendorId})", id);
             }
             return vendor.EditToken;
         }
@@ -125,6 +128,7 @@ namespace ParentCommitteeAPI.Services
             }
             var vendor = await WithChildren(_db.Vendors)
                 .FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return null;
@@ -145,6 +149,7 @@ namespace ParentCommitteeAPI.Services
             }
             var vendor = await WithChildren(_db.Vendors)
                 .FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return null;
@@ -164,12 +169,13 @@ namespace ParentCommitteeAPI.Services
                 return CredentialResult.NotFound;
             }
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return CredentialResult.NotFound;
             }
             var email = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
-            if (email.Length == 0 || (password ?? string.Empty).Length < 6)
+            if (email.Length == 0 || PasswordPolicy.Validate(password) != null)
             {
                 return CredentialResult.Invalid;
             }
@@ -203,11 +209,13 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            // אמור להיות טוקן; ליתר ביטחון מייצרים אם חסר
+            // התחברות מוצלחת = חלון תוקף חדש לקישור. כך ספק שמשתמש במערכת
+            // לעולם לא ננעל בחוץ, והתפוגה פוגעת רק בקישור נטוש או שהודלף.
             if (string.IsNullOrEmpty(vendor.EditToken))
             {
                 vendor.EditToken = Guid.NewGuid().ToString("N");
             }
+            vendor.EditTokenIssuedAt = DateTime.UtcNow;
             vendor.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             return vendor.EditToken;
@@ -253,6 +261,8 @@ namespace ParentCommitteeAPI.Services
             {
                 vendor.EditToken = Guid.NewGuid().ToString("N");
             }
+            // כמו בהתחברות רגילה — חלון תוקף חדש לקישור
+            vendor.EditTokenIssuedAt = DateTime.UtcNow;
             vendor.LastLoginAt = DateTime.UtcNow;
             await _db.SaveChangesAsync();
             _logger.LogInformation("Vendor logged in with Google (Id: {VendorId})", vendor.Id);
@@ -272,9 +282,11 @@ namespace ParentCommitteeAPI.Services
             {
                 return (null, "צריך כתובת מייל תקינה");
             }
-            if ((password ?? string.Empty).Length < 6)
+            // אותו כלל סיסמה כמו לוועד — אחרת צד הספקים היה דלת אחורית לסיסמה חלשה
+            var weakReg = PasswordPolicy.Validate(password);
+            if (weakReg != null)
             {
-                return (null, "הסיסמה חייבת להכיל 6 תווים לפחות");
+                return (null, weakReg);
             }
             // המייל הוא מזהה ההתחברות — חייב להיות ייחודי בין הספקים
             var taken = await _db.Vendors.AnyAsync(v => v.LoginEmail == email);
@@ -289,6 +301,7 @@ namespace ParentCommitteeAPI.Services
                 LoginEmail = email,
                 PasswordHash = PasswordHasher.Hash(password),
                 EditToken = Guid.NewGuid().ToString("N"),
+                EditTokenIssuedAt = DateTime.UtcNow,
                 CreatedAt = DateTime.UtcNow,
             };
             _db.Vendors.Add(vendor);
@@ -395,9 +408,10 @@ namespace ParentCommitteeAPI.Services
                 return genericError;
             }
 
-            if ((newPassword ?? string.Empty).Length < 6)
+            var weakReset = PasswordPolicy.Validate(newPassword);
+            if (weakReset != null)
             {
-                return "הסיסמה חייבת להכיל 6 תווים לפחות";
+                return weakReset;
             }
 
             // קוד תקין — מאפסים סיסמה ומנקים את מצב האיפוס
@@ -412,11 +426,12 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<bool> ChangePasswordAsync(string token, string newPassword)
         {
-            if (string.IsNullOrWhiteSpace(token) || (newPassword ?? string.Empty).Length < 6)
+            if (string.IsNullOrWhiteSpace(token) || PasswordPolicy.Validate(newPassword) != null)
             {
                 return false;
             }
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return false;
@@ -434,6 +449,7 @@ namespace ParentCommitteeAPI.Services
                 return false;
             }
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return false;
@@ -547,6 +563,7 @@ namespace ParentCommitteeAPI.Services
         public async Task<IReadOnlyList<LeadResponseDto>?> GetLeadsByEditTokenAsync(string token)
         {
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return null;
@@ -567,6 +584,7 @@ namespace ParentCommitteeAPI.Services
                 return false;
             }
             var vendor = await _db.Vendors.FirstOrDefaultAsync(v => v.EditToken == token);
+            if (!IsTokenValid(vendor)) { vendor = null; }
             if (vendor == null)
             {
                 return false;
@@ -665,6 +683,15 @@ namespace ParentCommitteeAPI.Services
             vendor.Products = MapProducts(dto.Products);
             vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
         }
+
+        /*
+          האם קישור העריכה של הספק עדיין בתוקף. כל אחזור לפי טוקן עובר כאן —
+          כך אין מסלול שנשכח ונשאר פתוח לנצח (ראו VendorTokenPolicy).
+        */
+        private bool IsTokenValid(Vendor? vendor) =>
+            VendorTokenPolicy.IsValid(
+                vendor,
+                _config.GetValue("Vendors:EditTokenDays", VendorTokenPolicy.DefaultDays));
 
         /*
           האם מחוברת סליקה אמיתית. ‏"mock" הוא סימולטור הפיתוח — עם ספק מדומה

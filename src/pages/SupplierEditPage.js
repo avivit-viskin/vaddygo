@@ -234,8 +234,8 @@ function SupplierEditPage() {
   async function changePassword(event) {
     event.preventDefault();
     setPwMsg(null);
-    if (newPw.length < 6) {
-      setPwMsg({ ok: false, text: "הסיסמה חייבת להכיל לפחות 6 תווים" });
+    if (newPw.length < 8) {
+      setPwMsg({ ok: false, text: "הסיסמה חייבת להכיל לפחות 8 תווים" });
       return;
     }
     setPwSaving(true);
@@ -564,7 +564,7 @@ function SupplierEditPage() {
               />
               <Input
                 id="cred-password"
-                label="סיסמה (6 תווים לפחות)"
+                label="סיסמה (8 תווים לפחות)"
                 type="password"
                 value={credPassword}
                 onChange={(e) => setCredPassword(e.target.value)}
@@ -738,7 +738,7 @@ function SupplierEditPage() {
           </p>
           <Input
             id="change-pw"
-            label="סיסמה חדשה (6 תווים לפחות)"
+            label="סיסמה חדשה (8 תווים לפחות)"
             type="password"
             autoComplete="new-password"
             value={newPw}

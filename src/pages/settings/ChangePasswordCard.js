@@ -24,8 +24,8 @@ function ChangePasswordCard() {
       setError("יש להזין את הסיסמה הנוכחית");
       return;
     }
-    if (next.length < 6) {
-      setError("הסיסמה החדשה חייבת להכיל לפחות 6 תווים");
+    if (next.length < 8) {
+      setError("הסיסמה החדשה חייבת להכיל לפחות 8 תווים");
       return;
     }
     setIsSaving(true);

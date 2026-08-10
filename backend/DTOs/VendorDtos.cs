@@ -110,7 +110,7 @@ namespace ParentCommitteeAPI.DTOs
         public string LoginEmail { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "צריך סיסמה")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל 8 תווים לפחות")]
         public string Password { get; set; } = string.Empty;
     }
 
@@ -142,7 +142,7 @@ namespace ParentCommitteeAPI.DTOs
         public string Code { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "צריך סיסמה חדשה")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל 8 תווים לפחות")]
         public string NewPassword { get; set; } = string.Empty;
     }
 
@@ -150,7 +150,7 @@ namespace ParentCommitteeAPI.DTOs
     public class VendorChangePasswordDto
     {
         [Required(ErrorMessage = "צריך סיסמה חדשה")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל 8 תווים לפחות")]
         public string NewPassword { get; set; } = string.Empty;
     }
 
@@ -168,7 +168,7 @@ namespace ParentCommitteeAPI.DTOs
         public string LoginEmail { get; set; } = string.Empty;
 
         [Required(ErrorMessage = "צריך סיסמה")]
-        [StringLength(100, MinimumLength = 6, ErrorMessage = "הסיסמה חייבת להכיל 6 תווים לפחות")]
+        [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל 8 תווים לפחות")]
         public string Password { get; set; } = string.Empty;
     }
 

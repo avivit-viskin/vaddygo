@@ -33,6 +33,12 @@ namespace ParentCommitteeAPI.Models
            ריק עד שמייצרים קישור; GUID לא-ניתן-לניחוש הוא אמצעי הזיהוי. */
         public string EditToken { get; set; } = string.Empty;
 
+        /* מתי הונפק טוקן העריכה — הבסיס לתפוגה שלו.
+           למה צריך: הקישור נשלח בוואטסאפ, ומי שמקבל אותו (או מי שההודעה הועברה
+           אליו) מקבל גישה מלאה לכרטיס. בלי תפוגה הגישה הזו נשארת לנצח.
+           ספק שהגדיר מייל+סיסמה לא ייתקע: כל התחברות מחדשת את הטוקן. */
+        public DateTime? EditTokenIssuedAt { get; set; }
+
         /* התחברות ספק (אופציונלי): הספק מגדיר מייל+סיסמה כדי לחזור בלי הקישור.
            ההתחברות מאמתת מול אלה ומחזירה את EditToken. PasswordHash = PBKDF2. */
         public string LoginEmail { get; set; } = string.Empty;

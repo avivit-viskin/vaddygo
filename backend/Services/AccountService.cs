@@ -22,6 +22,15 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
+        /*
+          מחיקת חשבון ("הזכות להימחק") — מוחקת את המשתמש ואת **כל** הנתונים
+          התלויים בגנים שבבעלותו, בטרנזקציה אחת.
+
+          ⚠️ כלל מחייב: **כל טבלה חדשה שיש בה `GroupId` חייבת להתווסף כאן.**
+          טבלה שנשכחת לא גורמת לשגיאה — היא פשוט משאירה נתונים אישיים במסד אחרי
+          שהלקוחה ביקשה למחוק אותם. כך בדיוק נשכחו הסקרים והפניות עד 10.08.2026.
+          סדר המחיקה: קודם מה שמצביע על אחרים (תשלומים/הצבעות), ואז ההורים שלהם.
+        */
         public async Task<bool> DeleteAccountAsync(int userId)
         {
             var groupIds = await _db.Groups
@@ -41,6 +50,10 @@ namespace ParentCommitteeAPI.Services
                     .Where(c => groupIds.Contains(c.GroupId))
                     .Select(c => c.Id)
                     .ToListAsync();
+                var pollIds = await _db.Polls
+                    .Where(p => p.GroupId != null && groupIds.Contains(p.GroupId.Value))
+                    .Select(p => p.Id)
+                    .ToListAsync();
 
                 // 1) תשלומים (מצביעים על תלמידים וקטגוריות) — נמחקים ראשונים
                 await _db.Payments
@@ -56,6 +69,16 @@ namespace ParentCommitteeAPI.Services
                 await _db.Events.Where(e => e.GroupId != null && groupIds.Contains(e.GroupId.Value)).ExecuteDeleteAsync();
                 await _db.DriveFolders.Where(d => d.GroupId != null && groupIds.Contains(d.GroupId.Value)).ExecuteDeleteAsync();
                 await _db.CollectionCategories.Where(c => groupIds.Contains(c.GroupId)).ExecuteDeleteAsync();
+
+                // סקרים: ההצבעות והאפשרויות מצביעות על הסקר, ולכן נמחקות לפניו.
+                // שאלת הסקר וההצבעות הן נתוני הוועד ונמחקות איתו.
+                await _db.PollVotes.Where(v => pollIds.Contains(v.PollId)).ExecuteDeleteAsync();
+                await _db.PollOptions.Where(o => pollIds.Contains(o.PollId)).ExecuteDeleteAsync();
+                await _db.Polls.Where(p => pollIds.Contains(p.Id)).ExecuteDeleteAsync();
+
+                // פניות שהוועד שלח לספקים — מכילות את פרטי הקשר של הוועד, ולכן
+                // הן נתוניו ונמחקות. הספק עצמו אינו נמחק (הוא לקוח נפרד).
+                await _db.Leads.Where(l => l.GroupId != null && groupIds.Contains(l.GroupId.Value)).ExecuteDeleteAsync();
 
                 // חברויות והזמנות של הגנים של המשתמש — אחרת נשארות רשומות יתומות
                 // (עם שם/הרשאה) גם אחרי מחיקת הגן ("הזכות להימחק" לא מלאה).

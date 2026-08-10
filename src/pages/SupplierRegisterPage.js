@@ -31,8 +31,8 @@ function SupplierRegisterPage() {
     if (!name.trim()) next.name = "צריך שם עסק/ספק";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail.trim()))
       next.loginEmail = "כתובת המייל אינה תקינה";
-    if (!password || password.length < 6)
-      next.password = "הסיסמה חייבת להכיל לפחות 6 תווים";
+    if (!password || password.length < 8)
+      next.password = "הסיסמה חייבת להכיל לפחות 8 תווים";
     setErrors(next);
     if (Object.keys(next).length > 0) {
       return;
@@ -97,7 +97,7 @@ function SupplierRegisterPage() {
             <div className="password-field">
               <Input
                 id="reg-password"
-                label="סיסמה (6 תווים לפחות)"
+                label="סיסמה (8 תווים לפחות)"
                 type={showPassword ? "text" : "password"}
                 autoComplete="new-password"
                 value={password}

@@ -37,6 +37,13 @@ namespace ParentCommitteeAPI.Services
             var username = dto.Username.Trim();
             var email = dto.Email.Trim().ToLowerInvariant();
 
+            // חוזק הסיסמה נאכף בשרת — מד החוזק בלקוח הוא המלצה בלבד וניתן לעקיפה
+            var weak = PasswordPolicy.Validate(dto.Password);
+            if (weak != null)
+            {
+                return new AuthResult(null, weak);
+            }
+
             // הזהות היא המייל בלבד — שם משתמש כפול מותר (החלטת בעלת המוצר).
             if (await _db.Users.AnyAsync(u => u.Email == email))
             {
@@ -178,6 +185,11 @@ namespace ParentCommitteeAPI.Services
             {
                 return "הסיסמה הנוכחית שגויה";
             }
+            var weakNew = PasswordPolicy.Validate(dto.NewPassword);
+            if (weakNew != null)
+            {
+                return weakNew;
+            }
 
             user.PasswordHash = PasswordHasher.Hash(dto.NewPassword);
             await _db.SaveChangesAsync();
@@ -251,6 +263,14 @@ namespace ParentCommitteeAPI.Services
                 }
                 await _db.SaveChangesAsync();
                 return genericError;
+            }
+
+            // הקוד תקין, אבל הסיסמה החדשה עדיין חייבת לעמוד בכללים — אחרת
+            // איפוס סיסמה היה הופך לדלת אחורית לסיסמה חלשה.
+            var weakReset = PasswordPolicy.Validate(dto.NewPassword);
+            if (weakReset != null)
+            {
+                return weakReset;
             }
 
             // קוד תקין — מאפסים סיסמה ומנקים את מצב האיפוס

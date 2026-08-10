@@ -114,7 +114,7 @@ namespace ParentCommitteeAPI.Controllers
                 CredentialResult.EmailTaken =>
                     Conflict(new { message = "כתובת המייל כבר בשימוש ספק אחר" }),
                 CredentialResult.Invalid =>
-                    BadRequest(new { message = "צריך מייל וסיסמה באורך 6 תווים לפחות" }),
+                    BadRequest(new { message = "צריך מייל וסיסמה באורך 8 תווים לפחות" }),
                 _ => NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" }),
             };
         }

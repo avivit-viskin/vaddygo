@@ -25,8 +25,8 @@ function validate(values) {
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
     errors.email = "כתובת המייל אינה תקינה";
   }
-  if (!values.password || values.password.length < 6) {
-    errors.password = "הסיסמה חייבת להכיל לפחות 6 תווים";
+  if (!values.password || values.password.length < 8) {
+    errors.password = "הסיסמה חייבת להכיל לפחות 8 תווים";
   }
   return errors;
 }

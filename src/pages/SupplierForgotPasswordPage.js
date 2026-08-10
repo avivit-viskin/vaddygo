@@ -53,8 +53,8 @@ function SupplierForgotPasswordPage() {
     setSubmitError("");
     const next = {};
     if (!code.trim()) next.code = "צריך להזין את הקוד שקיבלת במייל";
-    if (!newPassword || newPassword.length < 6)
-      next.newPassword = "הסיסמה חייבת להכיל לפחות 6 תווים";
+    if (!newPassword || newPassword.length < 8)
+      next.newPassword = "הסיסמה חייבת להכיל לפחות 8 תווים";
     setErrors(next);
     if (Object.keys(next).length > 0) {
       return;
@@ -153,7 +153,7 @@ function SupplierForgotPasswordPage() {
                 <div className="password-field">
                   <Input
                     id="sfp-password"
-                    label="סיסמה חדשה (6 תווים לפחות)"
+                    label="סיסמה חדשה (8 תווים לפחות)"
                     type={showPassword ? "text" : "password"}
                     autoComplete="new-password"
                     value={newPassword}

@@ -51,8 +51,8 @@ function ForgotPasswordPage() {
     setSubmitError("");
     const next = {};
     if (!code.trim()) next.code = "צריך להזין את הקוד שקיבלת במייל";
-    if (!newPassword || newPassword.length < 6)
-      next.newPassword = "הסיסמה חייבת להכיל לפחות 6 תווים";
+    if (!newPassword || newPassword.length < 8)
+      next.newPassword = "הסיסמה חייבת להכיל לפחות 8 תווים";
     setErrors(next);
     if (Object.keys(next).length > 0) {
       return;

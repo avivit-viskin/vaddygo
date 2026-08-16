@@ -85,6 +85,8 @@ builder.Services.AddScoped<IPollService, PollService>();
 // ניקוי סוף שנת לימודים — שירות + משימת רקע יומית שמריצה אותו
 builder.Services.AddScoped<IYearEndCleanupService, YearEndCleanupService>();
 builder.Services.AddHostedService<YearEndCleanupBackgroundService>();
+builder.Services.AddScoped<IVendorProExpiryService, VendorProExpiryService>();
+builder.Services.AddHostedService<VendorProExpiryBackgroundService>();
 // גיבוי אוטומטי של המסד — שירות + משימת רקע (בעלייה ואז כל X שעות)
 builder.Services.AddScoped<IDatabaseBackupService, SqliteBackupService>();
 builder.Services.AddHostedService<DatabaseBackupBackgroundService>();

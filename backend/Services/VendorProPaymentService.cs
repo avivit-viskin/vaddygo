@@ -127,6 +127,8 @@ namespace ParentCommitteeAPI.Services
 
             vendor.IsPro = true;
             vendor.ProValidUntil = from.AddMonths(months);
+            // חידוש → מאפסים את דגל ההתראה, כדי שהמייל יישלח שוב לקראת המחזור הבא
+            vendor.ProWarnedAt = null;
             // מנקים את המזהה כדי שאותו webhook לא יאריך את המנוי פעם נוספת
             vendor.ProTransactionRef = string.Empty;
             await _db.SaveChangesAsync();

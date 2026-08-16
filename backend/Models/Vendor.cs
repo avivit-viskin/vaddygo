@@ -86,6 +86,11 @@ namespace ParentCommitteeAPI.Models
            ריק = לא נפתחה עסקה. */
         public string ProTransactionRef { get; set; } = string.Empty;
 
+        /* מתי נשלחה לספק התראת המייל על סיום מסלול הפרו (שבועיים לפני התוקף),
+           פעם אחת בכל מחזור. מתאפס לאחר חידוש כדי להתריע שוב במחזור הבא.
+           null = טרם נשלחה. */
+        public DateTime? ProWarnedAt { get; set; }
+
         /* הספק מסומן "כשר" — מוצג כתגית ליד שם הספק. הספק עצמו מדליק/מכבה. */
         public bool IsKosher { get; set; }
 

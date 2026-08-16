@@ -8,6 +8,7 @@ import EmptyState from "../../components/EmptyState";
 import ErrorMessage from "../../components/ErrorMessage";
 import ConfirmDialog from "../../components/ConfirmDialog";
 import ProBadge from "../../components/ProBadge";
+import ProGate from "../../components/ProGate";
 import useApi from "../../hooks/useApi";
 import { getExpenses, deleteExpense } from "../../services/expensesService";
 import { paymentMethodLabel } from "../../services/paymentMethods";
@@ -213,10 +214,14 @@ function ReceiptsCard() {
         </div>
       )}
 
+      {/* צפייה בקבלות פתוחה לכולם; *הוספת* קבלה היא פיצ'ר פרו — ProGate מציג
+          כפתור-כתר שמוביל לשדרוג למי שאינה מנויה, ואת כפתור ההוספה למנויה. */}
       {!readOnly && (
-        <Button variant="secondary" onClick={() => setAdding(true)}>
-          + הוספת קבלה
-        </Button>
+        <ProGate feature="receipts" label="הוספת קבלה (פרו)">
+          <Button variant="secondary" onClick={() => setAdding(true)}>
+            + הוספת קבלה
+          </Button>
+        </ProGate>
       )}
 
       <ReceiptCaptureModal

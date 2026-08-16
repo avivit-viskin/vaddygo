@@ -16,7 +16,6 @@ import {
 } from "../services/filesService";
 import FolderForm from "./files/FolderForm";
 import ReceiptsCard from "./files/ReceiptsCard";
-import ProGate from "../components/ProGate";
 import WhatsAppIcon from "../components/WhatsAppIcon";
 import { whatsappShareUrl } from "../services/whatsapp";
 import { isActiveReadOnly } from "../services/institutionsService";
@@ -52,9 +51,9 @@ function FilesPage() {
 
   return (
     <div className="files">
-      <ProGate feature="receipts" label="קבלות והוצאות">
-        <ReceiptsCard />
-      </ProGate>
+      {/* הקבלות גלויות ומסודרות בתיקיות לכולם (כמו הקבצים); רק *הוספת* קבלה
+          היא פיצ'ר פרו — הגייטינג נמצא בתוך ReceiptsCard על כפתור ההוספה. */}
+      <ReceiptsCard />
 
       <Card
         title={

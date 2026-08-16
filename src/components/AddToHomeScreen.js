@@ -61,11 +61,11 @@ function AddToHomeScreen() {
     };
     window.addEventListener("appinstalled", onInstalled);
 
-    // אייפון (בלי beforeinstallprompt) — מציגים רמז אחרי השהיה קצרה
-    let timer;
-    if (isIOS()) {
-      timer = setTimeout(() => setShow(true), 4500);
-    }
+    // מציגים את הבאנר אחרי השהיה קצרה בכל מקרה: אם ה-beforeinstallprompt נתפס
+    // (כרום עם התקנה אמיתית) — יופיע כפתור "התקנה"; אם לא (אין service worker,
+    // או אייפון) — יופיע רמז ידני איך להוסיף מתפריט הדפדפן / כפתור השיתוף. כך
+    // גם משתמשי אנדרואיד/כרום מקבלים הכוונה, ולא רק אייפון.
+    const timer = setTimeout(() => setShow(true), 4500);
 
     return () => {
       window.removeEventListener("beforeinstallprompt", onBeforeInstall);

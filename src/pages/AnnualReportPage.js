@@ -58,7 +58,7 @@ function AnnualReportPage() {
     )} (${progressPercent}%)`,
     `הוצאות: ${formatShekels(totalSpent)}`,
     `יתרה בקופה: ${formatShekels(boxBalance)}`,
-    "הופק ב-VaddyGo 💜",
+    "הופק ב-VaddyGo 🩷",
   ].join("\n");
 
   return (

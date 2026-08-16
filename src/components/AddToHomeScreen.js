@@ -114,7 +114,7 @@ function AddToHomeScreen() {
       </button>
       <div className="a2hs__body">
         <span className="a2hs__icon" aria-hidden="true">
-          💜
+          🩷
         </span>
         <div className="a2hs__text">
           <strong>

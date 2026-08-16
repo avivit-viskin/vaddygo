@@ -320,7 +320,7 @@ namespace ParentCommitteeAPI.Services
                 "נרשם עסק/ספק חדש לפורטל הספקים של VaddyGo:\n\n" +
                 $"שם העסק: {vendor.Name}\n" +
                 $"מייל להתחברות: {vendor.LoginEmail}\n\n" +
-                "צוות VaddyGo 💜");
+                "צוות VaddyGo 🩷");
 
             return (vendor.EditToken, null);
         }
@@ -369,7 +369,7 @@ namespace ParentCommitteeAPI.Services
                 "שלום 🙂\n\n" +
                 $"הקוד שלך לאיפוס סיסמת הספק ב-VaddyGo הוא: {code}\n\n" +
                 "הקוד תקף ל-5 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
-                "בהצלחה,\nצוות VaddyGo 💜";
+                "בהצלחה,\nצוות VaddyGo 🩷";
             try
             {
                 await _email.SendAsync(vendor.LoginEmail, "קוד לאיפוס סיסמת ספק — VaddyGo", body);
@@ -475,7 +475,7 @@ namespace ParentCommitteeAPI.Services
                         "שלום 🙂\n\n" +
                         $"הספק \"{vendor.Name}\" ביקש למחוק את חשבונו ב-VaddyGo.\n" +
                         "אפשר לאשר או לדחות את הבקשה במסך הספקים באפליקציה.\n\n" +
-                        "צוות VaddyGo 💜";
+                        "צוות VaddyGo 🩷";
                     try
                     {
                         await _email.SendAsync(

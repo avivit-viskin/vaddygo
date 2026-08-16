@@ -71,7 +71,7 @@ namespace ParentCommitteeAPI.Services
                 "נרשם חבר/ת ועד חדש/ה ל-VaddyGo:\n\n" +
                 $"שם: {user.Username}\n" +
                 $"מייל: {user.Email}\n\n" +
-                "צוות VaddyGo 💜");
+                "צוות VaddyGo 🩷");
 
             return new AuthResult(BuildResponse(user), null);
         }
@@ -220,7 +220,7 @@ namespace ParentCommitteeAPI.Services
                 "שלום 🙂\n\n" +
                 $"הקוד שלך לאיפוס הסיסמה ב-VaddyGo הוא: {code}\n\n" +
                 "הקוד תקף ל-5 דקות. אם לא ביקשת לאפס סיסמה — אפשר פשוט להתעלם מהמייל הזה.\n\n" +
-                "בהצלחה,\nצוות VaddyGo 💜";
+                "בהצלחה,\nצוות VaddyGo 🩷";
             try
             {
                 await _email.SendAsync(user.Email, "קוד לאיפוס סיסמה — VaddyGo", body);

@@ -9,7 +9,7 @@
 
 // מזהי המדידה — ממלאים כאן (או ב-REACT_APP_*) אחרי פתיחת החשבונות.
 // GA4: נראה כמו "G-XXXXXXXXXX".  פיקסל פייסבוק: מספר, למשל "1234567890123456".
-const GA_ID = process.env.REACT_APP_GA_ID || "";
+const GA_ID = process.env.REACT_APP_GA_ID || "G-TMDSZFYP48";
 const FB_PIXEL_ID = process.env.REACT_APP_FB_PIXEL_ID || "";
 
 let loaded = false;

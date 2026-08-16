@@ -300,12 +300,14 @@ function GiftsPage() {
               options={vendorCategories}
               value={vendorFilter}
               onChange={setVendorFilter}
+              allLabel="ללא סינון"
             />
             <FilterChips
               label="מיקום"
               options={vendorCities}
               value={vendorCityFilter}
               onChange={setVendorCityFilter}
+              allLabel="ללא סינון"
             />
             {visibleVendors.length === 0 && (
               <EmptyState

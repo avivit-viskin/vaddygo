@@ -642,6 +642,9 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
             vendor.IsPro = isPro;
+            // פתיחה ידנית של המנהלת = ללא תאריך תפוגה (פעיל עד שתסגור), כמו בגן —
+            // וגם מנקה תאריך "מרחף" מרכישה קודמת, כדי שההדלקה תיראה פעילה מיד.
+            vendor.ProValidUntil = null;
             await _db.SaveChangesAsync();
             return ToResponse(vendor);
         }
@@ -789,7 +792,9 @@ namespace ParentCommitteeAPI.Services
             LastEditedAt = vendor.LastEditedAt,
             Offer = vendor.Offer,
             Featured = vendor.Featured,
-            IsPro = vendor.IsPro,
+            // "פרו פעיל" מחושב כאן (דגל + תוקף) כדי שהפיצ'רים ייכבו אוטומטית
+            // כשהמנוי פג — הלקוח לא מחשב תפוגה בעצמו (מקור אמת אחד).
+            IsPro = VendorProPolicy.IsActive(vendor),
             IsKosher = vendor.IsKosher,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {

@@ -27,10 +27,42 @@ const box = {
   background: "var(--color-surface)",
 };
 
-function SupplierLeads({ token, isPro }) {
+/*
+  הודעת וואטסאפ מוכנה שהספק שולח לוועד — כוללת את פרטי הבקשה שהוועד מילא (כמות,
+  מוצר, תאריך אירוע, תקציב), כדי שהפנייה תהיה אישית ולא גנרית. בונים רק מהחלקים
+  שקיימים בפועל. דוגמה: "היי דנה! 🙂 כאן מגשי שרה. ראיתי שהתעניינת ב-10 מגשים,
+  לאירוע ב-17.8, בתקציב של 1,500 ₪. מתי יהיה אפשר לשוחח?"
+*/
+function buildLeadWhatsApp(lead, vendorName) {
+  const hi = `היי${lead.contactName ? ` ${lead.contactName}` : ""}! 🙂`;
+  const who = vendorName ? ` כאן ${vendorName}.` : "";
+  const item = (lead.subject || "").trim();
+  let saw = "ראיתי שהתעניינת";
+  if (lead.quantity && item) {
+    saw += ` ב-${lead.quantity} ${item}`;
+  } else if (item) {
+    saw += ` ב${item}`;
+  } else if (lead.quantity) {
+    saw += ` ב-${lead.quantity} יחידות`;
+  } else {
+    saw += " במה שאנחנו מציעים";
+  }
+  if (lead.eventDate) {
+    saw += `, לאירוע ב-${formatDayMonth(lead.eventDate)}`;
+  }
+  if (lead.budget) {
+    saw += `, בתקציב של ${formatShekels(lead.budget)}`;
+  }
+  saw += ".";
+  return `${hi}${who} ${saw} מתי יהיה אפשר לשוחח?`;
+}
+
+function SupplierLeads({ token, isPro, vendorName }) {
   const [leads, setLeads] = useState(null);
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
+  // סינון לפי סטטוס. "" = ללא סינון (כל הפניות).
+  const [statusFilter, setStatusFilter] = useState("");
 
   const load = useCallback(() => {
     if (!isPro || !token) {
@@ -77,6 +109,10 @@ function SupplierLeads({ token, isPro }) {
     );
   }
 
+  const visibleLeads = statusFilter
+    ? (leads || []).filter((l) => l.status === statusFilter)
+    : leads || [];
+
   return (
     <div style={box}>
       <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 12 }}>
@@ -118,10 +154,49 @@ function SupplierLeads({ token, isPro }) {
         </p>
       )}
 
+      {/* סינון לפי סטטוס — "ללא סינון" מציג את כל הפניות */}
+      {Array.isArray(leads) && leads.length > 0 && (
+        <div style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 12 }}>
+          {[{ k: "", label: "ללא סינון" }, ...ORDER.map((k) => ({ k, label: STATUS[k].label }))].map(
+            ({ k, label }) => {
+              const active = statusFilter === k;
+              return (
+                <button
+                  key={k || "all"}
+                  type="button"
+                  onClick={() => setStatusFilter(k)}
+                  style={{
+                    border: active
+                      ? "1px solid var(--color-primary-dark)"
+                      : "1px solid var(--color-border)",
+                    background: active ? "var(--color-primary-dark)" : "var(--color-surface)",
+                    color: active ? "#fff" : "var(--color-text)",
+                    borderRadius: 999,
+                    padding: "5px 12px",
+                    fontFamily: "var(--font-family)",
+                    fontSize: "var(--font-size-sm)",
+                    fontWeight: active ? 700 : 500,
+                    cursor: "pointer",
+                  }}
+                >
+                  {label}
+                </button>
+              );
+            }
+          )}
+        </div>
+      )}
+
+      {Array.isArray(leads) && leads.length > 0 && visibleLeads.length === 0 && (
+        <p style={{ color: "var(--color-text-muted)", margin: 0 }}>
+          אין פניות בסטטוס הזה — אפשר ללחוץ "ללא סינון".
+        </p>
+      )}
+
       <ul style={{ listStyle: "none", padding: 0, margin: 0, display: "flex", flexDirection: "column", gap: 12 }}>
-        {(leads || []).map((lead) => {
+        {visibleLeads.map((lead) => {
           const s = STATUS[lead.status] || STATUS.new;
-          const waMsg = `שלום${lead.contactName ? ` ${lead.contactName}` : ""}! 🙂 קיבלנו את בקשתכם דרך VaddyGo${lead.subject ? ` בנוגע ל${lead.subject}` : ""}. נשמח להכין הצעת מחיר.`;
+          const waMsg = buildLeadWhatsApp(lead, vendorName);
           return (
             <li key={lead.id} style={{ border: "1px solid var(--color-border)", borderRadius: "var(--radius-md)", padding: 12 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>

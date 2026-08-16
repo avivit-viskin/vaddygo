@@ -599,7 +599,7 @@ function SupplierEditPage() {
             <SupplierReports vendor={vendor} />
           </div>
           <div style={{ marginTop: 16 }}>
-            <SupplierLeads token={token} isPro={vendor?.isPro} />
+            <SupplierLeads token={token} isPro={vendor?.isPro} vendorName={vendor?.name} />
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />

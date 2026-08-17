@@ -1211,7 +1211,7 @@ function VendorForm({
       {visibleProducts.length > 0 && (
         <div className="gift-form__actions" style={{ margin: "0 0 12px" }}>
           <Button type="submit" isLoading={isSubmitting}>
-            שמירת השינויים
+            שמירה
           </Button>
         </div>
       )}

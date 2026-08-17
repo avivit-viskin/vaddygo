@@ -13,6 +13,8 @@ import {
   setVendorPro,
 } from "../../services/vendorsService";
 import RfqModal from "../../components/RfqModal";
+import KosherBadge from "../../components/KosherBadge";
+import SocialIcon from "../../components/SocialIcon";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -273,6 +275,12 @@ function VendorPanel({
           ⭐ ספק מומלץ
         </span>
       )}
+      {/* חותמת "כשר" — מוצגת גם בתצוגה שהספק רואה, לא רק בכרטיס אצל הוועד */}
+      {vendor.isKosher && (
+        <div style={{ margin: "0 0 10px" }}>
+          <KosherBadge />
+        </div>
+      )}
       {(vendor.category || vendor.city) && (
         <p className="vendor-panel__meta">
           {vendor.category}
@@ -530,8 +538,10 @@ function VendorPanel({
               href={link.url}
               target="_blank"
               rel="noreferrer"
+              aria-label={link.label || "קישור"}
+              title={link.label || "קישור"}
             >
-              {link.label || "קישור"}
+              <SocialIcon label={link.label} size={30} />
             </a>
           ))}
         </div>

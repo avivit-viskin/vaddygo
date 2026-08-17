@@ -13,14 +13,17 @@
   border-bottom: 1px solid var(--color-border);
 }
 
-/* שורת השם: שם הרשת (רחב) + איקס להסרה צמוד אליו */
-.social-row__field {
-  display: flex;
-  align-items: flex-end;
-  gap: 8px;
-}
 .social-row__name {
   position: relative; /* עוגן לרשימת ההשלמה האוטומטית */
+  width: 100%;
+}
+/* שם הרשת + איקס — באותה שורה, מיושרים למרכז אנכית */
+.social-row__namerow {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.social-row__namerow .field__input {
   flex: 1;
   min-width: 0;
 }
@@ -33,7 +36,6 @@
   flex-shrink: 0;
   width: 40px;
   height: 40px;
-  margin-bottom: 2px;
   display: grid;
   place-items: center;
   border: 1px solid var(--color-border);

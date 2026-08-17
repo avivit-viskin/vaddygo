@@ -506,17 +506,31 @@
   display: flex;
   gap: 8px;
   flex-wrap: wrap;
+  align-items: center;
+  /* קטן ובצד הכרטיס — לא כפתורי טקסט גדולים */
+  justify-content: flex-end;
+  margin: 4px 0 14px;
 }
 
 .vendor-panel__social {
-  color: var(--color-primary-dark);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 6px 12px;
-  font-size: var(--font-size-sm);
-  min-height: 44px;
   display: inline-flex;
-  align-items: center;
+  line-height: 0;
+  text-decoration: none;
+  border-radius: 50%;
+}
+.vendor-panel__social:hover .social-icon {
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+}
+
+/* אייקון רשת עגול קטן — צבע המותג מוזרק מהרכיב SocialIcon (inline) */
+.social-icon {
+  display: inline-grid;
+  place-items: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
+  transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
 .vendor-panel__products {
@@ -814,16 +828,19 @@
 
 /* ── כפתורי הפנייה בכרטיס הספק (הצעת מחיר / וואטסאפ) — מעודנים ובוגרים ──
    פחם-חם במקום ורוד רך, פינות מתונות במקום גלולה, וגודל מדוד (לא "ילדותי"). */
-.vendor-panel__contact .btn--primary {
-  background-color: var(--color-primary-dark);
-  color: #f6efe9;
+/* «בקשת הצעת מחיר» — בז' רך עם מסגרת (לבקשת בעלת המוצר), במקום מילוי כהה/ורוד.
+   הסלקטור עם .btn.btn--primary כדי לגבור על סגנון הכפתורים הכללי של הפורטל. */
+.vendor-panel__contact .btn.btn--primary {
+  background-color: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  border: 1px solid #d9cbb3;
   border-radius: var(--radius-md);
   padding: 9px 18px;
   font-size: var(--font-size-sm);
   box-shadow: none;
 }
-.vendor-panel__contact .btn--primary:hover:not(:disabled) {
-  background-color: #43302a;
+.vendor-panel__contact .btn.btn--primary:hover:not(:disabled) {
+  background-color: #e6d9c2;
 }
 .vendor-panel__contact .btn--secondary,
 .vendor-panel__wa {

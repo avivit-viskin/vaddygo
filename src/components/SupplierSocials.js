@@ -119,11 +119,18 @@ function SupplierSocials({ vendor, onSave }) {
           !(suggestions.length === 1 && suggestions[0].he === row.label.trim());
         return (
           <div key={row.key} className="social-row">
-            <div className="social-row__field">
-              <div className="social-row__name">
-                <Input
+            <div className="social-row__name">
+              <label
+                className="field__label"
+                htmlFor={`social-name-${row.key}`}
+              >
+                רשת
+              </label>
+              {/* שם הרשת + איקס להסרה — באותה שורה בדיוק */}
+              <div className="social-row__namerow">
+                <input
                   id={`social-name-${row.key}`}
-                  label="רשת"
+                  className="field__input"
                   value={row.label}
                   onChange={(e) => {
                     setRow(row.key, { label: e.target.value });
@@ -140,37 +147,36 @@ function SupplierSocials({ vendor, onSave }) {
                   placeholder="פייסבוק / אינסטגרם…"
                   autoComplete="off"
                 />
-                {showSuggest && (
-                  <ul className="social-suggest" role="listbox">
-                    {suggestions.map((n) => (
-                      <li key={n.he}>
-                        <button
-                          type="button"
-                          className="social-suggest__item"
-                          // onMouseDown (לפני ה-blur) כדי שהבחירה תיקלט לפני שהרשימה נסגרת
-                          onMouseDown={(e) => {
-                            e.preventDefault();
-                            pickNetwork(row.key, n);
-                          }}
-                        >
-                          <span className="social-suggest__he">{n.he}</span>
-                          <span className="social-suggest__en">{n.en}</span>
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                <button
+                  type="button"
+                  className="social-row__x"
+                  aria-label={`הסרת ${row.label || "הרשת"}`}
+                  title="הסרה"
+                  onClick={() => removeRow(row.key)}
+                >
+                  ✕
+                </button>
               </div>
-              {/* איקס להסרת השורה — צמוד לשם הרשת (במקום כפתור "הסרה" נפרד) */}
-              <button
-                type="button"
-                className="social-row__x"
-                aria-label={`הסרת ${row.label || "הרשת"}`}
-                title="הסרה"
-                onClick={() => removeRow(row.key)}
-              >
-                ✕
-              </button>
+              {showSuggest && (
+                <ul className="social-suggest" role="listbox">
+                  {suggestions.map((n) => (
+                    <li key={n.he}>
+                      <button
+                        type="button"
+                        className="social-suggest__item"
+                        // onMouseDown (לפני ה-blur) כדי שהבחירה תיקלט לפני הסגירה
+                        onMouseDown={(e) => {
+                          e.preventDefault();
+                          pickNetwork(row.key, n);
+                        }}
+                      >
+                        <span className="social-suggest__he">{n.he}</span>
+                        <span className="social-suggest__en">{n.en}</span>
+                      </button>
+                    </li>
+                  ))}
+                </ul>
+              )}
             </div>
             <div className="social-row__url">
               <Input

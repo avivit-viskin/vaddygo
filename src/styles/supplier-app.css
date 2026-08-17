@@ -14,31 +14,65 @@
 .sup-head {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
-  background-color: var(--color-primary-light);
-  color: var(--color-primary-dark);
-  border-bottom: 1px solid var(--color-border);
-  min-height: 56px;
-  padding: 8px 16px;
+  gap: 10px;
+  position: relative;
+  /* כותרת כהה ומכובדת — מבדילה את פורטל הספקים (מקור ההכנסה) מהאפליקציה הרכה */
+  background: linear-gradient(135deg, #2c211c 0%, #43302a 100%);
+  color: #f6efe9;
+  min-height: 58px;
+  padding: 12px 16px 14px;
   /* יוצא מה-padding של .supplier-edit (12px 14px) כדי להיות סרגל צמוד לקצוות */
   margin: -12px -14px 14px;
 }
-/* הלוגו במרכז (כמו בסרגל של הוועדים) */
-.sup-head__logo {
+/* קו ורוד עדין בתחתית הכותרת — החתימה ה"פרימיום" של הפורטל */
+.sup-head::after {
+  content: "";
+  position: absolute;
+  inset-inline: 0;
+  bottom: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, #c25c8a, transparent);
+}
+/* מותג במרכז: אריח "VG" + שם + תת-כותרת (במקום לוגו PNG שנועד לרקע בהיר) */
+.sup-head__brand {
   flex: 1;
-  text-align: center;
-  display: block;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
 }
-.sup-head__logo svg,
-.sup-head__logo img {
-  height: 40px;
-  width: auto;
-  max-width: 160px;
-  object-fit: contain;
-  vertical-align: middle;
+.sup-head__mark {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 0.5px;
+  color: #2c211c;
+  background: linear-gradient(140deg, #f7c9dd, #f6d9a8);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
 }
-/* כפתור התפריט ☰ — נקי בלי מסגרת, כמו אצל הוועדים (עוקף את ה-inline styles) */
+.sup-head__brandtext {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+.sup-head__name {
+  font-weight: 800;
+  font-size: 15px;
+  letter-spacing: 0.2px;
+}
+.sup-head__sub {
+  font-size: 10px;
+  color: #cdb9af;
+  letter-spacing: 0.16em;
+  margin-top: 1px;
+}
+/* כפתור התפריט ☰ — בהיר על הכותרת הכהה (עוקף את ה-inline styles) */
 .sup-head > button {
   width: auto !important;
   height: auto !important;
@@ -47,13 +81,8 @@
   border: none !important;
   background: none !important;
   border-radius: 0 !important;
-  color: #000 !important;
+  color: #e9dcd3 !important;
   font-size: 1.4rem !important;
-}
-.sup-head__hi {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--color-text);
 }
 
 /* ── טאבים בסגנון ניווט תחתון (אייקון למעלה, פס ורוד תחתון לפעיל) ── */
@@ -90,9 +119,9 @@
   line-height: 1;
 }
 .sup-tab--active {
-  color: var(--color-primary-dark);
+  color: #c25c8a;
   font-weight: 700;
-  border-bottom-color: var(--color-primary);
+  border-bottom-color: #c25c8a;
 }
 
 /* ── דאשבורד: אריחי סטטיסטיקה — כרטיסים לבנים נקיים, כולם בשורה אחת ── */

@@ -356,7 +356,11 @@ button.vendor-form__remove {
   box-shadow: var(--shadow-md);
   width: 100%;
   max-width: 480px;
+  /* dvh = גובה החלון הנראה בפועל. באייפון vh מחושב לפי המסך המלא (בלי שורת
+     הכתובת), ולכן מודאל ארוך "בורח" מתחת לאזור הנראה ואי אפשר לגלול לתחתית
+     (למשל לכפתור הרכישה בשדרוגי פרו). vh נשאר כנפילה חיננית לדפדפנים ישנים. */
   max-height: 85vh;
+  max-height: 85dvh;
   overflow-y: auto;
   padding: 20px;
 }

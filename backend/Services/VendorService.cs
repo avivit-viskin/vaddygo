@@ -583,7 +583,7 @@ namespace ParentCommitteeAPI.Services
         /* עדכון סטטוס פנייה — רק אם הפנייה שייכת לספק של הטוקן וסטטוס חוקי. */
         public async Task<bool> UpdateLeadStatusAsync(string token, int leadId, string status)
         {
-            var allowed = new[] { "new", "quoted", "won", "closed" };
+            var allowed = new[] { "new", "quoted", "won", "closed", "irrelevant" };
             if (!allowed.Contains(status))
             {
                 return false;

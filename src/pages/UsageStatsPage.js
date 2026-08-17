@@ -9,6 +9,7 @@ import UsageFunnel from "./admin/UsageFunnel";
 import SupplierCleanup from "./admin/SupplierCleanup";
 import ProTestControl from "./admin/ProTestControl";
 import SubscriptionsCard from "./admin/SubscriptionsCard";
+import SecurityStatusCard from "./admin/SecurityStatusCard";
 import ResetDisplayControl from "./admin/ResetDisplayControl";
 import { getUsageStats } from "../services/usageStatsService";
 import { applyBaseline, getBaseline } from "../services/usageBaseline";
@@ -92,6 +93,8 @@ function UsageStatsPage() {
               onChange={bump}
             />
             <SupplierCleanup />
+            {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
+            <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}
             <SubscriptionsCard />
             {/* פתיחה/סגירה של פרו למוסד הפעיל (נשמר בשרת) */}

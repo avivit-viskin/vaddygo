@@ -16,13 +16,16 @@ namespace ParentCommitteeAPI.Controllers
     {
         private readonly IUsageStatsService _usageStats;
         private readonly ISubscriptionsService _subscriptions;
+        private readonly ISecurityStatusService _security;
 
         public AdminController(
             IUsageStatsService usageStats,
-            ISubscriptionsService subscriptions)
+            ISubscriptionsService subscriptions,
+            ISecurityStatusService security)
         {
             _usageStats = usageStats;
             _subscriptions = subscriptions;
+            _security = security;
         }
 
         // GET: api/admin/usage
@@ -30,6 +33,13 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult<UsageStatsDto>> GetUsage()
         {
             return Ok(await _usageStats.GetUsageAsync());
+        }
+
+        // GET: api/admin/security — אילו הגנות פעילות בפועל (דגלים בלבד)
+        [HttpGet("security")]
+        public ActionResult<SecurityStatusDto> GetSecurity()
+        {
+            return Ok(_security.Get());
         }
 
         // GET: api/admin/subscriptions — מי במסלול פרו ועד מתי (ועדים וספקים)

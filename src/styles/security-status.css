@@ -1,0 +1,90 @@
+/*
+  security-status — חיווי ההגנות במסך ניהול VaddyGo. co-located עם
+  SecurityStatusCard (אחרי פיצול-הקוד ה-CSS לא זמין אוטומטית בכל chunk).
+*/
+.secstat {
+  margin-top: 24px;
+  padding: 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.secstat__title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 6px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+.secstat__hint {
+  margin: 0 0 14px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+.secstat__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.secstat__row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-bg);
+}
+
+/* הצבע נושא משמעות: פעיל / כבוי-בכוונה / חסר-הגנה */
+.secstat__row--on .secstat__icon { color: #2e7d32; }
+.secstat__row--bad .secstat__icon { color: #c0392b; }
+.secstat__row--off .secstat__icon { color: var(--color-text-muted); }
+.secstat__row--bad { border-color: #f5b7b1; }
+
+.secstat__icon { flex-shrink: 0; margin-top: 2px; }
+
+.secstat__body { flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.secstat__label { font-weight: 600; }
+.secstat__desc {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.4;
+}
+
+.secstat__pill {
+  flex-shrink: 0;
+  align-self: center;
+  padding: 2px 10px;
+  border-radius: 999px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+.secstat__row--on .secstat__pill {
+  background: #e7f5e9;
+  border-color: #b7e0c0;
+  color: #2e7d32;
+}
+.secstat__row--bad .secstat__pill {
+  background: #fdecea;
+  border-color: #f5b7b1;
+  color: #c0392b;
+}
+
+.secstat__last {
+  margin-top: 4px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}

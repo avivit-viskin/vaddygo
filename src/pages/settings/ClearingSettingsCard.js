@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import Card from "../../components/Card";
 import Icon from "../../components/Icon";
 import Input from "../../components/Input";
+import PasswordInput from "../../components/PasswordInput";
 import Button from "../../components/Button";
 import { getClearing, saveClearing } from "../../services/clearingSettingsService";
 
@@ -67,10 +68,9 @@ function ClearingSettingsCard() {
         autoComplete="off"
         placeholder={status.hasClearing ? "מחובר — הקלידו כדי להחליף" : "הדביקו כאן"}
       />
-      <Input
+      <PasswordInput
         id="clearing-secret-key"
         label="Secret Key"
-        type="password"
         value={secretKey}
         onChange={(e) => setSecretKey(e.target.value)}
         autoComplete="off"

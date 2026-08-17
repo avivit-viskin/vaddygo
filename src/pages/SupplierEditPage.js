@@ -19,6 +19,7 @@ import VendorPanel from "./gifts/VendorPanel";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import Input from "../components/Input";
+import PasswordInput from "../components/PasswordInput";
 import Button from "../components/Button";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
@@ -357,10 +358,9 @@ function SupplierEditPage() {
             onChange={(e) => setGateEmail(e.target.value)}
             placeholder="you@example.com"
           />
-          <Input
+          <PasswordInput
             id="gate-pw"
             label="סיסמה"
-            type="password"
             autoComplete="current-password"
             value={gatePassword}
             onChange={(e) => setGatePassword(e.target.value)}
@@ -418,9 +418,17 @@ function SupplierEditPage() {
         >
           ☰
         </button>
-        <span className="sup-head__logo">
-          <Logo />
-        </span>
+        {/* מותג במרכז — אריח VG + שם + תת-כותרת (במקום לוגו PNG, שנועד לרקע בהיר
+            ולא נקרא על הכותרת הכהה). זו החתימה ה"פרימיום" של פורטל הספקים. */}
+        <div className="sup-head__brand">
+          <span className="sup-head__mark" aria-hidden="true">
+            VG
+          </span>
+          <span className="sup-head__brandtext">
+            <span className="sup-head__name">VaddyGo</span>
+            <span className="sup-head__sub">פורטל ספקים</span>
+          </span>
+        </div>
         {/* אווטאר החשבון בצד שמאל — לחיצה מציגה שם העסק ומייל ההתחברות */}
         <div style={{ marginInlineStart: "auto" }}>
           <SupplierAvatar name={vendor.name} email={vendor.loginEmail} />
@@ -562,10 +570,9 @@ function SupplierEditPage() {
                 onChange={(e) => setCredEmail(e.target.value)}
                 placeholder="you@example.com"
               />
-              <Input
+              <PasswordInput
                 id="cred-password"
                 label="סיסמה (8 תווים לפחות)"
-                type="password"
                 value={credPassword}
                 onChange={(e) => setCredPassword(e.target.value)}
               />
@@ -736,10 +743,9 @@ function SupplierEditPage() {
           <p className="supplier-edit__login-hint">
             כאן אפשר לעדכן את הסיסמה שלך לכניסה לפורטל הספקים.
           </p>
-          <Input
+          <PasswordInput
             id="change-pw"
             label="סיסמה חדשה (8 תווים לפחות)"
-            type="password"
             autoComplete="new-password"
             value={newPw}
             onChange={(e) => setNewPw(e.target.value)}

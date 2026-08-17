@@ -16,21 +16,24 @@ namespace ParentCommitteeAPI.Services
     */
     public interface ISecurityStatusService
     {
-        SecurityStatusDto Get();
+        Task<SecurityStatusDto> GetAsync();
     }
 
     public class SecurityStatusService : ISecurityStatusService
     {
         private readonly IConfiguration _config;
         private readonly AppDbContext _db;
+        private readonly IEncryptionBackfillService _backfill;
 
-        public SecurityStatusService(IConfiguration config, AppDbContext db)
+        public SecurityStatusService(
+            IConfiguration config, AppDbContext db, IEncryptionBackfillService backfill)
         {
             _config = config;
             _db = db;
+            _backfill = backfill;
         }
 
-        public SecurityStatusDto Get()
+        public async Task<SecurityStatusDto> GetAsync()
         {
             var jwtKey = _config["Jwt:Key"];
             var provider = _config["Payments:Provider"] ?? "mock";
@@ -48,6 +51,7 @@ namespace ParentCommitteeAPI.Services
                 ProductionCors = origins.Any(
                     o => !o.Contains("localhost", StringComparison.OrdinalIgnoreCase)),
                 LastBackupAt = FindLastBackup(),
+                PendingEncryption = await _backfill.CountPendingAsync(),
             };
         }
 

@@ -88,3 +88,23 @@
   font-size: var(--font-size-sm);
   color: var(--color-text-muted);
 }
+
+/* הצפנת רשומות ותיקות — מוצג רק כשיש מה להצפין */
+.secstat__backfill {
+  margin-top: 14px;
+  padding: 12px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-primary-light);
+}
+.secstat__backfill .secstat__desc {
+  margin: 0 0 10px;
+  color: var(--color-text);
+}
+
+.secstat__ok {
+  margin: 10px 0 0;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-success);
+}

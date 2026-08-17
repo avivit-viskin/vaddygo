@@ -83,6 +83,7 @@ builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
 // תמונת המנויים (פרו של ועדים וספקים) למסך המנהלת
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 // חיווי אילו הגנות פעילות בפועל (למסך המנהלת)
+builder.Services.AddScoped<IEncryptionBackfillService, EncryptionBackfillService>();
 builder.Services.AddScoped<ISecurityStatusService, SecurityStatusService>();
 // סקרים — הוועד יוצר, ההורים עונים בקישור ציבורי
 builder.Services.AddScoped<IPollService, PollService>();

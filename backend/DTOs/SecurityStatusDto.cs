@@ -29,5 +29,8 @@ namespace ParentCommitteeAPI.DTOs
 
         /* מתי בוצע הגיבוי האחרון שנמצא בתיקיית הגיבויים; null אם אין */
         public DateTime? LastBackupAt { get; set; }
+
+        /* כמה תלמידים עדיין שמורים כטקסט גלוי (נשמרו לפני הפעלת ההצפנה) */
+        public int PendingEncryption { get; set; }
     }
 }

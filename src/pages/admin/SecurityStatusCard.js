@@ -1,9 +1,13 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import useApi from "../../hooks/useApi";
 import Icon from "../../components/Icon";
 import Spinner from "../../components/Spinner";
 import ErrorMessage from "../../components/ErrorMessage";
-import { getSecurityStatus } from "../../services/securityStatusService";
+import Button from "../../components/Button";
+import {
+  getSecurityStatus,
+  encryptExistingRecords,
+} from "../../services/securityStatusService";
 import "../../styles/security-status.css";
 
 /*
@@ -51,9 +55,35 @@ const CHECKS = [
 ];
 
 function SecurityStatusCard() {
-  const { data, isLoading, error } = useApi(
+  const { data, isLoading, error, reload } = useApi(
     useCallback(() => getSecurityStatus(), [])
   );
+  const [isEncrypting, setIsEncrypting] = useState(false);
+  const [backfillMsg, setBackfillMsg] = useState(null);
+
+  /*
+    ההצפנה חלה על כל שמירה מרגע הפעלתה, אבל רשומות ותיקות נשארות כטקסט עד
+    שמישהו יערוך אותן. הכפתור הזה מצפין אותן בבת אחת. בטוח להרצה חוזרת.
+  */
+  async function runBackfill() {
+    setIsEncrypting(true);
+    setBackfillMsg(null);
+    try {
+      const { updated } = await encryptExistingRecords();
+      setBackfillMsg({
+        ok: true,
+        text:
+          updated > 0
+            ? `הוצפנו ${updated} רשומות שנשמרו קודם.`
+            : "הכול כבר מוצפן — לא נדרש שינוי.",
+      });
+      reload();
+    } catch (err) {
+      setBackfillMsg({ ok: false, text: err.message || "הפעולה נכשלה" });
+    } finally {
+      setIsEncrypting(false);
+    }
+  }
 
   let backupText = "";
   if (data?.lastBackupAt) {
@@ -101,6 +131,33 @@ function SecurityStatusCard() {
             <li className="secstat__last">גיבוי אחרון: {backupText}</li>
           )}
         </ul>
+      )}
+
+      {/*
+        רשומות שנשמרו לפני הפעלת ההצפנה נשארות כטקסט עד שנערכות. מוצג רק
+        כשההצפנה דלוקה ויש מה להצפין — אחרת אין על מה ללחוץ.
+      */}
+      {!isLoading && !error && data?.encryptionAtRest && data.pendingEncryption > 0 && (
+        <div className="secstat__backfill">
+          <p className="secstat__desc">
+            <strong>{data.pendingEncryption}</strong> תלמידים נשמרו לפני הפעלת
+            ההצפנה והפרטים הרגישים שלהם עדיין גלויים. אפשר להצפין אותם עכשיו —
+            הפעולה בטוחה וניתן להריץ אותה שוב.
+          </p>
+          <Button onClick={runBackfill} isLoading={isEncrypting}>
+            <Icon name="lock" size={15} /> הצפנת הנתונים הקיימים
+          </Button>
+        </div>
+      )}
+
+      {backfillMsg && (
+        <p
+          className={backfillMsg.ok ? "secstat__ok" : "field__error"}
+          role="status"
+        >
+          {backfillMsg.ok ? "✓ " : ""}
+          {backfillMsg.text}
+        </p>
       )}
     </section>
   );

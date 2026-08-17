@@ -17,15 +17,18 @@ namespace ParentCommitteeAPI.Controllers
         private readonly IUsageStatsService _usageStats;
         private readonly ISubscriptionsService _subscriptions;
         private readonly ISecurityStatusService _security;
+        private readonly IEncryptionBackfillService _backfill;
 
         public AdminController(
             IUsageStatsService usageStats,
             ISubscriptionsService subscriptions,
-            ISecurityStatusService security)
+            ISecurityStatusService security,
+            IEncryptionBackfillService backfill)
         {
             _usageStats = usageStats;
             _subscriptions = subscriptions;
             _security = security;
+            _backfill = backfill;
         }
 
         // GET: api/admin/usage
@@ -37,9 +40,27 @@ namespace ParentCommitteeAPI.Controllers
 
         // GET: api/admin/security — אילו הגנות פעילות בפועל (דגלים בלבד)
         [HttpGet("security")]
-        public ActionResult<SecurityStatusDto> GetSecurity()
+        public async Task<ActionResult<SecurityStatusDto>> GetSecurity()
         {
-            return Ok(_security.Get());
+            return Ok(await _security.GetAsync());
+        }
+
+        /*
+          POST: api/admin/encrypt-existing — מצפין רשומות שנשמרו לפני הפעלת
+          ההצפנה. אידמפוטנטי: ערך שכבר מוצפן מדולג, ולכן הרצה חוזרת בטוחה.
+        */
+        [HttpPost("encrypt-existing")]
+        public async Task<IActionResult> EncryptExisting()
+        {
+            try
+            {
+                var updated = await _backfill.RunAsync();
+                return Ok(new { updated });
+            }
+            catch (InvalidOperationException ex)
+            {
+                return BadRequest(new { message = ex.Message });
+            }
         }
 
         // GET: api/admin/subscriptions — מי במסלול פרו ועד מתי (ועדים וספקים)

@@ -91,6 +91,8 @@ function SupplierEditPage() {
   const [pwMsg, setPwMsg] = useState(null);
   const [pwSaving, setPwSaving] = useState(false);
   const [cookiesOpen, setCookiesOpen] = useState(false);
+  // דוח הספק — נגיש גם מהתפריט (☰), נפתח כמודאל
+  const [reportOpen, setReportOpen] = useState(false);
   const [shareCatalogOpen, setShareCatalogOpen] = useState(false);
   const [catalogCopied, setCatalogCopied] = useState(false);
   // תיקייה מסוימת לשיתוף כקטלוג ("" = כל הקטלוג). נקבע כשלוחצים "קישור לקטלוג"
@@ -603,7 +605,11 @@ function SupplierEditPage() {
             />
           </div>
           <div style={{ marginTop: 16 }}>
-            <SupplierReports vendor={vendor} />
+            <SupplierReports
+              vendor={vendor}
+              token={token}
+              isPro={vendor?.isPro}
+            />
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierLeads token={token} isPro={vendor?.isPro} vendorName={vendor?.name} />
@@ -709,6 +715,7 @@ function SupplierEditPage() {
         isPro={vendor?.isPro}
         onClose={() => setIsMenuOpen(false)}
         onUpgrade={() => setUpgradeOpen(true)}
+        onReport={() => setReportOpen(true)}
         onSettings={() => goTo("settings")}
         onChangeName={() => {
           setBizName(vendor?.name || "");
@@ -732,6 +739,14 @@ function SupplierEditPage() {
         title="שדרוגי פרו"
       >
         <SupplierUpgrade vendor={vendor} token={token} />
+      </Modal>
+
+      <Modal
+        isOpen={reportOpen}
+        onClose={() => setReportOpen(false)}
+        title="דוח הספק 📊"
+      >
+        <SupplierReports vendor={vendor} token={token} isPro={vendor?.isPro} />
       </Modal>
 
       <Modal

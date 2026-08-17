@@ -18,6 +18,7 @@ function SupplierSideMenu({
   isPro,
   onClose,
   onUpgrade,
+  onReport,
   onSettings,
   onChangeName,
   onChangePassword,
@@ -94,6 +95,17 @@ function SupplierSideMenu({
         >
           שדרוגי פרו{" "}
           <ProBadge title="כל כלי הפרו של הספק במקום אחד" isPro={isPro} />
+        </button>
+
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => {
+            onClose();
+            onReport();
+          }}
+        >
+          <Icon name="chart" size={18} /> דוח הספק
         </button>
 
         <h3 className="sidemenu__title">שיתוף</h3>

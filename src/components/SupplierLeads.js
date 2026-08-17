@@ -17,8 +17,9 @@ const STATUS = {
   quoted: { label: "הוגשה הצעה", color: "#1f6fbc" },
   won: { label: "נסגר בהצלחה", color: "#1d8a55" },
   closed: { label: "סגור", color: "#8a7d84" },
+  irrelevant: { label: "לא רלוונטי", color: "#7c8a94" },
 };
-const ORDER = ["new", "quoted", "won", "closed"];
+const ORDER = ["new", "quoted", "won", "closed", "irrelevant"];
 
 const box = {
   border: "1px solid var(--color-border)",
@@ -61,8 +62,24 @@ function SupplierLeads({ token, isPro, vendorName }) {
   const [leads, setLeads] = useState(null);
   const [error, setError] = useState("");
   const [refreshing, setRefreshing] = useState(false);
-  // סינון לפי סטטוס. "" = ללא סינון (כל הפניות).
-  const [statusFilter, setStatusFilter] = useState("");
+  // סינון לפי סטטוס — הדיפולט תמיד "חדש" (מתאפס בכל כניסה/מעבר דף; לא נשמר בהעדפה).
+  const [statusFilter, setStatusFilter] = useState("new");
+  // קיפול התיבה — נשמר בהעדפה כדי שתישאר סגורה גם אחרי רענון/מעבר דף
+  const [collapsed, setCollapsed] = useState(() => {
+    try {
+      return localStorage.getItem("vaddygo.leads.collapsed") === "1";
+    } catch {
+      return false;
+    }
+  });
+  function toggleCollapsed(next) {
+    setCollapsed(next);
+    try {
+      localStorage.setItem("vaddygo.leads.collapsed", next ? "1" : "0");
+    } catch {
+      /* אחסון חסום — לא קריטי */
+    }
+  }
 
   const load = useCallback(() => {
     if (!isPro || !token) {
@@ -109,6 +126,49 @@ function SupplierLeads({ token, isPro, vendorName }) {
     );
   }
 
+  // תיבה מקופלת — מציגים רק "ידית" קטנה לפתיחה (הפניות עדיין נטענות ברקע כדי
+  // להראות את המונה). לחיצה פותחת חזרה את התיבה המלאה.
+  if (collapsed) {
+    const count = Array.isArray(leads) ? leads.length : null;
+    return (
+      <button
+        type="button"
+        onClick={() => toggleCollapsed(false)}
+        style={{
+          width: "100%",
+          display: "flex",
+          alignItems: "center",
+          gap: 8,
+          border: "1px solid var(--color-border)",
+          borderRadius: "var(--radius-lg)",
+          background: "var(--color-surface)",
+          padding: "12px 16px",
+          fontFamily: "var(--font-family)",
+          fontSize: "var(--font-size-base)",
+          fontWeight: 700,
+          color: "var(--color-primary-dark)",
+          cursor: "pointer",
+        }}
+      >
+        📨 תיבת פניות
+        {count ? (
+          <span style={{ color: "var(--color-text-muted)", fontWeight: 400 }}>
+            ({count})
+          </span>
+        ) : null}
+        <span
+          style={{
+            marginInlineStart: "auto",
+            color: "#c25c8a",
+            fontWeight: 700,
+          }}
+        >
+          פתיחה ▾
+        </span>
+      </button>
+    );
+  }
+
   const visibleLeads = statusFilter
     ? (leads || []).filter((l) => l.status === statusFilter)
     : leads || [];
@@ -141,6 +201,25 @@ function SupplierLeads({ token, isPro, vendorName }) {
           }}
         >
           {refreshing ? "מרענן…" : "↻ רענון"}
+        </button>
+        <button
+          type="button"
+          onClick={() => toggleCollapsed(true)}
+          aria-label="סגירת תיבת הפניות"
+          title="סגירה"
+          style={{
+            border: "1px solid var(--color-border)",
+            background: "var(--color-surface)",
+            borderRadius: 8,
+            padding: "6px 10px",
+            fontFamily: "var(--font-family)",
+            fontSize: "var(--font-size-sm)",
+            fontWeight: 700,
+            color: "var(--color-text-muted)",
+            cursor: "pointer",
+          }}
+        >
+          ✕
         </button>
       </div>
 

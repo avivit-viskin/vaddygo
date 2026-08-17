@@ -1,8 +1,11 @@
+import { useEffect, useState } from "react";
+import { getSupplierLeads } from "../services/leadsService";
+
 /*
-  SupplierReports — דוחות הספק (פיצ'ר פרו). סיכום צפיות/פניות/מוצרים ועוגת
-  חלוקת המוצרים לפי קטגוריה (תיקייה) להבנה מהירה. הנתונים מגיעים מהכרטיס עצמו
-  (products, views, leads) — בלי בקשה נוספת.
-  הערה: פילוח לפי טווח תאריכים ידרוש תיעוד אירועים עם חותמת-זמן (שדרוג עתידי).
+  SupplierReports — דוחות הספק (פיצ'ר פרו). סיכום צפיות/פניות/מוצרים, פילוח
+  הפניות לפי סטטוס (כמה חדשות, נסגרו, לא רלוונטיות...), ועוגת חלוקת המוצרים לפי
+  קטגוריה. נתוני המוצרים/הצפיות מגיעים מהכרטיס; הפניות נטענות לפי הטוקן ומתעדכנות
+  עם הזמן (כל פתיחה של הדוח).
 */
 const PIE_COLORS = [
   "#f2b8d0",
@@ -15,12 +18,46 @@ const PIE_COLORS = [
   "#eac3d1",
 ];
 
-function SupplierReports({ vendor }) {
+// תוויות/צבעים לפילוח הפניות — תואם לסטטוסים בתיבת הפניות
+const LEAD_STATUS = [
+  { key: "new", label: "חדשות", color: "#c25c8a" },
+  { key: "quoted", label: "הוגשה הצעה", color: "#1f6fbc" },
+  { key: "won", label: "נסגרו בהצלחה", color: "#1d8a55" },
+  { key: "closed", label: "סגורות", color: "#8a7d84" },
+  { key: "irrelevant", label: "לא רלוונטי", color: "#7c8a94" },
+];
+
+function SupplierReports({ vendor, token, isPro }) {
   // כל מוצר נספר, גם בלי שם (שם אינו חובה) — אחרת הדוח יראה פחות מוצרים מהאמת
   const products = vendor?.products || [];
   const total = products.length;
   const views = vendor?.views || 0;
-  const leads = vendor?.leads || 0;
+
+  // הפניות בפועל (עם סטטוסים) — לפילוח "כמה נסגרו / לא רלוונטי / חדשות". פרו בלבד;
+  // נטען מחדש בכל פתיחה של הדוח, כדי שהמספרים יתעדכנו עם הזמן.
+  const [leads, setLeads] = useState(null);
+  useEffect(() => {
+    if (!isPro || !token) return undefined;
+    let alive = true;
+    getSupplierLeads(token)
+      .then((data) => {
+        if (alive) setLeads(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (alive) setLeads([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [token, isPro]);
+
+  // ספירת פניות לפי סטטוס. סה"כ מהפניות שנטענו, ואם עוד לא נטענו — מהמונה שבכרטיס.
+  const counts = {};
+  (Array.isArray(leads) ? leads : []).forEach((l) => {
+    const k = l.status || "new";
+    counts[k] = (counts[k] || 0) + 1;
+  });
+  const leadTotal = Array.isArray(leads) ? leads.length : vendor?.leads || 0;
 
   // חלוקת מוצרים לפי קטגוריה (תיקייה); בלי תיקייה = "כללי"
   const byCat = {};
@@ -90,9 +127,48 @@ function SupplierReports({ vendor }) {
 
       <div style={{ display: "flex", gap: 10, marginBottom: 16 }}>
         {tile(views, "צפיות")}
-        {tile(leads, "פניות")}
+        {tile(leadTotal, "פניות")}
         {tile(total, "מוצרים")}
       </div>
+
+      {/* פילוח הפניות לפי סטטוס — כמה חדשות, נסגרו, לא רלוונטיות (פרו בלבד) */}
+      {isPro && leadTotal > 0 && (
+        <div style={{ marginBottom: 16 }}>
+          <h4 style={{ margin: "0 0 10px", fontSize: "var(--font-size-base)" }}>
+            פילוח הפניות
+          </h4>
+          <div style={{ display: "flex", flexWrap: "wrap", gap: 8 }}>
+            {LEAD_STATUS.map((s) => (
+              <div
+                key={s.key}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 7,
+                  background: "var(--color-primary-light)",
+                  borderRadius: 10,
+                  padding: "6px 11px",
+                  fontSize: 13,
+                }}
+              >
+                <span
+                  style={{
+                    width: 9,
+                    height: 9,
+                    borderRadius: "50%",
+                    background: s.color,
+                    flexShrink: 0,
+                  }}
+                />
+                <span>{s.label}</span>
+                <strong style={{ fontVariantNumeric: "tabular-nums" }}>
+                  {counts[s.key] || 0}
+                </strong>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       <h4 style={{ margin: "0 0 10px", fontSize: "var(--font-size-base)" }}>
         מוצרים לפי קטגוריה

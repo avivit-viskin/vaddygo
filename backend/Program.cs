@@ -223,7 +223,9 @@ using (var scope = app.Services.CreateScope())
         {
             admin.Role = "SuperAdmin";
             db.SaveChanges();
-            app.Logger.LogInformation("Promoted {Email} to SuperAdmin", adminEmail);
+            // בלי הכתובת — לוגים נשמרים אצל ספק האירוח 7 ימים ואינם ניתנים
+            // למחיקה לפי בקשה, ולכן אינם מקום למידע אישי. המזהה מספיק לאבחון.
+            app.Logger.LogInformation("Promoted user {UserId} to SuperAdmin", admin.Id);
         }
     }
 }

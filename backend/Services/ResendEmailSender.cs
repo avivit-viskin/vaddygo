@@ -29,13 +29,37 @@ namespace ParentCommitteeAPI.Services
             _logger = logger;
         }
 
+        /*
+          כתובת מייל היא מידע אישי, ולוגים אינם מקום לאחסן בו מידע אישי:
+          ספק האירוח שומר אותם 7 ימים, **אינו מאפשר מחיקה לפי בקשה**, והם
+          אינם מכוסים בזכות המחיקה של המשתמש. לכן נרשם רק הדומיין — מספיק
+          כדי לאבחן תקלת שליחה ("כל הגוגל נכשל"), ואינו מזהה אדם.
+        */
+        private static string Domain(string email)
+        {
+            var at = email.LastIndexOf('@');
+            return at >= 0 && at < email.Length - 1 ? email[(at + 1)..] : "unknown";
+        }
+
+        /*
+          תגובת שגיאה של הספק מוחזרת אלינו כטקסט חופשי, ובשגיאות ולידציה היא
+          מצטטת את הכתובת שנשלחה. בלי הצנזור הזה היינו מסננים את הכתובת בכניסה
+          ומחזירים אותה ללוג דרך הדלת האחורית.
+        */
+        private static readonly System.Text.RegularExpressions.Regex EmailPattern =
+            new(@"[\w.+-]+@[\w.-]+\.\w+", System.Text.RegularExpressions.RegexOptions.Compiled);
+
+        private static string RedactEmails(string text) =>
+            EmailPattern.Replace(text ?? string.Empty, "<redacted>");
+
         public async Task SendAsync(string toEmail, string subject, string body)
         {
             var apiKey = _config["Resend:ApiKey"];
             if (string.IsNullOrWhiteSpace(apiKey))
             {
                 _logger.LogWarning(
-                    "Resend not configured (Resend:ApiKey) — email to {To} was not sent", toEmail);
+                    "Resend not configured (Resend:ApiKey) — email to a {Domain} address was not sent",
+                    Domain(toEmail));
                 return;
             }
 
@@ -70,12 +94,12 @@ namespace ParentCommitteeAPI.Services
             if (!response.IsSuccessStatusCode)
             {
                 var respBody = await response.Content.ReadAsStringAsync();
-                _logger.LogError("Resend send failed ({Status}) for {To}: {Body}",
-                    (int)response.StatusCode, toEmail, respBody);
+                _logger.LogError("Resend send failed ({Status}) for a {Domain} address: {Body}",
+                    (int)response.StatusCode, Domain(toEmail), RedactEmails(respBody));
                 throw new InvalidOperationException($"Resend send failed: {(int)response.StatusCode}");
             }
 
-            _logger.LogInformation("Email sent to {To} via Resend", toEmail);
+            _logger.LogInformation("Email sent to a {Domain} address via Resend", Domain(toEmail));
         }
     }
 }

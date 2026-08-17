@@ -24,6 +24,20 @@ function isIOS() {
   return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
 }
 
+// ספארי "אמיתי" באייפון — רק בו יש "הוספה למסך הבית". בדפדפן-בתוך-אפליקציה
+// (וואטסאפ/פייסבוק/אינסטגרם) או בכרום/פיירפוקס לאייפון אין את האפשרות, ולכן
+// צריך קודם לפתוח בספארי. מזהים לפי היעדר "Safari" או נוכחות טוקן של אפליקציה/דפדפן אחר.
+function isIOSSafari() {
+  const ua = window.navigator.userAgent || "";
+  return (
+    isIOS() &&
+    /Safari/i.test(ua) &&
+    !/CriOS|FxiOS|EdgiOS|OPiOS|FBAN|FBAV|Instagram|Line|MicroMessenger|Twitter|Snapchat|Pinterest/i.test(
+      ua
+    )
+  );
+}
+
 function AddToHomeScreen() {
   const [show, setShow] = useState(false);
   const [deferred, setDeferred] = useState(null);
@@ -123,7 +137,14 @@ function AddToHomeScreen() {
           {deferred ? (
             <span>גישה מהירה כמו אפליקציה — בלי להתקין מהחנות.</span>
           ) : isIOS() ? (
-            <span>לחצו על ⬆️ (שיתוף) ואז «הוספה למסך הבית».</span>
+            isIOSSafari() ? (
+              <span>לחצו על שיתוף ⬆️ (למטה) ואז «הוספה למסך הבית».</span>
+            ) : (
+              <span>
+                קודם פתחו בספארי: לחצו על ⬆️ ובחרו «פתיחה ב-Safari». ואז בספארי:
+                ⬆️ → «הוספה למסך הבית».
+              </span>
+            )
           ) : (
             <span>בתפריט הדפדפן (⋮) בחרו «הוספה למסך הבית».</span>
           )}

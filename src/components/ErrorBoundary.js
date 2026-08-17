@@ -9,6 +9,42 @@ import { reportError } from "../services/errorReporter";
   העיצוב כאן ב-inline styles בכוונה: כדי שהמסך ייראה תקין גם אם דווקא טעינת ה-CSS
   היא זו שנכשלה.
 */
+
+// שגיאת טעינת מודול/צ'אנק — קורית כמעט תמיד אחרי פריסה חדשה: הדפדפן מחזיק גרסה
+// ישנה שמפנה לקובץ (chunk) שכבר לא קיים בשרת. זו הסיבה השכיחה ל"אופס משהו השתבש".
+function isChunkLoadError(error) {
+  const name = (error && error.name) || "";
+  const msg = (error && error.message) || "";
+  return (
+    name === "ChunkLoadError" ||
+    /Loading chunk|Loading CSS chunk|dynamically imported module|failed to fetch dynamically/i.test(
+      msg
+    )
+  );
+}
+
+// רענון אחד בכל חלון-זמן קצר, למשיכת הגרסה העדכנית — בלי להיכנס ללולאת רענון אם
+// הבעיה נמשכת (למשל אם עדיין מוגשת גרסה ישנה). מחזיר true אם ביצע רענון.
+function reloadOnceForStaleVersion() {
+  const KEY = "vaadygo.staleReloadAt";
+  let last = 0;
+  try {
+    last = Number(sessionStorage.getItem(KEY)) || 0;
+  } catch {
+    last = 0;
+  }
+  if (Date.now() - last > 10000) {
+    try {
+      sessionStorage.setItem(KEY, String(Date.now()));
+    } catch {
+      /* אין sessionStorage — פשוט מרעננים */
+    }
+    window.location.reload();
+    return true;
+  }
+  return false;
+}
+
 class ErrorBoundary extends Component {
   constructor(props) {
     super(props);
@@ -20,6 +56,10 @@ class ErrorBoundary extends Component {
   }
 
   componentDidCatch(error, info) {
+    // שגיאת גרסה ישנה (chunk) — מרעננים אוטומטית פעם אחת במקום להציק למשתמשת.
+    if (isChunkLoadError(error) && reloadOnceForStaleVersion()) {
+      return;
+    }
     reportError(error, info);
   }
 

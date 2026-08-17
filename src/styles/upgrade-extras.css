@@ -32,6 +32,20 @@
   color: var(--color-attention);
 }
 
+/* חיווי "המסלול פעיל" בראש מסך הפרו — מוצג רק אחרי רכישה (במקום הכתר) */
+.upgrade-active-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 10px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--color-success);
+  color: #fff;
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+
 /* ── ריבוע "עוד יכולות" ── */
 .upgrade-more {
   margin: 6px 0 16px;

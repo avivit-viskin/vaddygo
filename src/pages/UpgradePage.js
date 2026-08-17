@@ -64,8 +64,12 @@ function UpgradePage() {
     <div className="upgrade-page">
       <Card>
         <div className="upgrade-hero">
-          {/* הכתר הוא סימן ש*טרם* נרכש — נעלם ברגע שהמסלול פעיל */}
-          {!alreadyPro && (
+          {/* לפני רכישה — כתר (סימן שטרם נרכש). אחרי רכישה — חיווי "פעיל" למעלה. */}
+          {alreadyPro ? (
+            <span className="upgrade-active-badge">
+              <Icon name="check-circle" size={16} /> המסלול פעיל
+            </span>
+          ) : (
             <span className="upgrade-crown">
               <Icon name="crown" size={40} title="פרו" />
             </span>
@@ -142,11 +146,6 @@ function UpgradePage() {
             ))}
           </ul>
         </div>
-
-        <p className="upgrade-note">
-          <Icon name="crown" size={15} />
-          <span>מסלול הפרו פעיל — הכלים המתקדמים נפתחים עם השדרוג.</span>
-        </p>
 
         <div className="upgrade-actions">
           {alreadyPro ? (

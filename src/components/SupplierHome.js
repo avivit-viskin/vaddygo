@@ -115,11 +115,22 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
 
   return (
     <div>
-      {/* דאשבורד — אריחים לחיצים: מובילים לדף המוצרים מסונן לפי הסטטוס */}
-      <div className="sup-stats">
+      {/* שורה עליונה — אריחי מדד גדולים: פניות + צפיות */}
+      <div className="sup-stats sup-stats--primary">
+        <div className="sup-stat sup-stat--big">
+          <div className="sup-stat__num">{leads}</div>
+          <div className="sup-stat__label">פניות</div>
+        </div>
+        <div className="sup-stat sup-stat--big">
+          <div className="sup-stat__num">{views}</div>
+          <div className="sup-stat__label">צפיות</div>
+        </div>
+      </div>
+      {/* שורה תחתונה — אריחים קטנים ולחיצים: מובילים לדף המוצרים מסונן לפי הסטטוס */}
+      <div className="sup-stats sup-stats--secondary">
         <button
           type="button"
-          className="sup-stat sup-stat--link"
+          className="sup-stat sup-stat--link sup-stat--sm"
           onClick={() => goToStatus("")}
         >
           <div className="sup-stat__num">{products.length}</div>
@@ -127,15 +138,15 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
         </button>
         <button
           type="button"
-          className="sup-stat sup-stat--link"
+          className="sup-stat sup-stat--link sup-stat--sm"
           onClick={() => goToStatus("ready")}
         >
           <div className="sup-stat__num">{ready.length}</div>
-          <div className="sup-stat__label">מוכנים</div>
+          <div className="sup-stat__label">הושלם</div>
         </button>
         <button
           type="button"
-          className={`sup-stat sup-stat--link${
+          className={`sup-stat sup-stat--link sup-stat--sm${
             needsAttention.length ? " sup-stat--warn" : ""
           }`}
           onClick={() => goToStatus("attention")}
@@ -143,14 +154,6 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
           <div className="sup-stat__num">{needsAttention.length}</div>
           <div className="sup-stat__label">דורש טיפול</div>
         </button>
-        <div className="sup-stat">
-          <div className="sup-stat__num">{views}</div>
-          <div className="sup-stat__label">צפיות</div>
-        </div>
-        <div className="sup-stat">
-          <div className="sup-stat__num">{leads}</div>
-          <div className="sup-stat__label">פניות</div>
-        </div>
       </div>
 
       {folders.length === 0 ? (

@@ -239,22 +239,23 @@ function SupplierLeads({ token, isPro, vendorName }) {
           {[{ k: "", label: "ללא סינון" }, ...ORDER.map((k) => ({ k, label: STATUS[k].label }))].map(
             ({ k, label }) => {
               const active = statusFilter === k;
+              // צבע הסטטוס (חדש=ורוד, הצעה=כחול, נסגר=ירוק, סגור/לא-רלוונטי=אפור);
+              // "ללא סינון" בורוד המותג. פעיל = מילוי מלא, לא-פעיל = מתאר בצבע.
+              const c = k ? STATUS[k].color : "var(--color-primary-dark)";
               return (
                 <button
                   key={k || "all"}
                   type="button"
                   onClick={() => setStatusFilter(k)}
                   style={{
-                    border: active
-                      ? "1px solid var(--color-primary-dark)"
-                      : "1px solid var(--color-border)",
-                    background: active ? "var(--color-primary-dark)" : "var(--color-surface)",
-                    color: active ? "#fff" : "var(--color-text)",
+                    border: `1px solid ${c}`,
+                    background: active ? c : "var(--color-surface)",
+                    color: active ? "#fff" : c,
                     borderRadius: 999,
                     padding: "5px 12px",
                     fontFamily: "var(--font-family)",
                     fontSize: "var(--font-size-sm)",
-                    fontWeight: active ? 700 : 500,
+                    fontWeight: active ? 700 : 600,
                     cursor: "pointer",
                   }}
                 >

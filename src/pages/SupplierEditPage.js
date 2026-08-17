@@ -605,13 +605,6 @@ function SupplierEditPage() {
             />
           </div>
           <div style={{ marginTop: 16 }}>
-            <SupplierReports
-              vendor={vendor}
-              token={token}
-              isPro={vendor?.isPro}
-            />
-          </div>
-          <div style={{ marginTop: 16 }}>
             <SupplierLeads token={token} isPro={vendor?.isPro} vendorName={vendor?.name} />
           </div>
           <div style={{ marginTop: 16 }}>

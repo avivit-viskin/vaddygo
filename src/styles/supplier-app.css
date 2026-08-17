@@ -192,6 +192,36 @@
   color: #d08a2e;
 }
 
+/* שורה עליונה — שני אריחי מדד גדולים (פניות + צפיות) */
+.sup-stats--primary {
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
+  margin-bottom: 8px;
+}
+.sup-stat--big {
+  padding: 18px 8px;
+}
+.sup-stat--big .sup-stat__num {
+  font-size: 30px;
+}
+.sup-stat--big .sup-stat__label {
+  font-size: 13px;
+}
+/* שורה תחתונה — שלושה אריחים קטנים ולחיצים (מוצרים / הושלם / דרוש טיפול) */
+.sup-stats--secondary {
+  grid-template-columns: repeat(3, 1fr);
+  gap: 7px;
+}
+.sup-stat--sm {
+  padding: 8px 3px;
+}
+.sup-stat--sm .sup-stat__num {
+  font-size: 16px;
+}
+.sup-stat--sm .sup-stat__label {
+  font-size: 10px;
+}
+
 /* ── כרטיסי מוצר (תצוגה בדאשבורד) ── */
 .sup-prods {
   display: grid;

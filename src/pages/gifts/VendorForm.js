@@ -933,7 +933,7 @@ function VendorForm({
             מציג רק:{" "}
             {statusFilter === "attention"
               ? "מוצרים שדורשים טיפול ⚠️"
-              : "מוצרים מוכנים ✅"}
+              : "מוצרים שהושלמו ✅"}
           </span>
           <button
             type="button"

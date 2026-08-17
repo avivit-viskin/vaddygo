@@ -18,7 +18,6 @@ namespace ParentCommitteeAPI.Models
 
         /* ── שדות נוספים מקובץ משרד החינוך (כולם אופציונליים) ────────────
            נאספים בייבוא הקובץ הרשמי; ניתן להשלים/לתקן בעריכת התלמיד. */
-        public string IdNumber { get; set; } = string.Empty;        // תעודת זהות
         public string Gender { get; set; } = string.Empty;          // מין
         public string Allergies { get; set; } = string.Empty;       // אלרגיות
         public string Address { get; set; } = string.Empty;         // רחוב + בית + דירה

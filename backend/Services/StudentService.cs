@@ -1,3 +1,4 @@
+using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
 using ParentCommitteeAPI.Repositories;
@@ -120,24 +121,31 @@ namespace ParentCommitteeAPI.Services
                 .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount));
         }
 
-        /* מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפונים בלי מקף. */
+        /*
+          מיפוי משותף ל-Create ול-Update: ניקוי רווחים ושמירת טלפונים בלי מקף.
+
+          השדות הרגישים ביותר נשמרים **מוצפנים** במסד (ראו FieldEncryption):
+          אלרגיות (מידע רפואי), כתובת המגורים, וטלפוני/מיילי ההורים. שם ושם
+          משפחה נשארים גלויים כי הם מוצגים, ממוינים ומחופשים בכל מסך.
+        */
         private static void ApplyWrite(Student student, StudentWriteDto dto)
         {
             student.FirstName = dto.FirstName.Trim();
             student.LastName = dto.LastName.Trim();
             student.ParentName = dto.ParentName.Trim();
             student.ClassName = dto.ClassName.Trim();
-            student.ParentPhoneNumber = dto.ParentPhoneNumber.Trim().Replace("-", "");
+            student.ParentPhoneNumber = FieldEncryption.Protect(
+                dto.ParentPhoneNumber.Trim().Replace("-", ""));
             student.BirthDate = dto.BirthDate;
             // שדות משרד החינוך
-            student.IdNumber = dto.IdNumber.Trim();
             student.Gender = dto.Gender.Trim();
-            student.Allergies = dto.Allergies.Trim();
-            student.Address = dto.Address.Trim();
-            student.ParentEmail = dto.ParentEmail.Trim();
+            student.Allergies = FieldEncryption.Protect(dto.Allergies.Trim());
+            student.Address = FieldEncryption.Protect(dto.Address.Trim());
+            student.ParentEmail = FieldEncryption.Protect(dto.ParentEmail.Trim());
             student.ParentBName = dto.ParentBName.Trim();
-            student.ParentBPhone = dto.ParentBPhone.Trim().Replace("-", "");
-            student.ParentBEmail = dto.ParentBEmail.Trim();
+            student.ParentBPhone = FieldEncryption.Protect(
+                dto.ParentBPhone.Trim().Replace("-", ""));
+            student.ParentBEmail = FieldEncryption.Protect(dto.ParentBEmail.Trim());
             student.ParentsMarried = dto.ParentsMarried.Trim();
         }
 
@@ -148,16 +156,15 @@ namespace ParentCommitteeAPI.Services
             LastName = student.LastName,
             ParentName = student.ParentName,
             ClassName = student.ClassName,
-            ParentPhoneNumber = student.ParentPhoneNumber,
+            ParentPhoneNumber = FieldEncryption.Unprotect(student.ParentPhoneNumber),
             BirthDate = student.BirthDate,
-            IdNumber = student.IdNumber,
             Gender = student.Gender,
-            Allergies = student.Allergies,
-            Address = student.Address,
-            ParentEmail = student.ParentEmail,
+            Allergies = FieldEncryption.Unprotect(student.Allergies),
+            Address = FieldEncryption.Unprotect(student.Address),
+            ParentEmail = FieldEncryption.Unprotect(student.ParentEmail),
             ParentBName = student.ParentBName,
-            ParentBPhone = student.ParentBPhone,
-            ParentBEmail = student.ParentBEmail,
+            ParentBPhone = FieldEncryption.Unprotect(student.ParentBPhone),
+            ParentBEmail = FieldEncryption.Unprotect(student.ParentBEmail),
             ParentsMarried = student.ParentsMarried,
             TotalPaid = totalPaid,
         };

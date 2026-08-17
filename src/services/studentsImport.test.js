@@ -135,7 +135,6 @@ test("buildColumnMap ממפה את כל עמודות קובץ משרד החינ�
   expect(map).toMatchObject({
     firstName: 0,
     lastName: 1,
-    idNumber: 2,
     gender: 3,
     birthDate: 4,
     allergies: 5,
@@ -184,7 +183,6 @@ test("קובץ משרד החינוך: כל השדות נשלפים, כתובת �
   expect(rows[0]).toMatchObject({
     firstName: "הילי",
     lastName: "לוי",
-    idNumber: "123456789",
     gender: "נ",
     birthDate: "2020-05-12",
     allergies: "בוטנים",
@@ -306,7 +304,6 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
       parentName: "דנה לוי",
       parentPhoneNumber: "0501234567",
       birthDate: "2020-05-12",
-      idNumber: "123456789",
       allergies: "בוטנים",
       parentBName: "אבי לוי",
       parentsMarried: "כן",
@@ -319,7 +316,6 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
     expect.objectContaining({
       firstName: "הילי",
       birthDate: "2020-05-12",
-      idNumber: "123456789",
       allergies: "בוטנים",
       parentBName: "אבי לוי",
       parentsMarried: "כן",
@@ -327,16 +323,16 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
   );
 });
 
-test('importStudents מדלג על כפילויות (לפי ת"ז, ואם אין — לפי שם מלא)', async () => {
+test('importStudents מדלג על כפילויות (לפי שם מלא)', async () => {
   const existing = [
-    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" },
-    { firstName: "נועה", lastName: "כהן", idNumber: "" },
+    { firstName: "הילי", lastName: "לוי" },
+    { firstName: "נועה", lastName: "כהן" },
   ];
   const rows = [
-    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" }, // כפילות לפי ת"ז
-    { firstName: "נועה", lastName: "כהן", idNumber: "" }, // כפילות לפי שם (אין ת"ז)
-    { firstName: "רון", lastName: "לוי", idNumber: "999" }, // חדש (אותה משפחה, ת"ז שונה)
-    { firstName: "הילי", lastName: "לוי", idNumber: "123456789" }, // כפילות בתוך הקובץ עצמו
+    { firstName: "הילי", lastName: "לוי" }, // כפילות לפי שם מלא
+    { firstName: "נועה", lastName: "כהן" }, // כפילות לפי שם מלא
+    { firstName: "רון", lastName: "לוי" }, // חדש (אותה משפחה, שם אחר)
+    { firstName: "הילי", lastName: "לוי" }, // כפילות בתוך הקובץ עצמו
   ];
   const createFn = jest.fn(() => Promise.resolve({ id: 1 }));
   const result = await importStudents(rows, createFn, () => Promise.resolve(existing));

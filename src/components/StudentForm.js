@@ -49,7 +49,6 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         className: initialStudent?.className ?? "",
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
         // שדות נוספים (מיובאים מקובץ משרד החינוך; כולם לא חובה)
-        idNumber: initialStudent?.idNumber ?? "",
         gender: initialStudent?.gender ?? "",
         allergies: initialStudent?.allergies ?? "",
         address: initialStudent?.address ?? "",

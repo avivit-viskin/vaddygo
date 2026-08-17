@@ -21,7 +21,6 @@ export const IMPORT_TEMPLATE =
 function emptyExtras() {
   return {
     birthDate: "",
-    idNumber: "",
     gender: "",
     allergies: "",
     address: "",
@@ -68,7 +67,6 @@ function classifyHeader(raw) {
   }
 
   if (/אלרג/.test(h)) return "allergies";
-  if (/תעודת זהות|מספר זהות|ת ז|תז|ז ת/.test(h)) return "idNumber";
   if (/מגדר|מין/.test(h)) return "gender";
   if (/לידה/.test(h)) return "birthDate";
   if (/רחוב|כתובת/.test(h)) return "street";
@@ -180,7 +178,6 @@ function rowFromCells(cells, map) {
     parentName: [get("parentAFirst"), get("parentALast")].filter(Boolean).join(" "),
     parentPhoneNumber: get("parentAPhone"),
     birthDate: parseBirthDate(rawBirth),
-    idNumber: get("idNumber"),
     gender: get("gender"),
     allergies: get("allergies"),
     address,
@@ -416,10 +413,12 @@ export async function parseStudentFile(file, password) {
   return parseStudentGrid(grid);
 }
 
-/* מזהה כפילות: מנרמל תעודת זהות (רק ספרות) ושם מלא (רווחים מצומצמים). */
-function idKey(v) {
-  return String(v ?? "").replace(/\D/g, "");
-}
+/*
+  מזהה כפילות: שם מלא עם רווחים מצומצמים.
+  עד 17.08.2026 הזיהוי היה לפי תעודת זהות; היא הוסרה מהמערכת במסגרת מזעור
+  מידע (החלטת בעלת המוצר), ולכן הזיהוי הוא לפי שם — כפי שכבר היה נהוג עבור
+  תלמידים שלא הייתה להם ת"ז בקובץ.
+*/
 function nameKey(firstName, lastName) {
   return `${firstName ?? ""} ${lastName ?? ""}`.replace(/\s+/g, " ").trim();
 }
@@ -440,7 +439,6 @@ export async function importStudents(
   const failed = [];
 
   // בונים אינדקס של התלמידים הקיימים (ת"ז ושמות) כדי לזהות כפילויות
-  const seenIds = new Set();
   const seenNames = new Set();
   let existing = [];
   try {
@@ -449,17 +447,14 @@ export async function importStudents(
     existing = []; // אם לא הצלחנו לטעון — לא חוסמים את הייבוא
   }
   for (const s of existing) {
-    const id = idKey(s.idNumber);
-    if (id) seenIds.add(id);
     const nm = nameKey(s.firstName, s.lastName);
     if (nm) seenNames.add(nm);
   }
 
   for (const row of rows) {
-    const id = idKey(row.idNumber);
     const nm = nameKey(row.firstName, row.lastName);
-    // כפילות: לפי ת"ז אם קיימת, אחרת לפי שם מלא
-    const isDuplicate = id ? seenIds.has(id) : Boolean(nm) && seenNames.has(nm);
+    // כפילות לפי שם מלא (ת"ז הוסרה מהמערכת — ראו nameKey)
+    const isDuplicate = Boolean(nm) && seenNames.has(nm);
     if (isDuplicate) {
       skipped += 1;
       continue;
@@ -472,7 +467,6 @@ export async function importStudents(
         className: "",
         parentPhoneNumber: row.parentPhoneNumber || "",
         birthDate: row.birthDate || null,
-        idNumber: row.idNumber || "",
         gender: row.gender || "",
         allergies: row.allergies || "",
         address: row.address || "",
@@ -484,7 +478,6 @@ export async function importStudents(
       });
       added += 1;
       // מוסיפים לאינדקס כדי לזהות כפילויות גם בתוך אותו קובץ
-      if (id) seenIds.add(id);
       if (nm) seenNames.add(nm);
     } catch (err) {
       const name = `${row.firstName} ${row.lastName || ""}`.trim();

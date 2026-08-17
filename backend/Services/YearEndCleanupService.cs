@@ -5,14 +5,16 @@ namespace ParentCommitteeAPI.Services
 {
     /*
       YearEndCleanupService — ניקוי סוף שנת לימודים. עבור כל גן:
-        • אם NextCleanupAt עדיין לא אותחל — קובעים לו תאריך *עתידי* (1 בספטמבר
+        • אם NextCleanupAt עדיין לא אותחל — קובעים לו תאריך *עתידי* (30 באוגוסט
           הקרוב) ולא מוחקים דבר. כך גנים קיימים לעולם לא נמחקים "בהפתעה" בהפעלה
           הראשונה של המשימה — רק אחרי שנקבע להם מועד עתידי (עם התראה מראש בממשק).
         • אם הגיע מועד הניקוי — מוחקים את נתוני השנה: תלמידים (וההורים שבתוכם),
           תשלומים, הוצאות (כולל תמונות קבלה), אירועים ומתנות. *נשמרים*: החשבון
           והמנוי, פרטי הגן, קטגוריות הגבייה, חברי הצוות (הרשאות), אנשי הצוות
           וקבצים — כדי שהוועד יתחיל שנה חדשה נקייה בלי להקים הכול מחדש.
-      החישוב עוגן ל-1 בספטמבר (פתיחת שנת הלימודים), בהתאם לשדה Group.Year.
+      מועד הניקוי: **30 באוגוסט** בכל שנה (החלטת בעלת המוצר, 17.08.2026) —
+      לפני פתיחת שנת הלימודים, כך שהשנה החדשה מתחילה נקייה. זו גם מדיניות
+      שמירת הנתונים של המערכת: נתוני ילדים אינם נשמרים מעבר לשנת הלימודים.
     */
     public class YearEndCleanupService : IYearEndCleanupService
     {
@@ -41,7 +43,7 @@ namespace ParentCommitteeAPI.Services
                 if (group.NextCleanupAt == null)
                 {
                     // אתחול בטוח: תמיד תאריך עתידי — בלי מחיקה בהפעלה הראשונה
-                    group.NextCleanupAt = NextSeptember1(now);
+                    group.NextCleanupAt = NextAugust30(now);
                     await _db.SaveChangesAsync(cancellationToken);
                     continue;
                 }
@@ -131,10 +133,11 @@ namespace ParentCommitteeAPI.Services
         }
 
         // ה-1 בספטמבר הקרוב שעדיין לא עבר (UTC) — פתיחת שנת הלימודים הבאה
-        private static DateTime NextSeptember1(DateTime from)
+        /* ה-30 באוגוסט הקרוב. אם התאריך כבר עבר השנה — של השנה הבאה. */
+        private static DateTime NextAugust30(DateTime from)
         {
-            var sep = new DateTime(from.Year, 9, 1, 0, 0, 0, DateTimeKind.Utc);
-            return sep <= from ? sep.AddYears(1) : sep;
+            var target = new DateTime(from.Year, 8, 30, 0, 0, 0, DateTimeKind.Utc);
+            return target <= from ? target.AddYears(1) : target;
         }
     }
 }

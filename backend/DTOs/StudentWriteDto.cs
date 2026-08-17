@@ -31,8 +31,6 @@ namespace ParentCommitteeAPI.DTOs
         public DateOnly? BirthDate { get; set; }
 
         /* ── שדות נוספים מקובץ משרד החינוך (כולם אופציונליים) ──────────── */
-        [StringLength(20, ErrorMessage = "תעודת הזהות ארוכה מדי")]
-        public string IdNumber { get; set; } = string.Empty;
 
         [StringLength(20, ErrorMessage = "שדה המין ארוך מדי")]
         public string Gender { get; set; } = string.Empty;

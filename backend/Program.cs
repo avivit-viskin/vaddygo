@@ -149,6 +149,9 @@ builder.Services.AddAuthorization(options =>
 // עוזרת ה-AI — HttpClient מוקצה (typed) לקריאות ל-Google Gemini; המפתח מ-Gemini:ApiKey
 builder.Services.AddHttpClient<IAiService, AiService>();
 
+// הצפנת שדות רגישים במנוחה — טוען את המפתח מ-Encryption:Key (ריק = כבוי)
+ParentCommitteeAPI.Auth.FieldEncryption.Configure(builder.Configuration);
+
 var app = builder.Build();
 
 // הרצת מיגרציות בעלייה — המסד תמיד קיים ותואם למודל, גם בהתקנה נקייה.

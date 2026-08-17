@@ -18,6 +18,7 @@ import RenameInstitutionCard from "./settings/RenameInstitutionCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
+import ExportDataCard from "./settings/ExportDataCard";
 import TeamManager from "../components/TeamManager";
 import ProGate from "../components/ProGate";
 import { isActiveReadOnly } from "../services/institutionsService";
@@ -168,6 +169,7 @@ function SettingsPage() {
       render: () => (
         <>
           <ChangePasswordCard />
+          <ExportDataCard />
           <DeleteAccountCard />
         </>
       ),

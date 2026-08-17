@@ -75,6 +75,8 @@ builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
 builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();
+// ייצוא המידע של המשתמשת ("זכות העיון")
+builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 // נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
@@ -144,7 +146,7 @@ builder.Services.AddAuthorization(options =>
         .Build();
 });
 
-// עוזרת ה-AI — HttpClient מוקצה (typed) לקריאות ל-Anthropic; המפתח מ-Anthropic:ApiKey
+// עוזרת ה-AI — HttpClient מוקצה (typed) לקריאות ל-Google Gemini; המפתח מ-Gemini:ApiKey
 builder.Services.AddHttpClient<IAiService, AiService>();
 
 var app = builder.Build();

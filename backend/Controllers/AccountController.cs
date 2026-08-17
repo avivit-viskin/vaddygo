@@ -13,12 +13,43 @@ namespace ParentCommitteeAPI.Controllers
     public class AccountController : ControllerBase
     {
         private readonly IAccountService _accountService;
+        private readonly IDataExportService _dataExport;
         private readonly IAccessScope _access;
 
-        public AccountController(IAccountService accountService, IAccessScope access)
+        public AccountController(
+            IAccountService accountService,
+            IDataExportService dataExport,
+            IAccessScope access)
         {
             _accountService = accountService;
+            _dataExport = dataExport;
             _access = access;
+        }
+
+        /*
+          GET api/account/export — "זכות העיון": כל המידע השמור על המשתמשת
+          ועל הגנים שבבעלותה, בקובץ JSON אחד. דורש token תקף, ומחזיר תמיד
+          את המידע של השולחת בלבד.
+        */
+        [HttpGet("export")]
+        public async Task<IActionResult> ExportMyData()
+        {
+            var userId = _access.UserId;
+            if (userId == null)
+            {
+                return Unauthorized();
+            }
+
+            var data = await _dataExport.ExportAsync(userId.Value);
+            if (data == null)
+            {
+                return NotFound(new { message = "המשתמש לא נמצא" });
+            }
+
+            // שם קובץ עם תאריך — כדי שכמה ייצואים לא ידרסו זה את זה אצל המשתמשת
+            var fileName = $"vaddygo-my-data-{DateTime.UtcNow:yyyy-MM-dd}.json";
+            Response.Headers.ContentDisposition = $"attachment; filename=\"{fileName}\"";
+            return Ok(data);
         }
 
         // DELETE api/account — מחיקת החשבון של המשתמש המחובר וכל הנתונים שלו

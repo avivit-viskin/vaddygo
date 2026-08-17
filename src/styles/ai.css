@@ -48,6 +48,17 @@
   flex-direction: column;
 }
 
+/*
+  הנחיית הפרטיות — יושבת מעל כפתור השליחה ולא בתחתית העמוד, כי היא רלוונטית
+  בדיוק ברגע אחד: לפני שהטקסט יוצא לשירות חיצוני.
+*/
+.ai-form__privacy {
+  margin: 0 0 10px;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--color-text-muted);
+}
+
 .ai-textarea {
   width: 100%;
   padding: 10px 12px;

@@ -6,7 +6,8 @@
 
 /* ── מיכל דק ונקי לאזור הספק (מצמצם את הרוחב והריווח מול ברירת gifts.css) ── */
 .supplier-edit {
-  max-width: 500px;
+  /* מסך מלא — לא עמודה צרה שנראית "חצויה" באמצע המסך */
+  max-width: none;
   padding: 12px 14px 44px;
 }
 
@@ -16,9 +17,10 @@
   align-items: center;
   gap: 10px;
   position: relative;
-  /* כותרת כהה ומכובדת — מבדילה את פורטל הספקים (מקור ההכנסה) מהאפליקציה הרכה */
-  background: linear-gradient(135deg, #2c211c 0%, #43302a 100%);
-  color: #f6efe9;
+  /* בז' רך ואחיד — לא כהה/חום ולא גרדיאנט "מפוצל"; הקו הוורוד למטה שומר על
+     החתימה ה"פרימיום" שמבדילה את פורטל הספקים מהאפליקציה הרכה */
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
   min-height: 58px;
   padding: 12px 16px 14px;
   /* יוצא מה-padding של .supplier-edit (12px 14px) כדי להיות סרגל צמוד לקצוות */
@@ -54,7 +56,7 @@
   letter-spacing: 0.5px;
   color: #2c211c;
   background: linear-gradient(140deg, #f7c9dd, #f6d9a8);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+  box-shadow: 0 1px 3px rgba(120, 55, 80, 0.18);
 }
 .sup-head__brandtext {
   display: flex;
@@ -68,11 +70,11 @@
 }
 .sup-head__sub {
   font-size: 10px;
-  color: #cdb9af;
+  color: var(--color-text-muted);
   letter-spacing: 0.16em;
   margin-top: 1px;
 }
-/* כפתור התפריט ☰ — בהיר על הכותרת הכהה (עוקף את ה-inline styles) */
+/* כפתור התפריט ☰ — כהה על הכותרת הבהירה (עוקף את ה-inline styles) */
 .sup-head > button {
   width: auto !important;
   height: auto !important;
@@ -81,8 +83,27 @@
   border: none !important;
   background: none !important;
   border-radius: 0 !important;
-  color: #e9dcd3 !important;
+  color: var(--color-primary-dark) !important;
   font-size: 1.4rem !important;
+}
+
+/* ── כפתורי הפעולה בפורטל: מעודנים ובוגרים (פחות ורוד, פחות "בלון", גודל מדוד) ──
+   פחם-חם במקום ורוד רך, פינות מתונות במקום גלולה, וטקסט מעט קטן יותר. */
+.supplier-edit .btn--primary {
+  background-color: var(--color-primary-dark);
+  color: #f6efe9;
+  border-radius: var(--radius-md);
+  padding: 9px 18px;
+  font-size: var(--font-size-sm);
+  box-shadow: none;
+}
+.supplier-edit .btn--primary:hover:not(:disabled) {
+  background-color: #43302a;
+}
+.supplier-edit .btn--secondary {
+  border-radius: var(--radius-md);
+  padding: 9px 18px;
+  font-size: var(--font-size-sm);
 }
 
 /* ── טאבים בסגנון ניווט תחתון (אייקון למעלה, פס ורוד תחתון לפעיל) ── */
@@ -368,10 +389,11 @@
 /* ── תיקיות מוצרים כאקורדיון (רצף תיקיות שנפתחות/נסגרות) ── */
 .sup-folder {
   border: 1px solid var(--color-border);
-  border-radius: 12px;
+  border-radius: 14px;
   margin-bottom: 10px;
   overflow: hidden;
   background: var(--color-surface);
+  box-shadow: 0 1px 4px rgba(120, 55, 80, 0.06);
 }
 .sup-folder__head {
   display: flex;
@@ -409,9 +431,13 @@
   white-space: nowrap;
 }
 .sup-folder__count {
+  margin-inline-start: auto;
   color: var(--color-text-muted);
-  font-weight: 400;
-  font-size: var(--font-size-sm);
+  font-weight: 600;
+  font-size: var(--font-size-xs);
+  background: var(--color-primary-light);
+  border-radius: 999px;
+  padding: 2px 9px;
 }
 .sup-folder__edit {
   flex-shrink: 0;

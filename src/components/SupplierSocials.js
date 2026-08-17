@@ -5,9 +5,9 @@ import "../styles/supplier-socials.css";
 
 /*
   SupplierSocials — הרשתות החברתיות והקישורים של הספק. עורך מבוסס-שורות: לכל שורה
-  שם רשת (עם השלמה אוטומטית — מקלידים "פייס"/"face" ומקבלים "פייסבוק") וקישור.
-  onSave מקבל את מערך socialLinks המלא [{ label, url }]; ההורה ממזג ושומר (מסונכרן
-  לוועד, שמציג אותם ככפתורים בכרטיס הספק).
+  שם רשת (עם השלמה אוטומטית — מקלידים "פייס"/"face" ובוחרים "פייסבוק") וקישור,
+  ואיקס קטן להסרת השורה צמוד לשם. onSave מקבל את מערך socialLinks המלא
+  [{ label, url }]; ההורה ממזג ושומר (מסונכרן לוועד, שמציג אותם ככפתורים בכרטיס).
 */
 
 // רשתות מוכרות — להשלמה אוטומטית (עברית + אנגלית) ולרמז כתובת מתאים לכל אחת.
@@ -38,6 +38,15 @@ function findNetwork(label) {
   );
 }
 
+// רשימת ההצעות להשלמה — מסננת לפי מה שהוקלד (עברית או אנגלית). ריק = כל הרשתות.
+function suggestNetworks(label) {
+  const t = (label || "").trim().toLowerCase();
+  if (!t) return NETWORKS;
+  return NETWORKS.filter(
+    (n) => n.he.toLowerCase().includes(t) || n.en.toLowerCase().includes(t)
+  );
+}
+
 let rowSeq = 0;
 const newRow = (label = "", url = "") => ({ key: `row-${(rowSeq += 1)}`, label, url });
 
@@ -52,11 +61,25 @@ function SupplierSocials({ vendor, onSave }) {
   });
   const [saving, setSaving] = useState(false);
   const [msg, setMsg] = useState(null);
+  // איזו שורה פתוחה כרגע לרשימת ההשלמה האוטומטית (מפתח השורה, או null)
+  const [activeKey, setActiveKey] = useState(null);
 
   const setRow = (key, patch) =>
     setRows((prev) => prev.map((r) => (r.key === key ? { ...r, ...patch } : r)));
   const addRow = () => setRows((prev) => [...prev, newRow()]);
   const removeRow = (key) => setRows((prev) => prev.filter((r) => r.key !== key));
+
+  // בחירת רשת מההשלמה — קובע שם עברי אחיד, וממלא רמז כתובת אם שדה הקישור עוד ריק
+  function pickNetwork(key, net) {
+    setRows((prev) =>
+      prev.map((r) =>
+        r.key === key
+          ? { ...r, label: net.he, url: r.url.trim() ? r.url : net.hint }
+          : r
+      )
+    );
+    setActiveKey(null);
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -83,32 +106,71 @@ function SupplierSocials({ vendor, onSave }) {
     <form onSubmit={handleSubmit} noValidate>
       <p className="supplier-edit__login-hint">
         הוסיפו קישורים לרשתות שלכם — הם יופיעו לוועד ככפתורים בכרטיס. התחילו להקליד
-        שם רשת (למשל «פייס» או «face») ותקבלו השלמה אוטומטית.
+        שם רשת (למשל «פייס» או «face») ובחרו מההשלמה.
       </p>
-
-      {/* השלמה אוטומטית לשם הרשת — עברית כערך, אנגלית כתיאור (שני הכיוונים נתפסים) */}
-      <datalist id="social-network-suggestions">
-        {NETWORKS.map((n) => (
-          <option key={n.he} value={n.he}>
-            {n.en}
-          </option>
-        ))}
-      </datalist>
 
       {rows.map((row) => {
         const net = findNetwork(row.label);
+        const suggestions = suggestNetworks(row.label);
+        // לא מציגים רשימה של פריט יחיד שכבר תואם בדיוק למה שהוקלד
+        const showSuggest =
+          activeKey === row.key &&
+          suggestions.length > 0 &&
+          !(suggestions.length === 1 && suggestions[0].he === row.label.trim());
         return (
           <div key={row.key} className="social-row">
-            <div className="social-row__name">
-              <Input
-                id={`social-name-${row.key}`}
-                label="רשת"
-                value={row.label}
-                onChange={(e) => setRow(row.key, { label: e.target.value })}
-                placeholder="פייסבוק / אינסטגרם…"
-                list="social-network-suggestions"
-                autoComplete="off"
-              />
+            <div className="social-row__field">
+              <div className="social-row__name">
+                <Input
+                  id={`social-name-${row.key}`}
+                  label="רשת"
+                  value={row.label}
+                  onChange={(e) => {
+                    setRow(row.key, { label: e.target.value });
+                    setActiveKey(row.key);
+                  }}
+                  onFocus={() => setActiveKey(row.key)}
+                  // סוגרים בהשהיה קטנה — כדי שקליק על הצעה יספיק להיקלט
+                  onBlur={() =>
+                    setTimeout(
+                      () => setActiveKey((k) => (k === row.key ? null : k)),
+                      120
+                    )
+                  }
+                  placeholder="פייסבוק / אינסטגרם…"
+                  autoComplete="off"
+                />
+                {showSuggest && (
+                  <ul className="social-suggest" role="listbox">
+                    {suggestions.map((n) => (
+                      <li key={n.he}>
+                        <button
+                          type="button"
+                          className="social-suggest__item"
+                          // onMouseDown (לפני ה-blur) כדי שהבחירה תיקלט לפני שהרשימה נסגרת
+                          onMouseDown={(e) => {
+                            e.preventDefault();
+                            pickNetwork(row.key, n);
+                          }}
+                        >
+                          <span className="social-suggest__he">{n.he}</span>
+                          <span className="social-suggest__en">{n.en}</span>
+                        </button>
+                      </li>
+                    ))}
+                  </ul>
+                )}
+              </div>
+              {/* איקס להסרת השורה — צמוד לשם הרשת (במקום כפתור "הסרה" נפרד) */}
+              <button
+                type="button"
+                className="social-row__x"
+                aria-label={`הסרת ${row.label || "הרשת"}`}
+                title="הסרה"
+                onClick={() => removeRow(row.key)}
+              >
+                ✕
+              </button>
             </div>
             <div className="social-row__url">
               <Input
@@ -119,11 +181,6 @@ function SupplierSocials({ vendor, onSave }) {
                 onChange={(e) => setRow(row.key, { url: e.target.value })}
                 placeholder={net ? net.hint : "https://…"}
               />
-            </div>
-            <div className="social-row__remove">
-              <Button type="button" variant="secondary" onClick={() => removeRow(row.key)}>
-                הסרה
-              </Button>
             </div>
           </div>
         );

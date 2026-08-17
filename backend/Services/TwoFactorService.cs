@@ -211,6 +211,17 @@ namespace ParentCommitteeAPI.Services
                 return (null, "המשתמש לא נמצא");
             }
 
+            /*
+              בלי סיסמה מוגדרת אין דרך לכבות את האימות אחר כך — כיבוי והנפקת
+              קודים דורשים אימות סיסמה, וחשבון בלי סיסמה היה נשאר נעול על
+              ההגדרה לצמיתות. עדיף לחסום את ההפעלה מאשר לתקן אחריה.
+              (המודל מאפשר חשבון כזה; זרימת ההרשמה הנוכחית תמיד קובעת סיסמה.)
+            */
+            if (string.IsNullOrEmpty(user.PasswordHash))
+            {
+                return (null, "יש לקבוע סיסמה לחשבון לפני הפעלת האימות הדו-שלבי");
+            }
+
             var key = (dto.Channel ?? string.Empty).Trim().ToLowerInvariant();
             if (key != TwoFactorChannels.Email && key != TwoFactorChannels.Sms)
             {

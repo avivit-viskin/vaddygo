@@ -42,3 +42,18 @@ test("מסך ההגדרות פותח כתפריט קצר של נושאים", () 
   // התוכן עצמו (תיבות הסימון) מוצג רק אחרי כניסה לנושא
   expect(screen.queryByLabelText(/תזכורות תשלום/)).not.toBeInTheDocument();
 });
+
+/*
+  האימות הדו-שלבי היה בתחילה למנהלת בלבד. בעלת המוצר ביקשה שגם ועדים יוכלו
+  להשתמש בו — בבחירתם ולא בכפייה. הבדיקה מוודאת שהוא זמין למשתמשת רגילה,
+  כלומר שהחסימה לפי תפקיד אכן הוסרה ולא רק "נראית מוסרת".
+*/
+test("אימות דו-שלבי זמין גם למנהלת ועד רגילה, לא רק למנהלת המערכת", async () => {
+  localStorage.setItem(
+    "vaadygo.user",
+    JSON.stringify({ username: "ועד", email: "v@example.com", role: "Member" })
+  );
+  renderPage();
+  await userEvent.click(screen.getByRole("button", { name: /חשבון וסיסמה/ }));
+  expect(await screen.findByText(/אימות דו-שלבי/)).toBeInTheDocument();
+});

@@ -15,7 +15,6 @@ import {
 import { applyAnalyticsConsent } from "../services/analytics";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
 import TwoFactorCard from "./settings/TwoFactorCard";
-import { isSuperAdmin } from "../services/authService";
 import RenameInstitutionCard from "./settings/RenameInstitutionCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
@@ -172,11 +171,12 @@ function SettingsPage() {
         <>
           <ChangePasswordCard />
           {/*
-            אימות דו-שלבי — כרגע למנהלת בלבד (החלטת בעלת המוצר): מנהלת ועד
-            מתחברת מהטלפון בין הסידורים, ושלב נוסף בכניסה יגרום לנטישה.
-            הצד השרתי גנרי, ולכן פתיחה לכולן היא הסרת התנאי הזה בלבד.
+            אימות דו-שלבי — פתוח לכל מנהלת ועד (החלטת בעלת המוצר 17.08.2026),
+            אבל **בבחירה שלה ולא בכפייה**: מנהלת ועד מתחברת מהטלפון בין
+            הסידורים, ושלב שכופים עליה בכל כניסה מוביל לנטישה. מי שמפעילה —
+            מקבלת קוד בכל כניסה וגם קודי גיבוי, בדיוק כמו המנהלת.
           */}
-          {isSuperAdmin() && <TwoFactorCard />}
+          <TwoFactorCard />
           <ExportDataCard />
           <DeleteAccountCard />
         </>

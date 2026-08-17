@@ -92,6 +92,12 @@ namespace ParentCommitteeAPI.Services
             // חברויות של המשתמש עצמו בגנים של אחרים — גם אלה נתוני המשתמש שנמחקים
             await _db.GroupMembers.Where(m => m.UserId == userId).ExecuteDeleteAsync();
 
+            // נספחי האימות הדו-שלבי. אין להם משמעות בלי המשתמש, ומכשיר זכור
+            // שנשאר יתום היה מזוהה עם מזהה משתמש שעשוי להינתן שוב בעתיד.
+            await _db.TwoFactorChallenges.Where(c => c.UserId == userId).ExecuteDeleteAsync();
+            await _db.TwoFactorBackupCodes.Where(c => c.UserId == userId).ExecuteDeleteAsync();
+            await _db.TrustedDevices.Where(d => d.UserId == userId).ExecuteDeleteAsync();
+
             // 4) המשתמש
             var deleted = await _db.Users.Where(u => u.Id == userId).ExecuteDeleteAsync();
 

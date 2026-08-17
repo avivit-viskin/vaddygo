@@ -12,5 +12,12 @@ namespace ParentCommitteeAPI.DTOs
 
         [Required(ErrorMessage = "יש להזין סיסמה")]
         public string Password { get; set; } = string.Empty;
+
+        /*
+          אסימון "זכור את המכשיר הזה" מכניסה קודמת, אם קיים. נשלח מהדפדפן
+          ופוטר מהקוד החד-פעמי כל עוד הוא בתוקף. לא חובה, ולא אמצעי הזדהות
+          בפני עצמו — הסיסמה עדיין נדרשת.
+        */
+        public string? DeviceToken { get; set; }
     }
 }

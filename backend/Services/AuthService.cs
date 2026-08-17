@@ -19,16 +19,19 @@ namespace ParentCommitteeAPI.Services
         private readonly IConfiguration _config;
         private readonly IAccessScope _access;
         private readonly IEmailSender _email;
+        private readonly ITwoFactorService _twoFactor;
         private readonly ILogger<AuthService> _logger;
 
         public AuthService(AppDbContext db, IJwtTokenService jwt, IConfiguration config,
-            IAccessScope access, IEmailSender email, ILogger<AuthService> logger)
+            IAccessScope access, IEmailSender email, ITwoFactorService twoFactor,
+            ILogger<AuthService> logger)
         {
             _db = db;
             _jwt = jwt;
             _config = config;
             _access = access;
             _email = email;
+            _twoFactor = twoFactor;
             _logger = logger;
         }
 
@@ -118,7 +121,30 @@ namespace ParentCommitteeAPI.Services
                 return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
             }
 
+            /*
+              הסיסמה נכונה — אבל אם למשתמש יש אימות דו-שלבי, זה עדיין לא מספיק.
+              מחזירים אתגר ולא טוקן: הכניסה תושלם רק אחרי שהקוד יאומת.
+              המכשיר הזכור נבדק כאן, ולכן מי שכבר אימת מהדפדפן הזה לא מתעכב.
+            */
+            if (await _twoFactor.IsRequiredAsync(user, dto.DeviceToken))
+            {
+                var challenge = await _twoFactor.StartChallengeAsync(user);
+                _logger.LogInformation("2FA challenge issued at login (User: {UserId})", user.Id);
+                return new AuthResult(null, null, challenge);
+            }
+
             _logger.LogInformation("User logged in (Id: {UserId})", user.Id);
+            return new AuthResult(BuildResponse(user), null);
+        }
+
+        public AuthResult CompleteTwoFactorLogin(User user)
+        {
+            // המנוי נבדק שוב: בין שליחת הקוד להקלדתו יכול לעבור זמן.
+            if (!SubscriptionPolicy.IsActive(user.SubscriptionValidUntil))
+            {
+                return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
+            }
+            _logger.LogInformation("User logged in with 2FA (Id: {UserId})", user.Id);
             return new AuthResult(BuildResponse(user), null);
         }
 
@@ -163,6 +189,17 @@ namespace ParentCommitteeAPI.Services
             if (!SubscriptionPolicy.IsActive(user.SubscriptionValidUntil))
             {
                 return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
+            }
+
+            /*
+              גם כניסת Google עוברת את השלב השני. אחרת מי שהגדיר אימות דו-שלבי
+              היה מקבל דלת עוקפת: השתלטות על חשבון ה-Google הייתה מספיקה כדי
+              להיכנס בלי הקוד, וההגנה הייתה קיימת רק במסלול אחד מתוך שניים.
+            */
+            if (await _twoFactor.IsRequiredAsync(user, dto.DeviceToken))
+            {
+                var challenge = await _twoFactor.StartChallengeAsync(user);
+                return new AuthResult(null, null, challenge);
             }
 
             _logger.LogInformation("User logged in via Google (Id: {UserId})", user.Id);

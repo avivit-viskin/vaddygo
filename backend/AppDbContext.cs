@@ -30,6 +30,11 @@ namespace ParentCommitteeAPI
         public DbSet<PollVote> PollVotes { get; set; }
         public DbSet<Lead> Leads { get; set; }
 
+        // אימות דו-שלבי: אתגר פתוח, קודי גיבוי, ומכשירים שנזכרו
+        public DbSet<TwoFactorChallenge> TwoFactorChallenges { get; set; }
+        public DbSet<TwoFactorBackupCode> TwoFactorBackupCodes { get; set; }
+        public DbSet<TrustedDevice> TrustedDevices { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
@@ -57,6 +62,15 @@ namespace ParentCommitteeAPI
 
             // תיבת הפניות של הספק נשלפת לפי VendorId — אינדקס לשליפה מהירה.
             modelBuilder.Entity<Lead>().HasIndex(l => l.VendorId);
+
+            // אימות דו-שלבי: כל שלוש הטבלאות נשלפות לפי טביעת אצבע או לפי משתמש,
+            // ובשתי הראשונות זה קורה בתוך זרימת התחברות — לכן אינדקס ייחודי.
+            modelBuilder.Entity<TwoFactorChallenge>()
+                .HasIndex(c => c.ChallengeFingerprint).IsUnique();
+            modelBuilder.Entity<TrustedDevice>()
+                .HasIndex(d => d.TokenFingerprint).IsUnique();
+            modelBuilder.Entity<TwoFactorBackupCode>()
+                .HasIndex(c => new { c.UserId, c.CodeFingerprint }).IsUnique();
         }
     }
 }

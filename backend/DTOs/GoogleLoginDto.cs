@@ -10,5 +10,8 @@ namespace ParentCommitteeAPI.DTOs
     {
         [Required(ErrorMessage = "חסר אסימון הזדהות מגוגל")]
         public string Credential { get; set; } = string.Empty;
+
+        /* אסימון "זכור את המכשיר הזה" — ראו LoginDto. */
+        public string? DeviceToken { get; set; }
     }
 }

@@ -15,11 +15,20 @@ namespace ParentCommitteeAPI.Controllers
     public class AuthController : ControllerBase
     {
         private readonly IAuthService _authService;
+        private readonly ITwoFactorService _twoFactor;
 
-        public AuthController(IAuthService authService)
+        public AuthController(IAuthService authService, ITwoFactorService twoFactor)
         {
             _authService = authService;
+            _twoFactor = twoFactor;
         }
+
+        /*
+          כניסה שנעצרה לשלב הקוד מוחזרת כ-**202 Accepted**: הבקשה התקבלה
+          והזיהוי הצליח, אבל הפעולה טרם הושלמה. במכוון לא 401 (שהלקוח מפרש
+          כ"סיסמה שגויה") ולא 200 (שמשמעו "הנה הטוקן").
+        */
+        private const int TwoFactorPending = StatusCodes.Status202Accepted;
 
         // POST: api/auth/register
         [AllowAnonymous]
@@ -42,6 +51,8 @@ namespace ParentCommitteeAPI.Controllers
             var result = await _authService.LoginAsync(dto);
             if (result.Error != null)
                 return Unauthorized(new { message = result.Error });
+            if (result.TwoFactor != null)
+                return StatusCode(TwoFactorPending, result.TwoFactor);
             return Ok(result.Response);
         }
 
@@ -54,7 +65,57 @@ namespace ParentCommitteeAPI.Controllers
             var result = await _authService.LoginWithGoogleAsync(dto);
             if (result.Error != null)
                 return Unauthorized(new { message = result.Error });
+            if (result.TwoFactor != null)
+                return StatusCode(TwoFactorPending, result.TwoFactor);
             return Ok(result.Response);
+        }
+
+        /*
+          POST: api/auth/2fa/verify — שלב שני בכניסה. פתוח לאנונימיים בהכרח:
+          בנקודה הזאת עדיין אין טוקן, וההרשאה נובעת מהאתגר עצמו + הקוד.
+          מוגבל בקצב כמו כל נקודת כניסה אחרת, כדי שלא ינחשו קוד בן 6 ספרות.
+        */
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
+        [HttpPost("2fa/verify")]
+        public async Task<ActionResult<AuthResponseDto>> VerifyTwoFactor(
+            [FromBody] TwoFactorVerifyDto dto)
+        {
+            var verified = await _twoFactor.VerifyAsync(dto);
+            if (verified.User == null)
+                return Unauthorized(new { message = verified.Error });
+
+            var result = _authService.CompleteTwoFactorLogin(verified.User);
+            if (result.Error != null)
+                return Unauthorized(new { message = result.Error });
+
+            // אסימון המכשיר מוחזר רק אם ביקשו "זכור אותי"; הלקוח שומר אותו.
+            return Ok(new
+            {
+                result.Response!.Token,
+                result.Response.Username,
+                result.Response.Email,
+                result.Response.Role,
+                result.Response.SubscriptionValidUntil,
+                deviceToken = verified.DeviceToken,
+            });
+        }
+
+        /*
+          POST: api/auth/2fa/resend — שליחת הקוד שוב, אפשר בערוץ אחר.
+          זו הנקודה שמונעת נעילה: מי שאין לו גישה לתיבת המייל באותו רגע מבקש
+          את הקוד ב-SMS בלי להתחיל את ההתחברות מחדש.
+        */
+        [AllowAnonymous]
+        [EnableRateLimiting(RateLimitPolicies.Auth)]
+        [HttpPost("2fa/resend")]
+        public async Task<ActionResult<TwoFactorRequiredDto>> ResendTwoFactor(
+            [FromBody] TwoFactorResendDto dto)
+        {
+            var challenge = await _twoFactor.ResendAsync(dto);
+            if (challenge == null)
+                return Unauthorized(new { message = "פג תוקף הכניסה. יש להתחבר מחדש." });
+            return Ok(challenge);
         }
 
         // POST: api/auth/change-password — שינוי סיסמה למשתמש מחובר (דורש token)

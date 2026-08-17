@@ -32,6 +32,21 @@ namespace ParentCommitteeAPI.Models
         // של הקוד בן 6 הספרות). מתאפס עם הפקת קוד חדש ואחרי איפוס מוצלח.
         public int ResetCodeAttempts { get; set; }
 
+        /*
+          אימות דו-שלבי. כבוי כברירת מחדל ונדלק ביוזמת המשתמש בלבד — הפעלה
+          כפויה הייתה נועלת מחוץ לחשבון מי שלא סיים את ההגדרה.
+        */
+        public bool TwoFactorEnabled { get; set; }
+
+        /* הערוץ המועדף לקבלת הקוד: "email" (ברירת מחדל) או "sms". */
+        public string TwoFactorChannel { get; set; } = Services.TwoFactorChannels.Email;
+
+        /*
+          טלפון לקבלת הקוד ב-SMS. **מוצפן** (FieldEncryption) כמו כל טלפון אחר
+          במערכת. null כשלא הוגדר — ואז ערוץ ה-SMS פשוט אינו זמין.
+        */
+        public string? TwoFactorPhone { get; set; }
+
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     }
 }

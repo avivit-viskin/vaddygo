@@ -14,6 +14,8 @@ import {
 } from "../services/cookieConsentService";
 import { applyAnalyticsConsent } from "../services/analytics";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
+import TwoFactorCard from "./settings/TwoFactorCard";
+import { isSuperAdmin } from "../services/authService";
 import RenameInstitutionCard from "./settings/RenameInstitutionCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
@@ -169,6 +171,12 @@ function SettingsPage() {
       render: () => (
         <>
           <ChangePasswordCard />
+          {/*
+            אימות דו-שלבי — כרגע למנהלת בלבד (החלטת בעלת המוצר): מנהלת ועד
+            מתחברת מהטלפון בין הסידורים, ושלב נוסף בכניסה יגרום לנטישה.
+            הצד השרתי גנרי, ולכן פתיחה לכולן היא הסרת התנאי הזה בלבד.
+          */}
+          {isSuperAdmin() && <TwoFactorCard />}
           <ExportDataCard />
           <DeleteAccountCard />
         </>

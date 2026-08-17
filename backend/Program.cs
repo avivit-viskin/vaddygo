@@ -71,7 +71,44 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtTokenService, JwtTokenService>();
 // שליחת מייל (קוד איפוס סיסמה) דרך ה-HTTP API של Resend (HTTPS — Railway חוסמת SMTP).
 // הגדרות ב-Resend:ApiKey (ו-Resend:Sender אופציונלי). typed HttpClient כמו ל-AI.
-builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+/*
+  בפיתוח אפשר להפנות מיילים לקבצים (Email:Provider=file) כדי לבדוק זרימות
+  שמסתמכות על קוד שנשלח במייל. **מותנה בסביבת Development** — בייצור תמיד
+  Resend, ואי אפשר לעקוף זאת דרך משתנה סביבה.
+*/
+if (builder.Environment.IsDevelopment()
+    && string.Equals(builder.Configuration["Email:Provider"], "file",
+        StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddScoped<IEmailSender, FileEmailSender>();
+}
+else
+{
+    builder.Services.AddHttpClient<IEmailSender, ResendEmailSender>();
+}
+/*
+  אימות דו-שלבי. הערוצים נרשמים כאוסף (IEnumerable<ITwoFactorChannel>) ולא
+  כערוץ יחיד, כי בעלת המוצר ביקשה שאפשר יהיה לבחור בין מייל ל-SMS בזמן אמת:
+  הקוד בוחר מתוך הזמינים במקום להיות קשור לאחד מהם.
+
+  ספק ה-SMS נבחר לפי Sms:Provider. ברירת המחדל היא NullSmsSender — SMS עולה
+  כסף ודורש חשבון, ולכן הערוץ פשוט אינו מוצע עד שיוגדרו מפתחות, במקום להיכשל
+  בשליחה ברגע האמת.
+*/
+builder.Services.AddScoped<ITwoFactorService, TwoFactorService>();
+builder.Services.AddScoped<ITwoFactorChannel, EmailTwoFactorChannel>();
+builder.Services.AddScoped<ITwoFactorChannel, SmsTwoFactorChannel>();
+if (string.Equals(builder.Configuration["Sms:Provider"], "twilio",
+        StringComparison.OrdinalIgnoreCase))
+{
+    builder.Services.AddHttpClient();
+    builder.Services.AddScoped<ISmsSender, TwilioSmsSender>();
+}
+else
+{
+    builder.Services.AddScoped<ISmsSender, NullSmsSender>();
+}
+
 builder.Services.AddScoped<IDriveFolderService, DriveFolderService>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
 builder.Services.AddScoped<IAccountService, AccountService>();

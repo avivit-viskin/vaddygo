@@ -2,8 +2,13 @@ using ParentCommitteeAPI.DTOs;
 
 namespace ParentCommitteeAPI.Services
 {
-    // מוחזר מהשירות עם הודעת שגיאה ידידותית כשההרשמה/כניסה נכשלת
-    public record AuthResult(AuthResponseDto? Response, string? Error);
+    /*
+      תוצאת הרשמה/כניסה. שלוש אפשרויות בלבד, וכל אחת שוללת את השתיים האחרות:
+      הצלחה (Response), כישלון (Error), או "הסיסמה נכונה אבל צריך קוד"
+      (TwoFactor) — מצב שבו עדיין **אין טוקן**, כי הכניסה לא הושלמה.
+    */
+    public record AuthResult(
+        AuthResponseDto? Response, string? Error, TwoFactorRequiredDto? TwoFactor = null);
 
     public interface IAuthService
     {
@@ -22,5 +27,12 @@ namespace ParentCommitteeAPI.Services
 
         /* חידוש מנוי בחודש (נקרא אחרי תשלום מאומת בסליקה). מאריך את התוקף ומחזיר טוקן חדש. */
         Task<AuthResult> RenewSubscriptionAsync(int userId);
+
+        /*
+          משלים כניסה אחרי שהקוד החד-פעמי אומת. מופרד מ-LoginAsync כי בשלב הזה
+          כבר אין סיסמה — האימות נעשה מול האתגר, ומה שנותר הוא בדיקות המנוי
+          והנפקת הטוקן. מוודא שוב את תוקף המנוי: ייתכן שפג בין שני השלבים.
+        */
+        AuthResult CompleteTwoFactorLogin(Models.User user);
     }
 }

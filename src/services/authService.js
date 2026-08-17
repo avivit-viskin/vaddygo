@@ -140,17 +140,82 @@ export async function register({ username, email, password }) {
   return auth;
 }
 
+/*
+  אסימון "זכור את המכשיר הזה" מהאימות הדו-שלבי. שייך למכשיר ולא לחשבון, ולכן
+  שורד יציאה מהמערכת — אחרת הוא היה חסר טעם. אינו מזהה בפני עצמו: השרת בודק
+  אותו רק אחרי שהסיסמה אומתה, ומול המשתמש הספציפי.
+*/
+const DEVICE_TOKEN_KEY = "vaadygo.deviceToken";
+
+function getDeviceToken() {
+  try {
+    return localStorage.getItem(DEVICE_TOKEN_KEY) || undefined;
+  } catch {
+    return undefined;
+  }
+}
+
+function storeDeviceToken(token) {
+  if (!token) {
+    return;
+  }
+  try {
+    localStorage.setItem(DEVICE_TOKEN_KEY, token);
+  } catch {
+    // storage חסום — פשוט יידרש קוד גם בכניסה הבאה
+  }
+}
+
+/*
+  כניסה. שימי לב לערך המוחזר: אם למשתמש יש אימות דו-שלבי, השרת מחזיר
+  `{ twoFactorRequired: true, challengeId, ... }` **בלי טוקן**, ואז אסור
+  לשמור כלום — הכניסה תושלם רק ב-verifyTwoFactor.
+*/
 export async function login({ usernameOrEmail, password }) {
-  const auth = await api.post("/api/auth/login", { usernameOrEmail, password });
+  const auth = await api.post("/api/auth/login", {
+    usernameOrEmail,
+    password,
+    deviceToken: getDeviceToken(),
+  });
+  if (auth?.twoFactorRequired) {
+    return auth;
+  }
   store(auth);
   return auth;
 }
 
 /* כניסה/הרשמה עם Google — שולח לשרת את ה-credential שהתקבל מכפתור גוגל */
 export async function loginWithGoogle(credential) {
-  const auth = await api.post("/api/auth/google", { credential });
+  const auth = await api.post("/api/auth/google", {
+    credential,
+    deviceToken: getDeviceToken(),
+  });
+  if (auth?.twoFactorRequired) {
+    return auth;
+  }
   store(auth);
   return auth;
+}
+
+/*
+  שלב שני בכניסה: הקוד שהתקבל, או קוד גיבוי. רק כאן נשמר הטוקן.
+  אסימון המכשיר נשמר **אחרי** store, כי store מנקה את המטמון המקומי כשמתחבר
+  משתמש אחר במכשיר הזה.
+*/
+export async function verifyTwoFactor({ challengeId, code, rememberDevice }) {
+  const auth = await api.post("/api/auth/2fa/verify", {
+    challengeId,
+    code,
+    rememberDevice: Boolean(rememberDevice),
+  });
+  store(auth);
+  storeDeviceToken(auth.deviceToken);
+  return auth;
+}
+
+/* שליחת הקוד שוב — אפשר בערוץ אחר (זה מה שמציל כשאין גישה למייל כרגע). */
+export function resendTwoFactorCode({ challengeId, channel }) {
+  return api.post("/api/auth/2fa/resend", { challengeId, channel });
 }
 
 export function logout() {

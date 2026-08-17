@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
+import TwoFactorPrompt from "../components/TwoFactorPrompt";
 import { login, loginWithGoogle } from "../services/authService";
 import {
   restoreOnboardingFromServer,
@@ -32,18 +33,36 @@ function LoginPage() {
   const [errors, setErrors] = useState({});
   const [submitError, setSubmitError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  /*
+    אתגר אימות דו-שלבי פתוח. כשהוא קיים, הסיסמה כבר אומתה אבל הכניסה **טרם
+    הושלמה ואין טוקן** — ולכן מציגים את מסך הקוד במקום טופס הכניסה.
+  */
+  const [challenge, setChallenge] = useState(null);
+
+  /*
+    מה שקורה אחרי כניסה מוצלחת — משותף לשלושת המסלולים (סיסמה, Google, וקוד
+    דו-שלבי), כדי ששלב שני לא יעקוף את שחזור הגן והמוסדות.
+  */
+  const finishLogin = useCallback(async () => {
+    // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
+    await restoreOnboardingFromServer();
+    // מסנכרן את כל הגנים (כולל כאלה שהוזמנת אליהם) למחליף המוסדות
+    await syncInstitutionsFromServer();
+    navigate(safeNext || "/");
+  }, [navigate, safeNext]);
 
   // כניסה עם Google — יציב (useCallback) כדי לא לאתחל את כפתור גוגל שוב ושוב
   const handleGoogle = useCallback(
     async (credential) => {
       setSubmitError("");
       try {
-        await loginWithGoogle(credential);
-        // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
-        await restoreOnboardingFromServer();
-        // מסנכרן את כל הגנים (כולל כאלה שהוזמנת אליהם) למחליף המוסדות
-        await syncInstitutionsFromServer();
-        navigate(safeNext || "/");
+        const auth = await loginWithGoogle(credential);
+        // גם כניסת Google עוברת את השלב השני — אחרת היא הייתה דלת עוקפת
+        if (auth?.twoFactorRequired) {
+          setChallenge(auth);
+          return;
+        }
+        await finishLogin();
       } catch (err) {
         if (err.message && err.message.includes("המנוי פג")) {
           navigate("/subscription-expired");
@@ -52,7 +71,7 @@ function LoginPage() {
         }
       }
     },
-    [navigate, safeNext]
+    [navigate, finishLogin]
   );
 
   const handleGoogleError = useCallback(() => {
@@ -72,10 +91,12 @@ function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({ usernameOrEmail: usernameOrEmail.trim(), password });
-      // משחזר את הגדרת הגן מהשרת (אם המטמון המקומי נוקה בהחלפת משתמש)
-      await restoreOnboardingFromServer();
-      navigate("/");
+      const auth = await login({ usernameOrEmail: usernameOrEmail.trim(), password });
+      if (auth?.twoFactorRequired) {
+        setChallenge(auth);
+        return;
+      }
+      await finishLogin();
     } catch (err) {
       // מנוי שפג — מסך ייעודי במקום הודעת שגיאה מבלבלת
       if (err.message && err.message.includes("המנוי פג")) {
@@ -105,6 +126,17 @@ function LoginPage() {
         </header>
 
         <div className="login-card">
+          {challenge ? (
+            <TwoFactorPrompt
+              challenge={challenge}
+              onSuccess={finishLogin}
+              onCancel={() => {
+                setChallenge(null);
+                setPassword("");
+              }}
+            />
+          ) : (
+          <>
           <h2 className="login-card__title">שמחים לראות אותך שוב 🙂</h2>
           <form onSubmit={handleSubmit} noValidate>
           <Input
@@ -157,6 +189,8 @@ function LoginPage() {
             ספק/ית? <Link to="/supplier-login">לכניסת ספקים 🏷️</Link>
           </p>
           </form>
+          </>
+          )}
         </div>
         <SupportLink />
       </div>

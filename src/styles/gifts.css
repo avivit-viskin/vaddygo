@@ -343,12 +343,12 @@
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  margin-bottom: 10px;
+  gap: 5px;
+  margin-bottom: 8px;
 }
 /* תווית השורה ("קטגוריה:" / "מיקום:") — מבדילה בין שתי שורות הסינון */
 .vendors__filter-label {
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   font-weight: 600;
   color: var(--color-text-muted);
   margin-inline-end: 2px;
@@ -358,11 +358,11 @@
   background: var(--color-surface);
   color: var(--color-text);
   border-radius: 999px;
-  padding: 5px 12px;
+  padding: 3px 11px;
   font-family: var(--font-family);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-xs);
   cursor: pointer;
-  min-height: 36px;
+  min-height: 28px;
 }
 .vendors__filter--active {
   background: var(--color-primary-dark);

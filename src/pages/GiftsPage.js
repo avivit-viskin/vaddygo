@@ -316,35 +316,74 @@ function GiftsPage() {
               />
             )}
             <ul className="vendors">
-              {visibleVendors.map((vendor) => (
-                <li
-                  key={vendor.id}
-                  style={{ display: "flex", alignItems: "center", gap: 6 }}
-                >
-                  <button
-                    type="button"
-                    className="vendors__item"
-                    style={{ flex: 1, minWidth: 0 }}
-                    onClick={() => setOpenVendor(vendor)}
-                  >
-                    <span className="vendors__info">
-                      <span className="vendors__name">
-                        {vendor.name}
-                        {vendor.isKosher && <> <KosherBadge /></>}
-                      </span>
-                      {vendor.category && (
-                        <span className="vendors__cat">
-                          {vendor.category}
-                          {vendor.city ? ` · ${vendor.city}` : ""}
+              {visibleVendors
+                .slice()
+                .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+                .map((vendor) => {
+                  // אווטאר לספק: תמונת המוצר הראשונה אם יש, אחרת מונוגרם
+                  // (האות הראשונה בשם) על רקע ורוד־בז' — נותן לכל ספק זהות ויזואלית
+                  const avatarImg = vendor.products?.find(
+                    (p) => p.imageUrl
+                  )?.imageUrl;
+                  const monogram = (vendor.name || "?").trim().charAt(0) || "?";
+                  return (
+                    <li
+                      key={vendor.id}
+                      style={{ display: "flex", alignItems: "center", gap: 6 }}
+                    >
+                      <button
+                        type="button"
+                        className={
+                          "vendors__item" +
+                          (vendor.featured ? " vendors__item--featured" : "")
+                        }
+                        style={{ flex: 1, minWidth: 0 }}
+                        onClick={() => setOpenVendor(vendor)}
+                      >
+                        <span className="vendors__avatar" aria-hidden="true">
+                          {avatarImg ? (
+                            <img src={avatarImg} alt="" loading="lazy" />
+                          ) : (
+                            monogram
+                          )}
                         </span>
-                      )}
-                    </span>
-                    {vendor.products?.length > 0 && (
-                      <span className="vendors__count">
-                        {vendor.products.length} מוצרים
-                      </span>
-                    )}
-                  </button>
+                        <span className="vendors__info">
+                          <span className="vendors__name">
+                            {vendor.name}
+                            {vendor.isKosher && <> <KosherBadge /></>}
+                          </span>
+                          {vendor.category && (
+                            <span className="vendors__cat">
+                              {vendor.category}
+                              {vendor.city ? ` · ${vendor.city}` : ""}
+                            </span>
+                          )}
+                          {(vendor.featured ||
+                            vendor.offer ||
+                            vendor.products?.length > 0) && (
+                            <span className="vendors__tags">
+                              {vendor.featured && (
+                                <span className="vendors__featured">
+                                  ⭐ מומלץ
+                                </span>
+                              )}
+                              {vendor.offer && (
+                                <span className="vendors__offer">
+                                  <Icon name="tag" size={12} /> {vendor.offer}
+                                </span>
+                              )}
+                              {vendor.products?.length > 0 && (
+                                <span className="vendors__count">
+                                  {vendor.products.length} מוצרים
+                                </span>
+                              )}
+                            </span>
+                          )}
+                        </span>
+                        <span className="vendors__chevron" aria-hidden="true">
+                          ‹
+                        </span>
+                      </button>
                   {canManageVendors && vendor.deletionRequested && (
                     <span
                       title="הספק ביקש למחוק את החשבון"
@@ -435,7 +474,8 @@ function GiftsPage() {
                     </button>
                   )}
                 </li>
-              ))}
+                  );
+                })}
             </ul>
           </>
         )}

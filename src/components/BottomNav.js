@@ -65,9 +65,9 @@ const ICONS = {
 
 const NAV_ITEMS = [
   { to: "/", label: "בית", icon: "home" },
-  { to: "/students", label: "תלמידים", icon: "students" },
-  { to: "/calendar", label: "לוח שנה", icon: "calendar" },
-  { to: "/gifts", label: "מתנות", icon: "gifts" },
+  { to: "/students", label: "תלמידים", icon: "students", tour: "nav-students" },
+  { to: "/calendar", label: "לוח שנה", icon: "calendar", tour: "nav-calendar" },
+  { to: "/gifts", label: "מתנות", icon: "gifts", tour: "nav-gifts" },
   { to: "/files", label: "קבצים", icon: "files" },
 ];
 
@@ -101,6 +101,7 @@ function BottomNav() {
           key={item.to}
           to={item.to}
           end={item.to === "/"}
+          data-tour={item.tour}
           className={({ isActive }) =>
             `bottom-nav__link${isActive ? " active" : ""}`
           }

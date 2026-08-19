@@ -102,6 +102,7 @@ function SideMenu({ isOpen, onClose }) {
         <button
           type="button"
           className="sidemenu__action sidemenu__upgrade"
+          data-tour="menu-pro"
           onClick={() => go("/upgrade")}
         >
           שדרוגי פרו{" "}
@@ -112,6 +113,7 @@ function SideMenu({ isOpen, onClose }) {
         <button
           type="button"
           className="sidemenu__action"
+          data-tour="menu-collection"
           onClick={() => go("/collection-settings")}
         >
           <Icon name="wallet" size={18} /> עריכת גבייה
@@ -119,6 +121,7 @@ function SideMenu({ isOpen, onClose }) {
         <button
           type="button"
           className="sidemenu__action"
+          data-tour="menu-settings"
           onClick={() => go("/settings")}
         >
           <Icon name="bell" size={18} /> הגדרות התראות

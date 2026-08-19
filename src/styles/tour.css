@@ -48,6 +48,12 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
+/* מעוגן בתחתית המסך — לשלבים שבהם תפריט הצד פתוח (כדי לא לכסות אותו) */
+.tour__popover--bottom {
+  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+}
 
 .tour__count {
   font-size: var(--font-size-sm);

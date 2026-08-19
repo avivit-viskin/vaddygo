@@ -241,7 +241,24 @@ function GiftsPage() {
   }
 
   if (isLoading) {
-    return <Spinner text="טוען מתנות וספקים..." />;
+    // מציגים כבר עכשיו את כרטיס הספקים (התוכן נטען מתחת) — כך המעבר מיידי,
+    // והסיור מסמן את אזור הספקים בלי להמתין לטעינת הנתונים.
+    return (
+      <div className="gifts">
+        <Card
+          title={
+            <span
+              data-tour="suppliers"
+              style={{ color: "var(--color-primary-dark)" }}
+            >
+              <Icon name="tag" size={20} /> ספקים
+            </span>
+          }
+        >
+          <Spinner text="טוען מתנות וספקים..." />
+        </Card>
+      </div>
+    );
   }
 
   return (

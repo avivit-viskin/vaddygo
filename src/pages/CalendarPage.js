@@ -283,7 +283,27 @@ function CalendarPage({ initialDate }) {
   }
 
   if (isLoading) {
-    return <Spinner text="טוען את לוח השנה..." />;
+    // מציגים כבר עכשיו את כותרת המסך וכפתור הוספת האירוע (הלוח נטען מתחת) — כך
+    // המעבר לדף מיידי בלי מסך טעינה ריק (וגם הסיור מסמן את הכפתור מיד).
+    return (
+      <div>
+        {!readOnly && (
+          <div className="page-header">
+            <h2>לוח שנה</h2>
+            <div className="page-header__actions">
+              <Button
+                variant="brand"
+                onClick={() => openAddForm(toDateInputValue(new Date()))}
+                dataTour="add-event"
+              >
+                + הוספת אירוע
+              </Button>
+            </div>
+          </div>
+        )}
+        <Spinner text="טוען את לוח השנה..." />
+      </div>
+    );
   }
 
   if (error) {

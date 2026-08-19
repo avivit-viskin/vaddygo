@@ -243,7 +243,27 @@ function StudentsPage() {
   }
 
   if (isLoading) {
-    return <Spinner text="טוען את רשימת התלמידים..." />;
+    // מציגים כבר עכשיו את הכותרת וכפתור ההוספה (הרשימה נטענת מתחת) — כך המעבר
+    // לדף מיידי, בלי מסך טעינה ריק (חשוב גם לסיור ההיכרות שמסמן את הכפתור).
+    return (
+      <div>
+        <div className="page-header">
+          <h2>תלמידים</h2>
+          {!readOnly && (
+            <div className="page-header__actions">
+              <Button
+                variant="brand"
+                onClick={openAddForm}
+                dataTour="add-student"
+              >
+                + הוספת תלמיד
+              </Button>
+            </div>
+          )}
+        </div>
+        <Spinner text="טוען את רשימת התלמידים..." />
+      </div>
+    );
   }
 
   if (error) {

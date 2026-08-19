@@ -154,15 +154,33 @@ function Tour() {
     };
   }, [active, index, navigate]);
 
-  // כשהאלמנט זז (שינוי גודל חלון) — למדוד מחדש
+  // כל עוד מדגישים — נמדוד מחדש כל 300ms (ובשינוי גודל). כך אם הדף מסיים לטעון
+  // נתונים והאלמנט זז/מתחלף, "חור האור" עוקב אחריו (עם מעבר חלק ב-CSS).
   useEffect(() => {
     if (!active || phase !== "anchored") return undefined;
-    const onResize = () => {
+    const remeasure = () => {
       const el = document.querySelector(step.selector);
-      if (el) setRect(el.getBoundingClientRect());
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      setRect((prev) => {
+        if (
+          prev &&
+          Math.abs(prev.top - r.top) < 1 &&
+          Math.abs(prev.left - r.left) < 1 &&
+          Math.abs(prev.width - r.width) < 1 &&
+          Math.abs(prev.height - r.height) < 1
+        ) {
+          return prev; // ללא שינוי — לא מרנדרים מחדש לחינם
+        }
+        return r;
+      });
     };
-    window.addEventListener("resize", onResize);
-    return () => window.removeEventListener("resize", onResize);
+    const id = setInterval(remeasure, 300);
+    window.addEventListener("resize", remeasure);
+    return () => {
+      clearInterval(id);
+      window.removeEventListener("resize", remeasure);
+    };
   }, [active, phase, step]);
 
   // מיקום החלונית ביחס לאלמנט המודגש

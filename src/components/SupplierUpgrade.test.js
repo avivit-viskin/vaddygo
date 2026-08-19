@@ -7,6 +7,10 @@ jest.mock("../config/payment", () => ({
   buildPurchaseUrl: (url) => url,
 }));
 
+jest.mock("../services/api", () => ({
+  api: { post: jest.fn(() => Promise.resolve()) },
+}));
+
 /*
   הרכישה מתבצעת ב-GROW (החלטת בעלת המוצר, 10.08.2026) — לא בוואטסאפ ולא בתוך
   המערכת. הבדיקות מוודאות שהכפתור מוביל לשם, ושספק שכבר רכש לא רואה אותו.

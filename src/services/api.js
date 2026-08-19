@@ -22,6 +22,7 @@ const NO_TOAST_PREFIXES = [
   "/api/public/vendors/register",
   "/api/public/vendors/forgot-password",
   "/api/public/vendors/reset-password",
+  "/api/pro/intent",
 ];
 // נתיבים ללא נפילה ל-localStorage — כאן כישלון שרת = הנתונים באמת לא נשמרו,
 // ולכן רק עליהם מציגים "שגיאה, לא נשמר" (בשאר, כישלון נשמר מקומית = לא שגיאה).

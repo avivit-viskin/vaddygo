@@ -22,17 +22,48 @@ namespace ParentCommitteeAPI.Controllers
     public class ProWebhookController : ControllerBase
     {
         private readonly IProActivationService _pro;
+        private readonly IProIntentStore _intents;
         private readonly IConfiguration _config;
         private readonly ILogger<ProWebhookController> _logger;
 
         public ProWebhookController(
             IProActivationService pro,
+            IProIntentStore intents,
             IConfiguration config,
             ILogger<ProWebhookController> logger)
         {
             _pro = pro;
+            _intents = intents;
             _config = config;
             _logger = logger;
+        }
+
+        /*
+          רישום "כוונת רכישה" — האפליקציה קוראת לזה ברגע שלוחצים "תשלום", לפני
+          המעבר ל-GROW. שומרים בזיכרון מי עומד לשלם (גן/ספק), וכשה-webhook מגיע
+          אחרי התשלום אנחנו מתאימים לפי זה (כי GROW לא מחזיר את המזהים בקישור).
+        */
+        public class ProIntentRequest
+        {
+            public string? Kind { get; set; }      // "committee" | "supplier"
+            public int? GroupId { get; set; }
+            public int? VendorId { get; set; }
+            public string? Email { get; set; }
+            public string? Phone { get; set; }
+        }
+
+        [HttpPost("api/pro/intent")]
+        public IActionResult RegisterIntent([FromBody] ProIntentRequest req)
+        {
+            var kind = (req?.Kind ?? "").Trim().ToLowerInvariant() == "supplier"
+                ? ProIntentKind.Supplier
+                : ProIntentKind.Committee;
+            _intents.Record(new ProIntent(
+                kind, req?.GroupId, req?.VendorId, req?.Email, req?.Phone, DateTime.UtcNow));
+            _logger.LogInformation(
+                "Pro intent recorded: {Kind} group={GroupId} vendor={VendorId}",
+                kind, req?.GroupId, req?.VendorId);
+            return Ok(new { recorded = true });
         }
 
         [HttpPost("api/pro/grow-webhook")]
@@ -55,12 +86,15 @@ namespace ParentCommitteeAPI.Controllers
                 return Unauthorized(new { received = false, reason = "bad secret" });
             }
 
-            // ── חילוץ שדות (עם שמות-חלופיים כי הפורמט המדויק של GROW ייבדק בשטח) ──
+            // ── חילוץ שדות (שמות GROW אומתו מול תשלום-בדיקה: paymentSum, payerEmail,
+            //    payerPhone. cField לא חוזרים מקישור סטטי, ו-payerEmail ריק ב-ApplePay). ──
             var email = FirstNonEmpty(
                 fields, "payerEmail", "email", "payer_email", "customerEmail",
                 "clientEmail", "userEmail", "cField2");
+            var phone = FirstNonEmpty(
+                fields, "payerPhone", "phone", "cellphone", "mobile", "payer_phone");
             var sumStr = FirstNonEmpty(
-                fields, "sum", "amount", "total", "paymentSum", "chargeAmount", "price");
+                fields, "paymentSum", "sum", "amount", "total", "chargeAmount", "price");
             var sum = decimal.TryParse(sumStr, out var parsedSum) ? parsedSum : 0m;
 
             var kind = FirstNonEmpty(fields, "kind", "plan", "cField3").ToLowerInvariant();
@@ -71,15 +105,30 @@ namespace ParentCommitteeAPI.Controllers
 
             // ── החלטה: ספק אם יש vendorId / kind=supplier / סכום גבוה (מסלול הספק
             // הוא ₪1,200 מול ₪149 של הוועד). אחרת — ועד. ──
-            bool activated;
             var isSupplier = vendorId != null || kind == "supplier" || sum >= 1000m;
+
+            // הזיהוי העיקרי: "כוונת הרכישה" שנרשמה כשלחצו על התשלום (מכילה את ה-groupId/
+            // vendorId המדויק). חלון של 45 דקות — יותר מזמן להשלמת תשלום. אם אין כוונה
+            // (למשל תשלום מקישור ישיר) — נופלים לשדות שה-webhook עצמו סיפק (טלפון/מייל).
+            var intent = _intents.TakeMostRecent(
+                isSupplier ? ProIntentKind.Supplier : ProIntentKind.Committee,
+                TimeSpan.FromMinutes(45));
+
+            bool activated;
             if (isSupplier)
             {
-                activated = await _pro.ActivateSupplierAsync(vendorId, email, validUntil);
+                activated = await _pro.ActivateSupplierAsync(
+                    intent?.VendorId ?? vendorId,
+                    FirstNonEmpty2(intent?.Email, email),
+                    FirstNonEmpty2(intent?.Phone, phone),
+                    validUntil);
             }
             else
             {
-                activated = await _pro.ActivateCommitteeAsync(groupId, email, validUntil);
+                activated = await _pro.ActivateCommitteeAsync(
+                    intent?.GroupId ?? groupId,
+                    FirstNonEmpty2(intent?.Email, email),
+                    validUntil);
             }
 
             // GROW מצפה ל-200 כדי לא לשלוח שוב. גם אם לא זוהה יעד — מחזירים 200
@@ -172,5 +221,9 @@ namespace ParentCommitteeAPI.Controllers
 
         private static int? ParseId(string value) =>
             int.TryParse(value, out var n) && n > 0 ? n : null;
+
+        // הראשון מבין שניים שאינו ריק (כוונת-הרכישה קודמת לשדה שה-webhook סיפק).
+        private static string? FirstNonEmpty2(string? a, string? b) =>
+            !string.IsNullOrWhiteSpace(a) ? a : b;
     }
 }

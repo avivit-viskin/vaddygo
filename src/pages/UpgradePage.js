@@ -9,6 +9,7 @@ import { getActiveInstitution } from "../services/institutionsService";
 import { getUser } from "../services/authService";
 import { whatsappUrl } from "../services/whatsapp";
 import { PRO_PAYMENT_URL, buildPurchaseUrl } from "../config/payment";
+import { api } from "../services/api";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -62,6 +63,19 @@ function UpgradePage() {
     cField2: getUser()?.email,
     cField3: "committee",
   });
+  // GROW לא מחזיר את המזהים בקישור, ובתשלום ApplePay גם המייל ריק — לכן ברגע
+  // הלחיצה אנחנו מודיעים לשרת איזה גן עומד לשלם ("כוונת רכישה"), וה-webhook שמגיע
+  // אחרי התשלום מתאים לפי זה ומדליק פרו אוטומטית. שליחה "שגר ושכח" כדי לא לעכב
+  // את המעבר לעמוד התשלום.
+  const recordIntent = () => {
+    api
+      .post("/api/pro/intent", {
+        kind: "committee",
+        groupId: active?.serverGroupId,
+        email: getUser()?.email,
+      })
+      .catch(() => {});
+  };
   // כשספק/ועד שאינו פרו לוחץ על כלי — לא מנווטים, אלא מציגים הודעה שהשירות
   // נפתח עם השדרוג (המשתמשת ביקשה חיווי ברור לפני הרכישה).
   const [lockedMsg, setLockedMsg] = useState(false);
@@ -168,7 +182,12 @@ function UpgradePage() {
           ) : (
             <>
               {PRO_PAYMENT_URL && (
-                <a href={payUrl} target="_blank" rel="noreferrer">
+                <a
+                  href={payUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  onClick={recordIntent}
+                >
                   <Button variant="brand">
                     <Icon name="card" size={16} /> מעבר לתשלום מאובטח
                   </Button>

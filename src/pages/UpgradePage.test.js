@@ -9,6 +9,10 @@ jest.mock("../config/payment", () => ({
   buildPurchaseUrl: (url) => url,
 }));
 
+jest.mock("../services/api", () => ({
+  api: { post: jest.fn(() => Promise.resolve()) },
+}));
+
 afterEach(() => localStorage.clear());
 
 function renderPage() {

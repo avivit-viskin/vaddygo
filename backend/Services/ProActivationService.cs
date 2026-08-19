@@ -13,8 +13,9 @@ namespace ParentCommitteeAPI.Services
         /* פרו לוועד — לפי groupId מפורש, ואם אין, לפי המייל של בעל/ת החשבון. */
         Task<bool> ActivateCommitteeAsync(int? groupId, string? email, DateTime validUntil);
 
-        /* פרו לספק — לפי vendorId מפורש, ואם אין, לפי מייל ההתחברות של הספק. */
-        Task<bool> ActivateSupplierAsync(int? vendorId, string? email, DateTime validUntil);
+        /* פרו לספק — לפי vendorId מפורש; אם אין, לפי מייל ההתחברות; ואם אין, לפי
+           מספר הוואטסאפ של הספק מול טלפון המשלם (GROW מחזיר payerPhone גם ב-ApplePay). */
+        Task<bool> ActivateSupplierAsync(int? vendorId, string? email, string? phone, DateTime validUntil);
     }
 
     public class ProActivationService : IProActivationService
@@ -72,14 +73,15 @@ namespace ParentCommitteeAPI.Services
             return true;
         }
 
-        public async Task<bool> ActivateSupplierAsync(int? vendorId, string? email, DateTime validUntil)
+        public async Task<bool> ActivateSupplierAsync(int? vendorId, string? email, string? phone, DateTime validUntil)
         {
             Models.Vendor? vendor = null;
             if (vendorId is int vid)
             {
                 vendor = await _db.Vendors.FirstOrDefaultAsync(x => x.Id == vid);
             }
-            else
+
+            if (vendor == null)
             {
                 var e = (email ?? string.Empty).Trim().ToLowerInvariant();
                 if (e.Length > 0)
@@ -88,11 +90,25 @@ namespace ParentCommitteeAPI.Services
                 }
             }
 
+            // גיבוי אחרון — לפי מספר הוואטסאפ של הספק מול טלפון המשלם. משווים
+            // ספרות בלבד (10 אחרונות) כדי לגשר על פורמטים (מקפים / +972).
+            if (vendor == null)
+            {
+                var p = NormalizePhone(phone);
+                if (p.Length >= 9)
+                {
+                    var candidates = await _db.Vendors
+                        .Where(x => x.WhatsApp != null && x.WhatsApp != "")
+                        .ToListAsync();
+                    vendor = candidates.FirstOrDefault(x => NormalizePhone(x.WhatsApp) == p);
+                }
+            }
+
             if (vendor == null)
             {
                 _logger.LogWarning(
-                    "Pro activation (supplier) — no vendor matched (vendorId: {VendorId}, email: {Email})",
-                    vendorId, email);
+                    "Pro activation (supplier) — no vendor matched (vendorId: {VendorId}, email: {Email}, phone: {Phone})",
+                    vendorId, email, phone);
                 return false;
             }
 
@@ -102,6 +118,15 @@ namespace ParentCommitteeAPI.Services
             _logger.LogInformation(
                 "Pro activated for supplier {VendorId} until {Until}", vendor.Id, validUntil);
             return true;
+        }
+
+        // ספרות בלבד; +972 / 972 בהתחלה → 0 (מספר ישראלי מקומי); משאירים 10 ספרות.
+        private static string NormalizePhone(string? phone)
+        {
+            if (string.IsNullOrWhiteSpace(phone)) return string.Empty;
+            var digits = new string(phone.Where(char.IsDigit).ToArray());
+            if (digits.StartsWith("972")) digits = "0" + digits[3..];
+            return digits;
         }
     }
 }

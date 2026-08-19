@@ -119,6 +119,9 @@ builder.Services.AddScoped<ITeamService, TeamService>();
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
 // הפעלת פרו אוטומטית מ-webhook של GROW (אחרי תשלום)
 builder.Services.AddScoped<IProActivationService, ProActivationService>();
+// מחסן "כוונת רכישה" בזיכרון — מקשר בין לחיצת התשלום ל-webhook (Singleton כדי
+// שהלחיצה וה-webhook יראו את אותו מחסן)
+builder.Services.AddSingleton<IProIntentStore, ProIntentStore>();
 // תמונת המנויים (פרו של ועדים וספקים) למסך המנהלת
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 // חיווי אילו הגנות פעילות בפועל (למסך המנהלת)

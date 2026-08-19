@@ -2,6 +2,7 @@ import Button from "./Button";
 import Icon from "./Icon";
 import BrandName from "./BrandName";
 import { SUPPLIER_PRO_PAYMENT_URL, buildPurchaseUrl } from "../config/payment";
+import { api } from "../services/api";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -63,6 +64,19 @@ function SupplierUpgrade({ vendor }) {
     cField2: vendor?.loginEmail,
     cField3: "supplier",
   });
+  // GROW לא מחזיר את המזהים בקישור — לכן ברגע הלחיצה מודיעים לשרת איזה ספק עומד
+  // לשלם ("כוונת רכישה"), וה-webhook אחרי התשלום מתאים לפי זה (וכגיבוי לפי טלפון
+  // הוואטסאפ מול טלפון המשלם) ומדליק פרו. שליחה "שגר ושכח" כדי לא לעכב.
+  const recordIntent = () => {
+    api
+      .post("/api/pro/intent", {
+        kind: "supplier",
+        vendorId: vendor?.id,
+        email: vendor?.loginEmail,
+        phone: vendor?.whatsApp,
+      })
+      .catch(() => {});
+  };
   // כבר פרו — לא מציגים מחיר/פיצ'רים, רק אישור שהמסלול נרכש והכול מוכן.
   if (alreadyPro) {
     return (
@@ -127,7 +141,12 @@ function SupplierUpgrade({ vendor }) {
         </p>
 
         {paymentUrl ? (
-          <a href={paymentUrl} target="_blank" rel="noreferrer">
+          <a
+            href={paymentUrl}
+            target="_blank"
+            rel="noreferrer"
+            onClick={recordIntent}
+          >
             <Button variant="brand">
               <Icon name="card" size={16} /> רכישת מסלול פרו
             </Button>

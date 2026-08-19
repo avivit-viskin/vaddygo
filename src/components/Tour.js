@@ -1,40 +1,49 @@
 import { useState, useEffect, useLayoutEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { TOUR_STEPS } from "../services/tourSteps";
 import { subscribeTour, markTourSeen } from "../services/tourBus";
+import { preloadTourPages } from "../services/tourPreload";
 import "../styles/tour.css";
 
 /*
   Tour — מנוע "סיור ההיכרות". מציג סדרת חלוניות הסבר; כל "המשך" עובר לשלב הבא.
+  הסיור נכנס למסך האמיתי של כל שלב ומדגיש בו את האלמנט ב"חור אור" (spotlight).
 
-  הסיור **כולו רץ על מסך הבית** ואינו מנווט בין עמודים — כדי שלא תהיה טעינת-עמוד
-  בין שלב לשלב. לשלבים של תפריט הצד (עריכת גבייה/הגדרות/פרו) פותחים את התפריט
-  (openMenu) — פעולה מיידית — ומדגישים את הפריט שבתוכו.
+  כדי שלא תהיה טעינה ארוכה בין שלב לשלב: ברגע שהסיור מתחיל טוענים מראש את כל
+  חבילות הקוד של המסכים (preloadTourPages), כך שהניווט מיידי. אם בכל זאת יש
+  עיכוב קצר (שאיבת נתונים) — מציגים חיווי "רגע…" עדין רק אם העיכוב מורגש.
 
-  לכל שלב: מדגישים אלמנט ב"חור אור" (spotlight) וממקמים חלונית לידו. אם האלמנט
-  לא נמצא תוך זמן קצר — החלונית מופיעה במרכז עם ההסבר (נפילה רכה), כך שהסיור
-  אף פעם לא נתקע.
-
-  onMenu(open) — נשלח מ-App כדי לפתוח/לסגור את תפריט הצד לפי הצורך.
+  אם האלמנט לא נמצא תוך זמן קצר — החלונית מופיעה במרכז עם ההסבר (נפילה רכה),
+  כך שהסיור אף פעם לא נתקע.
 */
 const GAP = 12; // רווח בין החלונית לאלמנט המודגש
 const MARGIN = 12; // שוליים מינימליים מקצה המסך
-const LOCATE_TIMEOUT = 3000; // כמה זמן לחכות לאלמנט לפני נפילה למרכז
+const LOCATE_TIMEOUT = 4000; // כמה זמן לחכות לאלמנט לפני נפילה למרכז
 const POLL = 80;
-const MENU_SETTLE = 300; // המתנה להשלמת אנימציית פתיחת התפריט (0.2s) לפני מדידה
-const SCROLL_SETTLE = 40;
+const HINT_DELAY = 400; // רק אחרי עיכוב מורגש מציגים "רגע…" (מעברים מהירים לא מהבהבים)
 
 const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
 
-function Tour({ onMenu }) {
+// current = pathname+search; משווים לנתיב-היעד כדי לא לנווט לחינם
+function samePath(target, current) {
+  return target === current || (target === "/" && current === "/");
+}
+
+function Tour() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const locationRef = useRef(location);
+  useEffect(() => {
+    locationRef.current = location;
+  }, [location]);
 
   const [active, setActive] = useState(false);
   const [index, setIndex] = useState(0);
-  // phase: "locating" (מחפשים אלמנט) | "anchored" (נמצא — מדגישים) | "center" (נפילה למרכז)
+  // phase: "locating" (מחפשים אלמנט) | "anchored" (נמצא) | "center" (נפילה למרכז)
   const [phase, setPhase] = useState("locating");
   const [rect, setRect] = useState(null);
   const [pos, setPos] = useState(null);
+  const [hint, setHint] = useState(false); // חיווי "רגע…" בעיכוב מורגש
   const popRef = useRef(null);
 
   const step = TOUR_STEPS[index];
@@ -43,6 +52,7 @@ function Tour({ onMenu }) {
   useEffect(
     () =>
       subscribeTour(() => {
+        preloadTourPages(); // טעינה מראש כדי שהניווט בין השלבים יהיה מיידי
         setIndex(0);
         setPhase("locating");
         setRect(null);
@@ -54,11 +64,10 @@ function Tour({ onMenu }) {
 
   const finish = useCallback(() => {
     markTourSeen();
-    if (onMenu) onMenu(false);
     setActive(false);
     setRect(null);
     setPos(null);
-  }, [onMenu]);
+  }, []);
 
   const next = useCallback(() => {
     if (index >= TOUR_STEPS.length - 1) finish();
@@ -68,11 +77,6 @@ function Tour({ onMenu }) {
   const back = useCallback(() => {
     if (index > 0) setIndex(index - 1);
   }, [index]);
-
-  // הסיור כולו על מסך הבית — כשמתחילים, מוודאים שאנחנו שם (הבית נטען מיידית)
-  useEffect(() => {
-    if (active) navigate("/");
-  }, [active, navigate]);
 
   // נעילת גלילת הרקע כל עוד הסיור פעיל
   useEffect(() => {
@@ -94,43 +98,49 @@ function Tour({ onMenu }) {
     return () => window.removeEventListener("keydown", onKey);
   }, [active, finish]);
 
-  // איתור האלמנט של השלב הנוכחי (פתיחת תפריט אם צריך, ואז המתנה שהאלמנט יופיע)
+  // ניווט למסך של השלב + איתור האלמנט
   useEffect(() => {
     if (!active) return undefined;
     const s = TOUR_STEPS[index];
     setPhase("locating");
     setRect(null);
     setPos(null);
+    setHint(false);
 
-    // פותחים/סוגרים את תפריט הצד לפי השלב
-    if (onMenu) onMenu(!!s.openMenu);
+    const current = locationRef.current.pathname + locationRef.current.search;
+    if (s.route && !samePath(s.route, current)) {
+      navigate(s.route);
+    }
 
     let cancelled = false;
     let elapsed = 0;
     let settleTimer = null;
+    // מציגים "רגע…" רק אם האיתור נמשך מעבר לסף (מעבר מהיר לא מהבהב)
+    const hintTimer = setTimeout(() => {
+      if (!cancelled) setHint(true);
+    }, HINT_DELAY);
+
     const timer = setInterval(() => {
       if (cancelled) return;
       const el = document.querySelector(s.selector);
       if (el) {
         clearInterval(timer);
+        clearTimeout(hintTimer);
         try {
           el.scrollIntoView({ block: "center", inline: "nearest" });
         } catch {
           // דפדפנים ישנים — לא קריטי
         }
-        // המתנה קצרה: גלילה/אנימציית התפריט מסתיימת לפני שמודדים
-        settleTimer = setTimeout(
-          () => {
-            if (cancelled) return;
-            setRect(el.getBoundingClientRect());
-            setPhase("anchored");
-          },
-          s.openMenu ? MENU_SETTLE : SCROLL_SETTLE
-        );
+        settleTimer = setTimeout(() => {
+          if (cancelled) return;
+          setRect(el.getBoundingClientRect());
+          setPhase("anchored");
+        }, 40);
       } else {
         elapsed += POLL;
         if (elapsed >= LOCATE_TIMEOUT) {
           clearInterval(timer);
+          clearTimeout(hintTimer);
           setPhase("center"); // נפילה רכה — הסבר במרכז המסך
         }
       }
@@ -139,9 +149,10 @@ function Tour({ onMenu }) {
     return () => {
       cancelled = true;
       clearInterval(timer);
+      clearTimeout(hintTimer);
       if (settleTimer) clearTimeout(settleTimer);
     };
-  }, [active, index, onMenu]);
+  }, [active, index, navigate]);
 
   // כשהאלמנט זז (שינוי גודל חלון) — למדוד מחדש
   useEffect(() => {
@@ -154,11 +165,9 @@ function Tour({ onMenu }) {
     return () => window.removeEventListener("resize", onResize);
   }, [active, phase, step]);
 
-  // מיקום החלונית ביחס לאלמנט (רק אם היא לא מעוגנת בתחתית)
+  // מיקום החלונית ביחס לאלמנט המודגש
   useLayoutEffect(() => {
-    if (!active || phase !== "anchored" || !rect || step.dock === "bottom") {
-      return;
-    }
+    if (!active || phase !== "anchored" || !rect) return;
     const pop = popRef.current;
     if (!pop) return;
     const pw = pop.offsetWidth;
@@ -185,19 +194,11 @@ function Tour({ onMenu }) {
 
   const isLast = index === TOUR_STEPS.length - 1;
   const centered = phase === "center";
-  const dockBottom = phase === "anchored" && step.dock === "bottom";
-
-  let popClass = "tour__popover";
-  if (centered) popClass += " tour__popover--center";
-  else if (dockBottom) popClass += " tour__popover--bottom";
-
-  // מיקום: מרכז/תחתית מטופלים ב-CSS; אחרת ממקמים ליד האלמנט (מוסתר עד שנמדד)
-  const popStyle =
-    centered || dockBottom
-      ? undefined
-      : pos
-      ? { top: pos.top, left: pos.left }
-      : { top: 0, left: 0, visibility: "hidden" };
+  const popStyle = centered
+    ? undefined
+    : pos
+    ? { top: pos.top, left: pos.left }
+    : { top: 0, left: 0, visibility: "hidden" }; // מדידה לפני מיקום
 
   return (
     <div
@@ -212,6 +213,11 @@ function Tour({ onMenu }) {
         }`}
       />
 
+      {/* חיווי "רגע…" בזמן מעבר עם עיכוב מורגש בלבד */}
+      {phase === "locating" && hint && (
+        <div className="tour__loading">רגע, נכנסים למסך…</div>
+      )}
+
       {phase === "anchored" && rect && (
         <div
           className="tour__spotlight"
@@ -225,7 +231,11 @@ function Tour({ onMenu }) {
       )}
 
       {(phase === "anchored" || centered) && (
-        <div ref={popRef} className={popClass} style={popStyle}>
+        <div
+          ref={popRef}
+          className={`tour__popover${centered ? " tour__popover--center" : ""}`}
+          style={popStyle}
+        >
           <div className="tour__count">
             שלב {index + 1} מתוך {TOUR_STEPS.length}
           </div>

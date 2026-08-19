@@ -48,11 +48,21 @@
   left: 50%;
   transform: translate(-50%, -50%);
 }
-/* מעוגן בתחתית המסך — לשלבים שבהם תפריט הצד פתוח (כדי לא לכסות אותו) */
-.tour__popover--bottom {
-  bottom: max(20px, env(safe-area-inset-bottom, 0px));
+/* חיווי "רגע…" בזמן מעבר בין מסכים (מופיע רק בעיכוב מורגש) */
+.tour__loading {
+  position: fixed;
+  top: 50%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%);
+  background: var(--color-surface);
+  color: var(--color-primary-dark);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 10px 20px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  box-shadow: 0 8px 28px rgba(28, 20, 24, 0.24);
+  z-index: 3001;
 }
 
 .tour__count {

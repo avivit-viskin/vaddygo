@@ -6,7 +6,6 @@ import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
-import SupplierCleanup from "./admin/SupplierCleanup";
 import ProTestControl from "./admin/ProTestControl";
 import SubscriptionsCard from "./admin/SubscriptionsCard";
 import SecurityStatusCard from "./admin/SecurityStatusCard";
@@ -120,7 +119,6 @@ function UsageStatsPage() {
               <Icon name="crown" size={15} /> מתוכם רכשו מסלול פרו:{" "}
               <strong>{data.suppliers.pro || 0}</strong>
             </p>
-            <SupplierCleanup />
             {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
             <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}

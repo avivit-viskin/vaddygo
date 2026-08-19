@@ -1,0 +1,128 @@
+/*
+  tour — סיור ההיכרות. שכבה מעל כל האפליקציה (z-index גבוה מכולם).
+  ה"חור אור" (spotlight) הוא צל ענק (box-shadow) שמחשיך את כל המסך חוץ מהאלמנט.
+*/
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 3000;
+}
+
+/* חוסם קליקים על הדף מאחור. שקוף כשמדגישים אלמנט (ההחשכה מגיעה מה-spotlight),
+   וכהה בשלב חיפוש/מרכז — כדי שההסבר תמיד יבלוט */
+.tour__blocker {
+  position: fixed;
+  inset: 0;
+  background: transparent;
+  transition: background 0.2s ease;
+}
+.tour__blocker--dim {
+  background: rgba(28, 20, 24, 0.55);
+}
+
+.tour__spotlight {
+  position: fixed;
+  border-radius: 14px;
+  box-shadow: 0 0 0 9999px rgba(28, 20, 24, 0.55);
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+  pointer-events: none;
+  transition: top 0.25s ease, left 0.25s ease, width 0.25s ease,
+    height 0.25s ease;
+}
+
+.tour__popover {
+  position: fixed;
+  width: min(340px, calc(100vw - 24px));
+  box-sizing: border-box;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 14px 44px rgba(28, 20, 24, 0.28);
+  padding: 18px 18px 14px;
+  z-index: 3001;
+  transition: top 0.2s ease, left 0.2s ease;
+}
+.tour__popover--center {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.tour__count {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
+}
+
+.tour__title {
+  margin: 4px 0 6px;
+  font-size: var(--font-size-lg, 18px);
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+
+.tour__body {
+  margin: 0 0 16px;
+  font-size: var(--font-size-base);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+
+.tour__actions {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.tour__buttons {
+  display: flex;
+  gap: 8px;
+}
+
+.tour__skip {
+  background: none;
+  border: none;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+  padding: 8px 4px;
+}
+.tour__skip:hover {
+  text-decoration: underline;
+}
+
+.tour__back {
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  padding: 9px 16px;
+  font-size: var(--font-size-base);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  cursor: pointer;
+}
+
+.tour__next {
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  border: none;
+  border-radius: 999px;
+  padding: 9px 20px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+}
+.tour__next:hover {
+  background: var(--color-primary-muted);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour__spotlight,
+  .tour__popover,
+  .tour__blocker {
+    transition: none;
+  }
+}

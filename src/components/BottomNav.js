@@ -94,6 +94,7 @@ function BottomNav() {
     <nav
       className={`bottom-nav${keyboardOpen ? " bottom-nav--hidden" : ""}`}
       aria-label="ניווט ראשי"
+      data-tour="nav"
     >
       {NAV_ITEMS.map((item) => (
         <NavLink

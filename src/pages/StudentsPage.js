@@ -280,7 +280,7 @@ function StudentsPage() {
         </h2>
         {!readOnly && (
           <div className="page-header__actions">
-            <Button variant="brand" onClick={openAddForm}>
+            <Button variant="brand" onClick={openAddForm} dataTour="add-student">
               + הוספת תלמיד
             </Button>
             <Button variant="secondary" onClick={() => setIsImportOpen(true)}>

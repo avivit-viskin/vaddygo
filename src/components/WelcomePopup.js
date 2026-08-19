@@ -3,6 +3,7 @@ import Modal from "./Modal";
 import Button from "./Button";
 import BrandName from "./BrandName";
 import { isNewUser, clearNewUser } from "../services/authService";
+import { startTour } from "../services/tourBus";
 
 /*
   WelcomePopup — פופאפ "ברוכים הבאים" שקופץ *רק למשתמש חדש* בכניסה הראשונה
@@ -15,6 +16,9 @@ function WelcomePopup() {
   function close() {
     clearNewUser();
     setOpen(false);
+    // מיד אחרי "ברוכים הבאים" — מתחילים אוטומטית את סיור ההיכרות (למשתמש חדש).
+    // עיכוב קטן כדי שחלון ה-Modal יספיק להיסגר לפני שהחלונית הראשונה נפתחת.
+    setTimeout(startTour, 350);
   }
 
   return (

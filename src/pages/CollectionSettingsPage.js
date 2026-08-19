@@ -141,7 +141,7 @@ function CollectionSettingsPage() {
   return (
     <div className="collection-settings">
       <div className="page-header">
-        <h2>עריכת גבייה — {group.name}</h2>
+        <h2 data-tour="edit-collection">עריכת גבייה — {group.name}</h2>
       </div>
       <p
         className="auth-page__hint"

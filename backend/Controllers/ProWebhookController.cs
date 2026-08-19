@@ -53,12 +53,12 @@ namespace ParentCommitteeAPI.Controllers
         }
 
         [HttpPost("api/pro/intent")]
-        public IActionResult RegisterIntent([FromBody] ProIntentRequest req)
+        public async Task<IActionResult> RegisterIntent([FromBody] ProIntentRequest req)
         {
             var kind = (req?.Kind ?? "").Trim().ToLowerInvariant() == "supplier"
                 ? ProIntentKind.Supplier
                 : ProIntentKind.Committee;
-            _intents.Record(new ProIntent(
+            await _intents.RecordAsync(new ProIntent(
                 kind, req?.GroupId, req?.VendorId, req?.Email, req?.Phone, DateTime.UtcNow));
             _logger.LogInformation(
                 "Pro intent recorded: {Kind} group={GroupId} vendor={VendorId}",
@@ -110,7 +110,7 @@ namespace ParentCommitteeAPI.Controllers
             // הזיהוי העיקרי: "כוונת הרכישה" שנרשמה כשלחצו על התשלום (מכילה את ה-groupId/
             // vendorId המדויק). חלון של 45 דקות — יותר מזמן להשלמת תשלום. אם אין כוונה
             // (למשל תשלום מקישור ישיר) — נופלים לשדות שה-webhook עצמו סיפק (טלפון/מייל).
-            var intent = _intents.TakeMostRecent(
+            var intent = await _intents.TakeMostRecentAsync(
                 isSupplier ? ProIntentKind.Supplier : ProIntentKind.Committee,
                 TimeSpan.FromMinutes(45));
 

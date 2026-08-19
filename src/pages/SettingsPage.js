@@ -161,10 +161,10 @@ function SettingsPage() {
       title: "תשלומים",
       subtitle: "קישורי ביט/פייבוקס וחשבון בנק",
       render: () => (
-        <>
+        <div data-tour="settings-payments">
           <PaymentLinksCard />
           <BankAccountCard />
-        </>
+        </div>
       ),
     },
     {

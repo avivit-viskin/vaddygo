@@ -1,22 +1,22 @@
-using System.Collections.Concurrent;
+using Microsoft.EntityFrameworkCore;
+using ParentCommitteeAPI.Models;
 
 namespace ParentCommitteeAPI.Services
 {
     /*
-      ProIntentStore — "רישום כוונת רכישה" זמני בזיכרון.
+      ProIntentStore — "רישום כוונת רכישה" השורד אתחולי שרת (נשמר ב-DB).
 
-      הבעיה: קישורי התשלום של GROW הם סטטיים ומשותפים, ו-GROW לא מחזיר ב-webhook
-      את המזהים שהוספנו לקישור (cField). בתשלום ApplePay גם המייל חוזר ריק. לכן,
-      כשמגיע אישור תשלום, אין בו דבר שמזהה איזה גן/ספק שילם.
+      הבעיה: קישורי התשלום של GROW סטטיים ומשותפים, ו-GROW לא מחזיר ב-webhook את
+      המזהים שהוספנו לקישור (cField). בתשלום ApplePay גם המייל חוזר ריק. לכן, כשמגיע
+      אישור תשלום, אין בו דבר שמזהה איזה גן/ספק שילם.
 
-      הפתרון: ברגע שהמשתמש/ת לוחצים "תשלום", האפליקציה מודיעה לשרת מי עומד לשלם
-      (groupId לוועד / vendorId לספק). אנחנו שומרים את זה כאן לזמן קצר; כשה-webhook
-      מגיע (שניות-דקות אחר כך) אנחנו לוקחים את הכוונה האחרונה המתאימה ומדליקים לה פרו.
+      הפתרון: ברגע שלוחצים "תשלום", האפליקציה מודיעה לשרת מי עומד לשלם (groupId/vendorId).
+      שומרים כשורה ב-DB; כשה-webhook מגיע (שניות-דקות אחר כך) לוקחים את הכוונה האחרונה
+      המתאימה ומדליקים לה פרו.
 
-      למה בזיכרון ולא ב-DB: Railway מריץ replica יחיד, החלון בין הלחיצה לתשלום קצר
-      (דקות), ואין כאן נתון שחייב לשרוד אתחול שרת. כך נמנעים ממיגרציה על ה-DB החי.
-      אם השרת מאותחל בדיוק באמצע תשלום — הכוונה תאבד ונופלים לזיהוי לפי טלפון/מייל,
-      או שהמנהלת מדליקה ידנית (ProTestControl). מספיק לשלב הנוכחי.
+      למה ב-DB ולא בזיכרון: כל דחיפת קוד מפרסת מחדש ומאתחלת את השרת (מוחקת זיכרון),
+      והחלון בין הלחיצה לאישור עלול לחצות פריסה. ב-DB זה שורד. הטבלה קטנה ומתנקה
+      מעצמה (כוונות שנצרכו/ישנות נמחקות).
     */
     public enum ProIntentKind { Committee, Supplier }
 
@@ -30,51 +30,63 @@ namespace ParentCommitteeAPI.Services
 
     public interface IProIntentStore
     {
-        void Record(ProIntent intent);
+        Task RecordAsync(ProIntent intent);
 
-        /* מחזיר ומסיר את הכוונה האחרונה מהסוג המבוקש שנרשמה בתוך החלון (אחרת null). */
-        ProIntent? TakeMostRecent(ProIntentKind kind, TimeSpan within);
+        /* מחזיר ומסמן-כנצרך את הכוונה האחרונה מהסוג המבוקש שנרשמה בתוך החלון (אחרת null). */
+        Task<ProIntent?> TakeMostRecentAsync(ProIntentKind kind, TimeSpan within);
     }
 
     public class ProIntentStore : IProIntentStore
     {
-        // רשימה משותפת בזיכרון — נעילה קצרה סביב הגישה כדי שקריאות מקבילות (לחיצה
-        // מול webhook) לא יתנגשו. גודל זניח (כוונות בודדות שחיות דקות).
-        private readonly List<ProIntent> _intents = new();
-        private readonly object _lock = new();
+        private readonly AppDbContext _db;
 
-        public void Record(ProIntent intent)
+        public ProIntentStore(AppDbContext db)
         {
-            lock (_lock)
-            {
-                _intents.Add(intent);
-                // ניקוי כוונות ישנות מ-2 שעות — שלא ייצברו לנצח.
-                var cutoff = intent.CreatedAt.AddHours(-2);
-                _intents.RemoveAll(i => i.CreatedAt < cutoff);
-            }
+            _db = db;
         }
 
-        public ProIntent? TakeMostRecent(ProIntentKind kind, TimeSpan within)
+        private static string KindToString(ProIntentKind k) =>
+            k == ProIntentKind.Supplier ? "supplier" : "committee";
+
+        public async Task RecordAsync(ProIntent intent)
         {
-            lock (_lock)
+            _db.PendingProIntents.Add(new PendingProIntent
             {
-                // האחרונה שנרשמה מהסוג המבוקש ועדיין בתוך החלון.
-                ProIntent? best = null;
-                foreach (var i in _intents)
-                {
-                    if (i.Kind != kind) continue;
-                    if (best == null || i.CreatedAt > best.CreatedAt) best = i;
-                }
-                if (best == null) return null;
-                // מחוץ לחלון — לא מתאים (ומנקים אותה, כבר לא רלוונטית).
-                if (DateTime.UtcNow - best.CreatedAt > within)
-                {
-                    _intents.Remove(best);
-                    return null;
-                }
-                _intents.Remove(best); // נצרכת פעם אחת
-                return best;
-            }
+                Kind = KindToString(intent.Kind),
+                GroupId = intent.GroupId,
+                VendorId = intent.VendorId,
+                Email = intent.Email,
+                Phone = intent.Phone,
+                CreatedAt = intent.CreatedAt,
+            });
+
+            // ניקוי כוונות ישנות מ-6 שעות — שלא ייצברו לנצח.
+            var cutoff = DateTime.UtcNow.AddHours(-6);
+            var stale = await _db.PendingProIntents
+                .Where(i => i.CreatedAt < cutoff)
+                .ToListAsync();
+            if (stale.Count > 0) _db.PendingProIntents.RemoveRange(stale);
+
+            await _db.SaveChangesAsync();
+        }
+
+        public async Task<ProIntent?> TakeMostRecentAsync(ProIntentKind kind, TimeSpan within)
+        {
+            var kindStr = KindToString(kind);
+            var since = DateTime.UtcNow - within;
+
+            var row = await _db.PendingProIntents
+                .Where(i => i.Kind == kindStr && i.ConsumedAt == null && i.CreatedAt >= since)
+                .OrderByDescending(i => i.CreatedAt)
+                .FirstOrDefaultAsync();
+
+            if (row == null) return null;
+
+            // סימון כנצרך (ולא מחיקה) — כדי ש-retry של GROW לא יתאים אותו שוב.
+            row.ConsumedAt = DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+
+            return new ProIntent(kind, row.GroupId, row.VendorId, row.Email, row.Phone, row.CreatedAt);
         }
     }
 }

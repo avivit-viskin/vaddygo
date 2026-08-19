@@ -97,7 +97,7 @@ function UpgradePage() {
               <Icon name="crown" size={40} title="פרו" />
             </span>
           )}
-          <h2 className="upgrade-title">
+          <h2 className="upgrade-title" data-tour="pro">
             שדרוגי <BrandName /> פרו
           </h2>
           <p className="upgrade-price">

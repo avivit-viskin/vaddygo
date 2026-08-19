@@ -344,7 +344,11 @@ function CalendarPage({ initialDate }) {
           </aside>
         ) : (
           <aside className="calendar-side">
-            <Button variant="brand" onClick={() => openAddForm(defaultFormDate)}>
+            <Button
+              variant="brand"
+              onClick={() => openAddForm(defaultFormDate)}
+              dataTour="add-event"
+            >
               + הוספת אירוע
             </Button>
             <p>אפשר ללחוץ על יום בלוח כדי לראות את האירועים שלו ולהוסיף/לערוך, או על הכפתור להוספה מהירה 🙂</p>

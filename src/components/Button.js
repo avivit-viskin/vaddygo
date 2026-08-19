@@ -9,6 +9,7 @@ function Button({
   disabled = false,
   isLoading = false,
   onClick,
+  dataTour,
 }) {
   return (
     <button
@@ -16,6 +17,7 @@ function Button({
       className={`btn btn--${variant}`}
       disabled={disabled || isLoading}
       onClick={onClick}
+      data-tour={dataTour || undefined}
     >
       {isLoading ? "רק רגע..." : children}
     </button>

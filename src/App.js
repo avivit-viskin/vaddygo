@@ -9,6 +9,7 @@ import WhatsAppFab from "./components/WhatsAppFab";
 import PullToRefresh from "./components/PullToRefresh";
 import PageTransition from "./components/PageTransition";
 import ToastContainer from "./components/Toast";
+import Tour from "./components/Tour";
 import ImportJobBanner from "./components/ImportJobBanner";
 import Spinner from "./components/Spinner";
 /*
@@ -275,6 +276,8 @@ function App() {
   return (
     <div dir="rtl">
       <ToastContainer />
+      {/* סיור ההיכרות — נפתח מכפתור בתפריט הצד או אוטומטית למשתמש חדש */}
+      <Tour />
       {/* באנר ייבוא גלובלי — ממשיך להופיע בכל דף באתר עד שהמשימה נגמרת. בפורטל
           הספק (isSupplierEdit) יש באנר משלו, ולכן שם לא מכפילים */}
       {!isSupplierEdit && <ImportJobBanner />}

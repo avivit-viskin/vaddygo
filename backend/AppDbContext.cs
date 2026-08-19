@@ -30,6 +30,9 @@ namespace ParentCommitteeAPI
         public DbSet<PollVote> PollVotes { get; set; }
         public DbSet<Lead> Leads { get; set; }
 
+        // כוונת רכישת פרו — מקשרת בין לחיצת התשלום ל-webhook של GROW (שורד אתחול)
+        public DbSet<PendingProIntent> PendingProIntents { get; set; }
+
         // אימות דו-שלבי: אתגר פתוח, קודי גיבוי, ומכשירים שנזכרו
         public DbSet<TwoFactorChallenge> TwoFactorChallenges { get; set; }
         public DbSet<TwoFactorBackupCode> TwoFactorBackupCodes { get; set; }

@@ -286,7 +286,7 @@ function GiftsPage() {
         title={
           // צבע שחור-פחם מפורש (inline) — כדי שהכותרת תישאר שחורה בוודאות, בלי
           // תלות בקובץ העיצוב של אזור הספקים (שנמצא כרגע בעריכה של תהליך אחר).
-          <span style={{ color: "var(--color-primary-dark)" }}>
+          <span data-tour="suppliers" style={{ color: "var(--color-primary-dark)" }}>
             <Icon name="tag" size={20} /> ספקים
           </span>
         }

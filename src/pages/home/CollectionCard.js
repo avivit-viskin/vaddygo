@@ -41,6 +41,7 @@ function CollectionCard({ dashboard, onExpenseChanged, readOnly = false }) {
             type="button"
             className="collection__edit"
             onClick={() => setEditOpen(true)}
+            data-tour="balance"
           >
             <Icon name="pencil" size={15} /> עדכון יתרה
           </button>

@@ -9,6 +9,7 @@ import Button from "./Button";
 import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
+import { startTour } from "../services/tourBus";
 import ProBadge from "./ProBadge";
 import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
@@ -138,6 +139,18 @@ function SideMenu({ isOpen, onClose }) {
         )}
 
         <div className="sidemenu__footer">
+          <button
+            type="button"
+            className="sidemenu__action"
+            onClick={() => {
+              // סוגרים את התפריט ואז מפעילים את הסיור — כדי שהחלוניות יופיעו
+              // מעל המסך ולא מתחת לתפריט הפתוח
+              onClose();
+              startTour();
+            }}
+          >
+            <span aria-hidden="true">🧭</span> סיור באפליקציה
+          </button>
           <a
             className="sidemenu__action sidemenu__contact"
             href={SUPPORT_URL}

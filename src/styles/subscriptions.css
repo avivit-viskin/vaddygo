@@ -137,6 +137,17 @@
   font-variant-numeric: tabular-nums;
 }
 
+/* מייל ההרשמה — קישור mailto למעקב נוח אחר נרשמים חדשים */
+.subs__email {
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  text-decoration: none;
+  word-break: break-all;
+}
+.subs__email:hover {
+  text-decoration: underline;
+}
+
 /* הסטטוס נושא משמעות (כסף שנכנס / עומד להיפסק) — ולכן צבע, לא רק טקסט */
 .subs__pill {
   padding: 2px 10px;

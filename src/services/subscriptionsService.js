@@ -9,6 +9,14 @@ export async function getSubscriptions() {
   return api.get("/api/admin/subscriptions");
 }
 
+/*
+  מחיקת גן (ניקוי גני-בדיקה) — למנהלת בלבד. השרת מוחק רק גן יחיד של חשבון רגיל,
+  ומסרב לחשבון מנהלת או לחשבון עם כמה גנים (בטיחות מפני מחיקה בטעות/נעילה-עצמית).
+*/
+export async function deleteCommittee(groupId) {
+  return api.del(`/api/admin/committees/${groupId}`);
+}
+
 /* תווית עברית + צבע לסטטוס שהשרת מחזיר. מקור אחד לכל המסך. */
 const STATUS_LABELS = {
   active: { label: "מנוי פעיל", tone: "good" },

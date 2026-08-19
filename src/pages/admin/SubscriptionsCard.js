@@ -8,6 +8,7 @@ import {
   getSubscriptions,
   subscriptionStatus,
   validUntilText,
+  deleteCommittee,
 } from "../../services/subscriptionsService";
 import { deleteVendor } from "../../services/vendorsService";
 import "../../styles/subscriptions.css";
@@ -20,8 +21,9 @@ import "../../styles/subscriptions.css";
   הסטטוס (פעיל / פג בקרוב / פג / לא מנוי) מחושב **בשרת**, כדי שלא ייווצר מצב
   שהמסך מראה "פעיל" בזמן שהשרת כבר חוסם את הפיצ'רים.
 
-  בערוץ הספקים אפשר גם לבחור כמה ולמחוק אותם בבת אחת (ניקוי נתוני בדיקה). גנים
-  (ועדי הורים) אינם ניתנים למחיקה מכאן — מחיקת גן היא הרסנית ומחוץ למסך הזה.
+  אפשר לבחור ולמחוק בבת אחת גני-בדיקה או ספקי-בדיקה (ניקוי נתוני פיתוח). מחיקת
+  גן בטוחה: השרת מוחק רק גן יחיד של חשבון רגיל, ומסרב לחשבון מנהלת או לחשבון עם
+  כמה גנים — כדי לא לנעול את המנהלת ולא למחוק גן אמיתי בטעות.
 
   מסנן "רק פעילים" מסתיר מהתצוגה את מי שאינו משלם כרגע (פג / לא מנוי) — בלי
   למחוק כלום. ההעדפה נשמרת מקומית כדי שהתצוגה תישאר כפי שהמנהלת בחרה.
@@ -63,6 +65,15 @@ function SubscriptionList({ title, icon, rows, selected, onToggle }) {
                 />
               )}
               <span className="subs__name">{row.name}</span>
+              {row.email && (
+                <a
+                  className="subs__email"
+                  href={`mailto:${row.email}`}
+                  title="מייל הרשמה"
+                >
+                  {row.email}
+                </a>
+              )}
               <span className={`subs__pill subs__pill--${status.tone}`}>
                 {status.label}
               </span>
@@ -106,6 +117,51 @@ function SubscriptionsCard() {
 
   const suppliers =
     data && Array.isArray(data.suppliers) ? data.suppliers : [];
+  const committees =
+    data && Array.isArray(data.committees) ? data.committees : [];
+
+  // בחירת גנים למחיקה (ניקוי גני-בדיקה) — מנגנון נפרד מהספקים
+  const [selectedC, setSelectedC] = useState(() => new Set());
+  const [bulkConfirmC, setBulkConfirmC] = useState(false);
+  const [bulkBusyC, setBulkBusyC] = useState(false);
+
+  function toggleSelectedCommittee(id) {
+    setSelectedC((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setMsg(null);
+  }
+
+  async function handleCommitteeBulkDelete() {
+    const ids = committees.filter((c) => selectedC.has(c.id)).map((c) => c.id);
+    setBulkBusyC(true);
+    setMsg(null);
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+      try {
+        await deleteCommittee(id);
+        ok += 1;
+      } catch {
+        fail += 1;
+      }
+    }
+    setBulkConfirmC(false);
+    setSelectedC(new Set());
+    await reload();
+    setBulkBusyC(false);
+    setMsg(
+      fail === 0
+        ? { ok: true, text: `נמחקו ${ok} גנים. הרשימה עודכנה.` }
+        : {
+            ok: false,
+            text: `נמחקו ${ok}, ${fail} לא נמחקו (ייתכן חשבון מנהלת או חשבון עם כמה גנים).`,
+          }
+    );
+  }
 
   function toggleSelected(id) {
     setSelected((prev) => {
@@ -185,7 +241,53 @@ function SubscriptionsCard() {
             title="ועדי הורים"
             icon="users"
             rows={onlyActive(data.committees)}
+            selected={selectedC}
+            onToggle={toggleSelectedCommittee}
           />
+          {/* מחיקת גני-בדיקה — בטוח (רק גן יחיד של חשבון רגיל; חשבון מנהלת מוגן) */}
+          {selectedC.size > 0 && (
+            <div className="subs__bulk">
+              {bulkConfirmC ? (
+                <>
+                  <span className="subs__confirm-q">
+                    למחוק לצמיתות {selectedC.size} גנים? כל הנתונים שלהם (תלמידים,
+                    תשלומים, הוצאות) יימחקו — אי אפשר לשחזר.
+                    <br />
+                    <small>
+                      {committees
+                        .filter((c) => selectedC.has(c.id))
+                        .map((c) => c.name)
+                        .join(", ")}
+                    </small>
+                  </span>
+                  <Button
+                    variant="danger"
+                    isLoading={bulkBusyC}
+                    onClick={handleCommitteeBulkDelete}
+                  >
+                    כן, מחק {selectedC.size}
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    onClick={() => setBulkConfirmC(false)}
+                  >
+                    ביטול
+                  </Button>
+                </>
+              ) : (
+                <Button
+                  variant="danger"
+                  onClick={() => {
+                    setBulkConfirmC(true);
+                    setMsg(null);
+                  }}
+                >
+                  <Icon name="trash" size={15} /> מחיקת הגנים הנבחרים (
+                  {selectedC.size})
+                </Button>
+              )}
+            </div>
+          )}
           <SubscriptionList
             title="ספקים"
             icon="tag"

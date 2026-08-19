@@ -29,12 +29,14 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<UsageStatsDto> GetUsageAsync()
         {
-            var since = DateTime.UtcNow.AddDays(-30);
+            var since30 = DateTime.UtcNow.AddDays(-30);
+            var since5 = DateTime.UtcNow.AddDays(-5);
 
             var users = await _db.Users.CountAsync();
             var usersWithGroup = await _db.Users
                 .CountAsync(u => _db.Groups.Any(g => g.UserId == u.Id));
-            var usersLast30 = await _db.Users.CountAsync(u => u.CreatedAt >= since);
+            var usersLast30 = await _db.Users.CountAsync(u => u.CreatedAt >= since30);
+            var usersLast5 = await _db.Users.CountAsync(u => u.CreatedAt >= since5);
 
             var vendors = await _db.Vendors.CountAsync();
             var vendorsReady = await _db.Vendors.CountAsync(v =>
@@ -47,7 +49,9 @@ namespace ParentCommitteeAPI.Services
             // ספקים ותיקים נוצרו לפני שהוסף CreatedAt ולכן אין להם תאריך —
             // הם פשוט לא נספרים בקצב ההצטרפות, במקום לקבל תאריך מומצא.
             var vendorsLast30 = await _db.Vendors
-                .CountAsync(v => v.CreatedAt != null && v.CreatedAt >= since);
+                .CountAsync(v => v.CreatedAt != null && v.CreatedAt >= since30);
+            var vendorsLast5 = await _db.Vendors
+                .CountAsync(v => v.CreatedAt != null && v.CreatedAt >= since5);
 
             _logger.LogInformation(
                 "Usage stats requested (users: {Users}, vendors: {Vendors})",
@@ -60,6 +64,7 @@ namespace ParentCommitteeAPI.Services
                     Registered = users,
                     Completed = usersWithGroup,
                     Stopped = users - usersWithGroup,
+                    RegisteredLast5Days = usersLast5,
                     RegisteredLast30Days = usersLast30,
                 },
                 Suppliers = new FunnelDto
@@ -67,6 +72,7 @@ namespace ParentCommitteeAPI.Services
                     Registered = vendors,
                     Completed = vendorsReady,
                     Stopped = vendors - vendorsReady,
+                    RegisteredLast5Days = vendorsLast5,
                     RegisteredLast30Days = vendorsLast30,
                 },
             };

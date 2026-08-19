@@ -10,6 +10,7 @@ function UsageFunnel({ title, icon, funnel, completedLabel, stoppedLabel }) {
   const registered = funnel?.registered || 0;
   const completed = funnel?.completed || 0;
   const stopped = funnel?.stopped || 0;
+  const last5 = funnel?.registeredLast5Days || 0;
   const last30 = funnel?.registeredLast30Days || 0;
   const percent = funnelPercent(funnel);
 
@@ -99,6 +100,11 @@ function UsageFunnel({ title, icon, funnel, completedLabel, stoppedLabel }) {
             <li>
               {stopped} {stoppedLabel}
             </li>
+            {/*
+              5 הימים לפני 30: אחרי פנייה לספקים או פרסום, מה שקרה השבוע הוא
+              המספר שמעניין — וב-30 יום קפיצה של יומיים נבלעת בממוצע.
+            */}
+            <li>נרשמו ב-5 הימים האחרונים: {last5}</li>
             <li>נרשמו ב-30 הימים האחרונים: {last30}</li>
           </ul>
         </>

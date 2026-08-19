@@ -19,6 +19,7 @@ export function setBaseline(funnelKey, funnel) {
   const snapshot = {
     registered: funnel?.registered || 0,
     completed: funnel?.completed || 0,
+    registeredLast5Days: funnel?.registeredLast5Days || 0,
     registeredLast30Days: funnel?.registeredLast30Days || 0,
     at: new Date().toISOString(),
   };
@@ -52,6 +53,10 @@ export function applyBaseline(funnel, base) {
     registered,
     completed,
     stopped: Math.max(0, registered - completed),
+    registeredLast5Days: Math.max(
+      0,
+      (funnel.registeredLast5Days || 0) - (base.registeredLast5Days || 0)
+    ),
     registeredLast30Days: Math.max(
       0,
       (funnel.registeredLast30Days || 0) - (base.registeredLast30Days || 0)

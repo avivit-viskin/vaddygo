@@ -53,6 +53,13 @@ namespace ParentCommitteeAPI.Services
             var vendorsLast5 = await _db.Vendors
                 .CountAsync(v => v.CreatedAt != null && v.CreatedAt >= since5);
 
+            // כמה רכשו/קיבלו פרו פעיל (תוקף בעתיד או ללא תפוגה) — בשני הצדדים.
+            var now = DateTime.UtcNow;
+            var committeesPro = await _db.Groups
+                .CountAsync(g => g.IsPro && (g.ProValidUntil == null || g.ProValidUntil >= now));
+            var suppliersPro = await _db.Vendors
+                .CountAsync(v => v.IsPro && (v.ProValidUntil == null || v.ProValidUntil >= now));
+
             _logger.LogInformation(
                 "Usage stats requested (users: {Users}, vendors: {Vendors})",
                 users, vendors);
@@ -66,6 +73,7 @@ namespace ParentCommitteeAPI.Services
                     Stopped = users - usersWithGroup,
                     RegisteredLast5Days = usersLast5,
                     RegisteredLast30Days = usersLast30,
+                    Pro = committeesPro,
                 },
                 Suppliers = new FunnelDto
                 {
@@ -74,6 +82,7 @@ namespace ParentCommitteeAPI.Services
                     Stopped = vendors - vendorsReady,
                     RegisteredLast5Days = vendorsLast5,
                     RegisteredLast30Days = vendorsLast30,
+                    Pro = suppliersPro,
                 },
             };
         }

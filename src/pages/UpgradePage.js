@@ -6,8 +6,9 @@ import Icon from "../components/Icon";
 import BrandName from "../components/BrandName";
 import { PRO_PRICE, PRO_FEATURES, isPro } from "../services/plan";
 import { getActiveInstitution } from "../services/institutionsService";
+import { getUser } from "../services/authService";
 import { whatsappUrl } from "../services/whatsapp";
-import { PRO_PAYMENT_URL } from "../config/payment";
+import { PRO_PAYMENT_URL, buildPurchaseUrl } from "../config/payment";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -52,7 +53,15 @@ function UpgradePage() {
   const navigate = useNavigate();
   const alreadyPro = isPro();
   // הפרו הוא לכל גן בנפרד — מציגים על איזה גן חל השדרוג, כדי שברור מה משדרגים.
-  const ganName = getActiveInstitution()?.name;
+  const active = getActiveInstitution();
+  const ganName = active?.name;
+  // קישור התשלום עם שדות-מזהה של הגן והמשלם — כדי שה-webhook מ-GROW ידע למי
+  // לפתוח פרו אוטומטית אחרי התשלום.
+  const payUrl = buildPurchaseUrl(PRO_PAYMENT_URL, {
+    cField1: active?.serverGroupId,
+    cField2: getUser()?.email,
+    cField3: "committee",
+  });
   // כשספק/ועד שאינו פרו לוחץ על כלי — לא מנווטים, אלא מציגים הודעה שהשירות
   // נפתח עם השדרוג (המשתמשת ביקשה חיווי ברור לפני הרכישה).
   const [lockedMsg, setLockedMsg] = useState(false);
@@ -159,7 +168,7 @@ function UpgradePage() {
           ) : (
             <>
               {PRO_PAYMENT_URL && (
-                <a href={PRO_PAYMENT_URL} target="_blank" rel="noreferrer">
+                <a href={payUrl} target="_blank" rel="noreferrer">
                   <Button variant="brand">
                     <Icon name="card" size={16} /> מעבר לתשלום מאובטח
                   </Button>

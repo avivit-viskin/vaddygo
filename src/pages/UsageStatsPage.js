@@ -80,6 +80,20 @@ function UsageStatsPage() {
               current={data.committees}
               onChange={bump}
             />
+            <p
+              style={{
+                margin: "0 0 22px",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 600,
+                color: "var(--color-primary-dark)",
+              }}
+            >
+              <Icon name="crown" size={15} /> מתוכם רכשו מסלול פרו:{" "}
+              <strong>{data.committees.pro || 0}</strong>
+            </p>
             <UsageFunnel
               title="ספקים"
               icon="tag"
@@ -92,6 +106,20 @@ function UsageStatsPage() {
               current={data.suppliers}
               onChange={bump}
             />
+            <p
+              style={{
+                margin: "0 0 22px",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 600,
+                color: "var(--color-primary-dark)",
+              }}
+            >
+              <Icon name="crown" size={15} /> מתוכם רכשו מסלול פרו:{" "}
+              <strong>{data.suppliers.pro || 0}</strong>
+            </p>
             <SupplierCleanup />
             {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
             <SecurityStatusCard />

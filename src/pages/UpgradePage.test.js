@@ -6,6 +6,7 @@ import { PRO_PRICE } from "../services/plan";
 // קישור תשלום Grow מוגדר — לבדוק שכפתור "מעבר לתשלום מאובטח" מפנה אליו
 jest.mock("../config/payment", () => ({
   PRO_PAYMENT_URL: "https://pay.grow.link/test-vaddygo-pro",
+  buildPurchaseUrl: (url) => url,
 }));
 
 afterEach(() => localStorage.clear());

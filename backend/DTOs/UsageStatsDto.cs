@@ -27,5 +27,8 @@ namespace ParentCommitteeAPI.DTOs
         public int Stopped { get; set; }
         public int RegisteredLast5Days { get; set; }
         public int RegisteredLast30Days { get; set; }
+
+        /* כמה רכשו/קיבלו מסלול פרו פעיל (ועדים: Group.IsPro; ספקים: Vendor.IsPro) */
+        public int Pro { get; set; }
     }
 }

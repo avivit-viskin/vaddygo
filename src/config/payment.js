@@ -26,3 +26,26 @@ export const PRO_PAYMENT_URL =
 export const SUPPLIER_PRO_PAYMENT_URL =
   process.env.REACT_APP_SUPPLIER_PRO_PAYMENT_URL ||
   "https://pay.grow.link/MTAzODcx~d57e8328c5534416d8c134d4e058e97e-MzgxNzQ1NQ";
+
+/*
+  buildPurchaseUrl — מוסיף לקישור התשלום שדות-מזהה (custom fields) של מי שרוכש,
+  כדי שכש-GROW ישלח את ה-webhook אחרי התשלום, נדע למי לפתוח פרו. GROW מחזיר בחזרה
+  שדות מסוג cField1..cField10. שולחים: cField1=מזהה גן (ועד), cField4=מזהה ספק,
+  cField2=מייל, cField3=סוג. אם GROW לא יחזיר אותם — השרת עדיין מזהה לפי מייל המשלם.
+*/
+export function buildPurchaseUrl(baseUrl, fields = {}) {
+  if (!baseUrl) {
+    return baseUrl;
+  }
+  try {
+    const url = new URL(baseUrl);
+    Object.entries(fields).forEach(([key, value]) => {
+      if (value != null && String(value).trim().length > 0) {
+        url.searchParams.set(key, String(value).trim());
+      }
+    });
+    return url.toString();
+  } catch {
+    return baseUrl;
+  }
+}

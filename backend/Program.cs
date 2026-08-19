@@ -117,6 +117,8 @@ builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 // נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
+// הפעלת פרו אוטומטית מ-webhook של GROW (אחרי תשלום)
+builder.Services.AddScoped<IProActivationService, ProActivationService>();
 // תמונת המנויים (פרו של ועדים וספקים) למסך המנהלת
 builder.Services.AddScoped<ISubscriptionsService, SubscriptionsService>();
 // חיווי אילו הגנות פעילות בפועל (למסך המנהלת)

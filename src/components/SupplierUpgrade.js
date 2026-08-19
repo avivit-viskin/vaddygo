@@ -1,7 +1,7 @@
 import Button from "./Button";
 import Icon from "./Icon";
 import BrandName from "./BrandName";
-import { SUPPLIER_PRO_PAYMENT_URL } from "../config/payment";
+import { SUPPLIER_PRO_PAYMENT_URL, buildPurchaseUrl } from "../config/payment";
 import "../styles/pro.css";
 import "../styles/upgrade-extras.css";
 
@@ -57,7 +57,12 @@ function SupplierUpgrade({ vendor }) {
     כל עוד לא הוגדר קישור (ראו config/payment.js) הכפתור אינו מוצג — עדיף
     שלא תהיה רכישה מאשר כפתור שמוביל לשום מקום או לעמוד תשלום שגוי.
   */
-  const paymentUrl = SUPPLIER_PRO_PAYMENT_URL;
+  // קישור התשלום עם מזהי הספק — כדי שה-webhook מ-GROW ידע לאיזה ספק לפתוח פרו.
+  const paymentUrl = buildPurchaseUrl(SUPPLIER_PRO_PAYMENT_URL, {
+    cField4: vendor?.id,
+    cField2: vendor?.loginEmail,
+    cField3: "supplier",
+  });
   // כבר פרו — לא מציגים מחיר/פיצ'רים, רק אישור שהמסלול נרכש והכול מוכן.
   if (alreadyPro) {
     return (

@@ -4,6 +4,7 @@ import { SUPPLIER_PRO_PAYMENT_URL } from "../config/payment";
 
 jest.mock("../config/payment", () => ({
   SUPPLIER_PRO_PAYMENT_URL: "https://pay.grow.link/supplier-pro",
+  buildPurchaseUrl: (url) => url,
 }));
 
 /*

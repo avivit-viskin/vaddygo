@@ -122,14 +122,6 @@ function SideMenu({ isOpen, onClose }) {
         >
           <Icon name="bell" size={18} /> הגדרות התראות
         </button>
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/settings")}
-        >
-          <Icon name="users" size={18} /> חברי וועד{" "}
-          <ProBadge title="חברי ועד והרשאות — פיצ'ר פרו" />
-        </button>
 
         {/* אזור המנהלת — מוצג רק ל-SuperAdmin (בעלת VaddyGo), לא לוועדים */}
         {isSuperAdmin() && (

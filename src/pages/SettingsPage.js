@@ -22,6 +22,7 @@ import DeleteAccountCard from "./settings/DeleteAccountCard";
 import ExportDataCard from "./settings/ExportDataCard";
 import TeamManager from "../components/TeamManager";
 import ProGate from "../components/ProGate";
+import ProBadge from "../components/ProBadge";
 import { isActiveReadOnly } from "../services/institutionsService";
 import "../styles/settings.css";
 
@@ -137,7 +138,11 @@ function SettingsPage() {
     {
       key: "team",
       icon: "users",
-      title: "חברי ועד והרשאות",
+      title: (
+        <>
+          חברי ועד והרשאות <ProBadge title="חברי ועד והרשאות — פיצ'ר פרו" />
+        </>
+      ),
       subtitle: "הוספה, עריכת הרשאה והסרה",
       render: () => (
         <Card>

@@ -108,10 +108,12 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
-          מחיקת גן ע"י המנהלת (ניקוי גני-בדיקה). מוחקים רק גן יחיד של חשבון רגיל
-          — שזה בדיוק המבנה של חשבון-בדיקה — ואז מוחקים את החשבון כולו דרך
-          DeleteAccountAsync (הלוגיקה המתוחזקת שמוחקת הכל). מסרבים לחשבון מנהלת
-          (הגנה מפני נעילה-עצמית) ולחשבון עם כמה גנים (סיכון למחוק גן אמיתי).
+          מחיקת גן בודד ע"י המנהלת (ניקוי גני-בדיקה). מוחק את הגן ואת כל הנתונים
+          התלויים בו — *בלי* לגעת בחשבון עצמו. כך אפשר לנקות גן בודד גם מחשבון עם
+          כמה גנים וגם מחשבון המנהלת, בלי נעילה-עצמית ובלי לפגוע בגנים אחרים.
+          אם לבעלים (שאינו מנהלת) לא נשארו גנים — מוחקים גם את חשבון-הבדיקה היתום.
+
+          ⚠️ רשימת הטבלאות עם GroupId חייבת להישאר תואמת ל-DeleteAccountAsync.
         */
         public async Task<CommitteeDeleteResult> DeleteCommitteeAsync(int groupId)
         {
@@ -121,22 +123,50 @@ namespace ParentCommitteeAPI.Services
             {
                 return CommitteeDeleteResult.NotFound;
             }
-
             var ownerId = group.UserId;
-            var owner = await _db.Users.AsNoTracking()
-                .FirstOrDefaultAsync(u => u.Id == ownerId);
-            if (owner != null && owner.Role == "SuperAdmin")
+
+            await using var tx = await _db.Database.BeginTransactionAsync();
+
+            var studentIds = await _db.Students
+                .Where(s => s.GroupId == groupId).Select(s => s.Id).ToListAsync();
+            var categoryIds = await _db.CollectionCategories
+                .Where(c => c.GroupId == groupId).Select(c => c.Id).ToListAsync();
+            var pollIds = await _db.Polls
+                .Where(p => p.GroupId == groupId).Select(p => p.Id).ToListAsync();
+
+            // קודם מה שמצביע על אחרים (תשלומים/הצבעות), ואז ההורים שלהם
+            await _db.Payments
+                .Where(p => studentIds.Contains(p.StudentId)
+                         || categoryIds.Contains(p.CollectionCategoryId))
+                .ExecuteDeleteAsync();
+            await _db.Students.Where(s => s.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.StaffMembers.Where(s => s.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.Expenses.Where(e => e.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.Gifts.Where(g => g.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.Events.Where(e => e.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.DriveFolders.Where(d => d.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.CollectionCategories.Where(c => c.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.PollVotes.Where(v => pollIds.Contains(v.PollId)).ExecuteDeleteAsync();
+            await _db.PollOptions.Where(o => pollIds.Contains(o.PollId)).ExecuteDeleteAsync();
+            await _db.Polls.Where(p => p.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.Leads.Where(l => l.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.GroupMembers.Where(m => m.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.GroupInvites.Where(i => i.GroupId == groupId).ExecuteDeleteAsync();
+            await _db.Groups.Where(g => g.Id == groupId).ExecuteDeleteAsync();
+
+            // חשבון-בדיקה יתום (רגיל, בלי גנים נוספים) — מוחקים גם אותו. מנהלת נשמרת.
+            var owner = await _db.Users.FirstOrDefaultAsync(u => u.Id == ownerId);
+            var ownerHasGroups = await _db.Groups.AnyAsync(g => g.UserId == ownerId);
+            if (owner != null && !ownerHasGroups && owner.Role != "SuperAdmin")
             {
-                return CommitteeDeleteResult.ProtectedAdmin;
+                await _db.GroupMembers.Where(m => m.UserId == ownerId).ExecuteDeleteAsync();
+                await _db.TwoFactorChallenges.Where(c => c.UserId == ownerId).ExecuteDeleteAsync();
+                await _db.TwoFactorBackupCodes.Where(c => c.UserId == ownerId).ExecuteDeleteAsync();
+                await _db.TrustedDevices.Where(d => d.UserId == ownerId).ExecuteDeleteAsync();
+                await _db.Users.Where(u => u.Id == ownerId).ExecuteDeleteAsync();
             }
 
-            var groupCount = await _db.Groups.CountAsync(g => g.UserId == ownerId);
-            if (groupCount > 1)
-            {
-                return CommitteeDeleteResult.HasMultiple;
-            }
-
-            await DeleteAccountAsync(ownerId);
+            await tx.CommitAsync();
             _logger.LogInformation("Committee deleted by admin (GroupId: {GroupId})", groupId);
             return CommitteeDeleteResult.Deleted;
         }

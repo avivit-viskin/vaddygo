@@ -24,6 +24,9 @@ namespace ParentCommitteeAPI.DTOs
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
+        /* המייל שאיתו נרשמו — לוועד: מייל הבעלים; לספק: מייל ההתחברות (אם הוגדר).
+           למעקב אחר נרשמים חדשים. ריק אם אין. */
+        public string Email { get; set; } = string.Empty;
         public bool IsPro { get; set; }
         public DateTime? ValidUntil { get; set; }
         public string Status { get; set; } = "free";

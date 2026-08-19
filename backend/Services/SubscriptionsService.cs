@@ -46,6 +46,10 @@ namespace ParentCommitteeAPI.Services
                         .Where(u => u.Id == g.UserId)
                         .Select(u => (DateTime?)u.CreatedAt)
                         .FirstOrDefault(),
+                    Email = _db.Users
+                        .Where(u => u.Id == g.UserId)
+                        .Select(u => u.Email)
+                        .FirstOrDefault(),
                 })
                 .ToListAsync();
 
@@ -59,16 +63,17 @@ namespace ParentCommitteeAPI.Services
                     v.IsPro,
                     Until = v.ProValidUntil,
                     Created = v.CreatedAt,
+                    Email = v.LoginEmail,
                 })
                 .ToListAsync();
 
             var result = new SubscriptionsDto
             {
                 Committees = committees
-                    .Select(c => ToRow(c.Id, c.Name, c.IsPro, c.Until, c.Created, today))
+                    .Select(c => ToRow(c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, today))
                     .ToList(),
                 Suppliers = suppliers
-                    .Select(s => ToRow(s.Id, s.Name, s.IsPro, s.Until, s.Created, today))
+                    .Select(s => ToRow(s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, today))
                     .ToList(),
             };
 
@@ -84,7 +89,8 @@ namespace ParentCommitteeAPI.Services
           (פתיחה ידנית של המנהלת).
         */
         private static SubscriptionRowDto ToRow(
-            int id, string name, bool isPro, DateTime? until, DateTime? created, DateTime today)
+            int id, string name, bool isPro, DateTime? until, DateTime? created,
+            string? email, DateTime today)
         {
             var row = new SubscriptionRowDto
             {
@@ -93,6 +99,7 @@ namespace ParentCommitteeAPI.Services
                 IsPro = isPro,
                 ValidUntil = until,
                 CreatedAt = created,
+                Email = email ?? string.Empty,
             };
 
             if (!isPro)

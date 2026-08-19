@@ -106,5 +106,39 @@ namespace ParentCommitteeAPI.Services
                 userId, groupIds.Count);
             return deleted > 0;
         }
+
+        /*
+          מחיקת גן ע"י המנהלת (ניקוי גני-בדיקה). מוחקים רק גן יחיד של חשבון רגיל
+          — שזה בדיוק המבנה של חשבון-בדיקה — ואז מוחקים את החשבון כולו דרך
+          DeleteAccountAsync (הלוגיקה המתוחזקת שמוחקת הכל). מסרבים לחשבון מנהלת
+          (הגנה מפני נעילה-עצמית) ולחשבון עם כמה גנים (סיכון למחוק גן אמיתי).
+        */
+        public async Task<CommitteeDeleteResult> DeleteCommitteeAsync(int groupId)
+        {
+            var group = await _db.Groups.AsNoTracking()
+                .FirstOrDefaultAsync(g => g.Id == groupId);
+            if (group == null)
+            {
+                return CommitteeDeleteResult.NotFound;
+            }
+
+            var ownerId = group.UserId;
+            var owner = await _db.Users.AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == ownerId);
+            if (owner != null && owner.Role == "SuperAdmin")
+            {
+                return CommitteeDeleteResult.ProtectedAdmin;
+            }
+
+            var groupCount = await _db.Groups.CountAsync(g => g.UserId == ownerId);
+            if (groupCount > 1)
+            {
+                return CommitteeDeleteResult.HasMultiple;
+            }
+
+            await DeleteAccountAsync(ownerId);
+            _logger.LogInformation("Committee deleted by admin (GroupId: {GroupId})", groupId);
+            return CommitteeDeleteResult.Deleted;
+        }
     }
 }

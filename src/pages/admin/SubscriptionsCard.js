@@ -66,6 +66,11 @@ function SubscriptionList({ title, icon, rows, selected, onToggle }) {
               <span className={`subs__pill subs__pill--${status.tone}`}>
                 {status.label}
               </span>
+              {row.createdAt && (
+                <span className="subs__created" title="תאריך הצטרפות">
+                  נרשם {new Date(row.createdAt).toLocaleDateString("he-IL")}
+                </span>
+              )}
               <span className="subs__until">{validUntilText(row)}</span>
             </li>
           );
@@ -150,7 +155,13 @@ function SubscriptionsCard() {
       {!isLoading && !error && data && (
         <>
           <p className="subs__summary">
-            <strong>{data.activeCount}</strong> מנויים פעילים
+            <strong>{data.committees ? data.committees.length : 0}</strong> ועדים
+            רשומים {" · "}
+            <strong>{data.suppliers ? data.suppliers.length : 0}</strong> ספקים
+            רשומים
+          </p>
+          <p className="subs__summary">
+            <strong>{data.activeCount}</strong> מנויים פעילים (פרו)
             {data.expiringSoonCount > 0 && (
               <>
                 {" · "}

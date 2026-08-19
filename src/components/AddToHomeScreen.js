@@ -38,6 +38,19 @@ function isIOSSafari() {
   );
 }
 
+// כרום "אמיתי" (לא Edge/Opera/Samsung/פיירפוקס, ולא דפדפן-בתוך-אפליקציה כמו
+// וואטסאפ/פייסבוק/אינסטגרם — שמזוהים ב-"wv" או בטוקן של האפליקציה). רק בכרום
+// ההוספה למסך הבית עובדת חלק באנדרואיד; אחרת צריך קודם לפתוח בכרום.
+function isChrome() {
+  const ua = window.navigator.userAgent || "";
+  return (
+    /Chrome/i.test(ua) &&
+    !/wv|Edg|EdgA|OPR|OPT|SamsungBrowser|CriOS|FxiOS|Firefox|FBAN|FBAV|Instagram|Line|MicroMessenger|Twitter|Snapchat|Pinterest|GSA/i.test(
+      ua
+    )
+  );
+}
+
 function AddToHomeScreen() {
   const [show, setShow] = useState(false);
   const [deferred, setDeferred] = useState(null);
@@ -145,8 +158,14 @@ function AddToHomeScreen() {
                 ⬆️ → «הוספה למסך הבית».
               </span>
             )
-          ) : (
+          ) : isChrome() ? (
             <span>בתפריט הדפדפן (⋮) בחרו «הוספה למסך הבית».</span>
+          ) : (
+            <span>
+              כדי להוסיף למסך הבית, קודם פתחו את הדף ב-<strong>Chrome</strong>:
+              בתפריט (⋮) בחרו «פתיחה ב-Chrome», ואז ב-Chrome פתחו את התפריט (⋮)
+              ובחרו «הוספה למסך הבית».
+            </span>
           )}
         </div>
       </div>

@@ -29,5 +29,8 @@ namespace ParentCommitteeAPI.DTOs
         public string Status { get; set; } = "free";
         /* כמה ימים נשארו למנוי; null כשאין תאריך תפוגה או שאינו מנוי. */
         public int? DaysLeft { get; set; }
+        /* תאריך ההקמה/ההצטרפות — לוועד: מועד יצירת חשבון הבעלים; לספק: מועד
+           יצירת הכרטיס. null לרשומות ותיקות שנוצרו לפני שנשמר תאריך. */
+        public DateTime? CreatedAt { get; set; }
     }
 }

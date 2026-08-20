@@ -3,12 +3,15 @@
   עמודות: שם, שם משפחה, טלפון הורה, ואז עמודה לכל קטגוריית תשלום שהוועד הגדיר.
   כל תא קטגוריה צבוע לפי הסטטוס: ירוק "שולם", צהוב "חלקית", אדום "לא שולם".
 
-  משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעת תאים) בטעינה עצלה
-  (dynamic import) כדי לא להעמיס על ה-bundle הראשי.
+  התאמת תשלום↔קטגוריה נעשית לפי *שם הקטגוריה* — כי הגדרת הגן המקומית
+  (getOnboarding) לא כוללת מזהה שרת, רק שם. מושכים את כל שורות התשלום בבקשה
+  אחת (getAllStudentPayments) במקום בקשה לכל תלמיד.
+
+  משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעת תאים) בטעינה עצלה.
 */
 import { getStudents } from "./studentsService";
 import {
-  getStudentPayments,
+  getAllStudentPayments,
   amountPaidSoFar,
   isCategoryFullyPaid,
 } from "./paymentsService";
@@ -28,44 +31,55 @@ function statusFor(payment) {
 }
 
 /*
-  אוסף את כל התלמידים + התשלומים שלהם, בונה גיליון צבוע ומוריד קובץ.
+  אוסף את כל התלמידים + כל שורות התשלום, בונה גיליון צבוע ומוריד קובץ.
   מחזיר את מספר התלמידים שיוצאו (0 = אין תלמידים).
 */
 export async function exportStudentsToExcel() {
-  const [mod, students] = await Promise.all([
+  const [mod, students, rows] = await Promise.all([
     import("xlsx-js-style"),
     getStudents().then((s) => s || []),
+    getAllStudentPayments()
+      .then((r) => r || [])
+      .catch(() => []),
   ]);
   const XLSX = mod.default || mod;
   if (students.length === 0) {
     return 0;
   }
 
-  const categories = getOnboarding()?.categories || [];
+  // מפה: studentId → (שם קטגוריה → שורת תשלום)
+  const byStudent = new Map();
+  rows.forEach((p) => {
+    const sid = Number(p.studentId);
+    let m = byStudent.get(sid);
+    if (!m) {
+      m = new Map();
+      byStudent.set(sid, m);
+    }
+    if (p.categoryName) {
+      m.set(p.categoryName, p);
+    }
+  });
 
-  // תשלומים לכל תלמיד — במקביל; אם קריאה נכשלת, מתייחסים כאילו אין תשלומים.
-  const paymentsByStudent = await Promise.all(
-    students.map((s) => getStudentPayments(s.id).catch(() => []))
-  );
+  // עמודות הקטגוריות: לפי הגדרת הגן (סדר קבוע); אם אין — נגזור משמות שבתשלומים.
+  let categoryNames = (getOnboarding()?.categories || [])
+    .map((c) => c.name)
+    .filter(Boolean);
+  if (categoryNames.length === 0) {
+    const seen = new Set();
+    rows.forEach((p) => p.categoryName && seen.add(p.categoryName));
+    categoryNames = [...seen];
+  }
 
-  const header = [
-    "שם",
-    "שם משפחה",
-    "טלפון הורה",
-    ...categories.map((c) => c.name),
-  ];
-
+  const header = ["שם", "שם משפחה", "טלפון הורה", ...categoryNames];
   const aoa = [header];
   const statusMeta = []; // סטטוס לכל תא-קטגוריה, לצביעה אחרי הבנייה
-  students.forEach((s, i) => {
-    const byCat = new Map();
-    (paymentsByStudent[i] || []).forEach((p) =>
-      byCat.set(p.collectionCategoryId, p)
-    );
+  students.forEach((s) => {
+    const m = byStudent.get(Number(s.id)) || new Map();
     const row = [s.firstName || "", s.lastName || "", s.parentPhoneNumber || ""];
     const rowStatus = [];
-    categories.forEach((c) => {
-      const st = statusFor(byCat.get(c.id));
+    categoryNames.forEach((name) => {
+      const st = statusFor(m.get(name));
       row.push(LABEL[st]);
       rowStatus.push(st);
     });
@@ -104,7 +118,7 @@ export async function exportStudentsToExcel() {
     { wch: 14 },
     { wch: 16 },
     { wch: 16 },
-    ...categories.map(() => ({ wch: 12 })),
+    ...categoryNames.map(() => ({ wch: 12 })),
   ];
 
   const wb = XLSX.utils.book_new();

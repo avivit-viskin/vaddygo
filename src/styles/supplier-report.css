@@ -1,0 +1,124 @@
+/*
+  supplier-report.css — החלק התקופתי בדוח הספק.
+  מיובא מהרכיב עצמו ולא מקובץ עמוד: אחרי פיצול הקוד, CSS של עמוד אינו נטען
+  בהכרח ב-chunk שבו הרכיב מוצג.
+*/
+
+.sup-range {
+  margin-bottom: 18px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.sup-range__title {
+  margin: 16px 0 10px;
+  font-size: var(--font-size-base);
+}
+
+.sup-range__title:first-child {
+  margin-top: 0;
+}
+
+/* טווחים מוכנים — ההשוואה שנה-מול-שנה צריכה להיות לחיצה אחת */
+.sup-range__presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.sup-range__chip {
+  padding: 5px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 999px;
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.sup-range__chip--on {
+  border-color: var(--color-primary-dark);
+  background: var(--color-primary-light);
+  font-weight: 600;
+}
+
+.sup-range__dates {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+
+.sup-range__field {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.sup-range__field input {
+  padding: 6px 8px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+}
+
+.sup-range__tiles {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 10px;
+}
+
+.sup-range__tile {
+  flex: 1;
+  padding: 12px 8px;
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+  text-align: center;
+}
+
+.sup-range__num {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+.sup-range__label {
+  font-size: 12px;
+  color: var(--color-text-muted);
+}
+
+.sup-range__facts {
+  margin: 0;
+  padding-inline-start: 1.1rem;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* הערה מסבירה — קיימת כדי ש-0 לא ייקרא כעובדה שגויה */
+.sup-range__note {
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  border-inline-start: 3px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-primary-light);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.sup-range__muted {
+  color: var(--color-text-muted);
+  font-size: 13px;
+}
+
+.sup-range__error {
+  margin: 6px 0 0;
+  color: var(--color-danger, #b3261e);
+  font-size: 13px;
+}

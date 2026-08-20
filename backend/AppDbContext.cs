@@ -30,6 +30,9 @@ namespace ParentCommitteeAPI
         public DbSet<PollVote> PollVotes { get; set; }
         public DbSet<Lead> Leads { get; set; }
 
+        // צפיות בכרטיס הספק לפי יום — הבסיס להשוואת תקופות בדוח הספק
+        public DbSet<VendorViewDay> VendorViewDays { get; set; }
+
         // כוונת רכישת פרו — מקשרת בין לחיצת התשלום ל-webhook של GROW (שורד אתחול)
         public DbSet<PendingProIntent> PendingProIntents { get; set; }
 
@@ -74,6 +77,11 @@ namespace ParentCommitteeAPI
                 .HasIndex(d => d.TokenFingerprint).IsUnique();
             modelBuilder.Entity<TwoFactorBackupCode>()
                 .HasIndex(c => new { c.UserId, c.CodeFingerprint }).IsUnique();
+
+            // צפייה אחת לכל (ספק, יום). האינדקס הייחודי הוא שמונע שתי שורות
+            // לאותו יום כששתי בקשות מגיעות יחד — ולא רק מאיץ שליפה.
+            modelBuilder.Entity<VendorViewDay>()
+                .HasIndex(v => new { v.VendorId, v.Day }).IsUnique();
         }
     }
 }

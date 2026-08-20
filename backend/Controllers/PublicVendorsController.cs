@@ -22,15 +22,18 @@ namespace ParentCommitteeAPI.Controllers
         private readonly IVendorService _vendorService;
         private readonly IVendorProPaymentService _vendorProPayments;
         private readonly IAiService _aiService;
+        private readonly ISupplierReportService _reports;
 
         public PublicVendorsController(
             IVendorService vendorService,
             IAiService aiService,
-            IVendorProPaymentService vendorProPayments)
+            IVendorProPaymentService vendorProPayments,
+            ISupplierReportService reports)
         {
             _vendorProPayments = vendorProPayments;
             _vendorService = vendorService;
             _aiService = aiService;
+            _reports = reports;
         }
 
         // POST: api/public/vendors/extract-products — חילוץ מוצרים מטקסט קטלוג (PDF)
@@ -253,6 +256,23 @@ namespace ParentCommitteeAPI.Controllers
             if (leads == null)
                 return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
             return Ok(leads);
+        }
+
+        /*
+          GET: api/public/vendors/{token}/report?from=&to= — הדוח המפורט של הספק.
+
+          הטווח אופציונלי; בלעדיו מוחזרת השנה האחרונה. ההרשאה היא הטוקן בלבד,
+          כמו בשאר מסכי הספק — ולכן השירות מחזיר null לטוקן שפג, והתשובה היא
+          404 אחיד שאינו מרמז אם הספק קיים.
+        */
+        [HttpGet("{token}/report")]
+        public async Task<ActionResult<SupplierReportDto>> Report(
+            string token, [FromQuery] DateTime? from, [FromQuery] DateTime? to)
+        {
+            var report = await _reports.GetByTokenAsync(token, from, to);
+            if (report == null)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            return Ok(report);
         }
 
         // PUT: api/public/vendors/{token}/leads/{leadId}/status — הספק מעדכן סטטוס פנייה.

@@ -22,6 +22,13 @@ namespace ParentCommitteeAPI.Models
         /* יחידת המידה שהמחיר מתייחס אליה (למשל: יח', מארז, ק"ג). ריק = ללא. */
         public string Unit { get; set; } = string.Empty;
 
+        /*
+          מתי נוסף המוצר — ל"המוצר האחרון שהוספת" בדוח הספק.
+          nullable: מוצרים שנוצרו לפני הוספת השדה אין להם תאריך, והם מוצגים
+          כ"לא ידוע" במקום לקבל תאריך מומצא.
+        */
+        public DateTime? CreatedAt { get; set; }
+
         public int VendorId { get; set; }
         public Vendor? Vendor { get; set; }
     }

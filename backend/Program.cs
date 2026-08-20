@@ -115,6 +115,8 @@ builder.Services.AddScoped<IAccountService, AccountService>();
 // ייצוא המידע של המשתמשת ("זכות העיון")
 builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
+// דוח מפורט לספק (טווח תאריכים, מיקום ברשימה, עריכה/מוצר אחרונים)
+builder.Services.AddScoped<ISupplierReportService, SupplierReportService>();
 // נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
 // הפעלת פרו אוטומטית מ-webhook של GROW (אחרי תשלום)

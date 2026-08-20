@@ -17,17 +17,20 @@ namespace ParentCommitteeAPI.Services
         private readonly AppDbContext _db;
         private readonly IEmailSender _email;
         private readonly IConfiguration _config;
+        private readonly ISupplierReportService _reports;
         private readonly ILogger<VendorService> _logger;
 
         public VendorService(
             AppDbContext db,
             IEmailSender email,
             IConfiguration config,
+            ISupplierReportService reports,
             ILogger<VendorService> logger)
         {
             _db = db;
             _email = email;
             _config = config;
+            _reports = reports;
             _logger = logger;
         }
 
@@ -510,8 +513,11 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            // כל פתיחה של הקטלוג הציבורי סופרת צפייה (לדאשבורד הספק)
+            // כל פתיחה של הקטלוג הציבורי סופרת צפייה (לדאשבורד הספק).
+            // בנוסף למונה הכולל נרשמת שורה יומית — היא מה שמאפשר להשוות
+            // תקופה לתקופה בדוח; המונה הכולל לבדו אינו יודע *מתי* נצפה.
             vendor.Views += 1;
+            await _reports.RecordViewAsync(vendor.Id);
             await _db.SaveChangesAsync();
             var dto = ToResponse(vendor);
             // בקטלוג הציבורי לא חושפים פרטי תשלום פרטיים
@@ -687,9 +693,12 @@ namespace ParentCommitteeAPI.Services
             if (dto.PaymentPaybox != null) vendor.PaymentPaybox = dto.PaymentPaybox.Trim();
             vendor.PaymentBankInfo = dto.PaymentBankInfo.Trim();
             vendor.PaymentInstallments = dto.PaymentInstallments;
+            // התאריכים נלקטים **לפני** המחיקה — אחרי RemoveRange הרשימה כבר ריקה
+            // ולא היה ממה לרשת את מועד ההוספה.
+            var previousProducts = vendor.Products.ToList();
             _db.VendorProducts.RemoveRange(vendor.Products);
             _db.VendorSocialLinks.RemoveRange(vendor.SocialLinks);
-            vendor.Products = MapProducts(dto.Products);
+            vendor.Products = MapProducts(dto.Products, previousProducts);
             vendor.SocialLinks = MapSocialLinks(dto.SocialLinks);
         }
 
@@ -747,19 +756,65 @@ namespace ParentCommitteeAPI.Services
             || !string.IsNullOrWhiteSpace(p.ImageUrl)
             || !string.IsNullOrWhiteSpace(p.Folder);
 
-        private static List<VendorProduct> MapProducts(List<VendorProductDto> products) =>
-            products
-                .Where(HasContent)
-                .Select(p => new VendorProduct
+        /*
+          שמירת מוצרים מחליפה את הרשימה כולה (אין מזהה מוצר בבקשה מהלקוח).
+          לכן תאריך ההוספה חייב לעבור מהשורה הישנה לחדשה — אחרת כל שמירה של
+          הכרטיס הייתה מאפסת את התאריכים, ו"המוצר האחרון שהוספת" היה תמיד
+          מראה את מועד העריכה האחרונה. זו הייתה הופכת את הנתון לחסר ערך.
+
+          ההתאמה לפי התמונה קודם: בקטלוג שנבנה מצילומים בטלפון, התמונה היא
+          המזהה היציב ביותר. אחר כך שם+מחיר, ולבסוף שם בלבד.
+
+          מגבלה ידועה: מוצר שמשנים לו גם את השם וגם את התמונה ייחשב חדש
+          ויקבל תאריך נוכחי. עדיף מאשר לאפס את כל התאריכים בכל שמירה.
+        */
+        private static List<VendorProduct> MapProducts(
+            List<VendorProductDto> products, IEnumerable<VendorProduct>? existing = null)
+        {
+            var pool = (existing ?? Enumerable.Empty<VendorProduct>()).ToList();
+            var now = DateTime.UtcNow;
+
+            VendorProduct? TakeMatch(VendorProductDto dto)
+            {
+                var image = (dto.ImageUrl ?? string.Empty).Trim();
+                var name = (dto.Name ?? string.Empty).Trim();
+
+                var match =
+                    (image.Length > 0
+                        ? pool.FirstOrDefault(p => p.ImageUrl == image)
+                        : null)
+                    ?? (name.Length > 0
+                        ? pool.FirstOrDefault(p => p.Name == name && p.Price == dto.Price)
+                          ?? pool.FirstOrDefault(p => p.Name == name)
+                        : null);
+
+                if (match != null)
                 {
-                    Name = (p.Name ?? string.Empty).Trim(),
-                    Description = (p.Description ?? string.Empty).Trim(),
-                    Price = p.Price,
-                    ImageUrl = p.ImageUrl.Trim(),
-                    Folder = (p.Folder ?? string.Empty).Trim(),
-                    Unit = (p.Unit ?? string.Empty).Trim(),
+                    // כל שורה ישנה מותאמת פעם אחת בלבד, אחרת שני מוצרים זהים
+                    // היו יורשים את אותו תאריך.
+                    pool.Remove(match);
+                }
+                return match;
+            }
+
+            return products
+                .Where(HasContent)
+                .Select(p =>
+                {
+                    var previous = TakeMatch(p);
+                    return new VendorProduct
+                    {
+                        Name = (p.Name ?? string.Empty).Trim(),
+                        Description = (p.Description ?? string.Empty).Trim(),
+                        Price = p.Price,
+                        ImageUrl = p.ImageUrl.Trim(),
+                        Folder = (p.Folder ?? string.Empty).Trim(),
+                        Unit = (p.Unit ?? string.Empty).Trim(),
+                        CreatedAt = previous?.CreatedAt ?? now,
+                    };
                 })
                 .ToList();
+        }
 
         private static List<VendorSocialLink> MapSocialLinks(List<VendorSocialLinkDto> links) =>
             links

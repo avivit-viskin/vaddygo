@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { getSupplierLeads } from "../services/leadsService";
+import SupplierReportRange from "./SupplierReportRange";
 
 /*
   SupplierReports — דוחות הספק (פיצ'ר פרו). סיכום צפיות/פניות/מוצרים, פילוח
@@ -130,6 +131,12 @@ function SupplierReports({ vendor, token, isPro }) {
         {tile(leadTotal, "פניות")}
         {tile(total, "מוצרים")}
       </div>
+
+      {/*
+        החלק התקופתי — טווח תאריכים, המיקום ברשימה, ומועדי העדכון האחרונים.
+        מוצג מתחת למספרים הכוללים: קודם "כמה בסך הכל", אחר כך "מה קרה מתי".
+      */}
+      {token && <SupplierReportRange token={token} />}
 
       {/* פילוח הפניות לפי סטטוס — כמה חדשות, נסגרו, לא רלוונטיות (פרו בלבד) */}
       {isPro && leadTotal > 0 && (

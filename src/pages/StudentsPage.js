@@ -28,6 +28,8 @@ import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
 import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
+import { exportStudentsToExcel } from "../services/studentsExcelExport";
+import { toastSuccess, toastError } from "../services/toastBus";
 import ProGate from "../components/ProGate";
 import "../styles/students.css";
 
@@ -46,6 +48,7 @@ function StudentsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [classFilter, setClassFilter] = useState("");
   const [onlyUnpaid, setOnlyUnpaid] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   // סיכום תשלומים לכל תלמיד (לתג ולסינון) — נטען אחרי שהתלמידים הגיעו,
   // לא חוסם את הצגת הכרטיסים. { [studentId]: { paidCount, totalCount, allPaid, hasUnpaid } }
@@ -309,6 +312,27 @@ function StudentsPage() {
             <ProGate feature="bulkReminders" label="בקשת תשלום בוואטסאפ">
               <BulkPaymentRequestButton students={visibleStudents} />
             </ProGate>
+            <Button
+              variant="secondary"
+              isLoading={exporting}
+              onClick={async () => {
+                setExporting(true);
+                try {
+                  const n = await exportStudentsToExcel();
+                  if (n === 0) {
+                    toastError("אין תלמידים לייצוא");
+                  } else {
+                    toastSuccess(`יוצאו ${n} תלמידים לאקסל 📊`);
+                  }
+                } catch {
+                  toastError("לא הצלחנו לייצא. אפשר לנסות שוב.");
+                } finally {
+                  setExporting(false);
+                }
+              }}
+            >
+              📊 ייצוא לאקסל
+            </Button>
           </div>
         )}
       </div>

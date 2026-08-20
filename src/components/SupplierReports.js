@@ -104,7 +104,7 @@ function SupplierReports({ vendor, token, isPro }) {
         background: "var(--color-surface)",
       }}
     >
-      <h3 className="sup-section-title" style={{ marginTop: 0 }}>
+      <h3 className="sup-section-title" style={{ marginTop: 0 }} data-tour="sup-report">
         📊 דוחות
       </h3>
 

@@ -24,6 +24,7 @@ function SupplierSideMenu({
   onChangePassword,
   onCookies,
   onDeleteRequest,
+  onStartTour,
   onLogout,
 }) {
   if (!isOpen) {
@@ -170,6 +171,16 @@ function SupplierSideMenu({
         </button>
 
         <div className="sidemenu__footer">
+          <button
+            type="button"
+            className="sidemenu__action"
+            onClick={() => {
+              onClose();
+              onStartTour();
+            }}
+          >
+            <span aria-hidden="true">🧭</span> סיור באפליקציה
+          </button>
           <a
             className="sidemenu__action sidemenu__contact"
             href={contactUrl}

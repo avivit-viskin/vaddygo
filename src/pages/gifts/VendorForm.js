@@ -721,6 +721,7 @@ function VendorForm({
             <button
               type="button"
               className="vendor-form__upload"
+              data-tour="add-product"
               aria-haspopup="true"
               aria-expanded={addMenuOpen}
               onClick={() => setAddMenuOpen((v) => !v)}

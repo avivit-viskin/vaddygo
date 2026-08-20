@@ -116,7 +116,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
   return (
     <div>
       {/* שורה עליונה — אריחי מדד גדולים: פניות + צפיות */}
-      <div className="sup-stats sup-stats--primary">
+      <div className="sup-stats sup-stats--primary" data-tour="sup-stats">
         <div className="sup-stat sup-stat--big">
           <div className="sup-stat__num">{leads}</div>
           <div className="sup-stat__label">פניות</div>

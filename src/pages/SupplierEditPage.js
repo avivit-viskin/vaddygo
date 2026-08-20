@@ -37,6 +37,7 @@ import SupplierLeads from "../components/SupplierLeads";
 import SupplierPayments from "../components/SupplierPayments";
 import SupplierSocials from "../components/SupplierSocials";
 import SupplierCookies from "../components/SupplierCookies";
+import SupplierTour from "../components/SupplierTour";
 import WhatsAppFab from "../components/WhatsAppFab";
 import useUnsavedGuard from "../hooks/useUnsavedGuard";
 import PullToRefresh from "../components/PullToRefresh";
@@ -46,6 +47,11 @@ import {
   clearImportJob,
 } from "../services/importJobs";
 import { whatsappUrlWithText } from "../services/whatsapp";
+import {
+  startSupplierTour,
+  hasSupplierTourBeenSeen,
+  markSupplierTourSeen,
+} from "../services/supplierTourBus";
 import "../styles/gifts.css";
 import "../styles/supplier-app.css";
 
@@ -164,6 +170,19 @@ function SupplierEditPage() {
     }
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
+
+  // סיור היכרות לספק — פעם אחת, בכניסה הראשונה. רק כשהפורטל באמת מוצג (קיים
+  // הניווט sup-nav), כדי לא לפתוח את הסיור על מסך הכניסה/טעינה.
+  useEffect(() => {
+    if (!vendor || hasSupplierTourBeenSeen()) return undefined;
+    const t = setTimeout(() => {
+      if (document.querySelector('[data-tour="sup-nav"]')) {
+        markSupplierTourSeen();
+        startSupplierTour();
+      }
+    }, 800);
+    return () => clearTimeout(t);
+  }, [vendor]);
 
   function handleLogout() {
     if (!confirmDiscard()) return;
@@ -525,7 +544,7 @@ function SupplierEditPage() {
       )}
 
       {/* פס ניווט בין הדפים — סגנון ניווט (אייקון + פס תחתון), דביק */}
-      <nav className="sup-tabs" aria-label="ניווט אזור הספק">
+      <nav className="sup-tabs" aria-label="ניווט אזור הספק" data-tour="sup-nav">
         {TABS.map((tab) => (
           <button
             key={tab.key}
@@ -647,7 +666,7 @@ function SupplierEditPage() {
 
       {view === "payments" && (
         <>
-          <h2 className="sup-section-title">
+          <h2 className="sup-section-title" data-tour="sup-payments">
             <Icon name="card" size={22} /> אמצעי תשלום
           </h2>
           <SupplierPayments vendor={vendor} onSave={handleSavePayments} />
@@ -674,7 +693,7 @@ function SupplierEditPage() {
       )}
 
       {view === "preview" && (
-        <div className="supplier-edit__preview">
+        <div className="supplier-edit__preview" data-tour="sup-preview">
           <p className="supplier-edit__preview-hint">
             כך נראה הכרטיס שלך לוועדים באפליקציה. אפשר ללחוץ על תיקייה כדי לראות
             את המוצרים שבתוכה.
@@ -685,7 +704,7 @@ function SupplierEditPage() {
 
       {view === "settings" && (
         <>
-          <h2 className="sup-section-title">
+          <h2 className="sup-section-title" data-tour="sup-settings">
             <Icon name="settings" size={22} /> הגדרות משתמש
           </h2>
           <p className="supplier-edit__intro" style={{ margin: "0 0 14px" }}>
@@ -722,6 +741,7 @@ function SupplierEditPage() {
         }}
         onCookies={() => setCookiesOpen(true)}
         onDeleteRequest={() => setDeleteAsking(true)}
+        onStartTour={() => startSupplierTour()}
         onLogout={handleLogout}
       />
       <WhatsAppFab />
@@ -897,6 +917,17 @@ function SupplierEditPage() {
         message="הבקשה תישלח לצוות VaddyGo בוואטסאפ לאישור. אחרי אישור — החשבון, הכרטיס והמוצרים יימחקו. להמשיך?"
         onConfirm={confirmDeleteRequest}
         onCancel={() => setDeleteAsking(false)}
+      />
+
+      {/* סיור ההיכרות של הספק — נפתח מהתפריט (☰) או אוטומטית בכניסה הראשונה.
+          מעביר את המסך לטאב/מודאל המתאים לכל שלב דרך onActivate */}
+      <SupplierTour
+        onActivate={(s) => {
+          setReportOpen(s?.action === "report");
+          setIsMenuOpen(false);
+          if (s?.tab) goTo(s.tab);
+        }}
+        onFinish={() => setReportOpen(false)}
       />
     </div>
   );

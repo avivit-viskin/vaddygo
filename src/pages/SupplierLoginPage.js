@@ -9,6 +9,7 @@ import SupportLink from "../components/SupportLink";
 import PullToRefresh from "../components/PullToRefresh";
 import { supplierLogin, supplierLoginWithGoogle } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
+import { toastSuccess } from "../services/toastBus";
 import "../styles/onboarding.css";
 import "../styles/login.css";
 
@@ -46,6 +47,32 @@ function SupplierLoginPage() {
       "לא הצלחנו לטעון את כניסת Google. אפשר להתחבר עם מייל וסיסמה."
     );
   }, []);
+
+  // שיתוף דף ההרשמה לספקים — כדי להזמין ספק שיירשם בעצמו. משתפים את /suppliers;
+  // באפליקציה עצמאית אין שורת כתובת, ולכן פותחים את תפריט השיתוף, ואם אין —
+  // מעתיקים את הקישור ללוח.
+  async function shareSupplierPortal() {
+    const url = `${window.location.origin}/suppliers`;
+    const shareData = {
+      title: "הצטרפות כספק ל-VaddyGo",
+      text: "מוזמנים להצטרף כספקים ל-VaddyGo — לנהל קטלוג מוצרים שוועדי הורים רואים ומזמינים ממנו:",
+      url,
+    };
+    if (navigator.share) {
+      try {
+        await navigator.share(shareData);
+        return;
+      } catch {
+        return;
+      }
+    }
+    try {
+      await navigator.clipboard.writeText(url);
+      toastSuccess("הקישור להרשמת ספקים הועתק — אפשר להדביק ולשלוח 🙂");
+    } catch {
+      toastSuccess(url);
+    }
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -146,6 +173,25 @@ function SupplierLoginPage() {
             </div>
             <p className="auth-page__hint">
               ספק חדש? <Link to="/supplier-register">להרשמה מהירה</Link>
+            </p>
+            <p className="auth-page__hint">
+              רוצים להזמין ספק?{" "}
+              <button
+                type="button"
+                onClick={shareSupplierPortal}
+                style={{
+                  background: "none",
+                  border: "none",
+                  padding: 0,
+                  font: "inherit",
+                  color: "var(--color-primary-dark)",
+                  fontWeight: 700,
+                  textDecoration: "underline",
+                  cursor: "pointer",
+                }}
+              >
+                שיתוף דף ההרשמה
+              </button>
             </p>
             <p className="auth-page__hint">
               חבר/ת ועד? <Link to="/login">לכניסת הוועד</Link>

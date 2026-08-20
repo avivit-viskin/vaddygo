@@ -63,3 +63,33 @@ test("ספק שהשלים הכל מקבל טקסט חיובי בלי רשימת 
   expect(text).toContain("הכרטיס מלא ומוכן");
   expect(text).not.toContain("נשאר להשלים");
 });
+
+/*
+  כפתור "מילוי »" מנווט למסך לפי השדה `view`. באג אמיתי שהתגלה בשימוש: פריט
+  הוואטסאפ הצביע על מסך המוצרים — שם אותו טופס מרונדר עם hideBusinessDetails,
+  כלומר שדה הוואטסאפ **אינו קיים במסך**. הלחיצה נראתה כאילו אינה עושה דבר.
+
+  הבדיקה נועלת את היעד של כל פריט למסך שבו השדה שלו באמת מוצג.
+*/
+test("כל פריט בצ'ק-ליסט מפנה למסך שבו השדה שלו קיים", () => {
+  const views = Object.fromEntries(
+    vendorChecklist({}).map((i) => [i.key, i.view])
+  );
+
+  // פרטי העסק (ובהם הוואטסאפ) מוצגים במסך ההגדרות בלבד
+  expect(views.whatsApp).toBe("settings");
+  // המוצרים והתמונות — במסך המוצרים
+  expect(views.product).toBe("products");
+  expect(views.image).toBe("products");
+  // אמצעי תשלום — במסך התשלומים
+  expect(views.payment).toBe("payments");
+  // הגדרת מייל וסיסמה — בעמוד הבית של הפורטל
+  expect(views.login).toBe("home");
+});
+
+test("לכל פריט בצ'ק-ליסט יש יעד ניווט", () => {
+  for (const item of vendorChecklist({})) {
+    expect(typeof item.view).toBe("string");
+    expect(item.view.length).toBeGreaterThan(0);
+  }
+});

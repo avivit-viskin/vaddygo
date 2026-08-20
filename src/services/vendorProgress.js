@@ -13,7 +13,13 @@ export function vendorChecklist(vendor) {
       key: "whatsApp",
       done: Boolean(vendor?.whatsApp),
       label: "מספר וואטסאפ ליצירת קשר",
-      view: "products",
+      /*
+        שדה הוואטסאפ הוא חלק מ"פרטי העסק", ואלה מוצגים במסך ההגדרות בלבד —
+        מסך המוצרים מרנדר את אותו טופס עם hideBusinessDetails. הפניה ל-
+        "products" הביאה את הספק למסך שבו השדה כלל אינו קיים, כלומר "מילוי »"
+        לא עשה כלום.
+      */
+      view: "settings",
     },
     {
       key: "product",

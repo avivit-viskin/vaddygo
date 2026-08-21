@@ -36,4 +36,15 @@ namespace ParentCommitteeAPI.DTOs
            יצירת הכרטיס. null לרשומות ותיקות שנוצרו לפני שנשמר תאריך. */
         public DateTime? CreatedAt { get; set; }
     }
+
+    /*
+      SetCommitteeProDto — פתיחה/סגירה ידנית של מסלול פרו לגן, על ידי המנהלת.
+      Months אופציונלי; ריק = שנה, כמו מנוי בתשלום. מוגבל ל-120 חודשים בבקר,
+      כדי שטעות הקלדה לא תיצור מנוי עד שנת 3000.
+    */
+    public class SetCommitteeProDto
+    {
+        public bool IsPro { get; set; }
+        public int? Months { get; set; }
+    }
 }

@@ -17,6 +17,18 @@ export async function deleteCommittee(groupId) {
   return api.del(`/api/admin/committees/${groupId}`);
 }
 
+/*
+  פתיחה/סגירה ידנית של מסלול פרו לגן — למנהלת בלבד.
+
+  עד עכשיו פרו לוועד נפתח רק אוטומטית אחרי תשלום, ולא הייתה שום דרך לתת אותו
+  ידנית (גן פיילוט, לקוחה שמשלמת בהעברה, או בדיקה). ‏months ריק = שנה, כמו
+  מנוי בתשלום. הפעולה היא לגן יחיד — פרו הוא per-gan, ולחשבון אחד יכולים
+  להיות כמה גנים.
+*/
+export async function setCommitteePro(groupId, isPro, months) {
+  return api.put(`/api/admin/committees/${groupId}/pro`, { isPro, months });
+}
+
 /* תווית עברית + צבע לסטטוס שהשרת מחזיר. מקור אחד לכל המסך. */
 const STATUS_LABELS = {
   active: { label: "מנוי פעיל", tone: "good" },

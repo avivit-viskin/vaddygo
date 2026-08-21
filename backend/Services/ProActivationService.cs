@@ -13,6 +13,13 @@ namespace ParentCommitteeAPI.Services
         /* פרו לוועד — לפי groupId מפורש, ואם אין, לפי המייל של בעל/ת החשבון. */
         Task<bool> ActivateCommitteeAsync(int? groupId, string? email, DateTime validUntil);
 
+        /*
+          כיבוי מסלול פרו לגן. נדרש כדי שפתיחה ידנית של המנהלת תהיה הפיכה —
+          פעולה שאפשר רק להפעיל ואי אפשר לבטל היא מלכודת, במיוחד כשהיא ניתנת
+          בלחיצה אחת. יושב כאן ולא בבקר כדי שהדלקה וכיבוי יהיו באותו מקום.
+        */
+        Task<bool> DeactivateCommitteeAsync(int groupId);
+
         /* פרו לספק — לפי vendorId מפורש; אם אין, לפי מייל ההתחברות; ואם אין, לפי
            מספר הוואטסאפ של הספק מול טלפון המשלם (GROW מחזיר payerPhone גם ב-ApplePay). */
         Task<bool> ActivateSupplierAsync(int? vendorId, string? email, string? phone, DateTime validUntil);
@@ -55,9 +62,12 @@ namespace ParentCommitteeAPI.Services
 
             if (groups.Count == 0)
             {
+                // בלי הכתובת עצמה: לוגים אצל ספק האירוח נשמרים 7 ימים ואינם
+                // ניתנים למחיקה לפי בקשה, ולכן אינם מקום למידע אישי. הדומיין
+                // מספיק כדי לאבחן ("כל הפניות מ-gmail נכשלות").
                 _logger.LogWarning(
-                    "Pro activation (committee) — no group matched (groupId: {GroupId}, email: {Email})",
-                    groupId, email);
+                    "Pro activation (committee) — no group matched (groupId: {GroupId}, domain: {Domain})",
+                    groupId, EmailDomain(email));
                 return false;
             }
 
@@ -68,8 +78,25 @@ namespace ParentCommitteeAPI.Services
             }
             await _db.SaveChangesAsync();
             _logger.LogInformation(
-                "Pro activated for {Count} committee group(s) until {Until} (groupId: {GroupId}, email: {Email})",
-                groups.Count, validUntil, groupId, email);
+                "Pro activated for {Count} committee group(s) until {Until} (groupId: {GroupId})",
+                groups.Count, validUntil, groupId);
+            return true;
+        }
+
+        public async Task<bool> DeactivateCommitteeAsync(int groupId)
+        {
+            var group = await _db.Groups.FirstOrDefaultAsync(g => g.Id == groupId);
+            if (group == null)
+            {
+                return false;
+            }
+
+            group.IsPro = false;
+            // גם התוקף מתאפס: תאריך שנשאר תלוי בלי מסלול פעיל מבלבל בקריאת
+            // המסך ועלול להיראות כאילו המנוי עדיין בתוקף.
+            group.ProValidUntil = null;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Pro deactivated for committee group {GroupId}", groupId);
             return true;
         }
 
@@ -107,8 +134,8 @@ namespace ParentCommitteeAPI.Services
             if (vendor == null)
             {
                 _logger.LogWarning(
-                    "Pro activation (supplier) — no vendor matched (vendorId: {VendorId}, email: {Email}, phone: {Phone})",
-                    vendorId, email, phone);
+                    "Pro activation (supplier) — no vendor matched (vendorId: {VendorId}, domain: {Domain})",
+                    vendorId, EmailDomain(email));
                 return false;
             }
 
@@ -118,6 +145,13 @@ namespace ParentCommitteeAPI.Services
             _logger.LogInformation(
                 "Pro activated for supplier {VendorId} until {Until}", vendor.Id, validUntil);
             return true;
+        }
+
+        /* דומיין בלבד לצורכי לוג — ראו ההערה בהפעלה למעלה. */
+        private static string EmailDomain(string? email)
+        {
+            var at = (email ?? string.Empty).LastIndexOf('@');
+            return at >= 0 && at < email!.Length - 1 ? email[(at + 1)..] : "unknown";
         }
 
         // ספרות בלבד; +972 / 972 בהתחלה → 0 (מספר ישראלי מקומי); משאירים 10 ספרות.

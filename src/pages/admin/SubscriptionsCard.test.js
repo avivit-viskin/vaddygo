@@ -1,10 +1,15 @@
 import { render, screen } from "@testing-library/react";
 import SubscriptionsCard from "./SubscriptionsCard";
-import { getSubscriptions } from "../../services/subscriptionsService";
+import userEvent from "@testing-library/user-event";
+import {
+  getSubscriptions,
+  setCommitteePro,
+} from "../../services/subscriptionsService";
 
 jest.mock("../../services/subscriptionsService", () => ({
   ...jest.requireActual("../../services/subscriptionsService"),
   getSubscriptions: jest.fn(),
+  setCommitteePro: jest.fn(),
 }));
 
 /*
@@ -76,4 +81,61 @@ test("שגיאה מהשרת מוצגת ולא מפילה את המסך", async (
   render(<SubscriptionsCard />);
 
   expect(await screen.findByText(/אין הרשאה/)).toBeInTheDocument();
+});
+
+/*
+  פתיחה ידנית של פרו לגן. עד שנוספה, מסלול פרו לוועד נפתח **רק** אוטומטית
+  אחרי תשלום — כלומר לא היה שום אופן לתת אותו לגן פיילוט או ללקוחה שמשלמת
+  בהעברה, וזו הייתה הבקשה.
+*/
+test("לגן שאינו מנוי מוצע לפתוח פרו, ולגן מנוי מוצע לסגור", async () => {
+  getSubscriptions.mockResolvedValue(data);
+  render(<SubscriptionsCard />);
+
+  await screen.findByText("גן הפרחים");
+  // "גן הפרחים" מנוי פעיל, "גן הרימון" לא
+  expect(screen.getByRole("button", { name: "סגירת פרו" })).toBeInTheDocument();
+  expect(screen.getByRole("button", { name: "פתיחת פרו" })).toBeInTheDocument();
+});
+
+test("לחיצה על פתיחת פרו שולחת את מזהה הגן ומרעננת", async () => {
+  getSubscriptions.mockResolvedValue(data);
+  setCommitteePro.mockResolvedValue({ message: "מסלול פרו נפתח לגן" });
+
+  render(<SubscriptionsCard />);
+  await screen.findByText("גן הרימון");
+
+  await userEvent.click(screen.getByRole("button", { name: "פתיחת פרו" }));
+
+  // פרו הוא per-gan — נשלח מזהה הגן, לא מזהה החשבון
+  // בלי מספר חודשים — השרת קובע ברירת מחדל של שנה, כמו מנוי בתשלום
+  expect(setCommitteePro).toHaveBeenCalledWith(2, true);
+  expect(await screen.findByText(/מסלול פרו נפתח לגן/)).toBeInTheDocument();
+});
+
+/*
+  סגירה בטעות מורידה פיצ'רים מלקוחה משלמת, ולכן היא נשאלת לאישור — בעוד
+  פתיחה בטעות היא אי-נוחות שמתקנים בלחיצה חוזרת.
+*/
+test("סגירת פרו מבקשת אישור, וביטול אינו שולח דבר", async () => {
+  getSubscriptions.mockResolvedValue(data);
+  const confirmSpy = jest.spyOn(window, "confirm").mockReturnValue(false);
+
+  render(<SubscriptionsCard />);
+  await screen.findByText("גן הפרחים");
+
+  await userEvent.click(screen.getByRole("button", { name: "סגירת פרו" }));
+
+  expect(confirmSpy).toHaveBeenCalled();
+  expect(setCommitteePro).not.toHaveBeenCalled();
+  confirmSpy.mockRestore();
+});
+
+test("ספקים אינם מקבלים את הכפתור — הפרו שלהם נפתח במסך הספקים", async () => {
+  getSubscriptions.mockResolvedValue(data);
+  render(<SubscriptionsCard />);
+
+  await screen.findByText("גן הפרחים");
+  // שני גנים = שני כפתורים בלבד, אף אחד מהם אינו של ספק
+  expect(screen.getAllByRole("button", { name: /פרו/ })).toHaveLength(2);
 });

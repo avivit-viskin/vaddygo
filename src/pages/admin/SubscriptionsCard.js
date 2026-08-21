@@ -9,6 +9,7 @@ import {
   subscriptionStatus,
   validUntilText,
   deleteCommittee,
+  setCommitteePro,
 } from "../../services/subscriptionsService";
 import { deleteVendor } from "../../services/vendorsService";
 import "../../styles/subscriptions.css";
@@ -32,8 +33,9 @@ import "../../styles/subscriptions.css";
 const ACTIVE_STATUSES = ["active", "expiring"];
 const SUBS_FILTER_KEY = "vaadygo.subs.activeOnly";
 
-function SubscriptionList({ title, icon, rows, selected, onToggle }) {
+function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, proBusyId }) {
   const selectable = typeof onToggle === "function";
+  const canSetPro = typeof onSetPro === "function";
   if (!rows || rows.length === 0) {
     return (
       <section className="subs__group">
@@ -83,6 +85,32 @@ function SubscriptionList({ title, icon, rows, selected, onToggle }) {
                 </span>
               )}
               <span className="subs__until">{validUntilText(row)}</span>
+              {/*
+                פתיחה/סגירה ידנית של פרו לגן. עד עכשיו פרו לוועד נפתח רק
+                אוטומטית אחרי תשלום — ולא הייתה דרך לתת אותו לגן פיילוט או
+                ללקוחה שמשלמת בהעברה.
+              */}
+              {canSetPro && (
+                <button
+                  type="button"
+                  className={`subs__pro-btn${
+                    row.isPro ? " subs__pro-btn--on" : ""
+                  }`}
+                  disabled={proBusyId === row.id}
+                  onClick={() => onSetPro(row)}
+                  title={
+                    row.isPro
+                      ? "סגירת מסלול פרו לגן הזה"
+                      : "פתיחת מסלול פרו לשנה לגן הזה"
+                  }
+                >
+                  {proBusyId === row.id
+                    ? "רגע…"
+                    : row.isPro
+                      ? "סגירת פרו"
+                      : "פתיחת פרו"}
+                </button>
+              )}
             </li>
           );
         })}
@@ -114,6 +142,29 @@ function SubscriptionsCard() {
   const [bulkConfirm, setBulkConfirm] = useState(false);
   const [bulkBusy, setBulkBusy] = useState(false);
   const [msg, setMsg] = useState(null);
+  /* איזה גן נמצא כרגע בתהליך שינוי — כדי לנטרל את הכפתור שלו בלבד. */
+  const [proBusyId, setProBusyId] = useState(null);
+
+  /*
+    פתיחה/סגירה של פרו לגן. סגירה נשאלת לאישור ופתיחה לא: פתיחה בטעות היא
+    אי-נוחות שמתקנים בלחיצה, וסגירה בטעות מורידה פיצ'רים ללקוחה משלמת.
+  */
+  async function handleSetPro(row) {
+    if (row.isPro && !window.confirm(`לסגור את מסלול הפרו של "${row.name}"?`)) {
+      return;
+    }
+    setProBusyId(row.id);
+    setMsg(null);
+    try {
+      const result = await setCommitteePro(row.id, !row.isPro);
+      setMsg({ ok: true, text: result?.message || "בוצע" });
+      reload();
+    } catch (err) {
+      setMsg({ ok: false, text: err.message });
+    } finally {
+      setProBusyId(null);
+    }
+  }
 
   const suppliers =
     data && Array.isArray(data.suppliers) ? data.suppliers : [];
@@ -243,6 +294,8 @@ function SubscriptionsCard() {
             rows={onlyActive(data.committees)}
             selected={selectedC}
             onToggle={toggleSelectedCommittee}
+            onSetPro={handleSetPro}
+            proBusyId={proBusyId}
           />
           {/* מחיקת גני-בדיקה — בטוח (רק גן יחיד של חשבון רגיל; חשבון מנהלת מוגן) */}
           {selectedC.size > 0 && (

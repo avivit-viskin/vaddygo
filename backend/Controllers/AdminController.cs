@@ -19,19 +19,22 @@ namespace ParentCommitteeAPI.Controllers
         private readonly ISecurityStatusService _security;
         private readonly IEncryptionBackfillService _backfill;
         private readonly IAccountService _account;
+        private readonly IProActivationService _proActivation;
 
         public AdminController(
             IUsageStatsService usageStats,
             ISubscriptionsService subscriptions,
             ISecurityStatusService security,
             IEncryptionBackfillService backfill,
-            IAccountService account)
+            IAccountService account,
+            IProActivationService proActivation)
         {
             _usageStats = usageStats;
             _subscriptions = subscriptions;
             _security = security;
             _backfill = backfill;
             _account = account;
+            _proActivation = proActivation;
         }
 
         // GET: api/admin/usage
@@ -71,6 +74,39 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult<SubscriptionsDto>> GetSubscriptions()
         {
             return Ok(await _subscriptions.GetAsync());
+        }
+
+        /*
+          PUT: api/admin/committees/{groupId}/pro — פתיחה/סגירה ידנית של מסלול
+          פרו לגן, ממסך המנויים של המנהלת.
+
+          קיים כי עד היום פרו לוועד נפתח **רק** אוטומטית אחרי תשלום (webhook
+          מ-GROW). לא הייתה שום דרך לתת מסלול ידנית — למשל לגן פיילוט, ללקוחה
+          שמשלמת בהעברה, או כדי לבדוק פיצ'ר. הפעולה עוברת דרך אותו שירות
+          שמפעיל אחרי תשלום, כדי שלא יהיו שני מסלולי הפעלה שמתנהגים שונה.
+
+          ההפעלה הידנית היא **לגן יחיד** (לפי groupId) ולא לפי מייל: לחשבון
+          אחד יכולים להיות כמה גנים, ופרו הוא per-gan.
+        */
+        [HttpPut("committees/{groupId:int}/pro")]
+        public async Task<IActionResult> SetCommitteePro(
+            int groupId, [FromBody] SetCommitteeProDto dto)
+        {
+            if (!dto.IsPro)
+            {
+                var off = await _proActivation.DeactivateCommitteeAsync(groupId);
+                return off
+                    ? Ok(new { message = "מסלול פרו נסגר לגן" })
+                    : NotFound(new { message = "הגן לא נמצא" });
+            }
+
+            // ברירת מחדל: שנה, כמו מנוי בתשלום.
+            var months = dto.Months is > 0 and <= 120 ? dto.Months!.Value : 12;
+            var until = DateTime.UtcNow.Date.AddMonths(months);
+            var on = await _proActivation.ActivateCommitteeAsync(groupId, null, until);
+            return on
+                ? Ok(new { message = $"מסלול פרו נפתח לגן עד {until:dd/MM/yyyy}", validUntil = until })
+                : NotFound(new { message = "הגן לא נמצא" });
         }
 
         /*

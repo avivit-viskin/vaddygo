@@ -39,12 +39,12 @@ namespace ParentCommitteeAPI.Services
                 audience: JwtSettings.Audience,
                 claims: claims,
                 /*
-                  התוקף לא עובר את תוקף המנוי — כשהמנוי פג, גם ה-token כבר לא
-                  תקף. יוצא דופן: חשבון המנהלת, שאינו כפוף למנוי; בלי החריג
-                  הזה היה נוצר לה token שפג כבר ברגע ההנפקה, והיא לא הייתה
-                  יכולה להיכנס כלל — גם אחרי שהחסימה תוסר בשאר המקומות.
+                  התוקף אינו נגזר עוד מתוקף המנוי. מרגע שסיום הניסיון אינו
+                  חוסם אלא מעביר למסלול החינמי, token שפג יחד עם הניסיון היה
+                  נועל את המשתמשת מחוץ לחשבון שלה — כלומר מחזיר את החסימה
+                  שביטלנו, רק בהודעת שגיאה אחרת.
                 */
-                expires: SubscriptionPolicy.EffectiveValidUntil(
+                expires: SubscriptionPolicy.TokenExpiry(
                     user.Role, user.SubscriptionValidUntil),
                 signingCredentials: credentials);
 

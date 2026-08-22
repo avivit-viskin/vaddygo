@@ -1,0 +1,57 @@
+/*
+  trial-notice.css — ההודעה בתום חודש הניסיון.
+  מיובא מהרכיב עצמו: אחרי פיצול הקוד, CSS של עמוד אינו נטען בהכרח ב-chunk
+  שבו הרכיב מוצג.
+*/
+
+.trial-notice {
+  margin: 0 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-light);
+}
+
+.trial-notice__title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 0 0 8px;
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+
+/*
+  "מה שיצרת נשמר" — החשש הראשון של מי שקוראת את ההודעה, ולכן בולט משאר
+  הטקסט ולא נבלע בו.
+*/
+.trial-notice__saved {
+  margin: 0 0 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.trial-notice__text {
+  margin: 0 0 12px;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.trial-notice__actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.trial-notice__link {
+  text-decoration: none;
+}
+
+.trial-notice__compare {
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+}

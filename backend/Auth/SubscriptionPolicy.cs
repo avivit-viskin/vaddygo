@@ -58,5 +58,28 @@ namespace ParentCommitteeAPI.Auth
 
         public static bool IsActiveFor(string? role, DateTime validUntil) =>
             IsExempt(role) || IsActive(validUntil);
+
+        /*
+          האם לחסום כניסה בגלל תוקף.
+
+          **החלטת בעלת המוצר (22.08.2026): לא חוסמים אף אחד.** בתום חודש
+          הניסיון המשתמשת עוברת ל**מסלול החינמי** — נכנסת כרגיל, רואה את כל
+          מה שיצרה, ורק פיצ'רי הפרו ננעלים. חסימת החשבון הייתה מוחקת בפועל
+          את הגישה לנתונים של מי שלא שילמה, וזה בדיוק מה שלא רצינו.
+
+          נשאר כנקודה אחת שאפשר להחזיר בה חסימה בעתיד (למשל אי-תשלום של מנוי
+          שכבר נרכש), בלי לפזר את ההחלטה בשלושה מקומות שוב.
+        */
+        public static bool ShouldBlockLogin(string? role, DateTime validUntil) => false;
+
+        /*
+          תוקף ה-token. אינו נגזר עוד מתוקף המנוי: מרגע שסיום הניסיון אינו
+          חוסם, token שפג יחד עם הניסיון היה נועל את המשתמשת מחוץ למסלול
+          החינמי — כלומר מחזיר את החסימה בדלת האחורית.
+        */
+        public static TimeSpan TokenLifetime => TimeSpan.FromDays(365);
+
+        public static DateTime TokenExpiry(string? role, DateTime validUntil) =>
+            DateTime.UtcNow.Add(TokenLifetime);
     }
 }

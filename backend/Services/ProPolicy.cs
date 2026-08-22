@@ -14,7 +14,8 @@ namespace ParentCommitteeAPI.Services
     */
     public static class ProPolicy
     {
-        public static bool IsActive(Group? group)
+        /* פרו שנרכש או שנפתח ידנית — בלי קשר לתקופת הניסיון. */
+        public static bool IsPurchased(Group? group)
         {
             if (group == null || !group.IsPro)
             {
@@ -25,5 +26,24 @@ namespace ParentCommitteeAPI.Services
             return group.ProValidUntil == null
                 || group.ProValidUntil.Value.Date >= DateTime.UtcNow.Date;
         }
+
+        /*
+          האם תקופת הניסיון של בעל/ת החשבון עדיין פעילה.
+
+          מודל התמחור (החלטת בעלת המוצר 22.08.2026): חודש ראשון מההרשמה —
+          **כל פיצ'רי הפרו פתוחים**. בסופו המשתמשת אינה נחסמת אלא **עוברת
+          למסלול החינמי**, ומה שיצרה בתקופת הניסיון נשמר במלואו.
+
+          trialUntil הוא `User.SubscriptionValidUntil` של בעל/ת הגן.
+        */
+        public static bool IsTrialActive(DateTime? trialUntil) =>
+            trialUntil != null && trialUntil.Value.Date >= DateTime.UtcNow.Date;
+
+        /*
+          האם לגן יש פיצ'רי פרו פעילים כרגע — בתשלום או בזכות הניסיון.
+          זהו הכלל היחיד שנבדק בכל נקודות האכיפה.
+        */
+        public static bool IsActive(Group? group, DateTime? ownerTrialUntil = null) =>
+            IsPurchased(group) || IsTrialActive(ownerTrialUntil);
     }
 }

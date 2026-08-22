@@ -160,7 +160,22 @@ namespace ParentCommitteeAPI.Services
             var group = await _db.Groups
                 .AsNoTracking()
                 .FirstOrDefaultAsync(g => g.Id == groupId.Value);
-            return ProPolicy.IsActive(group);
+            if (group == null)
+            {
+                return false;
+            }
+            /*
+              בחודש הראשון כל הפיצ'רים פתוחים, ולכן צריך גם את תוקף הניסיון של
+              **בעל/ת הגן** — לא של המשתמש/ת שמבצע/ת את הפעולה. אחרת חבר/ת ועד
+              שהוזמן/ה לגן היה/הייתה מכריע/ה לפי הניסיון האישי שלו/ה, ולא לפי
+              מצב הגן שבו הוא/היא עובד/ת.
+            */
+            var ownerTrialUntil = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == group.UserId)
+                .Select(u => (DateTime?)u.SubscriptionValidUntil)
+                .FirstOrDefaultAsync();
+            return ProPolicy.IsActive(group, ownerTrialUntil);
         }
 
         public async Task<string?> GetRoleAsync(int? groupId)

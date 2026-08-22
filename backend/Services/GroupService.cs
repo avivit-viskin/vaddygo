@@ -40,7 +40,7 @@ namespace ParentCommitteeAPI.Services
             var result = new List<GroupResponseDto>();
             foreach (var g in groups)
             {
-                var dto = ToResponse(g);
+                var dto = ToResponse(g, await OwnerTrialAsync(g));
                 // ההרשאה של המשתמש בגן — כדי שהלקוח יוכל להסתיר עריכה מ"צופה"
                 dto.Role = await _access.GetRoleAsync(g.Id) ?? "viewer";
                 result.Add(dto);
@@ -58,7 +58,7 @@ namespace ParentCommitteeAPI.Services
             {
                 return null;
             }
-            var dto = ToResponse(group);
+            var dto = ToResponse(group, await OwnerTrialAsync(group));
             dto.Role = await _access.GetRoleAsync(group.Id) ?? "viewer";
             return dto;
         }
@@ -87,7 +87,7 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group created (Id: {GroupId}, Categories: {CategoryCount})",
                 group.Id, group.Categories.Count);
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         /*
@@ -170,7 +170,7 @@ namespace ParentCommitteeAPI.Services
                 await _db.SaveChangesAsync();
                 _logger.LogInformation("Group name updated (Id: {GroupId})", id);
             }
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
@@ -191,7 +191,7 @@ namespace ParentCommitteeAPI.Services
             group.PayboxLink = string.IsNullOrWhiteSpace(dto.PayboxLink) ? null : dto.PayboxLink.Trim();
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group payment links updated (Id: {GroupId})", id);
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         /*
@@ -232,7 +232,7 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group payment provider updated (Id: {GroupId}, Provider: {Provider})",
                 id, group.PayProvider ?? "(none)");
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         /* עדכון חשבון הבנק של הוועד לקבלת תשלומי אשראי (בלי מפתחות). בבעלות בלבד (IDOR). */
@@ -252,7 +252,7 @@ namespace ParentCommitteeAPI.Services
             group.BankAccount = string.IsNullOrWhiteSpace(dto.Account) ? null : dto.Account.Trim();
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group bank account updated (Id: {GroupId})", id);
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         /*
@@ -318,7 +318,7 @@ namespace ParentCommitteeAPI.Services
             var refreshed = await _db.Groups
                 .Include(g => g.Categories)
                 .FirstAsync(g => g.Id == id);
-            return ToResponse(refreshed);
+            return ToResponse(refreshed, await OwnerTrialAsync(refreshed));
         }
 
         /* עדכון תקציבי החגים של הוועד — הדיקשנרי כולו נשמר כ-JSON ברמת הגן. */
@@ -341,7 +341,7 @@ namespace ParentCommitteeAPI.Services
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group holiday budgets updated (Id: {GroupId}, Count: {Count})",
                 id, budgets?.Count ?? 0);
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         /*
@@ -366,7 +366,7 @@ namespace ParentCommitteeAPI.Services
             _logger.LogInformation(
                 "Group pro set (Id: {GroupId}, IsPro: {IsPro}, Until: {Until})",
                 id, isPro, validUntil);
-            return ToResponse(group);
+            return ToResponse(group, await OwnerTrialAsync(group));
         }
 
         private static Dictionary<string, decimal> ParseHolidayBudgets(string? json)
@@ -385,7 +385,22 @@ namespace ParentCommitteeAPI.Services
             }
         }
 
-        private static GroupResponseDto ToResponse(Group group)
+        /*
+          תוקף הניסיון של בעל/ת הגן. בחודש הראשון כל פיצ'רי הפרו פתוחים, ולכן
+          חישוב "יש פרו" מחייב את התאריך הזה — הוא אינו נמצא על הגן עצמו.
+
+          הפרמטר חובה (ולא ברירת מחדל) בכוונה: כך המהדר מחייב כל אתר קריאה
+          להעביר אותו, ולא נוצר מצב שגן ייראה "פרו" במסך אחד ו"חינם" באחר —
+          בדיוק הבלבול ש-ProPolicy נועד למנוע.
+        */
+        private async Task<DateTime?> OwnerTrialAsync(Group group) =>
+            await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Id == group.UserId)
+                .Select(u => (DateTime?)u.SubscriptionValidUntil)
+                .FirstOrDefaultAsync();
+
+        private static GroupResponseDto ToResponse(Group group, DateTime? ownerTrialUntil)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
             return new GroupResponseDto
@@ -409,9 +424,17 @@ namespace ParentCommitteeAPI.Services
                 }).ToList(),
                 TotalPerChild = totalPerChild,
                 CollectionGoal = totalPerChild * group.ChildrenCount,
-                // "פרו פעיל" מחושב כאן (דגל + תוקף) כדי שהלקוח לא יחשב תפוגה בעצמו
-                IsPro = ProPolicy.IsActive(group),
+                // "פרו פעיל" מחושב כאן (רכישה או ניסיון) כדי שהלקוח לא יחשב בעצמו
+                IsPro = ProPolicy.IsActive(group, ownerTrialUntil),
                 ProValidUntil = group.ProValidUntil,
+                /*
+                  שני השדות הבאים מאפשרים ללקוח להבחין בין "פרו בתשלום" לבין
+                  "פרו בזכות הניסיון", ולהציג את ההודעה בזמן הנכון. בלעדיהם
+                  הלקוח היה רואה isPro=true ולא יודע שהוא עומד להיגמר.
+                */
+                IsTrial = !ProPolicy.IsPurchased(group)
+                          && ProPolicy.IsTrialActive(ownerTrialUntil),
+                TrialEndsAt = ownerTrialUntil,
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),

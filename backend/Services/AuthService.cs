@@ -116,7 +116,7 @@ namespace ParentCommitteeAPI.Services
                 return new AuthResult(null, "שם משתמש או סיסמה שגויים");
             }
 
-            if (!SubscriptionPolicy.IsActiveFor(user.Role, user.SubscriptionValidUntil))
+            if (SubscriptionPolicy.ShouldBlockLogin(user.Role, user.SubscriptionValidUntil))
             {
                 return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
             }
@@ -140,7 +140,7 @@ namespace ParentCommitteeAPI.Services
         public AuthResult CompleteTwoFactorLogin(User user)
         {
             // המנוי נבדק שוב: בין שליחת הקוד להקלדתו יכול לעבור זמן.
-            if (!SubscriptionPolicy.IsActiveFor(user.Role, user.SubscriptionValidUntil))
+            if (SubscriptionPolicy.ShouldBlockLogin(user.Role, user.SubscriptionValidUntil))
             {
                 return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
             }
@@ -186,7 +186,7 @@ namespace ParentCommitteeAPI.Services
                 await _db.SaveChangesAsync();
             }
 
-            if (!SubscriptionPolicy.IsActiveFor(user.Role, user.SubscriptionValidUntil))
+            if (SubscriptionPolicy.ShouldBlockLogin(user.Role, user.SubscriptionValidUntil))
             {
                 return new AuthResult(null, "תוקף המנוי פג. יש לחדש כדי להמשיך.");
             }

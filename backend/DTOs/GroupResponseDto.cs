@@ -22,6 +22,17 @@ namespace ParentCommitteeAPI.DTOs
         public bool IsPro { get; set; }
         public DateTime? ProValidUntil { get; set; }
 
+        /*
+          IsTrial — הפרו פתוח **בזכות חודש הניסיון** ולא בזכות רכישה.
+          TrialEndsAt — מתי הניסיון נגמר (גם אחרי שנגמר, כדי שאפשר יהיה להציג
+          "תקופת הניסיון הסתיימה" ולא רק להשתיק את הפיצ'רים בלי הסבר).
+
+          בסוף הניסיון החשבון **אינו נחסם** — הוא עובר למסלול החינמי, וכל מה
+          שנוצר בתקופת הניסיון נשאר במערכת.
+        */
+        public bool IsTrial { get; set; }
+        public DateTime? TrialEndsAt { get; set; }
+
         // הרשאת המשתמש המחובר בגן הזה: "manager" | "editor" | "viewer".
         // מאפשר ללקוח להתאים את הממשק (להסתיר עריכה מ"צופה"). ברירת מחדל manager.
         public string Role { get; set; } = "manager";

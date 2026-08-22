@@ -241,6 +241,10 @@ export function syncServerGroups(groups) {
       // היחיד שלו הוא השרת (ראו plan.js).
       existing.isPro = Boolean(g.isPro);
       existing.proValidUntil = g.proValidUntil || null;
+      // האם הפרו פתוח בזכות חודש הניסיון, ומתי הוא נגמר — לצורך ההודעה
+      // בתום הניסיון. בלעדיהם הלקוח רואה isPro ולא יודע שהוא זמני.
+      existing.isTrial = Boolean(g.isTrial);
+      existing.trialEndsAt = g.trialEndsAt || null;
     } else {
       const inst = {
         id: `inst-server-${g.id}`,
@@ -252,6 +256,8 @@ export function syncServerGroups(groups) {
         role,
         isPro: Boolean(g.isPro),
         proValidUntil: g.proValidUntil || null,
+        isTrial: Boolean(g.isTrial),
+        trialEndsAt: g.trialEndsAt || null,
       };
       byServerId.set(g.id, inst);
       list.push(inst);

@@ -79,6 +79,24 @@ test("יש מסלול הרשמה מחדש, עם אזהרה שהנתונים אי
   expect(mockNavigate).toHaveBeenCalledWith("/register");
 });
 
+/*
+  באג אמיתי שנתפס בשימוש: מי שנחת על המסך הזה בקישור ישיר נשאר בלי מוצא —
+  "התנתקות" מחזירה לכניסה, וכניסה מחזירה לאותו מקום. נראה בדיוק כמו חסימה
+  שלא הוסרה, למרות שהחסימה כבר לא קיימת.
+*/
+test("משתמשת מחוברת מקבלת דרך חזרה למערכת", async () => {
+  localStorage.setItem("vaadygo.token", "t");
+  renderPage();
+
+  await userEvent.click(screen.getByRole("button", { name: /חזרה למערכת/ }));
+  expect(mockNavigate).toHaveBeenCalledWith("/");
+});
+
+test("מי שאינה מחוברת לא רואה 'חזרה למערכת' (אין לאן לחזור)", () => {
+  renderPage();
+  expect(screen.queryByRole("button", { name: /חזרה למערכת/ })).toBeNull();
+});
+
 test("נאמר במפורש שהנתונים לא נמחקו", () => {
   renderPage();
   expect(screen.getByText(/שמורים ומחכים לך/)).toBeInTheDocument();

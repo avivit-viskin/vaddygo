@@ -3,7 +3,7 @@ import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
-import { logout, getUser } from "../services/authService";
+import { logout, getUser, isAuthenticated } from "../services/authService";
 import { getInstitutions } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { PRO_PAYMENT_URL } from "../config/payment";
@@ -87,6 +87,19 @@ function SubscriptionExpiredPage() {
         </p>
 
         <div className="auth-page__actions">
+          {/*
+            🔴 דרך חזרה למערכת — הפריט שחסר כאן וגרם למלכודת אמיתית.
+
+            מאז שסיום הניסיון אינו חוסם, המסך הזה אינו "קיר" אלא עמוד חידוש
+            שאפשר להגיע אליו גם בקישור ישיר. בלי כפתור חזרה, מי שנחת עליו
+            נשאר בלי מוצא: "התנתקות" מחזירה למסך כניסה, וכניסה מחזירה לאותו
+            מקום — לולאה שנראית כמו חסימה שלא הוסרה.
+          */}
+          {isAuthenticated() && (
+            <Button onClick={() => navigate("/")}>
+              <Icon name="home" size={16} /> חזרה למערכת
+            </Button>
+          )}
           {PRO_PAYMENT_URL && (
             <a
               href={PRO_PAYMENT_URL}
@@ -94,7 +107,7 @@ function SubscriptionExpiredPage() {
               rel="noreferrer"
               style={{ textDecoration: "none", display: "block" }}
             >
-              <Button>
+              <Button variant={isAuthenticated() ? "secondary" : "primary"}>
                 <Icon name="card" size={16} />{" "}
                 {primaryName ? `חידוש המנוי עבור ${primaryName}` : "חידוש המנוי"}
               </Button>

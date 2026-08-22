@@ -2,6 +2,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.Models;
 
 namespace ParentCommitteeAPI.Services
@@ -37,8 +38,14 @@ namespace ParentCommitteeAPI.Services
                 issuer: JwtSettings.Issuer,
                 audience: JwtSettings.Audience,
                 claims: claims,
-                // התוקף לא עובר את תוקף המנוי — כשהמנוי פג, גם ה-token כבר לא תקף
-                expires: user.SubscriptionValidUntil,
+                /*
+                  התוקף לא עובר את תוקף המנוי — כשהמנוי פג, גם ה-token כבר לא
+                  תקף. יוצא דופן: חשבון המנהלת, שאינו כפוף למנוי; בלי החריג
+                  הזה היה נוצר לה token שפג כבר ברגע ההנפקה, והיא לא הייתה
+                  יכולה להיכנס כלל — גם אחרי שהחסימה תוסר בשאר המקומות.
+                */
+                expires: SubscriptionPolicy.EffectiveValidUntil(
+                    user.Role, user.SubscriptionValidUntil),
                 signingCredentials: credentials);
 
             return new JwtSecurityTokenHandler().WriteToken(token);

@@ -36,5 +36,27 @@ namespace ParentCommitteeAPI.Auth
         {
             return DateTime.UtcNow <= validUntil;
         }
+
+        /*
+          חשבון המנהלת (SuperAdmin) אינו כפוף לתוקף מנוי — הוא חשבון התפעול של
+          VaddyGo ולא לקוח משלם. חסימתו נועלת את בעלת המערכת מחוץ למערכת שלה,
+          כולל ממסך המנויים שבו אפשר לפתוח מנויים — מצב שאין ממנו דרך חזרה
+          דרך הממשק.
+
+          מרוכז כאן ולא נבדק בכל מקום בנפרד: הכלל נדרש בשלושה מקומות (כניסה
+          רגילה, כניסת Google, ותוקף ה-JWT), ופספוס של אחד מהם מחזיר את
+          החסימה בדלת אחרת.
+        */
+        public const string AdminRole = "SuperAdmin";
+
+        public static bool IsExempt(string? role) =>
+            string.Equals(role, AdminRole, StringComparison.Ordinal);
+
+        /* תוקף אפקטיבי לבדיקות ולתוקף ה-token: למנהלת — תמיד רחוק. */
+        public static DateTime EffectiveValidUntil(string? role, DateTime validUntil) =>
+            IsExempt(role) ? DateTime.UtcNow.AddYears(1) : validUntil;
+
+        public static bool IsActiveFor(string? role, DateTime validUntil) =>
+            IsExempt(role) || IsActive(validUntil);
     }
 }

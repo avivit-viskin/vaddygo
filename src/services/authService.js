@@ -35,7 +35,17 @@ export function isAuthenticated() {
   משתמש בגלל מידע חסר). ה-JWT ממילא פג באותו תאריך, אז השרת אוכף גם הוא.
 */
 export function isSubscriptionExpired() {
-  const until = getUser()?.subscriptionValidUntil;
+  const user = getUser();
+  /*
+    חשבון המנהלת אינו כפוף לתוקף מנוי — הוא חשבון התפעול של VaddyGo ולא לקוח
+    משלם. חסימתו נועלת את בעלת המערכת מחוץ למערכת שלה, כולל ממסך המנויים שבו
+    פותחים מנויים — כלומר אין דרך לצאת מזה דרך הממשק. הכלל נאכף גם בשרת
+    (SubscriptionPolicy.IsActiveFor); כאן רק כדי שלא תוצג הפניה מיותרת.
+  */
+  if (user?.role === "SuperAdmin") {
+    return false;
+  }
+  const until = user?.subscriptionValidUntil;
   if (!until) {
     return false;
   }

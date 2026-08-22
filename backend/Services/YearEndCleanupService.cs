@@ -9,7 +9,7 @@ namespace ParentCommitteeAPI.Services
           הקרוב) ולא מוחקים דבר. כך גנים קיימים לעולם לא נמחקים "בהפתעה" בהפעלה
           הראשונה של המשימה — רק אחרי שנקבע להם מועד עתידי (עם התראה מראש בממשק).
         • אם הגיע מועד הניקוי — מוחקים את נתוני השנה: תלמידים (וההורים שבתוכם),
-          תשלומים, הוצאות (כולל תמונות קבלה), אירועים ומתנות. *נשמרים*: החשבון
+          תשלומים, הוצאות (כולל תמונות קבלה), אירועים, מתנות וסקרים. *נשמרים*: החשבון
           והמנוי, פרטי הגן, קטגוריות הגבייה, חברי הצוות (הרשאות), אנשי הצוות
           וקבצים — כדי שהוועד יתחיל שנה חדשה נקייה בלי להקים הכול מחדש.
       מועד הניקוי: **30 באוגוסט** בכל שנה (החלטת בעלת המוצר, 17.08.2026) —
@@ -77,7 +77,7 @@ namespace ParentCommitteeAPI.Services
             var body =
                 $"שלום 🙂\n\n" +
                 $"לקראת שנת הלימודים החדשה, נתוני השנה של \"{group.Name}\" יימחקו אוטומטית בתאריך {date}.\n\n" +
-                "יימחקו: תלמידים והורים, תשלומים, הוצאות (כולל קבלות), אירועים ומתנות.\n" +
+                "יימחקו: תלמידים והורים, תשלומים, הוצאות (כולל קבלות), אירועים, מתנות וסקרים.\n" +
                 "יישמרו: החשבון והמנוי, קטגוריות הגבייה, וחברי הצוות.\n\n" +
                 "אם יש משהו שכדאי לשמור או לייצא — זה הזמן, לפני התאריך.\n\n" +
                 "צוות VaddyGo 🩷";
@@ -118,6 +118,31 @@ namespace ParentCommitteeAPI.Services
             await _db.Expenses.Where(e => e.GroupId == groupId).ExecuteDeleteAsync(cancellationToken);
             await _db.Gifts.Where(g => g.GroupId == groupId).ExecuteDeleteAsync(cancellationToken);
             await _db.Events.Where(e => e.GroupId == groupId).ExecuteDeleteAsync(cancellationToken);
+
+            /*
+              סקרים — נוספו למחיקה השנתית (החלטת בעלת המוצר 23.08.2026). הם
+              נתוני שנה כמו השאר: שאלה שהוועד שאל את הורי השנה שעברה אינה
+              רלוונטית לשנה החדשה.
+
+              ההצבעות והאפשרויות נמחקות **לפני** הסקר עצמו — הן מצביעות עליו,
+              ומחיקה בסדר הפוך הייתה נכשלת על מפתח זר.
+            */
+            var pollIds = await _db.Polls
+                .Where(p => p.GroupId == groupId)
+                .Select(p => p.Id)
+                .ToListAsync(cancellationToken);
+            if (pollIds.Count > 0)
+            {
+                await _db.PollVotes
+                    .Where(v => pollIds.Contains(v.PollId))
+                    .ExecuteDeleteAsync(cancellationToken);
+                await _db.PollOptions
+                    .Where(o => pollIds.Contains(o.PollId))
+                    .ExecuteDeleteAsync(cancellationToken);
+                await _db.Polls
+                    .Where(p => pollIds.Contains(p.Id))
+                    .ExecuteDeleteAsync(cancellationToken);
+            }
 
             // מקדמים את הגן לשנה החדשה שנפתחת בספטמבר, וקובעים מועד ניקוי לשנה הבאה
             var justEnded = group.NextCleanupAt!.Value;

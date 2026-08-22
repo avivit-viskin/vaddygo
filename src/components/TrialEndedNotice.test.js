@@ -50,8 +50,9 @@ test("ההודעה אומרת קודם כול שהנתונים נשמרו", () =
   renderNotice();
 
   // זה החשש הראשון של מי שרואה "הניסיון הסתיים"
-  expect(screen.getByText(/כל מה שיצרת נשמר במערכת/)).toBeInTheDocument();
-  expect(screen.getByText(/שום דבר לא נמחק/)).toBeInTheDocument();
+  expect(screen.getByText(/כל מה שיצרת נשמר/)).toBeInTheDocument();
+  // מנוסח כ"המעבר לא מוחק" ולא כהבטחה מוחלטת — ב-30.8 יש מחיקה שנתית לכולם
+  expect(screen.getByText(/המעבר למסלול החינמי לא מוחק כלום/)).toBeInTheDocument();
 });
 
 test("מוצעות שתי הדרכים: חידוש ב-149 והמשך חינם", () => {

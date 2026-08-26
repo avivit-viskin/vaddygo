@@ -28,26 +28,36 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
-          מבצע פתיחה: **הפרו פתוח לכולם ללא עלות עד 1.10.2026** (החלטת בעלת
-          המוצר 26.08.2026) — הוועדים נכנסו למערכת רק עכשיו, ותקופת ניסיון
-          שנגמרת באמצע ההיערכות לשנת הלימודים הייתה נועלת פיצ'רים בדיוק ברגע
-          הכי עמוס שלהם.
+          מבצע פתיחה: **הפרו פתוח לכולם ללא עלות עד 1.10.2026**, ו**נסגר לכולם
+          באותו יום** למי שלא רכש (החלטת בעלת המוצר 26.08.2026).
 
-          מיושם כרצפה ולא כדריסה: מי שתקופת הניסיון האישית שלו/ה נמשכת מעבר
-          לתאריך הזה (למשל הרשמה ב-20.9) שומר/ת עליה במלואה.
+          התאריך הוא **סוף קשיח ולא רצפה** — עדכון להחלטה קודמת מאותו יום, שבה
+          תקופת ניסיון אישית ארוכה יותר הייתה גוברת. הכוונה העסקית היא מועד
+          אחד שבו כולם עוברים יחד למסלול החינמי, ולא זנב של תאריכים שנמשך
+          לתוך אוקטובר.
         */
         public static readonly DateTime PromoFreeProUntil =
             new(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /*
-          מתי הפרו החינמי נגמר בפועל — המאוחר מבין הניסיון האישי למבצע.
-          מקור אחד לתאריך: גם האכיפה וגם מה שמוצג למשתמשת נגזרים ממנו, ולכן
-          אי אפשר שהבאנר יבטיח תאריך אחד והמערכת תנעל באחר.
+          מתי הפרו החינמי נגמר בפועל.
+
+          הכלל תלוי ב**מועד ההרשמה** ולא באורך הניסיון:
+          • נרשם/ה לפני 1.10 → הפרו נגמר **בדיוק ב-1.10**. זה גם מאריך למי
+            שהניסיון האישי שלו כבר פג, וגם מקצר למי שנרשם/ה בסוף ספטמבר.
+          • נרשם/ה אחרי 1.10 → חוזרים למודל הרגיל: חודש מההרשמה. בלי זה
+            לקוחה חדשה בנובמבר הייתה נכנסת בלי שום תקופת ניסיון.
+
+          מקור אחד לתאריך: גם האכיפה וגם מה שמוצג בבאנר נגזרים מכאן, ולכן אי
+          אפשר שהבאנר יבטיח תאריך אחד והמערכת תנעל באחר.
         */
-        public static DateTime EffectiveTrialEnd(DateTime? trialUntil)
+        public static DateTime EffectiveTrialEnd(DateTime? trialUntil, DateTime? registeredAt)
         {
-            var personal = trialUntil ?? DateTime.MinValue;
-            return personal > PromoFreeProUntil ? personal : PromoFreeProUntil;
+            if (registeredAt == null || registeredAt.Value.Date <= PromoFreeProUntil.Date)
+            {
+                return PromoFreeProUntil;
+            }
+            return trialUntil ?? DateTime.MinValue;
         }
 
         /*
@@ -59,14 +69,15 @@ namespace ParentCommitteeAPI.Services
 
           trialUntil הוא `User.SubscriptionValidUntil` של בעל/ת הגן.
         */
-        public static bool IsTrialActive(DateTime? trialUntil) =>
-            EffectiveTrialEnd(trialUntil).Date >= DateTime.UtcNow.Date;
+        public static bool IsTrialActive(DateTime? trialUntil, DateTime? registeredAt) =>
+            EffectiveTrialEnd(trialUntil, registeredAt).Date >= DateTime.UtcNow.Date;
 
         /*
           האם לגן יש פיצ'רי פרו פעילים כרגע — בתשלום או בזכות הניסיון.
           זהו הכלל היחיד שנבדק בכל נקודות האכיפה.
         */
-        public static bool IsActive(Group? group, DateTime? ownerTrialUntil = null) =>
-            IsPurchased(group) || IsTrialActive(ownerTrialUntil);
+        public static bool IsActive(
+            Group? group, DateTime? ownerTrialUntil, DateTime? ownerRegisteredAt) =>
+            IsPurchased(group) || IsTrialActive(ownerTrialUntil, ownerRegisteredAt);
     }
 }

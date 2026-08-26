@@ -170,12 +170,15 @@ namespace ParentCommitteeAPI.Services
               שהוזמן/ה לגן היה/הייתה מכריע/ה לפי הניסיון האישי שלו/ה, ולא לפי
               מצב הגן שבו הוא/היא עובד/ת.
             */
-            var ownerTrialUntil = await _db.Users
+            // גם מועד ההרשמה: הפרו החינמי נגמר ב-1.10 לכל מי שנרשם לפניו,
+            // ולכן התאריך הזה חלק מהכלל ולא רק תוקף הניסיון.
+            var owner = await _db.Users
                 .AsNoTracking()
                 .Where(u => u.Id == group.UserId)
-                .Select(u => (DateTime?)u.SubscriptionValidUntil)
+                .Select(u => new { u.SubscriptionValidUntil, u.CreatedAt })
                 .FirstOrDefaultAsync();
-            return ProPolicy.IsActive(group, ownerTrialUntil);
+            return ProPolicy.IsActive(
+                group, owner?.SubscriptionValidUntil, owner?.CreatedAt);
         }
 
         public async Task<string?> GetRoleAsync(int? groupId)

@@ -393,14 +393,20 @@ namespace ParentCommitteeAPI.Services
           להעביר אותו, ולא נוצר מצב שגן ייראה "פרו" במסך אחד ו"חינם" באחר —
           בדיוק הבלבול ש-ProPolicy נועד למנוע.
         */
-        private async Task<DateTime?> OwnerTrialAsync(Group group) =>
-            await _db.Users
+        /* תוקף הניסיון + מועד ההרשמה של הבעלים — שניהם נדרשים לכלל של 1.10. */
+        public record OwnerPlanDates(DateTime? TrialUntil, DateTime? RegisteredAt);
+
+        private async Task<OwnerPlanDates> OwnerTrialAsync(Group group)
+        {
+            var owner = await _db.Users
                 .AsNoTracking()
                 .Where(u => u.Id == group.UserId)
-                .Select(u => (DateTime?)u.SubscriptionValidUntil)
+                .Select(u => new { u.SubscriptionValidUntil, u.CreatedAt })
                 .FirstOrDefaultAsync();
+            return new OwnerPlanDates(owner?.SubscriptionValidUntil, owner?.CreatedAt);
+        }
 
-        private static GroupResponseDto ToResponse(Group group, DateTime? ownerTrialUntil)
+        private static GroupResponseDto ToResponse(Group group, OwnerPlanDates owner)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
             return new GroupResponseDto
@@ -425,7 +431,7 @@ namespace ParentCommitteeAPI.Services
                 TotalPerChild = totalPerChild,
                 CollectionGoal = totalPerChild * group.ChildrenCount,
                 // "פרו פעיל" מחושב כאן (רכישה או ניסיון) כדי שהלקוח לא יחשב בעצמו
-                IsPro = ProPolicy.IsActive(group, ownerTrialUntil),
+                IsPro = ProPolicy.IsActive(group, owner.TrialUntil, owner.RegisteredAt),
                 ProValidUntil = group.ProValidUntil,
                 /*
                   שני השדות הבאים מאפשרים ללקוח להבחין בין "פרו בתשלום" לבין
@@ -433,10 +439,10 @@ namespace ParentCommitteeAPI.Services
                   הלקוח היה רואה isPro=true ולא יודע שהוא עומד להיגמר.
                 */
                 IsTrial = !ProPolicy.IsPurchased(group)
-                          && ProPolicy.IsTrialActive(ownerTrialUntil),
+                          && ProPolicy.IsTrialActive(owner.TrialUntil, owner.RegisteredAt),
                 // התאריך האפקטיבי (הניסיון האישי או המבצע — המאוחר), כדי
                 // שהבאנר יציג בדיוק את התאריך שבו הפיצ'רים באמת ננעלים.
-                TrialEndsAt = ProPolicy.EffectiveTrialEnd(ownerTrialUntil),
+                TrialEndsAt = ProPolicy.EffectiveTrialEnd(owner.TrialUntil, owner.RegisteredAt),
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),

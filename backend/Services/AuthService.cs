@@ -40,6 +40,14 @@ namespace ParentCommitteeAPI.Services
             var username = dto.Username.Trim();
             var email = dto.Email.Trim().ToLowerInvariant();
 
+            // כתובות "מדומה" בדומיינים שמורים (RFC 2606/6761) — משמשות בוטים/סורקים
+            // אוטומטיים שממלאים את טופס ההרשמה, לעולם לא אנשים אמיתיים. חוסמים כאן
+            // כדי לא ליצור חשבונות-זבל ולא להציף את המנהלת בהתראות "נרשם משתמש חדש".
+            if (IsReservedEmailDomain(email))
+            {
+                return new AuthResult(null, "כתובת המייל אינה תקינה");
+            }
+
             // חוזק הסיסמה נאכף בשרת — מד החוזק בלקוח הוא המלצה בלבד וניתן לעקיפה
             var weak = PasswordPolicy.Validate(dto.Password);
             if (weak != null)
@@ -79,6 +87,20 @@ namespace ParentCommitteeAPI.Services
                 "צוות VaddyGo 💗");
 
             return new AuthResult(BuildResponse(user), null);
+        }
+
+        // דומיינים "שמורים" (RFC 2606/6761) שאף אדם אמיתי לא משתמש בהם — רק
+        // כלי-בדיקה ובוטים. משמש לחסימת הרשמות-זבל אוטומטיות. המייל כבר lower-case.
+        private static bool IsReservedEmailDomain(string email)
+        {
+            return email.EndsWith("@example.com", StringComparison.Ordinal)
+                || email.EndsWith("@example.net", StringComparison.Ordinal)
+                || email.EndsWith("@example.org", StringComparison.Ordinal)
+                || email.EndsWith(".example", StringComparison.Ordinal)
+                || email.EndsWith(".test", StringComparison.Ordinal)
+                || email.EndsWith(".invalid", StringComparison.Ordinal)
+                || email.EndsWith(".localhost", StringComparison.Ordinal)
+                || email.EndsWith("@localhost", StringComparison.Ordinal);
         }
 
         // מודיע לבעלת VaddyGo (SuperAdmin) על אירוע — Resend שולח לכתובת הבעלים.

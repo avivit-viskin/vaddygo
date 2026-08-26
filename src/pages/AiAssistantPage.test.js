@@ -64,7 +64,7 @@ test("אחרי תשובה מופיע כפתור שיתוף לוואטסאפ עם
     Promise.resolve({
       ok: true,
       status: 200,
-      json: () => Promise.resolve({ answer: "הודעה חמה להורים 🩷" }),
+      json: () => Promise.resolve({ answer: "הודעה חמה להורים 💗" }),
     })
   );
   renderPage();
@@ -78,7 +78,7 @@ test("אחרי תשובה מופיע כפתור שיתוף לוואטסאפ עם
   const share = screen.getByRole("link", { name: /שיתוף בוואטסאפ/ });
   expect(share.getAttribute("href")).toContain("wa.me/?text=");
   expect(share.getAttribute("href")).toContain(
-    encodeURIComponent("הודעה חמה להורים 🩷")
+    encodeURIComponent("הודעה חמה להורים 💗")
   );
 });
 

@@ -52,7 +52,17 @@ namespace ParentCommitteeAPI.Services
         private static string RedactEmails(string text) =>
             EmailPattern.Replace(text ?? string.Empty, "<redacted>");
 
-        public async Task SendAsync(string toEmail, string subject, string body)
+        public Task SendAsync(string toEmail, string subject, string body) =>
+            SendInternalAsync(toEmail, subject, body, null, null);
+
+        public Task SendWithAttachmentAsync(
+            string toEmail, string subject, string body,
+            string attachmentFilename, byte[] attachmentContent) =>
+            SendInternalAsync(toEmail, subject, body, attachmentFilename, attachmentContent);
+
+        private async Task SendInternalAsync(
+            string toEmail, string subject, string body,
+            string? attachmentFilename, byte[]? attachmentContent)
         {
             var apiKey = _config["Resend:ApiKey"];
             if (string.IsNullOrWhiteSpace(apiKey))
@@ -76,14 +86,24 @@ namespace ParentCommitteeAPI.Services
                 + System.Net.WebUtility.HtmlEncode(body).Replace("\n", "<br>")
                 + "</div>";
 
-            var payload = new
+            // Resend מקבל קבצים מצורפים כמערך של { filename, content(base64) }.
+            object[]? attachments = null;
+            if (attachmentContent != null && attachmentContent.Length > 0
+                && !string.IsNullOrWhiteSpace(attachmentFilename))
             {
-                from,
-                to = new[] { toEmail },
-                subject,
-                html,
-                text = body,
-            };
+                attachments = new object[]
+                {
+                    new
+                    {
+                        filename = attachmentFilename,
+                        content = Convert.ToBase64String(attachmentContent),
+                    }
+                };
+            }
+
+            object payload = attachments == null
+                ? new { from, to = new[] { toEmail }, subject, html, text = body }
+                : new { from, to = new[] { toEmail }, subject, html, text = body, attachments };
             var json = JsonSerializer.Serialize(payload);
 
             using var request = new HttpRequestMessage(HttpMethod.Post, Endpoint);

@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
+import ShareInvite from "../components/ShareInvite";
 import TwoFactorPrompt from "../components/TwoFactorPrompt";
 import { login, loginWithGoogle } from "../services/authService";
 import {
@@ -188,6 +189,11 @@ function LoginPage() {
           <p className="auth-page__hint">
             ספק/ית? <Link to="/supplier-login">לכניסת ספקים 🏷️</Link>
           </p>
+          <ShareInvite
+            url={window.location.origin}
+            title="הזמנה ל-VaddyGo"
+            message="מנהלים ועד הורים? VaddyGo עוזרת לנהל גבייה, תשלומים ותקשורת עם ההורים בקלות. מוזמנים להתחיל:"
+          />
           </form>
           </>
           )}

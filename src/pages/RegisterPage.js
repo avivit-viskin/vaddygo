@@ -7,6 +7,7 @@ import Input from "../components/Input";
 import PasswordField from "../components/PasswordField";
 import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
+import ShareInvite from "../components/ShareInvite";
 import useForm from "../hooks/useForm";
 import { register } from "../services/authService";
 import { captureReferralFromUrl } from "../services/referralService";
@@ -105,6 +106,11 @@ function RegisterPage() {
           <p className="auth-page__hint">
             כבר יש לך חשבון? <Link to="/login">לכניסה עם שם משתמש או Google</Link>
           </p>
+          <ShareInvite
+            url={window.location.origin}
+            title="הזמנה ל-VaddyGo"
+            message="מנהלים ועד הורים? VaddyGo עוזרת לנהל גבייה, תשלומים ותקשורת עם ההורים בקלות. מוזמנים להתחיל:"
+          />
         </form>
       </Card>
       <SupportLink />

@@ -19,5 +19,9 @@ namespace ParentCommitteeAPI.DTOs
         [Required(ErrorMessage = "סיסמה היא שדה חובה")]
         [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל לפחות 8 תווים")]
         public string Password { get; set; } = string.Empty;
+
+        // קוד הפניה חופשי (?ref=) מהקישור שדרכו נרשמו — לזיהוי מקור ההרשמה. לא חובה.
+        [StringLength(60)]
+        public string? Ref { get; set; }
     }
 }

@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+
 namespace ParentCommitteeAPI.DTOs
 {
     /*
@@ -9,6 +11,16 @@ namespace ParentCommitteeAPI.DTOs
     {
         public FunnelDto Committees { get; set; } = new();
         public FunnelDto Suppliers { get; set; } = new();
+
+        /* פירוט הרשמות ועד לפי קוד הפניה (?ref=) — מאיזה קישור/לקוח הגיעו. */
+        public List<ReferralCountDto> Referrals { get; set; } = new();
+    }
+
+    /* ReferralCountDto — כמה משתמשים נרשמו עם קוד הפניה מסוים. */
+    public class ReferralCountDto
+    {
+        public string Code { get; set; } = string.Empty;
+        public int Count { get; set; }
     }
 
     /*

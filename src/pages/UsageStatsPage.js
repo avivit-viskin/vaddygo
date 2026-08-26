@@ -119,6 +119,43 @@ function UsageStatsPage() {
               <Icon name="crown" size={15} /> מתוכם רכשו מסלול פרו:{" "}
               <strong>{data.suppliers.pro || 0}</strong>
             </p>
+            {/* מקורות הרשמה — כמה נרשמו מכל קוד הפניה (קישור ?ref= של לקוח/שותף) */}
+            {data.referrals && data.referrals.length > 0 && (
+              <div style={{ margin: "0 0 22px" }}>
+                <p
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    margin: "0 0 8px",
+                    fontWeight: 700,
+                    color: "var(--color-primary-dark)",
+                  }}
+                >
+                  <Icon name="link" size={16} /> מקורות הרשמה (קישורי הפניה)
+                </p>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {data.referrals.map((r) => (
+                    <li
+                      key={r.code}
+                      style={{
+                        display: "flex",
+                        justifyContent: "space-between",
+                        gap: 12,
+                        padding: "7px 0",
+                        borderBottom: "1px solid var(--color-border)",
+                        fontSize: "var(--font-size-sm)",
+                      }}
+                    >
+                      <span style={{ wordBreak: "break-word" }}>{r.code}</span>
+                      <strong style={{ whiteSpace: "nowrap" }}>
+                        {r.count} {r.count === 1 ? "הרשמה" : "הרשמות"}
+                      </strong>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
             {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
             <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}

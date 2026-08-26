@@ -59,6 +59,8 @@ namespace ParentCommitteeAPI.Services
                 Email = email,
                 PasswordHash = PasswordHasher.Hash(dto.Password),
                 Role = "Member",
+                // קוד הפניה (?ref=) מהקישור שדרכו נרשמו — למקור ההרשמה בדוח השימוש.
+                ReferralCode = string.IsNullOrWhiteSpace(dto.Ref) ? null : dto.Ref.Trim(),
                 // הרשמה = תקופת ניסיון של חודש בלבד. חידוש בתשלום יאריך בהמשך.
                 SubscriptionValidUntil = SubscriptionPolicy.TrialUntil(DateTime.UtcNow),
             };

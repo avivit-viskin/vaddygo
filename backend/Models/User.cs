@@ -48,5 +48,8 @@ namespace ParentCommitteeAPI.Models
         public string? TwoFactorPhone { get; set; }
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+
+        // קוד הפניה (?ref=) שדרכו נרשם המשתמש — למקור ההרשמה בדוח השימוש. אופציונלי.
+        public string? ReferralCode { get; set; }
     }
 }

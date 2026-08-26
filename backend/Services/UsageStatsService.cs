@@ -60,6 +60,14 @@ namespace ParentCommitteeAPI.Services
             var suppliersPro = await _db.Vendors
                 .CountAsync(v => v.IsPro && (v.ProValidUntil == null || v.ProValidUntil >= now));
 
+            // פירוט הרשמות לפי קוד הפניה (?ref=) — כמה נרשמו מכל קישור/לקוח.
+            var referrals = await _db.Users
+                .Where(u => u.ReferralCode != null && u.ReferralCode != string.Empty)
+                .GroupBy(u => u.ReferralCode!)
+                .Select(g => new ReferralCountDto { Code = g.Key, Count = g.Count() })
+                .OrderByDescending(r => r.Count)
+                .ToListAsync();
+
             _logger.LogInformation(
                 "Usage stats requested (users: {Users}, vendors: {Vendors})",
                 users, vendors);
@@ -84,6 +92,7 @@ namespace ParentCommitteeAPI.Services
                     RegisteredLast30Days = vendorsLast30,
                     Pro = suppliersPro,
                 },
+                Referrals = referrals,
             };
         }
     }

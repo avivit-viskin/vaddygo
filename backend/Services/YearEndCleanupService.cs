@@ -157,12 +157,27 @@ namespace ParentCommitteeAPI.Services
                 groupId, studentIds.Count, group.NextCleanupAt);
         }
 
-        // ה-1 בספטמבר הקרוב שעדיין לא עבר (UTC) — פתיחת שנת הלימודים הבאה
-        /* ה-30 באוגוסט הקרוב. אם התאריך כבר עבר השנה — של השנה הבאה. */
+        /*
+          המחיקה הראשונה שמותר לתזמן. ‏30.08.2026 נדחה בהחלטת בעלת המוצר
+          (23.08.2026) כי הוועדים נכנסו למערכת רק עכשיו — ולכן **אף גן** אינו
+          מתוזמן למועד ההוא, גם לא גן שנוצר היום.
+
+          🔴 בלי הרצפה הזאת, המיגרציה שדחתה את הגנים הקיימים לא הספיקה: כל גן
+          חדש היה מקבל שוב את 30.08.2026 (התאריך עדיין לא עבר), רואה מיד באנר
+          "הנתונים יימחקו", ובאמת נמחק. בדיוק מה שדווח על מוסד שנוצר עכשיו.
+        */
+        private static readonly DateTime EarliestCleanup =
+            new(2027, 8, 30, 0, 0, 0, DateTimeKind.Utc);
+
+        /* ה-30 באוגוסט הקרוב שעדיין לא עבר, אך לעולם לא לפני EarliestCleanup. */
         private static DateTime NextAugust30(DateTime from)
         {
             var target = new DateTime(from.Year, 8, 30, 0, 0, 0, DateTimeKind.Utc);
-            return target <= from ? target.AddYears(1) : target;
+            if (target <= from)
+            {
+                target = target.AddYears(1);
+            }
+            return target < EarliestCleanup ? EarliestCleanup : target;
         }
     }
 }

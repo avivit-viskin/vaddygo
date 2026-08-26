@@ -39,6 +39,22 @@ export async function saveOnboarding(data) {
   try {
     const group = await api.post("/api/groups", toGroupPayload(data));
     persistLocally(data, { groupId: group.id, syncedWithServer: true });
+    /*
+      מסנכרנים מיד אחרי היצירה, ולא ממתינים לטעינה הבאה של האפליקציה.
+
+      הרשומה המקומית של מוסד חדש נוצרת בלי מזהה שרת ובלי מצב המסלול, ולכן
+      עד הסנכרון המוסד נראה **בלי פרו** — הפיצ'רים מוצגים כנעולים והבאנר של
+      "פרו ללא עלות" אינו מופיע, למרות שבשרת הכול פתוח. באג אמיתי שדווח:
+      "הוספתי מוסד חדש והפרו לא נפתח בו".
+
+      שקט לכשלים: אם הסנכרון נכשל, המוסד עדיין נוצר בשרת והנתונים יגיעו
+      בטעינה הבאה — אין סיבה להיכשל על היצירה עצמה.
+    */
+    try {
+      await syncInstitutionsFromServer();
+    } catch {
+      // ignore — הסנכרון יקרה ממילא בעליית האפליקציה הבאה
+    }
     return { synced: true, groupId: group.id };
   } catch {
     persistLocally(data, { syncedWithServer: false });

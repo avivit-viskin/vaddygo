@@ -1,7 +1,9 @@
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
 import SupportLink from "../components/SupportLink";
+import ShareLinkModal from "../components/ShareLinkModal";
 import "../styles/onboarding.css";
 
 /*
@@ -12,6 +14,7 @@ import "../styles/onboarding.css";
 */
 function WelcomePage() {
   const navigate = useNavigate();
+  const [shareOpen, setShareOpen] = useState(false);
 
   return (
     <div className="welcome">
@@ -36,8 +39,42 @@ function WelcomePage() {
             כבר יש לי חשבון — כניסה
           </Button>
         </div>
+        <p
+          className="welcome__text"
+          style={{
+            margin: "14px 0 0",
+            fontSize: "var(--font-size-sm)",
+            color: "var(--color-text-muted)",
+          }}
+        >
+          מכירים ועד שיכול להיעזר?{" "}
+          <button
+            type="button"
+            onClick={() => setShareOpen(true)}
+            style={{
+              background: "none",
+              border: "none",
+              padding: 0,
+              font: "inherit",
+              color: "var(--color-primary-dark)",
+              fontWeight: 700,
+              textDecoration: "underline",
+              cursor: "pointer",
+            }}
+          >
+            שיתוף הקישור
+          </button>
+        </p>
         <SupportLink />
       </div>
+
+      <ShareLinkModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={window.location.origin}
+        title="הזמנה ל-VaddyGo"
+        message="מנהלים ועד הורים? VaddyGo עוזרת לנהל גבייה, תשלומים ותקשורת עם ההורים בקלות. מוזמנים להתחיל:"
+      />
     </div>
   );
 }

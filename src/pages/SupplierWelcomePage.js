@@ -7,7 +7,7 @@ import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
 import { supplierLoginWithGoogle } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
-import { toastSuccess } from "../services/toastBus";
+import ShareLinkModal from "../components/ShareLinkModal";
 import "../styles/onboarding.css";
 
 /*
@@ -18,6 +18,7 @@ import "../styles/onboarding.css";
 function SupplierWelcomePage() {
   const navigate = useNavigate();
   const [googleError, setGoogleError] = useState("");
+  const [shareOpen, setShareOpen] = useState(false);
 
   // כניסה מהירה עם Google — לספק שכבר קיים (מייל ההתחברות שלו הוא חשבון הגוגל).
   // useCallback יציב כדי לא לאתחל את כפתור גוגל שוב ושוב.
@@ -39,32 +40,6 @@ function SupplierWelcomePage() {
       "לא הצלחנו לטעון את כניסת Google. אפשר להיכנס עם מייל וסיסמה."
     );
   }, []);
-
-  // שיתוף דף ההרשמה לספקים — כדי שספק יירשם בעצמו בלי שנרשום אותו מראש. משתפים
-  // את /suppliers (הדף הזה, שכולל "הרשמת ספק חדש"); באפליקציה עצמאית אין שורת
-  // כתובת, ולכן פותחים את תפריט השיתוף של המכשיר, ואם אין — מעתיקים ללוח.
-  async function shareSupplierPortal() {
-    const url = `${window.location.origin}/suppliers`;
-    const shareData = {
-      title: "הצטרפות כספק ל-VaddyGo",
-      text: "מוזמנים להצטרף כספקים ל-VaddyGo — לנהל קטלוג מוצרים שוועדי הורים רואים ומזמינים ממנו:",
-      url,
-    };
-    if (navigator.share) {
-      try {
-        await navigator.share(shareData);
-        return;
-      } catch {
-        return;
-      }
-    }
-    try {
-      await navigator.clipboard.writeText(url);
-      toastSuccess("הקישור להרשמת ספקים הועתק — אפשר להדביק ולשלוח 🙂");
-    } catch {
-      toastSuccess(url);
-    }
-  }
 
   return (
     <div className="welcome">
@@ -116,7 +91,7 @@ function SupplierWelcomePage() {
           רוצים להזמין ספק להירשם בעצמו?{" "}
           <button
             type="button"
-            onClick={shareSupplierPortal}
+            onClick={() => setShareOpen(true)}
             style={{
               background: "none",
               border: "none",
@@ -144,6 +119,14 @@ function SupplierWelcomePage() {
         </p>
         <SupportLink />
       </div>
+
+      <ShareLinkModal
+        isOpen={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={`${window.location.origin}/suppliers`}
+        title="הזמנת ספק ל-VaddyGo"
+        message="מוזמנים להצטרף כספקים ל-VaddyGo — לנהל קטלוג מוצרים שוועדי הורים רואים ומזמינים ממנו:"
+      />
     </div>
   );
 }

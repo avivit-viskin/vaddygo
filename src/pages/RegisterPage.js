@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
@@ -8,6 +9,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
 import useForm from "../hooks/useForm";
 import { register } from "../services/authService";
+import { captureReferralFromUrl } from "../services/referralService";
 import "../styles/onboarding.css";
 
 /*
@@ -37,6 +39,11 @@ function RegisterPage() {
   const [searchParams] = useSearchParams();
   const nextParam = searchParams.get("next");
   const safeNext = nextParam && nextParam.startsWith("/") ? nextParam : null;
+  // לוכד קוד הפניה (?ref=CODE) מהקישור בכניסה לעמוד — יישמר וישלח בהרשמה,
+  // כדי שהמנהלת תראה מכל לקוח/שותף כמה נרשמו דרך הקישור שלו.
+  useEffect(() => {
+    captureReferralFromUrl(window.location.search);
+  }, []);
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm({ username: "", email: "", password: "" }, validate);
 

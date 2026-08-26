@@ -1,5 +1,6 @@
 import { api } from "./api";
 import { COOKIE_CONSENT_KEY } from "./cookieConsentService";
+import { getReferralCode, clearReferralCode } from "./referralService";
 
 /*
   authService — הזדהות המנוי (UI_SPEC ס' 2): הרשמה בעת הרכישה (שם משתמש +
@@ -140,9 +141,17 @@ function store(auth) {
 }
 
 export async function register({ username, email, password }) {
-  const auth = await api.post("/api/auth/register", { username, email, password });
+  // קוד הפניה (?ref=) שנלכד בקישור ההרשמה — נשלח כדי שהמנהלת תראה מקור ההרשמה.
+  const ref = getReferralCode();
+  const auth = await api.post("/api/auth/register", {
+    username,
+    email,
+    password,
+    ...(ref ? { ref } : {}),
+  });
   store(auth);
   markNewUser(); // משתמש חדש — יראה פעם אחת את פופאפ הברוכים-הבאים
+  clearReferralCode(); // נשלח — לא צריך לדבוק להרשמה הבאה במכשיר
   return auth;
 }
 

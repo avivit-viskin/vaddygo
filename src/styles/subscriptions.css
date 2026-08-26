@@ -168,6 +168,12 @@
   background: #fdecea;
   color: #c0392b;
 }
+/* פרו ללא עלות — כחול, כדי שלא ייקרא בטעות כהכנסה (ירוק) */
+.subs__pill--info {
+  background: #e8f1fb;
+  color: #1f4e79;
+}
+
 .subs__pill--muted {
   background: var(--color-bg);
   border: 1px solid var(--color-border);

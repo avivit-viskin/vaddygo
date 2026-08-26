@@ -69,17 +69,32 @@ namespace ParentCommitteeAPI.Services
 
             var result = new SubscriptionsDto
             {
+                /*
+                  לוועדים מועבר גם מועד ההרשמה, כי הפרו החינמי (עד 1.10) נגזר
+                  ממנו. בלי זה המסך היה מציג "לא מנוי" לכל המוסדות בזמן שלכולם
+                  יש פרו בפועל — כלומר סותר את שאר המערכת.
+
+                  לספקים אין מבצע כזה, ולכן הם ממופים בלי מועד הרשמה ונשארים
+                  בשני המצבים הקודמים בלבד.
+                */
                 Committees = committees
-                    .Select(c => ToRow(c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, today))
+                    .Select(c => ToRow(
+                        c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, today,
+                        registeredAt: c.Created))
                     .ToList(),
                 Suppliers = suppliers
-                    .Select(s => ToRow(s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, today))
+                    .Select(s => ToRow(
+                        s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, today,
+                        registeredAt: null))
                     .ToList(),
             };
 
             var all = result.Committees.Concat(result.Suppliers).ToList();
+            // "פעיל" = משלם. הפרו החינמי נספר בנפרד ובכוונה — אחרת מספר
+            // המנויים היה קופץ לגובה בזמן המבצע ומתרסק ב-1.10 בלי שקרה כלום.
             result.ActiveCount = all.Count(r => r.Status == "active" || r.Status == "expiring");
             result.ExpiringSoonCount = all.Count(r => r.Status == "expiring");
+            result.TrialCount = all.Count(r => r.Status == "trial");
             return result;
         }
 
@@ -90,7 +105,7 @@ namespace ParentCommitteeAPI.Services
         */
         private static SubscriptionRowDto ToRow(
             int id, string name, bool isPro, DateTime? until, DateTime? created,
-            string? email, DateTime today)
+            string? email, DateTime today, DateTime? registeredAt)
         {
             var row = new SubscriptionRowDto
             {
@@ -104,6 +119,20 @@ namespace ParentCommitteeAPI.Services
 
             if (!isPro)
             {
+                /*
+                  אינו מנוי בתשלום — אבל ייתכן שהפרו פתוח לו ללא עלות (המבצע
+                  עד 1.10). מצב שלישי ונפרד, ולא "active": המסך הזה עונה על
+                  "מי משלם לי", ולצבוע את כולם כמנויים היה מרוקן אותו מתוכן
+                  בדיוק בחודש שבו הכול חינם.
+                */
+                if (registeredAt != null
+                    && ProPolicy.IsTrialActive(null, registeredAt))
+                {
+                    row.Status = "trial";
+                    row.ValidUntil = ProPolicy.EffectiveTrialEnd(null, registeredAt);
+                    row.DaysLeft = (row.ValidUntil.Value.Date - today).Days;
+                    return row;
+                }
                 row.Status = "free";
                 return row;
             }

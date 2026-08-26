@@ -57,7 +57,8 @@ beforeEach(() => {
 test("מציג סיכום, ושני הערוצים עם הסטטוס של כל אחד", async () => {
   render(<SubscriptionsCard />);
 
-  expect(await screen.findByText(/מנויים פעילים/)).toBeInTheDocument();
+  // "מנויים בתשלום" ולא "פעילים": המבצע נספר בנפרד, ראו הטסט על trial
+  expect(await screen.findByText(/מנויים בתשלום/)).toBeInTheDocument();
   expect(screen.getByText(/1 פגים בתוך 30 יום/)).toBeInTheDocument();
 
   expect(screen.getByText("גן הפרחים")).toBeInTheDocument();
@@ -88,6 +89,31 @@ test("שגיאה מהשרת מוצגת ולא מפילה את המסך", async (
   אחרי תשלום — כלומר לא היה שום אופן לתת אותו לגן פיילוט או ללקוחה שמשלמת
   בהעברה, וזו הייתה הבקשה.
 */
+/*
+  המבצע (פרו חינם עד 1.10) נספר ומוצג בנפרד מהמשלמים. אם כולם היו נצבעים
+  כ"מנוי", המסך היה מפסיק לענות על השאלה שבשבילה הוא נבנה — מי מכניס כסף.
+*/
+test("פרו ללא עלות מוצג כמצב נפרד, ולא כמנוי בתשלום", async () => {
+  getSubscriptions.mockResolvedValue({
+    ...data,
+    activeCount: 1,
+    trialCount: 1,
+    committees: [
+      { id: 1, name: "גן משלם", isPro: true, validUntil: "2027-08-10T00:00:00Z", daysLeft: 365, status: "active" },
+      { id: 2, name: "גן במבצע", isPro: false, validUntil: "2026-10-01T00:00:00Z", daysLeft: 36, status: "trial" },
+    ],
+    suppliers: [],
+  });
+
+  render(<SubscriptionsCard />);
+
+  await screen.findByText("גן במבצע");
+  expect(screen.getByText("פרו ללא עלות")).toBeInTheDocument();
+  expect(screen.getByText("מנוי בתשלום")).toBeInTheDocument();
+  // הסיכום מפריד בין השניים
+  expect(screen.getByText(/בפרו ללא עלות/)).toBeInTheDocument();
+});
+
 test("לגן שאינו מנוי מוצע לפתוח פרו, ולגן מנוי מוצע לסגור", async () => {
   getSubscriptions.mockResolvedValue(data);
   render(<SubscriptionsCard />);

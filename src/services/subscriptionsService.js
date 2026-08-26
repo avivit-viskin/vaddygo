@@ -31,7 +31,10 @@ export async function setCommitteePro(groupId, isPro, months) {
 
 /* תווית עברית + צבע לסטטוס שהשרת מחזיר. מקור אחד לכל המסך. */
 const STATUS_LABELS = {
-  active: { label: "מנוי פעיל", tone: "good" },
+  active: { label: "מנוי בתשלום", tone: "good" },
+  // פרו שניתן במסגרת המבצע — נבדל מהמשלמים בכוונה, כדי שאפשר יהיה לראות
+  // בבת אחת מי נהנה מהפיצ'רים ומי באמת מכניס כסף.
+  trial: { label: "פרו ללא עלות", tone: "info" },
   expiring: { label: "פג בקרוב", tone: "warn" },
   expired: { label: "פג", tone: "bad" },
   free: { label: "לא מנוי", tone: "muted" },

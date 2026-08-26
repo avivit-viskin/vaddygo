@@ -268,7 +268,15 @@ function SubscriptionsCard() {
             רשומים
           </p>
           <p className="subs__summary">
-            <strong>{data.activeCount}</strong> מנויים פעילים (פרו)
+            <strong>{data.activeCount}</strong> מנויים בתשלום
+            {data.trialCount > 0 && (
+              <>
+                {" · "}
+                {/* המבצע נספר בנפרד: אחרת "מספר המנויים" היה קופץ בזמן
+                    המבצע ומתרסק ב-1.10 בלי ששום דבר באמת קרה. */}
+                <strong>{data.trialCount}</strong> בפרו ללא עלות
+              </>
+            )}
             {data.expiringSoonCount > 0 && (
               <>
                 {" · "}

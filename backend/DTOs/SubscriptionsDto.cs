@@ -13,12 +13,17 @@ namespace ParentCommitteeAPI.DTOs
         /* סיכומים מהירים — מחושבים בשרת כדי ששני הצדדים לא יספרו אחרת. */
         public int ActiveCount { get; set; }
         public int ExpiringSoonCount { get; set; }
+
+        /* כמה נהנים מפרו **ללא עלות** (המבצע עד 1.10) — נספר בנפרד
+           מהמשלמים, כדי שמספר המנויים ישקף הכנסה ולא מבצע. */
+        public int TrialCount { get; set; }
     }
 
     /*
       SubscriptionRowDto — שורה אחת (ועד או ספק). Status הוא הערך שהמסך מציג:
-      "active" (מנוי פעיל) · "expiring" (פג בתוך 30 יום) · "expired" (פג) ·
-      "free" (לא מנוי). מחושב בשרת — מקור אמת אחד.
+      "active" (מנוי בתשלום) · "expiring" (פג בתוך 30 יום) · "expired" (פג) ·
+      "trial" (פרו ללא עלות — המבצע עד 1.10) · "free" (לא מנוי).
+      מחושב בשרת — מקור אמת אחד.
     */
     public class SubscriptionRowDto
     {

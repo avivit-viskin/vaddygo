@@ -235,6 +235,32 @@ using (var scope = app.Services.CreateScope())
             app.Logger.LogInformation("Promoted user {UserId} to SuperAdmin", admin.Id);
         }
     }
+
+    // ניקוי חשבונות-בוט עם דומיינים "מדומה" שמורים (RFC 2606/6761) שנוצרו לפני
+    // שהוספנו את החסימה בהרשמה. בטוח — אלה לעולם לא אנשים אמיתיים. אידמפוטנטי:
+    // 0 אחרי שהחסימה בהרשמה פועלת, ולכן נשאר גם כרשת-ביטחון להבא.
+    var junkIds = db.Users
+        .Where(u => u.Role != "SuperAdmin" && (
+            u.Email.EndsWith("@example.com") ||
+            u.Email.EndsWith("@example.net") ||
+            u.Email.EndsWith("@example.org") ||
+            u.Email.EndsWith(".example") ||
+            u.Email.EndsWith(".test") ||
+            u.Email.EndsWith(".invalid") ||
+            u.Email.EndsWith(".localhost") ||
+            u.Email.EndsWith("@localhost")))
+        .Select(u => u.Id)
+        .ToList();
+    if (junkIds.Count > 0)
+    {
+        var account = scope.ServiceProvider.GetRequiredService<IAccountService>();
+        foreach (var id in junkIds)
+        {
+            account.DeleteAccountAsync(id).GetAwaiter().GetResult();
+        }
+        app.Logger.LogInformation(
+            "Startup cleanup: removed {Count} reserved-domain (bot) account(s)", junkIds.Count);
+    }
 }
 
 // כותרות אבטחה על כל תשובה — ראשון, כדי שיחולו גם על תשובות שגיאה

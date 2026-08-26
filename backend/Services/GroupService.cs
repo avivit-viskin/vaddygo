@@ -434,7 +434,9 @@ namespace ParentCommitteeAPI.Services
                 */
                 IsTrial = !ProPolicy.IsPurchased(group)
                           && ProPolicy.IsTrialActive(ownerTrialUntil),
-                TrialEndsAt = ownerTrialUntil,
+                // התאריך האפקטיבי (הניסיון האישי או המבצע — המאוחר), כדי
+                // שהבאנר יציג בדיוק את התאריך שבו הפיצ'רים באמת ננעלים.
+                TrialEndsAt = ProPolicy.EffectiveTrialEnd(ownerTrialUntil),
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),

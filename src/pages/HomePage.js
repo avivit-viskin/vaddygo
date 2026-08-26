@@ -25,6 +25,7 @@ import StaffBirthdays from "./home/StaffBirthdays";
 import ExpensesList from "./home/ExpensesList";
 import YearEndCleanupBanner from "./home/YearEndCleanupBanner";
 import TrialEndedNotice from "../components/TrialEndedNotice";
+import TrialActiveBanner from "../components/TrialActiveBanner";
 import Modal from "../components/Modal";
 import { getUser } from "../services/authService";
 import "../styles/home.css";
@@ -141,6 +142,7 @@ function HomePage() {
         בתום חודש הניסיון — הצעה לחדש או להמשיך בחינם. מופיע כאן ולא
         כמסך חוסם: המשתמשת ממשיכה לעבוד, ורק פיצ'רי הפרו ננעלים.
       */}
+      <TrialActiveBanner />
       <TrialEndedNotice />
 
       <YearEndCleanupBanner />

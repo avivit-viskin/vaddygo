@@ -28,6 +28,29 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
+          מבצע פתיחה: **הפרו פתוח לכולם ללא עלות עד 1.10.2026** (החלטת בעלת
+          המוצר 26.08.2026) — הוועדים נכנסו למערכת רק עכשיו, ותקופת ניסיון
+          שנגמרת באמצע ההיערכות לשנת הלימודים הייתה נועלת פיצ'רים בדיוק ברגע
+          הכי עמוס שלהם.
+
+          מיושם כרצפה ולא כדריסה: מי שתקופת הניסיון האישית שלו/ה נמשכת מעבר
+          לתאריך הזה (למשל הרשמה ב-20.9) שומר/ת עליה במלואה.
+        */
+        public static readonly DateTime PromoFreeProUntil =
+            new(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        /*
+          מתי הפרו החינמי נגמר בפועל — המאוחר מבין הניסיון האישי למבצע.
+          מקור אחד לתאריך: גם האכיפה וגם מה שמוצג למשתמשת נגזרים ממנו, ולכן
+          אי אפשר שהבאנר יבטיח תאריך אחד והמערכת תנעל באחר.
+        */
+        public static DateTime EffectiveTrialEnd(DateTime? trialUntil)
+        {
+            var personal = trialUntil ?? DateTime.MinValue;
+            return personal > PromoFreeProUntil ? personal : PromoFreeProUntil;
+        }
+
+        /*
           האם תקופת הניסיון של בעל/ת החשבון עדיין פעילה.
 
           מודל התמחור (החלטת בעלת המוצר 22.08.2026): חודש ראשון מההרשמה —
@@ -37,7 +60,7 @@ namespace ParentCommitteeAPI.Services
           trialUntil הוא `User.SubscriptionValidUntil` של בעל/ת הגן.
         */
         public static bool IsTrialActive(DateTime? trialUntil) =>
-            trialUntil != null && trialUntil.Value.Date >= DateTime.UtcNow.Date;
+            EffectiveTrialEnd(trialUntil).Date >= DateTime.UtcNow.Date;
 
         /*
           האם לגן יש פיצ'רי פרו פעילים כרגע — בתשלום או בזכות הניסיון.

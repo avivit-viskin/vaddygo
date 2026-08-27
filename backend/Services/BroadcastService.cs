@@ -76,6 +76,18 @@ namespace ParentCommitteeAPI.Services
                 .Select(v => v.LoginEmail)
                 .Distinct();
 
+        /*
+          ספקים שלא העלו אף מוצר — כרטיס ריק שהוועדים לא רואים בו כלום. תזכורת
+          ממוקדת להוסיף מוצר ראשון.
+        */
+        private IQueryable<string> SuppliersWithoutProductsEmailsQuery() =>
+            _db.Vendors
+                .AsNoTracking()
+                .Where(v => v.LoginEmail != null && v.LoginEmail != "")
+                .Where(v => !v.Products.Any())
+                .Select(v => v.LoginEmail)
+                .Distinct();
+
         /* בוחר את שאילתת הנמענים לפי הקהל (ברירת מחדל: בעלי מוסדות). */
         private IQueryable<string> EmailsForAudience(string? audience)
         {
@@ -84,6 +96,7 @@ namespace ParentCommitteeAPI.Services
             {
                 "incomplete" => IncompleteEmailsQuery(),
                 "suppliers" => SupplierEmailsQuery(),
+                "suppliers_empty" => SuppliersWithoutProductsEmailsQuery(),
                 _ => OwnerEmailsQuery(),
             };
         }

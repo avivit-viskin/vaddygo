@@ -64,7 +64,17 @@ export function shouldShowTrialEnded(institution) {
 }
 
 function TrialEndedNotice() {
-  const institution = getActiveInstitution();
+  /*
+    נקרא **פעם אחת בהרכבה** ולא בכל רינדור.
+
+    🔴 באג שדווח מהשטח: "תזוזה של הקטגוריות, מסך רועד". סנכרון המוסדות רץ
+    ברקע אחרי שהעמוד כבר צויר, ואז רינדור מחדש היה מכניס את הבאנר **מעל**
+    התוכן ודוחף את הקטגוריות למטה — בכל טעינה, אצל כל ועד.
+
+    נתוני המוסד נשמרים ב-localStorage, ולכן מהטעינה השנייה ואילך ההחלטה
+    נכונה כבר בציור הראשון והבאנר אינו מזיז דבר.
+  */
+  const [institution] = useState(() => getActiveInstitution());
   const key = String(institution?.serverGroupId ?? institution?.id ?? "default");
   const [dismissed, setDismissed] = useState(() => readDismissed().has(key));
 

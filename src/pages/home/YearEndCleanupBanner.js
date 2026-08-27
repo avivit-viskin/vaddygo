@@ -1,6 +1,5 @@
-import { useEffect, useState } from "react";
-import { getGroups } from "../../services/groupsService";
-import { getActiveServerGroupId } from "../../services/institutionsService";
+import { useState } from "react";
+import { getActiveInstitution } from "../../services/institutionsService";
 
 /*
   YearEndCleanupBanner — התראה במסך הבית כשמתקרב מועד הניקוי האוטומטי של נתוני
@@ -26,37 +25,27 @@ function dismissKey(groupId, cleanupAt) {
 }
 
 function YearEndCleanupBanner() {
-  const [cleanupAt, setCleanupAt] = useState(null);
-  const [groupId, setGroupId] = useState(null);
-  const [dismissed, setDismissed] = useState(false);
+  /*
+    נקרא **פעם אחת בהרכבה** מהנתונים שכבר קיימים במכשיר, ולא בשליפה מהשרת.
 
-  useEffect(() => {
-    let alive = true;
-    getGroups()
-      .then((groups) => {
-        if (!alive || !Array.isArray(groups)) {
-          return;
-        }
-        const activeId = getActiveServerGroupId();
-        const active = groups.find((g) => g.id === activeId) || groups[0];
-        const at = active?.nextCleanupAt || null;
-        setCleanupAt(at);
-        setGroupId(active?.id ?? null);
-        if (at) {
-          try {
-            setDismissed(
-              localStorage.getItem(dismissKey(active?.id ?? null, at)) === "1"
-            );
-          } catch {
-            // אחסון חסום — פשוט לא זוכרים סגירה, לא נורא
-          }
-        }
-      })
-      .catch(() => {});
-    return () => {
-      alive = false;
-    };
-  }, []);
+    🔴 באג שדווח מהשטח: "תזוזה של הקטגוריות, מסך רועד". הבאנר שלף את הגנים
+    מהשרת ב-useEffect, ואז נכנס **מעל** התוכן ודחף את הקטגוריות למטה — בכל
+    טעינה של מסך הבית. במקביל זו הייתה קריאת רשת מיותרת: אותם נתונים כבר
+    נמשכים בעליית האפליקציה ונשמרים ברשימת המוסדות.
+  */
+  const [institution] = useState(() => getActiveInstitution());
+  const cleanupAt = institution?.nextCleanupAt || null;
+  const groupId = institution?.serverGroupId ?? null;
+  const [dismissed, setDismissed] = useState(() => {
+    if (!cleanupAt) {
+      return false;
+    }
+    try {
+      return localStorage.getItem(dismissKey(groupId, cleanupAt)) === "1";
+    } catch {
+      return false; // אחסון חסום — פשוט לא זוכרים סגירה
+    }
+  });
 
   if (!cleanupAt || dismissed) {
     return null;

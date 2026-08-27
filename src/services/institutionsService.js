@@ -243,6 +243,7 @@ export function syncServerGroups(groups) {
       existing.proValidUntil = g.proValidUntil || null;
       // האם הפרו פתוח בזכות חודש הניסיון, ומתי הוא נגמר — לצורך ההודעה
       // בתום הניסיון. בלעדיהם הלקוח רואה isPro ולא יודע שהוא זמני.
+      existing.nextCleanupAt = g.nextCleanupAt || null;
       existing.isTrial = Boolean(g.isTrial);
       existing.trialEndsAt = g.trialEndsAt || null;
     } else {
@@ -256,6 +257,7 @@ export function syncServerGroups(groups) {
         role,
         isPro: Boolean(g.isPro),
         proValidUntil: g.proValidUntil || null,
+        nextCleanupAt: g.nextCleanupAt || null,
         isTrial: Boolean(g.isTrial),
         trialEndsAt: g.trialEndsAt || null,
       };

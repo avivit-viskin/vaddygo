@@ -15,6 +15,7 @@ import { paymentMethodLabel } from "../../services/paymentMethods";
 import { formatShekels, formatDayMonth } from "../../services/format";
 import { isActiveReadOnly } from "../../services/institutionsService";
 import ReceiptCaptureModal from "./ReceiptCaptureModal";
+import RecycleBin from "./RecycleBin";
 import "../../styles/receipts.css";
 
 /*
@@ -224,6 +225,9 @@ function ReceiptsCard() {
         </ProGate>
       )}
 
+      {/* סל מיחזור — קבלות/הוצאות שנמחקו, ניתנות לשחזור 30 יום */}
+      <RecycleBin onChange={reload} />
+
       <ReceiptCaptureModal
         isOpen={adding || editing !== null}
         receipt={editing}
@@ -267,7 +271,7 @@ function ReceiptsCard() {
           deleting
             ? `למחוק את הקבלה על סך ${formatShekels(
                 deleting.amount
-              )}? הסכום יוחזר ליתרה. אי אפשר לבטל.`
+              )}? הסכום יוחזר ליתרה. הקבלה תעבור לסל המיחזור וניתן לשחזר אותה 30 יום.`
             : ""
         }
         onConfirm={handleDelete}

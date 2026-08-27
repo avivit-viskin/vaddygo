@@ -1,0 +1,134 @@
+/*
+  recycle-bin.css — "סל מיחזור" בתחתית כרטיס הקבלות. עיצוב עדין ומאופק (הפריטים
+  כאן פחות בולטים מהקבלות הפעילות) בגוונים הרכים של המערכת.
+*/
+.recycle-bin {
+  margin-top: 18px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 12px;
+}
+
+.recycle-bin__toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  background: none;
+  border: none;
+  padding: 6px 2px;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm, 0.9rem);
+  font-weight: 600;
+  font-family: inherit;
+  text-align: right;
+}
+
+.recycle-bin__toggle:hover {
+  color: var(--color-text);
+}
+
+.recycle-bin__chevron {
+  margin-inline-start: auto;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.recycle-bin__body {
+  margin-top: 10px;
+}
+
+.recycle-bin__hint,
+.recycle-bin__empty {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm, 0.9rem);
+  margin: 0 0 12px;
+  line-height: 1.5;
+}
+
+.recycle-bin__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.recycle-bin__item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  background: var(--color-card-tint, var(--color-surface));
+}
+
+.recycle-bin__thumb {
+  width: 48px;
+  height: 48px;
+  object-fit: cover;
+  border-radius: 8px;
+  flex-shrink: 0;
+  opacity: 0.85;
+}
+
+.recycle-bin__thumb--icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--color-primary-muted, var(--color-card-dark));
+  color: var(--color-text-muted);
+}
+
+.recycle-bin__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.recycle-bin__name {
+  font-weight: 600;
+  color: var(--color-text);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.recycle-bin__meta {
+  font-size: var(--font-size-sm, 0.85rem);
+  color: var(--color-text-muted);
+}
+
+.recycle-bin__left {
+  font-size: 0.78rem;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}
+
+.recycle-bin__actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.recycle-bin__purge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: none;
+  color: var(--color-error);
+  cursor: pointer;
+}
+
+.recycle-bin__purge:hover {
+  background: var(--color-error-bg);
+}

@@ -8,8 +8,24 @@ import {
   IMPORT_TEMPLATE,
 } from "../../services/studentsImport";
 
-/* רק CSV או Excel מותרים לייבוא — כל פורמט אחר נדחה עם הודעה ברורה */
-const ALLOWED_EXTENSIONS = [".csv", ".xlsx", ".xls"];
+/*
+  הקורא (parseStudentFile → SheetJS) מזהה קובץ לפי *תוכנו* ולא לפי הסיומת, כולל
+  קבצי HTML/Word שמשרד החינוך מייצא (נפוץ שהם HTML "מחופש" ל-doc/xls). לכן מתירים
+  את כל הפורמטים הטבלאיים הנפוצים — הקורא ינסה, וייכשל בהודעה ברורה אם באמת לא קריא.
+  (PDF עדיין לא נתמך — SheetJS לא קורא PDF — ולכן נדחה בנפרד עם הכוונה.)
+*/
+const ALLOWED_EXTENSIONS = [
+  ".csv",
+  ".txt",
+  ".xlsx",
+  ".xls",
+  ".xlsm",
+  ".ods",
+  ".html",
+  ".htm",
+  ".doc",
+  ".docx",
+];
 
 /*
   StudentsImport — ייבוא תלמידים מקובץ (UI_SPEC ס' 11): מורידים תבנית, ממלאים
@@ -56,17 +72,9 @@ function StudentsImport({ onDone, onCancel }) {
     );
     if (!isAllowed) {
       const lower = file.name.toLowerCase();
-      let tip;
-      if (lower.endsWith(".pdf")) {
-        tip =
-          "זה קובץ PDF. הייבוא כרגע קורא Excel/CSV — כדאי לפתוח את קובץ משרד החינוך המקורי (בדרך כלל אפשר לייצא אותו כ-Excel) ולהעלות את קובץ ה-Excel.";
-      } else if (lower.endsWith(".doc") || lower.endsWith(".docx")) {
-        tip =
-          "זה קובץ Word. מסמנים את טבלת התלמידים, מעתיקים ל-Excel או ל-Google Sheets, ושומרים כ-Excel (‏.xlsx) — ואז מעלים כאן.";
-      } else {
-        tip =
-          "אפשר לייבא Excel (‏.xlsx) או CSV. קובץ Google Sheets? פותחים אותו → קובץ → הורדה → Microsoft Excel (‏.xlsx), ומעלים את הקובץ שירד.";
-      }
+      const tip = lower.endsWith(".pdf")
+        ? "קובץ PDF עדיין לא נקרא אוטומטית. כדאי לייצא את קובץ משרד החינוך כ-Excel (‏.xlsx) ולהעלות אותו."
+        : "אפשר לייבא Excel/CSV וגם את קובץ משרד החינוך (Word/HTML). קובץ Google Sheets: פותחים → קובץ → הורדה → Microsoft Excel.";
       setReadError(`הפורמט הזה עדיין לא נתמך לייבוא אוטומטי 🚫 ${tip}`);
       event.target.value = ""; // איפוס כדי שאפשר יהיה לבחור שוב קובץ
       return;
@@ -152,7 +160,7 @@ function StudentsImport({ onDone, onCancel }) {
         <span>בחירת קובץ (Excel או CSV):</span>
         <input
           type="file"
-          accept=".csv,.xlsx,.xls,.pdf,.doc,.docx,.txt,.ods"
+          accept=".csv,.txt,.xlsx,.xls,.xlsm,.ods,.html,.htm,.doc,.docx,.pdf"
           onChange={handleFile}
         />
       </label>

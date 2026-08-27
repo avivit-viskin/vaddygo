@@ -50,6 +50,10 @@ namespace ParentCommitteeAPI.Services
                         .Where(u => u.Id == g.UserId)
                         .Select(u => u.Email)
                         .FirstOrDefault(),
+                    Phone = _db.Users
+                        .Where(u => u.Id == g.UserId)
+                        .Select(u => u.TwoFactorPhone)
+                        .FirstOrDefault(),
                 })
                 .ToListAsync();
 
@@ -64,6 +68,24 @@ namespace ParentCommitteeAPI.Services
                     Until = v.ProValidUntil,
                     Created = v.CreatedAt,
                     Email = v.LoginEmail,
+                    Phone = v.WhatsApp,
+                })
+                .ToListAsync();
+
+            // נרשמים שלא השלימו — משתמשים ללא אף גן (נעצרו באשף ההקמה). מוצגים
+            // למנהלת כדי לפנות אליהם (מייל) או לנקות חשבונות-בדיקה. אין להם ועד,
+            // ולכן אין נתונים אישיים מעבר למייל / טלפון-2FA / תאריך.
+            var incomplete = await _db.Users
+                .AsNoTracking()
+                .Where(u => u.Role != "SuperAdmin"
+                    && !_db.Groups.Any(g => g.UserId == u.Id))
+                .OrderByDescending(u => u.CreatedAt)
+                .Select(u => new
+                {
+                    u.Id,
+                    u.Email,
+                    Phone = u.TwoFactorPhone,
+                    Created = (DateTime?)u.CreatedAt,
                 })
                 .ToListAsync();
 
@@ -79,13 +101,24 @@ namespace ParentCommitteeAPI.Services
                 */
                 Committees = committees
                     .Select(c => ToRow(
-                        c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, today,
-                        registeredAt: c.Created))
+                        c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
+                        today, registeredAt: c.Created))
                     .ToList(),
                 Suppliers = suppliers
                     .Select(s => ToRow(
-                        s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, today,
-                        registeredAt: null))
+                        s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, s.Phone,
+                        today, registeredAt: null))
+                    .ToList(),
+                IncompleteSignups = incomplete
+                    .Select(u => new SubscriptionRowDto
+                    {
+                        Id = u.Id,
+                        Name = u.Email, // אין שם עסק — מציגים את המייל
+                        Email = u.Email,
+                        Phone = u.Phone ?? string.Empty,
+                        CreatedAt = u.Created,
+                        Status = "incomplete",
+                    })
                     .ToList(),
             };
 
@@ -105,7 +138,7 @@ namespace ParentCommitteeAPI.Services
         */
         private static SubscriptionRowDto ToRow(
             int id, string name, bool isPro, DateTime? until, DateTime? created,
-            string? email, DateTime today, DateTime? registeredAt)
+            string? email, string? phone, DateTime today, DateTime? registeredAt)
         {
             var row = new SubscriptionRowDto
             {
@@ -115,6 +148,7 @@ namespace ParentCommitteeAPI.Services
                 ValidUntil = until,
                 CreatedAt = created,
                 Email = email ?? string.Empty,
+                Phone = phone ?? string.Empty,
             };
 
             if (!isPro)

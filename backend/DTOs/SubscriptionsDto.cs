@@ -10,6 +10,10 @@ namespace ParentCommitteeAPI.DTOs
         public List<SubscriptionRowDto> Committees { get; set; } = new();
         public List<SubscriptionRowDto> Suppliers { get; set; } = new();
 
+        /* נרשמים שלא השלימו את ההקמה (נרשמו אך אין להם ועד) — למעקב ולפנייה
+           במייל, וגם לניקוי חשבונות-בדיקה. Status = "incomplete". */
+        public List<SubscriptionRowDto> IncompleteSignups { get; set; } = new();
+
         /* סיכומים מהירים — מחושבים בשרת כדי ששני הצדדים לא יספרו אחרת. */
         public int ActiveCount { get; set; }
         public int ExpiringSoonCount { get; set; }
@@ -32,6 +36,9 @@ namespace ParentCommitteeAPI.DTOs
         /* המייל שאיתו נרשמו — לוועד: מייל הבעלים; לספק: מייל ההתחברות (אם הוגדר).
            למעקב אחר נרשמים חדשים. ריק אם אין. */
         public string Email { get; set; } = string.Empty;
+        /* טלפון ליצירת קשר — לספק: מספר הוואטסאפ; לוועד/נרשם: טלפון האימות
+           הדו-שלבי אם הוגדר. ריק כשאין (רוב הוועדים לא הזינו טלפון). */
+        public string Phone { get; set; } = string.Empty;
         public bool IsPro { get; set; }
         public DateTime? ValidUntil { get; set; }
         public string Status { get; set; } = "free";

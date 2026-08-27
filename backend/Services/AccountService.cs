@@ -170,5 +170,32 @@ namespace ParentCommitteeAPI.Services
             _logger.LogInformation("Committee deleted by admin (GroupId: {GroupId})", groupId);
             return CommitteeDeleteResult.Deleted;
         }
+
+        /*
+          מחיקת "נרשם שלא השלים" (משתמש ללא אף ועד) ע"י המנהלת — לניקוי
+          חשבונות-בדיקה שנעצרו באשף. בטוח: מסרב לחשבון מנהלת ולמשתמש שיש לו ועד
+          (את אלה מוחקים דרך מחיקת הגן). המחיקה עצמה דרך DeleteAccountAsync.
+        */
+        public async Task<IncompleteUserDeleteResult> DeleteIncompleteUserAsync(int userId)
+        {
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Id == userId);
+            if (user == null)
+            {
+                return IncompleteUserDeleteResult.NotFound;
+            }
+            if (user.Role == "SuperAdmin")
+            {
+                return IncompleteUserDeleteResult.ProtectedAdmin;
+            }
+            var hasGroup = await _db.Groups.AnyAsync(g => g.UserId == userId);
+            if (hasGroup)
+            {
+                return IncompleteUserDeleteResult.HasGroup;
+            }
+
+            await DeleteAccountAsync(userId);
+            _logger.LogInformation("Incomplete signup deleted by admin (UserId: {UserId})", userId);
+            return IncompleteUserDeleteResult.Deleted;
+        }
     }
 }

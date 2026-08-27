@@ -9,6 +9,15 @@ namespace ParentCommitteeAPI.Services
         HasMultiple,    // לחשבון יש כמה גנים — לא מוחקים מכאן (סיכון למחיקת גן אמיתי)
     }
 
+    /* תוצאת מחיקת "נרשם שלא השלים" (משתמש ללא אף גן) ע"י המנהלת. */
+    public enum IncompleteUserDeleteResult
+    {
+        Deleted,        // נמחק בהצלחה
+        NotFound,       // המשתמש לא נמצא
+        ProtectedAdmin, // חשבון מנהלת — לא נמחק
+        HasGroup,       // למשתמש יש ועד — אינו "נרשם שלא השלים" (מוחקים דרך מחיקת גן)
+    }
+
     public interface IAccountService
     {
         /*
@@ -24,5 +33,12 @@ namespace ParentCommitteeAPI.Services
           כמה גנים — כדי לא לנעול את המנהלת ולא למחוק גן אמיתי בטעות.
         */
         Task<CommitteeDeleteResult> DeleteCommitteeAsync(int groupId);
+
+        /*
+          מחיקת "נרשם שלא השלים" — משתמש שנרשם אך אין לו אף ועד (נעצר באמצע),
+          לניקוי חשבונות-בדיקה. בטוח: מסרב לחשבון מנהלת ולמשתמש שיש לו ועד (את
+          אלה מוחקים דרך מחיקת הגן), כדי לא למחוק לקוח אמיתי בטעות.
+        */
+        Task<IncompleteUserDeleteResult> DeleteIncompleteUserAsync(int userId);
     }
 }

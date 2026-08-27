@@ -163,5 +163,30 @@ namespace ParentCommitteeAPI.Controllers
                 _ => BadRequest(new { message = "המחיקה נכשלה" }),
             };
         }
+
+        /*
+          DELETE: api/admin/users/{userId} — מחיקת "נרשם שלא השלים" (משתמש ללא
+          ועד), לניקוי חשבונות-בדיקה שנעצרו באמצע ההרשמה. בטוח: מסרב לחשבון
+          מנהלת ולמשתמש שיש לו ועד (את אלה מוחקים דרך מחיקת הגן).
+        */
+        [HttpDelete("users/{userId:int}")]
+        public async Task<IActionResult> DeleteIncompleteUser(int userId)
+        {
+            var result = await _account.DeleteIncompleteUserAsync(userId);
+            return result switch
+            {
+                IncompleteUserDeleteResult.Deleted => Ok(new { message = "הנרשם נמחק" }),
+                IncompleteUserDeleteResult.NotFound =>
+                    NotFound(new { message = "המשתמש לא נמצא (אולי כבר נמחק)" }),
+                IncompleteUserDeleteResult.ProtectedAdmin =>
+                    BadRequest(new { message = "לא ניתן למחוק חשבון מנהלת" }),
+                IncompleteUserDeleteResult.HasGroup =>
+                    BadRequest(new
+                    {
+                        message = "למשתמש הזה יש ועד — יש למחוק אותו ממחיקת הגן"
+                    }),
+                _ => BadRequest(new { message = "המחיקה נכשלה" }),
+            };
+        }
     }
 }

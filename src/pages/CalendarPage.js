@@ -71,6 +71,9 @@ const ROSH_CHODESH_REMINDER =
   "מזכירים לך לשלוח מחר עם חולצה לבנה 🤍\n\n" +
   "חודש טוב ומבורך 🌷";
 
+// תזכורת "חזרה לשגרה" לתחילת שנת הלימודים (1.9) — הנוסח לבקשת בעלת המוצר.
+const SCHOOL_YEAR_REMINDER = "חזרה לשגרה שמח! מחכה ומצפה לראותכם 💗";
+
 function toDateInputValue(date) {
   const pad = (n) => String(n).padStart(2, "0");
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
@@ -134,6 +137,24 @@ function CalendarPage({ initialDate }) {
         };
       });
   }, [roshChodeshDays, year, monthIndex]);
+
+  // אירוע קבוע: 1.9 — "חזרה לשגרה" (תחילת שנת הלימודים), עם תזכורת מוכנה להורים.
+  // מוצג כשהחודש המוצג הוא ספטמבר (monthIndex === 8). תאריך גרגוריאני קבוע —
+  // ולכן לא נדרש מנגנון התאריכים העבריים כמו בחגים.
+  const schoolYearList = useMemo(() => {
+    if (monthIndex !== 8) {
+      return [];
+    }
+    const date = new Date(year, 8, 1);
+    return [
+      {
+        day: 1,
+        dateLabel: listDateFormatter.format(date),
+        hebrewLabel: hebrewDateLabel(date),
+        message: SCHOOL_YEAR_REMINDER,
+      },
+    ];
+  }, [year, monthIndex]);
 
   // יום ההולדת חוזר כל שנה — הפילוח לפי חודש בלבד (בלי שנת הלידה)
   const birthdaysByDay = useMemo(
@@ -493,8 +514,8 @@ function CalendarPage({ initialDate }) {
                 <Icon name="users" size={14} />{" "}
                 {event.name?.trim() || roleLabel(event.shabbatRole)}
               </span>
-              {/* "צופה" — לצפייה בלבד: בלי שליחת הודעה להורה */}
-              {!readOnly && event.parentPhone && (
+              {/* שליחת הודעה פתוחה גם ל"צופה" (וואטסאפ בצד-לקוח, לא עריכת נתונים) */}
+              {event.parentPhone && (
                 <a
                   className="calendar-list__send"
                   href={shabbatWhatsappUrl(event, ganName)}
@@ -531,18 +552,49 @@ function CalendarPage({ initialDate }) {
               <span className="calendar-list__name">
                 ראש חודש {rc.monthName}
               </span>
-              {/* "צופה" — לצפייה בלבד: בלי שליחת תזכורת להורים */}
-              {!readOnly && (
-                <a
-                  className="calendar-list__send"
-                  href={whatsappShareUrl(rc.message)}
-                  target="_blank"
-                  rel="noreferrer"
-                  aria-label={`שליחת תזכורת להורים על ראש חודש ${rc.monthName}`}
-                >
-                  <WhatsAppIcon size={18} /> שליחת תזכורת
-                </a>
-              )}
+              {/* שליחת תזכורת פתוחה גם ל"צופה": זו שליחת וואטסאפ בצד-לקוח בלבד,
+                  לא עריכת נתונים — כך צופה יכול לשלוח תזכורות (בקשת בעלת המוצר) */}
+              <a
+                className="calendar-list__send"
+                href={whatsappShareUrl(rc.message)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label={`שליחת תזכורת להורים על ראש חודש ${rc.monthName}`}
+              >
+                <WhatsAppIcon size={18} /> שליחת תזכורת
+              </a>
+            </div>
+          ))}
+        </section>
+      )}
+
+      {/* מדור: 1.9 — חזרה לשגרה (תחילת שנת הלימודים). אירוע קבוע עם תזכורת
+          מוכנה להורים בוואטסאפ. פתוח גם ל"צופה" (כמו שאר התזכורות). */}
+      {schoolYearList.length > 0 && (
+        <section className="calendar-list" aria-label="חזרה לשגרה">
+          <h3>
+            <Icon name="calendar" size={18} /> חזרה לשגרה
+          </h3>
+          <p className="calendar-list__hint">
+            1 בספטמבר — תחילת שנת הלימודים 🎒 אפשר לשלוח להורים תזכורת "חזרה
+            לשגרה" בוואטסאפ (נפתחת הודעה מוכנה, ובוחרים לאיזו קבוצה/הורים לשלוח).
+          </p>
+          {schoolYearList.map((sy) => (
+            <div className="calendar-list__item" key={`school-year-${sy.day}`}>
+              <span className="calendar-list__date">
+                {sy.dateLabel}
+                <span className="calendar-list__hebrew">{sy.hebrewLabel}</span>
+              </span>
+              <span className="calendar-list__name">חזרה לשגרה 🎒</span>
+              <a
+                className="calendar-list__send"
+                href={whatsappShareUrl(sy.message)}
+                target="_blank"
+                rel="noreferrer"
+                aria-label="שליחת תזכורת חזרה לשגרה להורים"
+              >
+                <WhatsAppIcon size={18} /> שליחת תזכורת
+              </a>
             </div>
           ))}
         </section>

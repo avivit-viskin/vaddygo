@@ -9,6 +9,7 @@ import {
   sendBroadcast,
   PRO_ANNOUNCEMENT,
   INCOMPLETE_NUDGE,
+  SUPPLIER_CATALOG_REMINDER,
 } from "../../services/subscriptionsService";
 import "../../styles/broadcast.css";
 
@@ -23,11 +24,16 @@ import "../../styles/broadcast.css";
   נשמרות: מספר הנמענים מוצג לפני השליחה, אישור בשני שלבים (אין Undo למייל),
   והנוסח פתוח לעריכה (ברירת מחדל מתאימה לכל קהל).
 */
-const DEFAULTS = { owners: PRO_ANNOUNCEMENT, incomplete: INCOMPLETE_NUDGE };
+const DEFAULTS = {
+  owners: PRO_ANNOUNCEMENT,
+  incomplete: INCOMPLETE_NUDGE,
+  suppliers: SUPPLIER_CATALOG_REMINDER,
+};
 
 const AUDIENCES = [
   { key: "owners", label: "כל בעלי המוסדות", noun: "בעלי מוסדות" },
   { key: "incomplete", label: "נרשמו ולא סיימו הרשמה", noun: "שנרשמו ולא סיימו" },
+  { key: "suppliers", label: "ספקים", noun: "ספקים" },
 ];
 
 function BroadcastCard() {
@@ -47,12 +53,11 @@ function BroadcastCard() {
 
   function changeAudience(next) {
     if (next === audience) return;
-    // אם הנוסח עדיין ברירת-מחדל (לא נערך ידנית) — מחליפים לברירת המחדל של
-    // הקהל החדש. אם המשתמשת ערכה בעצמה — לא דורסים את מה שכתבה.
-    const untouched =
-      (subject === DEFAULTS.owners.subject && body === DEFAULTS.owners.body) ||
-      (subject === DEFAULTS.incomplete.subject &&
-        body === DEFAULTS.incomplete.body);
+    // אם הנוסח עדיין ברירת-מחדל של אחד הקהלים (לא נערך ידנית) — מחליפים
+    // לברירת המחדל של הקהל החדש. אם המשתמשת ערכה בעצמה — לא דורסים.
+    const untouched = Object.values(DEFAULTS).some(
+      (d) => subject === d.subject && body === d.body
+    );
     if (untouched) {
       setSubject(DEFAULTS[next].subject);
       setBody(DEFAULTS[next].body);
@@ -115,6 +120,8 @@ function BroadcastCard() {
       <p className="broadcast__hint">
         {audience === "incomplete"
           ? "נשלח במייל למי שנרשם אך עוד לא הקים גן — לעודד אותם לחזור ולהשלים."
+          : audience === "suppliers"
+          ? "נשלח במייל לכל הספקים הרשומים — למשל תזכורת לרענן את הקטלוג ולהוסיף מוצרים."
           : "נשלח במייל לכל מי שיש לו מוסד במערכת."}{" "}
         מספרי וואטסאפ אינם נשמרים אצלנו, ולכן מייל הוא הערוץ היחיד שמגיע לכולם.
       </p>

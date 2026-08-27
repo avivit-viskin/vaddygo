@@ -74,6 +74,7 @@
 /* בורר קהל היעד — פקד "מגזרי" (segmented) בגוונים הרכים של המערכת */
 .broadcast__audience {
   display: flex;
+  flex-wrap: wrap;
   gap: 6px;
   margin: 0 0 14px;
   padding: 4px;
@@ -83,7 +84,7 @@
 }
 
 .broadcast__audience-btn {
-  flex: 1;
+  flex: 1 1 92px;
   padding: 9px 10px;
   border: none;
   border-radius: 9px;

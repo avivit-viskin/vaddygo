@@ -147,6 +147,24 @@
 .subs__email:hover {
   text-decoration: underline;
 }
+/* טלפון (ספק: וואטסאפ; ועד/נרשם: טלפון 2FA אם הוגדר) — נדיר, אך שימושי כשקיים */
+.subs__phone {
+  font-size: var(--font-size-sm);
+  color: var(--color-link);
+  text-decoration: none;
+  white-space: nowrap;
+  direction: ltr;
+}
+.subs__phone:hover {
+  text-decoration: underline;
+}
+/* הסבר קצר מתחת לרשימת "נרשמו ולא השלימו" */
+.subs__hint {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  margin: 6px 0 0;
+  line-height: 1.5;
+}
 
 /* הסטטוס נושא משמעות (כסף שנכנס / עומד להיפסק) — ולכן צבע, לא רק טקסט */
 .subs__pill {

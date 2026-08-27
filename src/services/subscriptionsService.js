@@ -18,6 +18,14 @@ export async function deleteCommittee(groupId) {
 }
 
 /*
+  מחיקת "נרשם שלא השלים" (משתמש שנרשם אך אין לו ועד) — לניקוי חשבונות-בדיקה.
+  השרת מסרב לחשבון מנהלת ולמשתמש שיש לו ועד (בטיחות מפני מחיקת לקוח אמיתי).
+*/
+export async function deleteIncompleteUser(userId) {
+  return api.del(`/api/admin/users/${userId}`);
+}
+
+/*
   פתיחה/סגירה ידנית של מסלול פרו לגן — למנהלת בלבד.
 
   עד עכשיו פרו לוועד נפתח רק אוטומטית אחרי תשלום, ולא הייתה שום דרך לתת אותו
@@ -38,6 +46,8 @@ const STATUS_LABELS = {
   expiring: { label: "פג בקרוב", tone: "warn" },
   expired: { label: "פג", tone: "bad" },
   free: { label: "לא מנוי", tone: "muted" },
+  // נרשם שלא סיים את אשף ההקמה (אין לו ועד)
+  incomplete: { label: "לא השלים הרשמה", tone: "muted" },
 };
 
 export function subscriptionStatus(status) {

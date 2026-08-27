@@ -9,6 +9,7 @@ import {
   subscriptionStatus,
   validUntilText,
   deleteCommittee,
+  deleteIncompleteUser,
   setCommitteePro,
 } from "../../services/subscriptionsService";
 import { deleteVendor } from "../../services/vendorsService";
@@ -74,6 +75,11 @@ function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, pro
                   title="מייל הרשמה"
                 >
                   {row.email}
+                </a>
+              )}
+              {row.phone && (
+                <a className="subs__phone" href={`tel:${row.phone}`} title="טלפון">
+                  ☎ {row.phone}
                 </a>
               )}
               <span className={`subs__pill subs__pill--${status.tone}`}>
@@ -170,6 +176,9 @@ function SubscriptionsCard() {
     data && Array.isArray(data.suppliers) ? data.suppliers : [];
   const committees =
     data && Array.isArray(data.committees) ? data.committees : [];
+  // נרשמו ולא השלימו הקמה (אין להם ועד) — לפנייה במייל או ניקוי חשבונות-בדיקה
+  const incomplete =
+    data && Array.isArray(data.incompleteSignups) ? data.incompleteSignups : [];
 
   // בחירת גנים למחיקה (ניקוי גני-בדיקה) — מנגנון נפרד מהספקים
   const [selectedC, setSelectedC] = useState(() => new Set());
@@ -222,6 +231,46 @@ function SubscriptionsCard() {
       return next;
     });
     setMsg(null);
+  }
+
+  // בחירת "נרשמו שלא השלימו" למחיקה (ניקוי חשבונות-בדיקה)
+  const [selectedI, setSelectedI] = useState(() => new Set());
+  const [bulkConfirmI, setBulkConfirmI] = useState(false);
+  const [bulkBusyI, setBulkBusyI] = useState(false);
+
+  function toggleSelectedIncomplete(id) {
+    setSelectedI((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+    setMsg(null);
+  }
+
+  async function handleIncompleteBulkDelete() {
+    const ids = incomplete.filter((u) => selectedI.has(u.id)).map((u) => u.id);
+    setBulkBusyI(true);
+    setMsg(null);
+    let ok = 0;
+    let fail = 0;
+    for (const id of ids) {
+      try {
+        await deleteIncompleteUser(id);
+        ok += 1;
+      } catch {
+        fail += 1;
+      }
+    }
+    setBulkConfirmI(false);
+    setSelectedI(new Set());
+    await reload();
+    setBulkBusyI(false);
+    setMsg(
+      fail === 0
+        ? { ok: true, text: `נמחקו ${ok} נרשמים. הרשימה עודכנה.` }
+        : { ok: false, text: `נמחקו ${ok}, ${fail} לא נמחקו.` }
+    );
   }
 
   async function handleBulkDelete() {
@@ -401,6 +450,61 @@ function SubscriptionsCard() {
                 </Button>
               )}
             </div>
+          )}
+          {/* נרשמו ולא השלימו הקמה — רשימת מעקב נפרדת (לא מושפעת ממסנן
+              "רק פעילים"): לפנייה במייל, או לניקוי חשבונות-בדיקה שמנפחים את
+              מספר "הנרשמים". */}
+          {incomplete.length > 0 && (
+            <>
+              <SubscriptionList
+                title="נרשמו ולא השלימו הקמה"
+                icon="bell"
+                rows={incomplete}
+                selected={selectedI}
+                onToggle={toggleSelectedIncomplete}
+              />
+              <p className="subs__hint">
+                נרשמו אך לא הקימו ועד. אפשר לפנות אליהם במייל (לחיצה על הכתובת)
+                ולבדוק אם צריכים עזרה — או לסמן ולמחוק חשבונות-בדיקה, וכך מספר
+                הנרשמים יתעדכן למספר האמיתי.
+              </p>
+              {selectedI.size > 0 && (
+                <div className="subs__bulk">
+                  {bulkConfirmI ? (
+                    <>
+                      <span className="subs__confirm-q">
+                        למחוק לצמיתות {selectedI.size} נרשמים? (חשבונות ללא ועד —
+                        אין להם נתונים נוספים.)
+                      </span>
+                      <Button
+                        variant="danger"
+                        isLoading={bulkBusyI}
+                        onClick={handleIncompleteBulkDelete}
+                      >
+                        כן, מחק {selectedI.size}
+                      </Button>
+                      <Button
+                        variant="secondary"
+                        onClick={() => setBulkConfirmI(false)}
+                      >
+                        ביטול
+                      </Button>
+                    </>
+                  ) : (
+                    <Button
+                      variant="danger"
+                      onClick={() => {
+                        setBulkConfirmI(true);
+                        setMsg(null);
+                      }}
+                    >
+                      <Icon name="trash" size={15} /> מחיקת הנבחרים (
+                      {selectedI.size})
+                    </Button>
+                  )}
+                </div>
+              )}
+            </>
           )}
         </>
       )}

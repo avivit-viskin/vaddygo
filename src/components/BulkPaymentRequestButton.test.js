@@ -18,18 +18,25 @@ test("פותחים את החלון, מסמנים תלמידים, ומקבלים 
   // סימון כל התלמידים בתוך החלון
   fireEvent.click(await screen.findByLabelText("בחר הכל"));
 
-  // שליחה אישית לכל הורה (052... → 9725...)
-  const sendLinks = screen.getAllByRole("link", { name: /^שליחה/ });
-  expect(sendLinks).toHaveLength(2);
-  expect(sendLinks[0].getAttribute("href")).toContain("wa.me/972501234567");
+  // שליחה כללית לקבוצה — קישור נפרד, בלי בחירת תלמיד
+  const groupLink = screen.getByRole("link", { name: /שליחה לקבוצה/ });
+  expect(groupLink.getAttribute("href")).toContain("wa.me/?text=");
+
+  // שליחה אישית לכל הורה — 2 קישורים לפי מספר טלפון (052... → 9725...)
+  const perParent = screen
+    .getAllByRole("link", { name: /^שליחה/ })
+    .filter((a) => /wa\.me\/972/.test(a.getAttribute("href") || ""));
+  expect(perParent).toHaveLength(2);
+  expect(perParent[0].getAttribute("href")).toContain("wa.me/972501234567");
 
   // כלי רשימת התפוצה — העתקת המספרים ואת ההודעה
   expect(
     screen.getByRole("button", { name: /העתקת המספרים/ })
   ).toBeInTheDocument();
+  // "העתקת ההודעה" מופיע גם בכרטיס השליחה-לקבוצה הכללי וגם בכלי רשימת התפוצה
   expect(
-    screen.getByRole("button", { name: /העתקת ההודעה/ })
-  ).toBeInTheDocument();
+    screen.getAllByRole("button", { name: /העתקת ההודעה/ }).length
+  ).toBeGreaterThan(0);
 });
 
 test("כשלא בוחרים אף תלמיד — אין כלי שליחה", async () => {

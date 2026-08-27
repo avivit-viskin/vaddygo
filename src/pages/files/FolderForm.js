@@ -50,6 +50,19 @@ function FolderForm({ folder, onSave, onCancel }) {
         onChange={handleChange}
         placeholder="כאן מדביקים את קישור השיתוף"
       />
+      <p
+        style={{
+          margin: "-6px 0 10px",
+          fontSize: "var(--font-size-sm)",
+          color: "var(--color-text-muted)",
+          lineHeight: 1.6,
+        }}
+      >
+        💡 חשוב שהקישור יעבוד לכולם: ב-Google Drive לוחצים על הקובץ/התיקייה →{" "}
+        <strong>שיתוף</strong> → משנים ל<strong>"כל מי שיש לו הקישור"</strong>{" "}
+        (הרשאת צפייה) → <strong>העתקת קישור</strong>, ומדביקים כאן. אחרת מי
+        שלוחץ יראה "אין גישה".
+      </p>
       {submitError && <ErrorMessage message={submitError} />}
       <div className="folder-form__actions">
         <Button type="submit" isLoading={isSubmitting}>

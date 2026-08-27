@@ -1,0 +1,72 @@
+/*
+  broadcast.css — כרטיס שליחת העדכון לכל בעלי המוסדות.
+  מיובא מהרכיב עצמו (פיצול קוד — ראו ההערה ב-supplier-report.css).
+*/
+
+.broadcast__hint {
+  margin: 0 0 8px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+/* מספר הנמענים בולט: זו העובדה שקובעת אם ללחוץ */
+.broadcast__count {
+  margin: 0 0 12px;
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  font-size: var(--font-size-sm);
+}
+
+.broadcast__label {
+  display: block;
+  margin: 10px 0 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+
+.broadcast__input,
+.broadcast__body {
+  width: 100%;
+  padding: 8px 10px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  background: var(--color-surface);
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  color: var(--color-text);
+}
+
+.broadcast__body {
+  line-height: 1.6;
+  resize: vertical;
+}
+
+.broadcast__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 12px;
+}
+
+/* אזהרת האישור — פעולה בלתי הפיכה */
+.broadcast__confirm {
+  margin-top: 12px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+}
+
+.broadcast__warn {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.broadcast__partial {
+  margin-top: 10px;
+  color: #a65b00;
+  font-size: var(--font-size-sm);
+}

@@ -8,6 +8,7 @@ import BrandName from "../components/BrandName";
 import UsageFunnel from "./admin/UsageFunnel";
 import ProTestControl from "./admin/ProTestControl";
 import SubscriptionsCard from "./admin/SubscriptionsCard";
+import BroadcastCard from "./admin/BroadcastCard";
 import SecurityStatusCard from "./admin/SecurityStatusCard";
 import ResetDisplayControl from "./admin/ResetDisplayControl";
 import { getUsageStats } from "../services/usageStatsService";
@@ -160,6 +161,9 @@ function UsageStatsPage() {
             <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}
             <SubscriptionsCard />
+            {/* עדכון לכל בעלי המוסדות — יושב ליד תמונת המנויים, כי משם
+                מחליטים מה להודיע ולמי. */}
+            <BroadcastCard />
             {/* פתיחה/סגירה של פרו למוסד הפעיל (נשמר בשרת) */}
             <ProTestControl />
           </>

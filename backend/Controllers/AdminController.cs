@@ -20,6 +20,7 @@ namespace ParentCommitteeAPI.Controllers
         private readonly IEncryptionBackfillService _backfill;
         private readonly IAccountService _account;
         private readonly IProActivationService _proActivation;
+        private readonly IBroadcastService _broadcast;
 
         public AdminController(
             IUsageStatsService usageStats,
@@ -27,7 +28,8 @@ namespace ParentCommitteeAPI.Controllers
             ISecurityStatusService security,
             IEncryptionBackfillService backfill,
             IAccountService account,
-            IProActivationService proActivation)
+            IProActivationService proActivation,
+            IBroadcastService broadcast)
         {
             _usageStats = usageStats;
             _subscriptions = subscriptions;
@@ -35,6 +37,7 @@ namespace ParentCommitteeAPI.Controllers
             _backfill = backfill;
             _account = account;
             _proActivation = proActivation;
+            _broadcast = broadcast;
         }
 
         // GET: api/admin/usage
@@ -74,6 +77,33 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult<SubscriptionsDto>> GetSubscriptions()
         {
             return Ok(await _subscriptions.GetAsync());
+        }
+
+        /*
+          GET: api/admin/broadcast/recipients — כמה בעלי מוסדות יקבלו את
+          ההודעה. מוצג לפני השליחה, כדי שהאישור יהיה מודע ולא "שלח לכולם"
+          בלי לדעת לכמה.
+        */
+        [HttpGet("broadcast/recipients")]
+        public async Task<IActionResult> BroadcastRecipients()
+        {
+            return Ok(new { count = await _broadcast.CountRecipientsAsync() });
+        }
+
+        /*
+          POST: api/admin/broadcast — שליחת עדכון לכל בעלי המוסדות במייל.
+
+          קיים כי לא הייתה שום דרך להודיע לוועדים על שינוי (מבצע, מדיניות)
+          חוץ מהעתקה ידנית לכל אחד. הנוסח מגיע מהמסך ולא מקובע כאן, כדי
+          שעדכון חדש לא ידרוש פריסה.
+        */
+        [HttpPost("broadcast")]
+        public async Task<ActionResult<BroadcastResultDto>> Broadcast(
+            [FromBody] BroadcastDto dto)
+        {
+            var result = await _broadcast.SendToCommitteeOwnersAsync(
+                dto.Subject.Trim(), dto.Body.Trim());
+            return Ok(result);
         }
 
         /*

@@ -117,6 +117,8 @@ builder.Services.AddScoped<IDataExportService, DataExportService>();
 builder.Services.AddScoped<ITeamService, TeamService>();
 // דוח מפורט לספק (טווח תאריכים, מיקום ברשימה, עריכה/מוצר אחרונים)
 builder.Services.AddScoped<ISupplierReportService, SupplierReportService>();
+// שליחת עדכון לכל בעלי המוסדות (מייל) — ערוץ העדכון היחיד שיש לנו לכולם
+builder.Services.AddScoped<IBroadcastService, BroadcastService>();
 // נתוני שימוש למנהלת VaddyGo (משפך ההרשמה בשני הצדדים)
 builder.Services.AddScoped<IUsageStatsService, UsageStatsService>();
 // הפעלת פרו אוטומטית מ-webhook של GROW (אחרי תשלום)

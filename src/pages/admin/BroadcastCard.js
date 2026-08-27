@@ -33,7 +33,7 @@ const DEFAULTS = {
 const AUDIENCES = [
   { key: "owners", label: "כל בעלי המוסדות", noun: "בעלי מוסדות" },
   { key: "incomplete", label: "נרשמו ולא סיימו הרשמה", noun: "שנרשמו ולא סיימו" },
-  { key: "suppliers", label: "ספקים", noun: "ספקים" },
+  { key: "suppliers", label: "כל הספקים", noun: "ספקים" },
 ];
 
 function BroadcastCard() {

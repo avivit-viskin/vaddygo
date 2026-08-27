@@ -16,6 +16,10 @@ namespace ParentCommitteeAPI.DTOs
         [Required(ErrorMessage = "יש למלא תוכן הודעה")]
         [StringLength(5000, ErrorMessage = "ההודעה יכולה להכיל עד 5000 תווים")]
         public string Body { get; set; } = string.Empty;
+
+        // קהל היעד: "owners" = בעלי מוסדות (ברירת מחדל) | "incomplete" = מי שנרשם
+        // ולא הקים אף גן (לא סיים את ההרשמה).
+        public string? Audience { get; set; }
     }
 
     /* תוצאת השליחה — מספרים בלבד, בלי רשימת נמענים. */

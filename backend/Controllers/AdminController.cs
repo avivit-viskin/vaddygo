@@ -85,9 +85,9 @@ namespace ParentCommitteeAPI.Controllers
           בלי לדעת לכמה.
         */
         [HttpGet("broadcast/recipients")]
-        public async Task<IActionResult> BroadcastRecipients()
+        public async Task<IActionResult> BroadcastRecipients([FromQuery] string? audience)
         {
-            return Ok(new { count = await _broadcast.CountRecipientsAsync() });
+            return Ok(new { count = await _broadcast.CountRecipientsAsync(audience ?? "owners") });
         }
 
         /*
@@ -101,8 +101,8 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult<BroadcastResultDto>> Broadcast(
             [FromBody] BroadcastDto dto)
         {
-            var result = await _broadcast.SendToCommitteeOwnersAsync(
-                dto.Subject.Trim(), dto.Body.Trim());
+            var result = await _broadcast.SendAsync(
+                dto.Audience ?? "owners", dto.Subject.Trim(), dto.Body.Trim());
             return Ok(result);
         }
 

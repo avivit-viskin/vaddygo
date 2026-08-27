@@ -20,10 +20,11 @@ namespace ParentCommitteeAPI.Services
     */
     public interface IBroadcastService
     {
-        Task<BroadcastResultDto> SendToCommitteeOwnersAsync(string subject, string body);
+        /* שולח לקהל שנבחר: "owners" (בעלי מוסדות) או "incomplete" (נרשמו ולא הקימו גן). */
+        Task<BroadcastResultDto> SendAsync(string audience, string subject, string body);
 
-        /* כמה נמענים ייכללו — להצגה לפני השליחה, כדי שהאישור יהיה מודע. */
-        Task<int> CountRecipientsAsync();
+        /* כמה נמענים ייכללו בקהל — להצגה לפני השליחה, כדי שהאישור יהיה מודע. */
+        Task<int> CountRecipientsAsync(string audience);
     }
 
     public class BroadcastService : IBroadcastService
@@ -42,8 +43,7 @@ namespace ParentCommitteeAPI.Services
 
         /*
           בעלי מוסדות בלבד — מי שיש לו לפחות גן אחד. משתמש שנרשם ולא הקים גן
-          עדיין אינו "בעל מוסד", ואין סיבה לעדכן אותו על מסלול של מערכת שלא
-          התחיל להשתמש בה.
+          עדיין אינו "בעל מוסד".
         */
         private IQueryable<string> OwnerEmailsQuery() =>
             _db.Users
@@ -53,13 +53,31 @@ namespace ParentCommitteeAPI.Services
                 .Select(u => u.Email)
                 .Distinct();
 
-        public async Task<int> CountRecipientsAsync() =>
-            await OwnerEmailsQuery().CountAsync();
+        /*
+          נרשמו ולא סיימו — משתמשים שאין להם אף גן (עצרו לפני הקמת מוסד). בדיוק
+          ה"נעצרו באמצע" בדוח השימוש; מייל לעודד אותם לחזור ולהשלים.
+        */
+        private IQueryable<string> IncompleteEmailsQuery() =>
+            _db.Users
+                .AsNoTracking()
+                .Where(u => !_db.Groups.Any(g => g.UserId == u.Id))
+                .Where(u => u.Email != null && u.Email != "")
+                .Select(u => u.Email)
+                .Distinct();
 
-        public async Task<BroadcastResultDto> SendToCommitteeOwnersAsync(
-            string subject, string body)
+        /* בוחר את שאילתת הנמענים לפי הקהל (ברירת מחדל: בעלי מוסדות). */
+        private IQueryable<string> EmailsForAudience(string? audience) =>
+            string.Equals(audience?.Trim(), "incomplete", StringComparison.OrdinalIgnoreCase)
+                ? IncompleteEmailsQuery()
+                : OwnerEmailsQuery();
+
+        public async Task<int> CountRecipientsAsync(string audience) =>
+            await EmailsForAudience(audience).CountAsync();
+
+        public async Task<BroadcastResultDto> SendAsync(
+            string audience, string subject, string body)
         {
-            var recipients = await OwnerEmailsQuery().ToListAsync();
+            var recipients = await EmailsForAudience(audience).ToListAsync();
             var result = new BroadcastResultDto { Total = recipients.Count };
 
             foreach (var address in recipients)

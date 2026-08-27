@@ -106,6 +106,41 @@ export async function getAllPaymentSummaries() {
 }
 
 /*
+  סקירת תשלומים לרשימת התלמידים — בבקשה אחת (GET /api/payment-summaries) מחזירה
+  גם את הסיכומים לכל תלמיד וגם אינדקס לסינון לפי קטגוריית גבייה:
+   - summaries: מערך סיכומים (כמו getAllPaymentSummaries).
+   - categories: רשימת קטגוריות הגבייה הייחודיות [{ id, name }] לפי סדר הופעה.
+   - paidByStudentCategory: { [studentId]: { [categoryId]: שולם-במלואו } }.
+  כך אפשר לסנן "שילמו / טרם שילמו" עבור קטגוריה מסוימת, בלי בקשה נוספת.
+*/
+export async function getStudentsPaymentOverview() {
+  const rows = await getAllStudentPayments();
+  const byStudent = new Map();
+  const categories = [];
+  const seenCategory = new Set();
+  for (const row of rows) {
+    const list = byStudent.get(row.studentId) || [];
+    list.push(row);
+    byStudent.set(row.studentId, list);
+    if (!seenCategory.has(row.collectionCategoryId)) {
+      seenCategory.add(row.collectionCategoryId);
+      categories.push({ id: row.collectionCategoryId, name: row.categoryName });
+    }
+  }
+  const summaries = [];
+  const paidByStudentCategory = {};
+  for (const [studentId, payments] of byStudent.entries()) {
+    summaries.push(summarizePayments(studentId, payments));
+    const map = {};
+    for (const p of payments) {
+      map[p.collectionCategoryId] = isCategoryFullyPaid(p);
+    }
+    paidByStudentCategory[studentId] = map;
+  }
+  return { summaries, categories, paidByStudentCategory };
+}
+
+/*
   בונה קישור וואטסאפ עם הודעת תזכורת מוכנה. פותח את וואטסאפ עם ההודעה
   כבר מוקלדת — הוועד רק לוחץ "שלח". בלי סליקה בתוך המערכת (UI_SPEC ס' 15).
 */

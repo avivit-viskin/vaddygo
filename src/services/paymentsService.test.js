@@ -5,6 +5,7 @@ import {
   buildBulkPaymentRequestMessage,
   getPaymentSummary,
   getAllPaymentSummaries,
+  getStudentsPaymentOverview,
   amountPaidSoFar,
   amountRemaining,
   isCategoryFullyPaid,
@@ -117,6 +118,35 @@ describe("getAllPaymentSummaries", () => {
     expect(byId[1].paidCount).toBe(2);
     expect(byId[2].hasUnpaid).toBe(true);
     expect(byId[2].paidCount).toBe(1);
+  });
+});
+
+describe("getStudentsPaymentOverview", () => {
+  test("מחזיר סיכומים + רשימת קטגוריות + מצב שולם לכל תלמיד בכל קטגוריה", async () => {
+    api.get.mockResolvedValueOnce([
+      { studentId: 1, collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 1200, isPaid: true },
+      { studentId: 1, collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+      { studentId: 2, collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 0, isPaid: false },
+      { studentId: 2, collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+    ]);
+    const { summaries, categories, paidByStudentCategory } =
+      await getStudentsPaymentOverview();
+
+    // בקשה אחת בלבד
+    expect(api.get).toHaveBeenCalledWith("/api/payment-summaries");
+    // קטגוריות ייחודיות לפי סדר הופעה
+    expect(categories).toEqual([
+      { id: 1, name: "הזנה" },
+      { id: 2, name: "ועד" },
+    ]);
+    // סיכומים כמו getAllPaymentSummaries
+    const byId = Object.fromEntries(summaries.map((s) => [s.studentId, s]));
+    expect(byId[1].allPaid).toBe(true);
+    expect(byId[2].hasUnpaid).toBe(true);
+    // מצב "שולם במלואו" לכל תלמיד בכל קטגוריה
+    expect(paidByStudentCategory[1][1]).toBe(true); // דנה שילמה הזנה
+    expect(paidByStudentCategory[2][1]).toBe(false); // נועם לא שילם הזנה
+    expect(paidByStudentCategory[2][2]).toBe(true); // נועם שילם ועד
   });
 });
 

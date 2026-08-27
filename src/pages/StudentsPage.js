@@ -7,7 +7,7 @@ import {
   updateStudent,
   deleteStudent,
 } from "../services/studentsService";
-import { getAllPaymentSummaries } from "../services/paymentsService";
+import { getStudentsPaymentOverview } from "../services/paymentsService";
 import { getGroups } from "../services/groupsService";
 import { getOnboarding } from "../services/onboardingService";
 import {
@@ -50,9 +50,18 @@ function StudentsPage() {
   const [onlyUnpaid, setOnlyUnpaid] = useState(false);
   const [exporting, setExporting] = useState(false);
 
+  // סינון לפי קטגוריית תשלום: איזו קטגוריה (מזהה) + מצב ("" הכל / paid / unpaid)
+  const [categoryFilter, setCategoryFilter] = useState("");
+  const [categoryStatus, setCategoryStatus] = useState("unpaid");
+
   // סיכום תשלומים לכל תלמיד (לתג ולסינון) — נטען אחרי שהתלמידים הגיעו,
   // לא חוסם את הצגת הכרטיסים. { [studentId]: { paidCount, totalCount, allPaid, hasUnpaid } }
   const [summaries, setSummaries] = useState({});
+  // קטגוריות הגבייה (לסינון) + מצב "שולם במלואו" לכל תלמיד בכל קטגוריה
+  const [categories, setCategories] = useState([]);
+  const [paidByCategory, setPaidByCategory] = useState({});
+  // האם מידע התשלומים כבר נטען — כדי לא לסנן (ולהעלים תלמידים) בזמן הטעינה
+  const [paymentsLoaded, setPaymentsLoaded] = useState(false);
 
   // הטופס משמש גם להוספה (editedStudent ריק) וגם לעריכה
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -82,20 +91,30 @@ function StudentsPage() {
   useEffect(() => {
     if (!students || students.length === 0) {
       setSummaries({});
+      setCategories([]);
+      setPaidByCategory({});
+      setPaymentsLoaded(false);
       return;
     }
     let cancelled = false;
-    getAllPaymentSummaries()
-      .then((list) => {
+    getStudentsPaymentOverview()
+      .then(({ summaries: list, categories: cats, paidByStudentCategory }) => {
         if (cancelled) return;
         const next = {};
         list.forEach((summary) => {
           next[summary.studentId] = summary;
         });
         setSummaries(next);
+        setCategories(cats);
+        setPaidByCategory(paidByStudentCategory);
+        setPaymentsLoaded(true);
       })
       .catch(() => {
-        if (!cancelled) setSummaries({});
+        if (cancelled) return;
+        setSummaries({});
+        setCategories([]);
+        setPaidByCategory({});
+        setPaymentsLoaded(false);
       });
     return () => {
       cancelled = true;
@@ -129,6 +148,18 @@ function StudentsPage() {
           return false;
         }
       }
+      // סינון לפי קטגוריית תשלום מסוימת (שילמו / טרם שילמו). מסננים רק אחרי
+      // שמידע התשלומים נטען; תלמיד בלי רשומת תשלום לקטגוריה נחשב "טרם שילם".
+      if (categoryFilter && categoryStatus && paymentsLoaded) {
+        const paidMap = paidByCategory[student.id] || {};
+        const paidThisCategory = Boolean(paidMap[categoryFilter]);
+        if (categoryStatus === "paid" && !paidThisCategory) {
+          return false;
+        }
+        if (categoryStatus === "unpaid" && paidThisCategory) {
+          return false;
+        }
+      }
       if (!term) {
         return true;
       }
@@ -136,7 +167,17 @@ function StudentsPage() {
         `${student.firstName} ${student.lastName} ${student.className} ${student.parentPhoneNumber}`.toLowerCase();
       return haystack.includes(term);
     });
-  }, [students, searchTerm, classFilter, onlyUnpaid, summaries]);
+  }, [
+    students,
+    searchTerm,
+    classFilter,
+    onlyUnpaid,
+    summaries,
+    categoryFilter,
+    categoryStatus,
+    paidByCategory,
+    paymentsLoaded,
+  ]);
 
   function openAddForm() {
     setEditedStudent(null);
@@ -371,6 +412,32 @@ function StudentsPage() {
               checked={onlyUnpaid}
               onChange={(event) => setOnlyUnpaid(event.target.checked)}
             />
+            {categories.length > 0 && (
+              <Select
+                id="students-category-filter"
+                label="סינון לפי קטגוריית תשלום"
+                value={categoryFilter}
+                onChange={(event) => setCategoryFilter(event.target.value)}
+              >
+                <option value="">כל הקטגוריות</option>
+                {categories.map((category) => (
+                  <option key={category.id} value={category.id}>
+                    {category.name}
+                  </option>
+                ))}
+              </Select>
+            )}
+            {categoryFilter && (
+              <Select
+                id="students-category-status"
+                label="מצב התשלום בקטגוריה"
+                value={categoryStatus}
+                onChange={(event) => setCategoryStatus(event.target.value)}
+              >
+                <option value="unpaid">טרם שילמו</option>
+                <option value="paid">שילמו</option>
+              </Select>
+            )}
             {!readOnly && (
               <Checkbox
                 id="students-select-all"

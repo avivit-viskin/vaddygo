@@ -170,6 +170,37 @@ test("מציג תג סטטוס תשלום ומסנן למי שטרם שילם", 
   expect(screen.getByText(/נועם לוי/)).toBeInTheDocument();
 });
 
+test("סינון לפי קטגוריית תשלום: מציג מי שטרם שילם את הקטגוריה, ומי ששילם", async () => {
+  mockServer([dana, noam], {
+    1: [
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 1200, isPaid: true },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+    ],
+    2: [
+      { collectionCategoryId: 1, categoryName: "הזנה", amount: 1200, cashAmount: 0, isPaid: false },
+      { collectionCategoryId: 2, categoryName: "ועד", amount: 500, cashAmount: 500, isPaid: true },
+    ],
+  });
+  renderPage();
+
+  // המסנן מופיע רק אחרי שמידע התשלומים נטען (התגים)
+  await screen.findByText("שולם 2/2");
+  const catFilter = await screen.findByLabelText("סינון לפי קטגוריית תשלום");
+
+  // בוחרים "הזנה" — ברירת המחדל היא "טרם שילמו" → רק נועם (לא שילם הזנה)
+  await userEvent.selectOptions(catFilter, "הזנה");
+  expect(screen.queryByText(/דנה כהן/)).not.toBeInTheDocument();
+  expect(screen.getByText(/נועם לוי/)).toBeInTheDocument();
+
+  // מחליפים ל"שילמו" → רק דנה (ששילמה הזנה)
+  await userEvent.selectOptions(
+    screen.getByLabelText("מצב התשלום בקטגוריה"),
+    "שילמו"
+  );
+  expect(screen.getByText(/דנה כהן/)).toBeInTheDocument();
+  expect(screen.queryByText(/נועם לוי/)).not.toBeInTheDocument();
+});
+
 test("סינון לפי קבוצה מציג רק את תלמידי הקבוצה שנבחרה", async () => {
   mockServer([dana, noam]);
   renderPage();

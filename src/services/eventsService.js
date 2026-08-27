@@ -51,6 +51,7 @@ function eventPayload({
   shareWithParent,
   whatToBring,
   parentPhone,
+  category,
 }) {
   return {
     name,
@@ -61,6 +62,8 @@ function eventPayload({
     shareWithParent: Boolean(shareWithParent),
     whatToBring: whatToBring || "",
     parentPhone: parentPhone || "",
+    // קטגוריה אופציונלית (למשל "staffDayOff") — להפרדת סוגי אירועים בלוח
+    category: category || null,
   };
 }
 

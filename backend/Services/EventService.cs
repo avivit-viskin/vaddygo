@@ -107,6 +107,9 @@ namespace ParentCommitteeAPI.Services
             item.ShareWithParent = dto.ShareWithParent;
             item.WhatToBring = dto.WhatToBring.Trim();
             item.ParentPhone = dto.ParentPhone.Trim();
+            item.Category = string.IsNullOrWhiteSpace(dto.Category)
+                ? null
+                : dto.Category.Trim();
         }
 
         private static EventResponseDto ToResponse(Event item) => new()
@@ -120,6 +123,7 @@ namespace ParentCommitteeAPI.Services
             ShareWithParent = item.ShareWithParent,
             WhatToBring = item.WhatToBring,
             ParentPhone = item.ParentPhone,
+            Category = item.Category,
         };
     }
 }

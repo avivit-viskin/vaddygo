@@ -17,6 +17,10 @@ namespace ParentCommitteeAPI.Models
         public string WhatToBring { get; set; } = string.Empty;
         public string ParentPhone { get; set; } = string.Empty;
 
+        // קטגוריה אופציונלית לאירוע (למשל "staffDayOff" — יום חופש של איש צוות).
+        // null = אירוע רגיל. מאפשר להפריד סוגי אירועים בלי טבלה נפרדת.
+        public string? Category { get; set; }
+
         // המוסד שאליו שייך האירוע (ריבוי מוסדות) — null = ישן ללא שיוך
         public int? GroupId { get; set; }
     }

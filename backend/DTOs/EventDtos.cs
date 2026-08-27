@@ -31,6 +31,10 @@ namespace ParentCommitteeAPI.DTOs
 
         [StringLength(20, ErrorMessage = "מספר טלפון אינו תקין")]
         public string ParentPhone { get; set; } = string.Empty;
+
+        // קטגוריה אופציונלית (למשל "staffDayOff") — להפרדת סוגי אירועים
+        [StringLength(40, ErrorMessage = "קטגוריה ארוכה מדי")]
+        public string? Category { get; set; }
     }
 
     public class EventCreateDto : EventWriteDto
@@ -52,5 +56,6 @@ namespace ParentCommitteeAPI.DTOs
         public bool ShareWithParent { get; set; }
         public string WhatToBring { get; set; } = string.Empty;
         public string ParentPhone { get; set; } = string.Empty;
+        public string? Category { get; set; }
     }
 }

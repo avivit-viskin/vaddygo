@@ -65,11 +65,28 @@ namespace ParentCommitteeAPI.Services
                 .Select(u => u.Email)
                 .Distinct();
 
+        /*
+          ספקים — כל הספקים הרשומים (לפי מייל ההתחברות). לשליחת תזכורות כמו
+          רענון הקטלוג / הוספת מוצרים.
+        */
+        private IQueryable<string> SupplierEmailsQuery() =>
+            _db.Vendors
+                .AsNoTracking()
+                .Where(v => v.LoginEmail != null && v.LoginEmail != "")
+                .Select(v => v.LoginEmail)
+                .Distinct();
+
         /* בוחר את שאילתת הנמענים לפי הקהל (ברירת מחדל: בעלי מוסדות). */
-        private IQueryable<string> EmailsForAudience(string? audience) =>
-            string.Equals(audience?.Trim(), "incomplete", StringComparison.OrdinalIgnoreCase)
-                ? IncompleteEmailsQuery()
-                : OwnerEmailsQuery();
+        private IQueryable<string> EmailsForAudience(string? audience)
+        {
+            var a = (audience ?? string.Empty).Trim().ToLowerInvariant();
+            return a switch
+            {
+                "incomplete" => IncompleteEmailsQuery(),
+                "suppliers" => SupplierEmailsQuery(),
+                _ => OwnerEmailsQuery(),
+            };
+        }
 
         public async Task<int> CountRecipientsAsync(string audience) =>
             await EmailsForAudience(audience).CountAsync();

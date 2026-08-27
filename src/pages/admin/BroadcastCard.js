@@ -10,6 +10,7 @@ import {
   PRO_ANNOUNCEMENT,
   INCOMPLETE_NUDGE,
   SUPPLIER_CATALOG_REMINDER,
+  SUPPLIER_NO_PRODUCTS_NUDGE,
 } from "../../services/subscriptionsService";
 import "../../styles/broadcast.css";
 
@@ -28,12 +29,14 @@ const DEFAULTS = {
   owners: PRO_ANNOUNCEMENT,
   incomplete: INCOMPLETE_NUDGE,
   suppliers: SUPPLIER_CATALOG_REMINDER,
+  suppliers_empty: SUPPLIER_NO_PRODUCTS_NUDGE,
 };
 
 const AUDIENCES = [
   { key: "owners", label: "כל בעלי המוסדות", noun: "בעלי מוסדות" },
   { key: "incomplete", label: "נרשמו ולא סיימו הרשמה", noun: "שנרשמו ולא סיימו" },
   { key: "suppliers", label: "כל הספקים", noun: "ספקים" },
+  { key: "suppliers_empty", label: "ספקים בלי מוצרים", noun: "ספקים בלי מוצרים" },
 ];
 
 function BroadcastCard() {
@@ -122,6 +125,8 @@ function BroadcastCard() {
           ? "נשלח במייל למי שנרשם אך עוד לא הקים גן — לעודד אותם לחזור ולהשלים."
           : audience === "suppliers"
           ? "נשלח במייל לכל הספקים הרשומים — למשל תזכורת לרענן את הקטלוג ולהוסיף מוצרים."
+          : audience === "suppliers_empty"
+          ? "נשלח במייל לספקים שעוד לא העלו אף מוצר — לעודד אותם להוסיף מוצר ראשון."
           : "נשלח במייל לכל מי שיש לו מוסד במערכת."}{" "}
         מספרי וואטסאפ אינם נשמרים אצלנו, ולכן מייל הוא הערוץ היחיד שמגיע לכולם.
       </p>

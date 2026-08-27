@@ -67,7 +67,7 @@ test("עם פרו, 'הוסף מוסד' פותח את טופס ההוספה", () 
 test("יש שיתוף בתפריט — הדרך היחידה לשתף כשהאפליקציה מותקנת", () => {
   renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
   expect(
-    screen.getByRole("button", { name: /שיתוף האפליקציה/ })
+    screen.getByRole("button", { name: /שיתוף קישור להרשמה/ })
   ).toBeInTheDocument();
 });
 
@@ -75,9 +75,15 @@ test("לחיצה על שיתוף מציגה את הכתובת גלויה להע�
   renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
 
   await userEvent.click(
-    screen.getByRole("button", { name: /שיתוף האפליקציה/ })
+    screen.getByRole("button", { name: /שיתוף קישור להרשמה/ })
   );
 
-  // הכתובת מוצגת בשדה, כדי שאפשר לסמן ולהעתיק גם בלי הרשאת clipboard
-  expect(screen.getByDisplayValue(window.location.origin)).toBeInTheDocument();
+  /*
+    הקישור מוביל ל**הרשמה** ולא לדף הבית: מי שמקבל אותו עדיין אינו במערכת,
+    ודף הבית היה מחייב אותו לחפש איפה נרשמים. מוצג בשדה גלוי, כדי שאפשר
+    לסמן ולהעתיק גם בלי הרשאת clipboard.
+  */
+  expect(
+    screen.getByDisplayValue(`${window.location.origin}/register`)
+  ).toBeInTheDocument();
 });

@@ -124,7 +124,7 @@ function SideMenu({ isOpen, onClose }) {
           className="sidemenu__action"
           onClick={() => setIsShareOpen(true)}
         >
-          <Icon name="link" size={18} /> שיתוף האפליקציה
+          <Icon name="link" size={18} /> שיתוף קישור להרשמה
         </button>
 
         <h3 className="sidemenu__title">הגדרות</h3>
@@ -187,13 +187,17 @@ function SideMenu({ isOpen, onClose }) {
         </div>
       </aside>
 
-      {/* הכתובת נלקחת מהדפדפן עצמו, כדי שתהיה נכונה בכל סביבה */}
+      {/*
+        הקישור מוביל ל**הרשמה** ולא לדף הבית (בקשת בעלת המוצר): מי שמקבל אותו
+        הוא ועד שעדיין אינו במערכת, ודף הבית היה מחייב אותו לחפש איפה נרשמים.
+        הבסיס נלקח מהדפדפן עצמו כדי שהכתובת תהיה נכונה בכל סביבה.
+      */}
       <ShareLinkModal
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}
-        url={window.location.origin}
-        title="שיתוף VaddyGo"
-        message="הנה המערכת שאני מנהלת בה את ועד ההורים — VaddyGo"
+        url={`${window.location.origin}/register`}
+        title="שיתוף קישור להרשמה"
+        message="הנה קישור להרשמה ל-VaddyGo — המערכת שאני מנהלת בה את ועד ההורים"
       />
 
       <Modal

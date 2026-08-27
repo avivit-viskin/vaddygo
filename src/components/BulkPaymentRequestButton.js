@@ -123,8 +123,38 @@ function BulkPaymentRequestButton({ students = [] }) {
             }}
           />
 
+          {/* שליחה כללית לקבוצה — בלי לבחור תלמיד ספציפי. וואטסאפ נפתח עם ההודעה
+              המוכנה, ובוחרים קבוצת הורים / רשימת תפוצה לשליחה. */}
+          <div
+            className="bulk-reminder__group-quick"
+            style={{
+              margin: "10px 0 4px",
+              padding: "12px",
+              borderRadius: 12,
+              background: "var(--color-primary-light)",
+              border: "1px solid var(--color-primary)",
+            }}
+          >
+            <p className="bulk-reminder__note" style={{ marginTop: 0 }}>
+              📣 <strong>שליחה לקבוצה שלמה</strong> — בלי לבחור תלמידים. וואטסאפ
+              ייפתח עם ההודעה, ובוחרים לאיזו קבוצה/רשימת-תפוצה לשלוח.
+            </p>
+            <div className="bulk-reminder__group-actions">
+              <a
+                href={buildWhatsappShareUrl(message)}
+                target="_blank"
+                rel="noreferrer"
+              >
+                <Button>
+                  <WhatsAppIcon size={16} /> שליחה לקבוצה בוואטסאפ
+                </Button>
+              </a>
+              <CopyMessageButton text={message} label="העתקת ההודעה" />
+            </div>
+          </div>
+
           <div className="wa-picker__head">
-            <span className="field__label">בחירת הנמענים:</span>
+            <span className="field__label">או שליחה אישית — בחירת נמענים:</span>
             {students.length > 0 && (
               <label className="wa-picker__all">
                 <input

@@ -188,3 +188,25 @@ test("מחיקת אירוע עם אישור מסירה אותו מהרשימה",
     expect(screen.queryAllByText("טיול גן")).toHaveLength(0)
   );
 });
+
+/*
+  נוסח תזכורת "חזרה לשגרה" הוכתב מילה במילה על ידי בעלת המוצר (27.08.2026),
+  והוא נשלח בשם **הגננת** להורים. הבדיקה נועלת אותו כדי שניסוח-מחדש "משפר"
+  לא ישנה הודעה שאדם אחר חותם עליה בשמו.
+*/
+test("נוסח 'חזרה לשגרה' נשמר בדיוק כפי שהוכתב, עם לב שנתמך בכל מכשיר", async () => {
+  render(<CalendarPage initialDate={new Date(2026, 8, 1)} />);
+
+  const link = await screen.findByRole("link", {
+    name: /שליחת תזכורת חזרה לשגרה להורים/,
+  });
+  const sent = decodeURIComponent(link.getAttribute("href"));
+
+  expect(sent).toContain("חזרה לשגרה שמח !");
+  expect(sent).toContain("מחכה ומצפה לראותך");
+  expect(sent).toContain("באהבה והערכה הגננת");
+  // לב מ-Unicode 6.0 — נתמך באייפון ובגלקסי ישנים (ולא הלב הוורוד מ-2022,
+  // שהוצג כסימן שאלה במכשירים ישנים)
+  expect(sent).toContain("\u{1F497}");
+  expect(sent).not.toContain("\u{1FA77}");
+});

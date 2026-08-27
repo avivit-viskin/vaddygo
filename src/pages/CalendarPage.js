@@ -37,6 +37,7 @@ import MonthGrid from "./calendar/MonthGrid";
 import EventForm from "./calendar/EventForm";
 import HolidaysSection from "./calendar/HolidaysSection";
 import HolidayBudgetDialog from "./calendar/HolidayBudgetDialog";
+import StaffDaysOffSection from "./calendar/StaffDaysOffSection";
 import Modal from "../components/Modal";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
@@ -71,10 +72,19 @@ const ROSH_CHODESH_REMINDER =
   "מזכירים לך לשלוח מחר עם חולצה לבנה 🤍\n\n" +
   "חודש טוב ומבורך 🌷";
 
-// תזכורת "חזרה לשגרה" לתחילת שנת הלימודים (1.9) — הנוסח לבקשת בעלת המוצר,
-// עם חתימת "גננת" בסוף.
+/*
+  תזכורת "חזרה לשגרה" לתחילת שנת הלימודים (1.9).
+
+  הנוסח **מילה במילה כפי שבעלת המוצר הכתיבה** (27.08.2026) — כולל הרווח לפני
+  סימן הקריאה, הפנייה בלשון יחיד ("לראותך"), והחתימה "באהבה והערכה הגננת".
+  אין לנסח מחדש: זו הודעה שהגננת שולחת להורים בשמה.
+
+  הלב הוא U+1F497 (Unicode 6.0, שנת 2010) ולא הלב הוורוד החדש — נתמך גם
+  באייפון וגם בגלקסי ישנים, לפי הבקשה. ראו הרשומה מ-26.08 על אמוג'י
+  שהוצגו כסימן שאלה במכשירים ישנים.
+*/
 const SCHOOL_YEAR_REMINDER =
-  "חזרה לשגרה שמח! מחכה ומצפה לראותכם 💗\n\nגננת";
+  "חזרה לשגרה שמח !\nמחכה ומצפה לראותך 💗\n\nבאהבה והערכה הגננת";
 
 function toDateInputValue(date) {
   const pad = (n) => String(n).padStart(2, "0");
@@ -200,15 +210,27 @@ function CalendarPage({ initialDate }) {
     () => monthEvents.filter((event) => event.shareWithParent),
     [monthEvents]
   );
-  // "האירועים שלי" מציג רק אירועים רגילים — אבא/אמא של שבת נמצאים במדור שלהם
+  // "האירועים שלי" מציג רק אירועים רגילים — "אבא/אמא של שבת" וימי-חופש של
+  // הצוות מוצגים במדורים הייעודיים שלהם, לא ברשימה הכללית.
   const regularEvents = useMemo(
-    () => monthEvents.filter((event) => !event.shareWithParent),
+    () =>
+      monthEvents.filter(
+        (event) => !event.shareWithParent && event.category !== "staffDayOff"
+      ),
+    [monthEvents]
+  );
+
+  // ימי חופש של אנשי הצוות — למדור הייעודי (מתחת לראש חודש)
+  const staffDaysOff = useMemo(
+    () => monthEvents.filter((event) => event.category === "staffDayOff"),
     [monthEvents]
   );
 
   const eventsByDay = useMemo(() => {
     const map = new Map();
     for (const event of monthEvents) {
+      // ימי-חופש של הצוות אינם אירוע רגיל בלוח/בחלון-היום — יש להם מדור משלהם
+      if (event.category === "staffDayOff") continue;
       const day = event.date.getDate();
       map.set(day, [...(map.get(day) || []), event]);
     }
@@ -569,6 +591,14 @@ function CalendarPage({ initialDate }) {
           ))}
         </section>
       )}
+
+      {/* מדור: ימי חופש של אנשי הצוות — מתחת לראש חודש (בקשת בעלת המוצר).
+          בוחרים איש צוות מהרשימה או מקלידים שם + תאריך; נשמר בנפרד מהאירועים. */}
+      <StaffDaysOffSection
+        daysOff={staffDaysOff}
+        readOnly={readOnly}
+        onChanged={reload}
+      />
 
       {/* מדור: 1.9 — חזרה לשגרה (תחילת שנת הלימודים). אירוע קבוע עם תזכורת
           מוכנה להורים בוואטסאפ. פתוח גם ל"צופה" (כמו שאר התזכורות). */}

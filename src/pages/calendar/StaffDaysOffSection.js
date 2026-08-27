@@ -1,106 +1,98 @@
 import { useState } from "react";
 import useApi from "../../hooks/useApi";
 import { getStaff } from "../../services/staffService";
-import { addEvent, deleteEvent } from "../../services/eventsService";
+import {
+  getStaffWeeklyOff,
+  addStaffWeeklyOff,
+  removeStaffWeeklyOff,
+  weekdayLabel,
+  WEEKDAYS,
+} from "../../services/staffWeeklyOffService";
 import Icon from "../../components/Icon";
 import Button from "../../components/Button";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 
 /*
-  StaffDaysOffSection — מדור "ימי חופש של אנשי הצוות" בלוח השנה (מתחת לראש חודש).
-  מציג את ימי-החופש של החודש המוצג, ומאפשר להוסיף: בוחרים איש צוות מהרשימה
-  שהוזנה (ימי הולדת הצוות) — או מקלידים שם ידנית — ותאריך. נשמר כאירוע עם
-  category="staffDayOff", כך שהוא נפרד מהאירועים הרגילים בלוח.
+  StaffDaysOffSection — מדור "ימי חופש קבועים של הצוות" בלוח השנה (מתחת לראש חודש).
+  לפי בקשת בעלת המוצר: לא תאריך בודד אלא יום קבוע בשבוע — למשל "בימי ראשון
+  הגננת בחופש", "בימי שני הסייעת". בוחרים איש צוות (מרשימת הצוות או בהקלדה
+  ידנית) + יום בשבוע, ואפשר להוסיף כמה אנשי צוות שרוצים.
 */
-const CATEGORY = "staffDayOff";
 const MANUAL = "__manual__";
-const dateFmt = new Intl.DateTimeFormat("he", {
-  day: "numeric",
-  month: "numeric",
-});
 
-function StaffDaysOffSection({
-  daysOff = [],
-  readOnly = false,
-  onChanged,
-}) {
+function StaffDaysOffSection({ readOnly = false }) {
   const { data: staff } = useApi(getStaff);
+  const [entries, setEntries] = useState(() => getStaffWeeklyOff());
   const [adding, setAdding] = useState(false);
   const [choice, setChoice] = useState(""); // שם איש הצוות שנבחר, או MANUAL
   const [manualName, setManualName] = useState("");
-  const [date, setDate] = useState("");
-  const [busy, setBusy] = useState(false);
+  const [weekday, setWeekday] = useState("0");
   const [error, setError] = useState("");
 
   const staffList = Array.isArray(staff) ? staff : [];
-  const sorted = [...daysOff].sort((a, b) => a.date - b.date);
+  const sorted = [...entries].sort((a, b) => a.weekday - b.weekday);
+
+  function refresh() {
+    setEntries(getStaffWeeklyOff());
+  }
 
   function reset() {
     setChoice("");
     setManualName("");
-    setDate("");
+    setWeekday("0");
     setError("");
     setAdding(false);
   }
 
-  async function handleAdd(event) {
+  function handleAdd(event) {
     event.preventDefault();
     const name = (choice === MANUAL ? manualName : choice).trim();
     if (!name) {
       setError("צריך לבחור איש צוות או להקליד שם");
       return;
     }
-    if (!date) {
-      setError("צריך לבחור תאריך");
-      return;
-    }
-    setBusy(true);
-    setError("");
-    try {
-      await addEvent({ name, eventDate: date, category: CATEGORY });
-      reset();
-      if (onChanged) onChanged();
-    } catch {
-      setError("לא הצלחנו לשמור. אפשר לנסות שוב.");
-    } finally {
-      setBusy(false);
-    }
+    addStaffWeeklyOff({ staffName: name, weekday });
+    reset();
+    refresh();
   }
 
-  async function handleDelete(id) {
-    await deleteEvent(id);
-    if (onChanged) onChanged();
+  function handleDelete(id) {
+    removeStaffWeeklyOff(id);
+    refresh();
   }
 
   return (
-    <section className="calendar-list" aria-label="ימי חופש של הצוות">
+    <section className="calendar-list" aria-label="ימי חופש קבועים של הצוות">
       <h3>
-        <Icon name="calendar" size={18} /> ימי חופש של הצוות
+        <Icon name="calendar" size={18} /> ימי חופש קבועים של הצוות
       </h3>
       <p className="calendar-list__hint">
-        מסמנים כאן מתי אנשי הצוות בחופש — בוחרים איש צוות מהרשימה (מ"ימי הולדת
-        הצוות") או מקלידים שם, ובוחרים תאריך.
+        מסמנים כאן איזה יום בשבוע כל איש צוות בחופש באופן קבוע — למשל: בימי ראשון
+        הגננת, בימי שני הסייעת. כך מנהל/ת הוועד יודע/ת מראש. אפשר להוסיף כמה
+        אנשי צוות שרוצים.
       </p>
 
       {sorted.length === 0 && (
         <p className="calendar-list__hint" style={{ opacity: 0.75 }}>
-          עדיין לא סומנו ימי חופש בחודש הזה.
+          עדיין לא סומנו ימי חופש קבועים.
         </p>
       )}
 
-      {sorted.map((d) => (
-        <div className="calendar-list__item" key={`dayoff-${d.id}`}>
-          <span className="calendar-list__date">{dateFmt.format(d.date)}</span>
+      {sorted.map((entry) => (
+        <div className="calendar-list__item" key={`weekly-off-${entry.id}`}>
+          <span className="calendar-list__date">
+            בימי {weekdayLabel(entry.weekday)}
+          </span>
           <span className="calendar-list__name">
-            <Icon name="users" size={14} /> {d.name}
+            <Icon name="users" size={14} /> {entry.staffName} בחופש
           </span>
           {!readOnly && (
             <button
               type="button"
               className="calendar-list__send"
-              aria-label={`מחיקת יום החופש של ${d.name}`}
-              onClick={() => handleDelete(d.id)}
+              aria-label={`מחיקת יום החופש הקבוע של ${entry.staffName}`}
+              onClick={() => handleDelete(entry.id)}
             >
               <Icon name="trash" size={16} /> מחיקה
             </button>
@@ -111,7 +103,7 @@ function StaffDaysOffSection({
       {!readOnly && !adding && (
         <div style={{ marginTop: 10 }}>
           <Button variant="secondary" onClick={() => setAdding(true)}>
-            + הוספת יום חופש
+            + הוספת איש צוות
           </Button>
         </div>
       )}
@@ -119,7 +111,7 @@ function StaffDaysOffSection({
       {!readOnly && adding && (
         <form onSubmit={handleAdd} style={{ marginTop: 10 }}>
           <Select
-            id="staff-dayoff-who"
+            id="staff-weeklyoff-who"
             label="איש הצוות"
             value={choice}
             onChange={(e) => setChoice(e.target.value)}
@@ -136,21 +128,26 @@ function StaffDaysOffSection({
 
           {choice === MANUAL && (
             <Input
-              id="staff-dayoff-manual"
+              id="staff-weeklyoff-manual"
               label="שם"
-              placeholder="שם איש הצוות"
+              placeholder="למשל: גננת / סייעת / שם פרטי"
               value={manualName}
               onChange={(e) => setManualName(e.target.value)}
             />
           )}
 
-          <Input
-            id="staff-dayoff-date"
-            label="תאריך החופש"
-            type="date"
-            value={date}
-            onChange={(e) => setDate(e.target.value)}
-          />
+          <Select
+            id="staff-weeklyoff-day"
+            label="באיזה יום בשבוע?"
+            value={weekday}
+            onChange={(e) => setWeekday(e.target.value)}
+          >
+            {WEEKDAYS.map((w) => (
+              <option key={w.value} value={w.value}>
+                יום {w.label}
+              </option>
+            ))}
+          </Select>
 
           {error && (
             <p className="field__error" role="alert">
@@ -159,9 +156,7 @@ function StaffDaysOffSection({
           )}
 
           <div style={{ display: "flex", gap: 8, marginTop: 8 }}>
-            <Button type="submit" isLoading={busy}>
-              הוספה
-            </Button>
+            <Button type="submit">הוספה</Button>
             <Button variant="secondary" onClick={reset}>
               ביטול
             </Button>

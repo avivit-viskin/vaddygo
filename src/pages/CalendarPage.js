@@ -220,12 +220,6 @@ function CalendarPage({ initialDate }) {
     [monthEvents]
   );
 
-  // ימי חופש של אנשי הצוות — למדור הייעודי (מתחת לראש חודש)
-  const staffDaysOff = useMemo(
-    () => monthEvents.filter((event) => event.category === "staffDayOff"),
-    [monthEvents]
-  );
-
   const eventsByDay = useMemo(() => {
     const map = new Map();
     for (const event of monthEvents) {
@@ -592,13 +586,10 @@ function CalendarPage({ initialDate }) {
         </section>
       )}
 
-      {/* מדור: ימי חופש של אנשי הצוות — מתחת לראש חודש (בקשת בעלת המוצר).
-          בוחרים איש צוות מהרשימה או מקלידים שם + תאריך; נשמר בנפרד מהאירועים. */}
-      <StaffDaysOffSection
-        daysOff={staffDaysOff}
-        readOnly={readOnly}
-        onChanged={reload}
-      />
+      {/* מדור: ימי חופש קבועים של הצוות — מתחת לראש חודש (בקשת בעלת המוצר).
+          יום קבוע בשבוע לכל איש צוות (ראשון הגננת, שני הסייעת), עם אפשרות
+          להוסיף עוד אנשי צוות. הנתונים נשמרים במדור עצמו (localStorage לפי הגן). */}
+      <StaffDaysOffSection readOnly={readOnly} />
 
       {/* מדור: 1.9 — חזרה לשגרה (תחילת שנת הלימודים). אירוע קבוע עם תזכורת
           מוכנה להורים בוואטסאפ. פתוח גם ל"צופה" (כמו שאר התזכורות). */}

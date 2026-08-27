@@ -87,12 +87,14 @@ export function validUntilText(row) {
   ולכן אי אפשר לשלוח לכולם בוואטסאפ. הנוסח נשלח מהמסך ולא מקובע בשרת,
   כדי שעדכון חדש לא ידרוש פריסה.
 */
-export function getBroadcastRecipients() {
-  return api.get("/api/admin/broadcast/recipients");
+export function getBroadcastRecipients(audience = "owners") {
+  return api.get(
+    `/api/admin/broadcast/recipients?audience=${encodeURIComponent(audience)}`
+  );
 }
 
-export function sendBroadcast({ subject, body }) {
-  return api.post("/api/admin/broadcast", { subject, body });
+export function sendBroadcast({ subject, body, audience = "owners" }) {
+  return api.post("/api/admin/broadcast", { subject, body, audience });
 }
 
 /*
@@ -121,6 +123,32 @@ export const PRO_ANNOUNCEMENT = {
     "מי שירצה להמשיך עם הפרו — 149 ₪ לשנה.",
     "",
     "כל שאלה, אנחנו כאן 💗",
+    "צוות VaddyGo",
+  ].join("\n"),
+};
+
+/*
+  נוסח ברירת המחדל לקהל "נרשמו ולא סיימו" — עידוד חם לחזור ולהשלים את הקמת
+  הגן. בלי כוכביות הדגשה (לא אומרות כלום במייל).
+*/
+export const INCOMPLETE_NUDGE = {
+  subject: "נשאר רק צעד קטן כדי להתחיל ב-VaddyGo 🙂",
+  body: [
+    "היי 🙂",
+    "",
+    "שמנו לב שנרשמתם ל-VaddyGo אבל עוד לא הקמתם את הגן — וחבל, כי החלק הקשה",
+    "כבר מאחוריכם. נשאר רק צעד קצר אחד.",
+    "",
+    "בהקמת הגן תוכלו כבר:",
+    "• לנהל גבייה מההורים במקום אחד",
+    "• לראות מי שילם ומי עוד לא — אוטומטית",
+    "• לנהל תקציב, הוצאות וקבלות בשקיפות מלאה",
+    "",
+    "זה לוקח כמה דקות, ואנחנו כאן לכל שאלה בדרך 💗",
+    "",
+    "פשוט נכנסים למערכת וממשיכים מהמקום שעצרתם.",
+    "",
+    "נשמח לראות אתכם,",
     "צוות VaddyGo",
   ].join("\n"),
 };

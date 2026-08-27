@@ -70,3 +70,37 @@
   color: #a65b00;
   font-size: var(--font-size-sm);
 }
+
+/* בורר קהל היעד — פקד "מגזרי" (segmented) בגוונים הרכים של המערכת */
+.broadcast__audience {
+  display: flex;
+  gap: 6px;
+  margin: 0 0 14px;
+  padding: 4px;
+  background: var(--color-card-tint, var(--color-surface));
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.broadcast__audience-btn {
+  flex: 1;
+  padding: 9px 10px;
+  border: none;
+  border-radius: 9px;
+  background: none;
+  color: var(--color-text-muted);
+  font-family: inherit;
+  font-size: var(--font-size-sm, 0.9rem);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+
+.broadcast__audience-btn:hover {
+  color: var(--color-text);
+}
+
+.broadcast__audience-btn--active {
+  background: var(--color-primary, #f9cfe0);
+  color: var(--color-primary-dark, #7a2e4e);
+}

@@ -8,43 +8,71 @@ import {
   getBroadcastRecipients,
   sendBroadcast,
   PRO_ANNOUNCEMENT,
+  INCOMPLETE_NUDGE,
 } from "../../services/subscriptionsService";
 import "../../styles/broadcast.css";
 
 /*
-  BroadcastCard — שליחת עדכון אחד לכל בעלי המוסדות.
+  BroadcastCard — שליחת עדכון אחד במייל לקהל שנבחר.
 
-  קיים כי לא הייתה שום דרך להודיע לוועדים על שינוי חוץ מהעתקה ידנית לכל
-  אחד. מספרי וואטסאפ אינם נשמרים במערכת, ולכן **מייל הוא הערוץ היחיד**
-  שמגיע לכולם.
+  שני קהלים:
+  • **בעלי מוסדות** — מי שהקים גן (עדכונים על מסלול, מדיניות וכו').
+  • **נרשמו ולא סיימו** — מי שנרשם אך עוד לא הקים גן (לעודד לחזור ולהשלים).
 
-  שלוש החלטות ממשק, כולן נובעות מכך שזו פעולה שאי אפשר לבטל:
-
-  1. **מספר הנמענים מוצג לפני השליחה**, ובאישור עצמו. "שלח לכולם" בלי לדעת
-     לכמה זה בדיוק סוג הפעולה שמתחרטים עליה.
-  2. **אישור בשני שלבים.** אין Undo למייל שיצא.
-  3. **הנוסח פתוח לעריכה** ולא מקובע — ההודעה הבאה תהיה על משהו אחר, ואין
-     סיבה שתדרוש פריסה חדשה.
+  מייל הוא הערוץ היחיד שמגיע לכולם (מספרי וואטסאפ אינם נשמרים). כל ההגנות
+  נשמרות: מספר הנמענים מוצג לפני השליחה, אישור בשני שלבים (אין Undo למייל),
+  והנוסח פתוח לעריכה (ברירת מחדל מתאימה לכל קהל).
 */
+const DEFAULTS = { owners: PRO_ANNOUNCEMENT, incomplete: INCOMPLETE_NUDGE };
+
+const AUDIENCES = [
+  { key: "owners", label: "כל בעלי המוסדות", noun: "בעלי מוסדות" },
+  { key: "incomplete", label: "נרשמו ולא סיימו הרשמה", noun: "שנרשמו ולא סיימו" },
+];
+
 function BroadcastCard() {
+  const [audience, setAudience] = useState("owners");
   const { data, isLoading } = useApi(
-    useCallback(() => getBroadcastRecipients(), [])
+    useCallback(() => getBroadcastRecipients(audience), [audience])
   );
-  const [subject, setSubject] = useState(PRO_ANNOUNCEMENT.subject);
-  const [body, setBody] = useState(PRO_ANNOUNCEMENT.body);
+  const [subject, setSubject] = useState(DEFAULTS.owners.subject);
+  const [body, setBody] = useState(DEFAULTS.owners.body);
   const [confirming, setConfirming] = useState(false);
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState(null);
   const [error, setError] = useState("");
 
   const count = data?.count ?? 0;
+  const meta = AUDIENCES.find((a) => a.key === audience) || AUDIENCES[0];
+
+  function changeAudience(next) {
+    if (next === audience) return;
+    // אם הנוסח עדיין ברירת-מחדל (לא נערך ידנית) — מחליפים לברירת המחדל של
+    // הקהל החדש. אם המשתמשת ערכה בעצמה — לא דורסים את מה שכתבה.
+    const untouched =
+      (subject === DEFAULTS.owners.subject && body === DEFAULTS.owners.body) ||
+      (subject === DEFAULTS.incomplete.subject &&
+        body === DEFAULTS.incomplete.body);
+    if (untouched) {
+      setSubject(DEFAULTS[next].subject);
+      setBody(DEFAULTS[next].body);
+    }
+    setConfirming(false);
+    setResult(null);
+    setError("");
+    setAudience(next);
+  }
 
   async function handleSend() {
     setSending(true);
     setError("");
     setResult(null);
     try {
-      const res = await sendBroadcast({ subject: subject.trim(), body: body.trim() });
+      const res = await sendBroadcast({
+        subject: subject.trim(),
+        body: body.trim(),
+        audience,
+      });
       setResult(res);
       setConfirming(false);
     } catch (err) {
@@ -58,20 +86,44 @@ function BroadcastCard() {
     <Card
       title={
         <>
-          <Icon name="message" size={20} /> שליחת עדכון לכל בעלי המוסדות
+          <Icon name="message" size={20} /> שליחת עדכון במייל
         </>
       }
     >
+      {/* בחירת קהל היעד */}
+      <div
+        className="broadcast__audience"
+        role="radiogroup"
+        aria-label="קהל היעד"
+      >
+        {AUDIENCES.map((a) => (
+          <button
+            key={a.key}
+            type="button"
+            role="radio"
+            aria-checked={audience === a.key}
+            className={`broadcast__audience-btn${
+              audience === a.key ? " broadcast__audience-btn--active" : ""
+            }`}
+            onClick={() => changeAudience(a.key)}
+          >
+            {a.label}
+          </button>
+        ))}
+      </div>
+
       <p className="broadcast__hint">
-        נשלח <strong>במייל</strong> לכל מי שיש לו מוסד במערכת. מספרי וואטסאפ
-        אינם נשמרים אצלנו, ולכן זה הערוץ היחיד שמגיע לכולם.
+        {audience === "incomplete"
+          ? "נשלח במייל למי שנרשם אך עוד לא הקים גן — לעודד אותם לחזור ולהשלים."
+          : "נשלח במייל לכל מי שיש לו מוסד במערכת."}{" "}
+        מספרי וואטסאפ אינם נשמרים אצלנו, ולכן מייל הוא הערוץ היחיד שמגיע לכולם.
       </p>
 
       {isLoading ? (
         <Spinner />
       ) : (
         <p className="broadcast__count">
-          יישלח ל-<strong>{count}</strong> בעלי מוסדות
+          יישלח ל-<strong>{count}</strong> {meta.noun}
         </p>
       )}
 
@@ -100,7 +152,7 @@ function BroadcastCard() {
       {confirming ? (
         <div className="broadcast__confirm">
           <p className="broadcast__warn">
-            לשלוח עכשיו ל-<strong>{count}</strong> בעלי מוסדות? אי אפשר לבטל
+            לשלוח עכשיו ל-<strong>{count}</strong> {meta.noun}? אי אפשר לבטל
             מייל שנשלח.
           </p>
           <div className="broadcast__actions">
@@ -122,7 +174,7 @@ function BroadcastCard() {
             }}
             disabled={!subject.trim() || !body.trim() || count === 0}
           >
-            <Icon name="message" size={15} /> שליחה לכל בעלי המוסדות
+            <Icon name="message" size={15} /> שליחה ל-{meta.noun}
           </Button>
         </div>
       )}

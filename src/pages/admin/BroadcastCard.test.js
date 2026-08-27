@@ -31,7 +31,7 @@ test("שליחה דורשת אישור, והאישור חוזר על מספר ה
   await screen.findByText("12");
 
   await userEvent.click(
-    screen.getByRole("button", { name: /שליחה לכל בעלי המוסדות/ })
+    screen.getByRole("button", { name: /שליחה ל.*בעלי מוסדות/ })
   );
 
   expect(screen.getByText(/אי אפשר לבטל/)).toBeInTheDocument();
@@ -46,7 +46,7 @@ test("ביטול באישור אינו שולח דבר", async () => {
   await screen.findByText("12");
 
   await userEvent.click(
-    screen.getByRole("button", { name: /שליחה לכל בעלי המוסדות/ })
+    screen.getByRole("button", { name: /שליחה ל.*בעלי מוסדות/ })
   );
   await userEvent.click(screen.getByRole("button", { name: "ביטול" }));
 
@@ -59,7 +59,7 @@ test("אישור שולח את הנוסח ומדווח כמה נשלחו", async
   await screen.findByText("12");
 
   await userEvent.click(
-    screen.getByRole("button", { name: /שליחה לכל בעלי המוסדות/ })
+    screen.getByRole("button", { name: /שליחה ל.*בעלי מוסדות/ })
   );
   await userEvent.click(screen.getByRole("button", { name: /כן, לשלוח ל-12/ }));
 
@@ -79,7 +79,7 @@ test("כשחלק נכשלו — נאמר כמה, ולא רק כמה הצליחו
   await screen.findByText("12");
 
   await userEvent.click(
-    screen.getByRole("button", { name: /שליחה לכל בעלי המוסדות/ })
+    screen.getByRole("button", { name: /שליחה ל.*בעלי מוסדות/ })
   );
   await userEvent.click(screen.getByRole("button", { name: /כן, לשלוח ל-12/ }));
 
@@ -92,6 +92,19 @@ test("בלי נמענים — הכפתור מנוטרל", async () => {
 
   await screen.findByText("0");
   expect(
-    screen.getByRole("button", { name: /שליחה לכל בעלי המוסדות/ })
+    screen.getByRole("button", { name: /שליחה ל.*בעלי מוסדות/ })
   ).toBeDisabled();
+});
+
+/* בחירת הקהל "נרשמו ולא סיימו" מבקשת מהשרת את מספר הנמענים של אותו קהל. */
+test("בחירת קהל 'נרשמו ולא סיימו' טוענת את הספירה של אותו קהל", async () => {
+  getBroadcastRecipients.mockResolvedValue({ count: 5 });
+  render(<BroadcastCard />);
+  await screen.findByText("5");
+
+  await userEvent.click(
+    screen.getByRole("radio", { name: /נרשמו ולא סיימו/ })
+  );
+
+  expect(getBroadcastRecipients).toHaveBeenCalledWith("incomplete");
 });

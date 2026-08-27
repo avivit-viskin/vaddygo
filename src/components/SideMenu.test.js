@@ -55,3 +55,29 @@ test("עם פרו, 'הוסף מוסד' פותח את טופס ההוספה", () 
 
   expect(screen.getByLabelText("שם המוסד")).toBeInTheDocument();
 });
+
+/*
+  🔴 דווח מהשטח: "האפליקציה פתוחה בנייד ואני לא מצליחה לראות את הכתובת /
+  את כפתור השיתוף".
+
+  הסיבה: המניפסט מוגדר `display: standalone`, ולכן אפליקציה שהותקנה במסך
+  הבית פועלת **בלי שורת הכתובת ובלי כפתור השיתוף של הדפדפן**. בלי כפתור
+  שיתוף בתוך האפליקציה עצמה אין שום דרך להעתיק או לשלוח את הכתובת.
+*/
+test("יש שיתוף בתפריט — הדרך היחידה לשתף כשהאפליקציה מותקנת", () => {
+  renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
+  expect(
+    screen.getByRole("button", { name: /שיתוף האפליקציה/ })
+  ).toBeInTheDocument();
+});
+
+test("לחיצה על שיתוף מציגה את הכתובת גלויה להעתקה", async () => {
+  renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
+
+  await userEvent.click(
+    screen.getByRole("button", { name: /שיתוף האפליקציה/ })
+  );
+
+  // הכתובת מוצגת בשדה, כדי שאפשר לסמן ולהעתיק גם בלי הרשאת clipboard
+  expect(screen.getByDisplayValue(window.location.origin)).toBeInTheDocument();
+});

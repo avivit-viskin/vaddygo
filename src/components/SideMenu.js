@@ -4,6 +4,7 @@ import BrandName from "./BrandName";
 import Icon from "./Icon";
 import InstitutionSwitcher from "./InstitutionSwitcher";
 import Modal from "./Modal";
+import ShareLinkModal from "./ShareLinkModal";
 import Input from "./Input";
 import Button from "./Button";
 import { logout, isSuperAdmin } from "../services/authService";
@@ -29,6 +30,15 @@ function SideMenu({ isOpen, onClose }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [addError, setAddError] = useState("");
+  /*
+    שיתוף האפליקציה מתוך התפריט.
+
+    🔴 למה זה נחוץ: המניפסט מוגדר `display: standalone`, ולכן כשהאפליקציה
+    מותקנת במסך הבית הדפדפן **מסתיר את שורת הכתובת ואת כפתור השיתוף שלו**.
+    זו התנהגות מכוונת של אפליקציה מותקנת — אבל בלי כפתור שיתוף פנימי, אין
+    שום דרך להעתיק את הכתובת או לשלוח אותה למישהו. דווח מהשטח.
+  */
+  const [isShareOpen, setIsShareOpen] = useState(false);
 
   if (!isOpen) {
     return null;
@@ -109,6 +119,14 @@ function SideMenu({ isOpen, onClose }) {
           <ProBadge title="כל כלי הפרו במקום אחד" />
         </button>
 
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => setIsShareOpen(true)}
+        >
+          <Icon name="link" size={18} /> שיתוף האפליקציה
+        </button>
+
         <h3 className="sidemenu__title">הגדרות</h3>
         <button
           type="button"
@@ -168,6 +186,15 @@ function SideMenu({ isOpen, onClose }) {
           </button>
         </div>
       </aside>
+
+      {/* הכתובת נלקחת מהדפדפן עצמו, כדי שתהיה נכונה בכל סביבה */}
+      <ShareLinkModal
+        isOpen={isShareOpen}
+        onClose={() => setIsShareOpen(false)}
+        url={window.location.origin}
+        title="שיתוף VaddyGo"
+        message="הנה המערכת שאני מנהלת בה את ועד ההורים — VaddyGo"
+      />
 
       <Modal
         isOpen={isAddOpen}

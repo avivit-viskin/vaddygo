@@ -38,5 +38,8 @@ namespace ParentCommitteeAPI.DTOs
         public string ReceiptImage { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public int? VendorId { get; set; }
+
+        // מתי נמחקה (סל מיחזור) — null בהוצאה פעילה, מלא בפריט בסל.
+        public DateTime? DeletedAt { get; set; }
     }
 }

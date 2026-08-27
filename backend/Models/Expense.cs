@@ -29,5 +29,10 @@ namespace ParentCommitteeAPI.Models
 
         // הספק שאליו שולם (אם ההוצאה היא תשלום לספק דרך הפורטל) — null = הוצאה רגילה
         public int? VendorId { get; set; }
+
+        // "סל מיחזור": מחיקה רכה. מחוק = מוסתר מכל המסכים (מסנן גלובלי ב-AppDbContext)
+        // אך ניתן לשחזור עד 30 יום, ואז נמחק לצמיתות ע"י שירות הרקע.
+        public bool IsDeleted { get; set; }
+        public DateTime? DeletedAt { get; set; }
     }
 }

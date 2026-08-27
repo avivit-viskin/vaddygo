@@ -69,6 +69,10 @@ namespace ParentCommitteeAPI
             // תיבת הפניות של הספק נשלפת לפי VendorId — אינדקס לשליפה מהירה.
             modelBuilder.Entity<Lead>().HasIndex(l => l.VendorId);
 
+            // "סל מיחזור": הוצאה מחוקה-רכה מוסתרת אוטומטית מכל שאילתה רגילה (מסנן
+            // גלובלי). שאילתות סל-המיחזור מבטלות אותו ב-IgnoreQueryFilters().
+            modelBuilder.Entity<Expense>().HasQueryFilter(e => !e.IsDeleted);
+
             // אימות דו-שלבי: כל שלוש הטבלאות נשלפות לפי טביעת אצבע או לפי משתמש,
             // ובשתי הראשונות זה קורה בתוך זרימת התחברות — לכן אינדקס ייחודי.
             modelBuilder.Entity<TwoFactorChallenge>()

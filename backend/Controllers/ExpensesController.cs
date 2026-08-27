@@ -38,13 +38,40 @@ namespace ParentCommitteeAPI.Controllers
             return CreatedAtAction(nameof(GetAllExpenses), new { id = created.Id }, created);
         }
 
-        // DELETE: api/expenses/1
+        // DELETE: api/expenses/1 — מחיקה רכה (לסל המיחזור)
         [HttpDelete("{id}")]
         public async Task<IActionResult> DeleteExpense(int id)
         {
             var deleted = await _expenseService.DeleteAsync(id);
             if (!deleted)
                 return NotFound(new { message = "ההוצאה לא נמצאה" });
+            return NoContent();
+        }
+
+        // GET: api/expenses/trash — פריטי סל המיחזור (נמחקו ב-30 הימים האחרונים)
+        [HttpGet("trash")]
+        public async Task<ActionResult<IEnumerable<ExpenseResponseDto>>> GetTrash()
+        {
+            return Ok(await _expenseService.GetTrashAsync(ActiveGroupId));
+        }
+
+        // POST: api/expenses/1/restore — שחזור פריט מסל המיחזור
+        [HttpPost("{id}/restore")]
+        public async Task<IActionResult> RestoreExpense(int id)
+        {
+            var restored = await _expenseService.RestoreAsync(id);
+            if (!restored)
+                return NotFound(new { message = "הפריט לא נמצא בסל המיחזור" });
+            return NoContent();
+        }
+
+        // DELETE: api/expenses/1/permanent — מחיקה לצמיתות מסל המיחזור
+        [HttpDelete("{id}/permanent")]
+        public async Task<IActionResult> PermanentDeleteExpense(int id)
+        {
+            var deleted = await _expenseService.PermanentDeleteAsync(id);
+            if (!deleted)
+                return NotFound(new { message = "הפריט לא נמצא בסל המיחזור" });
             return NoContent();
         }
     }

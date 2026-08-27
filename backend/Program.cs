@@ -141,6 +141,8 @@ builder.Services.AddHostedService<VendorProExpiryBackgroundService>();
 // גיבוי אוטומטי של המסד — שירות + משימת רקע (בעלייה ואז כל X שעות)
 builder.Services.AddScoped<IDatabaseBackupService, SqliteBackupService>();
 builder.Services.AddHostedService<DatabaseBackupBackgroundService>();
+// סל המיחזור — ניקוי יומי של פריטים שנמחקו לפני יותר מ-30 יום
+builder.Services.AddHostedService<ExpenseTrashPurgeBackgroundService>();
 
 // סליקת אשראי — ספק לפי Payments:Provider. mock=סימולטור לפיתוח/בדיקות, payplus=פרודקשן.
 var paymentProvider = builder.Configuration["Payments:Provider"] ?? "mock";

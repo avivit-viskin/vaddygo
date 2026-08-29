@@ -58,15 +58,29 @@ function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, pro
           const status = subscriptionStatus(row.status);
           return (
             <li key={row.id} className="subs__row">
-              {selectable && (
-                <input
-                  type="checkbox"
-                  className="subs__check"
-                  checked={selected.has(row.id)}
-                  onChange={() => onToggle(row.id)}
-                  aria-label={`בחירת ${row.name || "ספק"}`}
-                />
-              )}
+              {/*
+                שורה מוגנת (בוט הבדיקות) מקבלת מנעול במקום תיבת סימון — אי אפשר
+                לסמן אותה למחיקה מרוכזת. השרת מסרב בכל מקרה; זה כדי שלא ינוסה,
+                ושיהיה ברור למה השורה הזו נראית אחרת.
+              */}
+              {selectable &&
+                (row.isProtected ? (
+                  <span
+                    className="subs__lock"
+                    title="חשבון מוגן — לא ניתן למחיקה"
+                    aria-label="חשבון מוגן"
+                  >
+                    <Icon name="lock" size={14} />
+                  </span>
+                ) : (
+                  <input
+                    type="checkbox"
+                    className="subs__check"
+                    checked={selected.has(row.id)}
+                    onChange={() => onToggle(row.id)}
+                    aria-label={`בחירת ${row.name || "ספק"}`}
+                  />
+                ))}
               <span className="subs__name">{row.name}</span>
               {row.email && (
                 <a
@@ -85,6 +99,14 @@ function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, pro
               <span className={`subs__pill subs__pill--${status.tone}`}>
                 {status.label}
               </span>
+              {row.isProtected && (
+                <span
+                  className="subs__pill subs__pill--protected"
+                  title="חשבון מוגן — מוחרג מכל ניקוי אוטומטי"
+                >
+                  מוגן
+                </span>
+              )}
               {row.createdAt && (
                 <span className="subs__created" title="תאריך הצטרפות">
                   נרשם {new Date(row.createdAt).toLocaleDateString("he-IL")}

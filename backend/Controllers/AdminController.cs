@@ -155,6 +155,11 @@ namespace ParentCommitteeAPI.Controllers
                     NotFound(new { message = "הגן לא נמצא (אולי כבר נמחק)" }),
                 CommitteeDeleteResult.ProtectedAdmin =>
                     BadRequest(new { message = "לא ניתן למחוק גן של חשבון מנהלת" }),
+                CommitteeDeleteResult.ProtectedAccount =>
+                    BadRequest(new
+                    {
+                        message = "זהו חשבון מוגן (בוט הבדיקות) ולא ניתן למחוק אותו"
+                    }),
                 CommitteeDeleteResult.HasMultiple =>
                     BadRequest(new
                     {
@@ -180,6 +185,11 @@ namespace ParentCommitteeAPI.Controllers
                     NotFound(new { message = "המשתמש לא נמצא (אולי כבר נמחק)" }),
                 IncompleteUserDeleteResult.ProtectedAdmin =>
                     BadRequest(new { message = "לא ניתן למחוק חשבון מנהלת" }),
+                IncompleteUserDeleteResult.ProtectedAccount =>
+                    BadRequest(new
+                    {
+                        message = "זהו חשבון מוגן (בוט הבדיקות) ולא ניתן למחוק אותו"
+                    }),
                 IncompleteUserDeleteResult.HasGroup =>
                     BadRequest(new
                     {

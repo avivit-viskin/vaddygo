@@ -243,8 +243,16 @@ using (var scope = app.Services.CreateScope())
     // ניקוי חשבונות-בוט עם דומיינים "מדומה" שמורים (RFC 2606/6761) שנוצרו לפני
     // שהוספנו את החסימה בהרשמה. בטוח — אלה לעולם לא אנשים אמיתיים. אידמפוטנטי:
     // 0 אחרי שהחסימה בהרשמה פועלת, ולכן נשאר גם כרשת-ביטחון להבא.
+    /*
+      חשבונות מוגנים (בוט הבדיקות) מוחרגים **לפני** הסינון ולא אחריו: הבוט
+      נמחק כאן פעם אחת בטעות והשבית את בדיקות ה-E2E לשבוע. ראה ProtectedAccounts.
+    */
+    var protectedEmails = ProtectedAccounts.Emails(app.Configuration);
     var junkIds = db.Users
-        .Where(u => u.Role != "SuperAdmin" && (
+        .Where(u => u.Role != "SuperAdmin"
+            && !u.IsProtected
+            && !protectedEmails.Contains(u.Email.ToLower())
+            && (
             u.Email.EndsWith("@example.com") ||
             u.Email.EndsWith("@example.net") ||
             u.Email.EndsWith("@example.org") ||

@@ -7,6 +7,7 @@ namespace ParentCommitteeAPI.Services
         NotFound,       // הגן לא נמצא
         ProtectedAdmin, // הגן שייך לחשבון מנהלת — לא נמחק (הגנה מפני נעילה-עצמית)
         HasMultiple,    // לחשבון יש כמה גנים — לא מוחקים מכאן (סיכון למחיקת גן אמיתי)
+        ProtectedAccount, // חשבון מוגן (בוט הבדיקות) — מוחרג מכל מחיקה אוטומטית
     }
 
     /* תוצאת מחיקת "נרשם שלא השלים" (משתמש ללא אף גן) ע"י המנהלת. */
@@ -16,6 +17,7 @@ namespace ParentCommitteeAPI.Services
         NotFound,       // המשתמש לא נמצא
         ProtectedAdmin, // חשבון מנהלת — לא נמחק
         HasGroup,       // למשתמש יש ועד — אינו "נרשם שלא השלים" (מוחקים דרך מחיקת גן)
+        ProtectedAccount, // חשבון מוגן (בוט הבדיקות) — מוחרג מכל מחיקה אוטומטית
     }
 
     public interface IAccountService

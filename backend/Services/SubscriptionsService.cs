@@ -18,10 +18,12 @@ namespace ParentCommitteeAPI.Services
         private const int ExpiringWindowDays = 30;
 
         private readonly AppDbContext _db;
+        private readonly IConfiguration _config;
 
-        public SubscriptionsService(AppDbContext db)
+        public SubscriptionsService(AppDbContext db, IConfiguration config)
         {
             _db = db;
+            _config = config;
         }
 
         public async Task<SubscriptionsDto> GetAsync()
@@ -53,6 +55,10 @@ namespace ParentCommitteeAPI.Services
                     Phone = _db.Users
                         .Where(u => u.Id == g.UserId)
                         .Select(u => u.TwoFactorPhone)
+                        .FirstOrDefault(),
+                    Protected = _db.Users
+                        .Where(u => u.Id == g.UserId)
+                        .Select(u => u.IsProtected)
                         .FirstOrDefault(),
                 })
                 .ToListAsync();
@@ -86,8 +92,15 @@ namespace ParentCommitteeAPI.Services
                     u.Email,
                     Phone = u.TwoFactorPhone,
                     Created = (DateTime?)u.CreatedAt,
+                    Protected = u.IsProtected,
                 })
                 .ToListAsync();
+
+            /*
+              חשבונות מוגנים (בוט הבדיקות) מסומנים במסך, כדי שלא ינוסה למחוק
+              אותם ולא ייראה כאילו המחיקה "נכשלה". ההגנה עצמה נאכפת בשרת.
+            */
+            var protectedEmails = ProtectedAccounts.Emails(_config);
 
             var result = new SubscriptionsDto
             {
@@ -100,9 +113,9 @@ namespace ParentCommitteeAPI.Services
                   בשני המצבים הקודמים בלבד.
                 */
                 Committees = committees
-                    .Select(c => ToRow(
+                    .Select(c => Mark(ToRow(
                         c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
-                        today, registeredAt: c.Created))
+                        today, registeredAt: c.Created), c.Protected, protectedEmails))
                     .ToList(),
                 Suppliers = suppliers
                     .Select(s => ToRow(
@@ -118,6 +131,8 @@ namespace ParentCommitteeAPI.Services
                         Phone = u.Phone ?? string.Empty,
                         CreatedAt = u.Created,
                         Status = "incomplete",
+                        IsProtected = u.Protected
+                            || protectedEmails.Contains((u.Email ?? "").ToLowerInvariant()),
                     })
                     .ToList(),
             };
@@ -129,6 +144,15 @@ namespace ParentCommitteeAPI.Services
             result.ExpiringSoonCount = all.Count(r => r.Status == "expiring");
             result.TrialCount = all.Count(r => r.Status == "trial");
             return result;
+        }
+
+        /* מסמן שורה כמוגנת — דגל במסד או כתובת ברשימה. ראה ProtectedAccounts. */
+        private static SubscriptionRowDto Mark(
+            SubscriptionRowDto row, bool flagged, HashSet<string> protectedEmails)
+        {
+            row.IsProtected = flagged
+                || protectedEmails.Contains((row.Email ?? string.Empty).ToLowerInvariant());
+            return row;
         }
 
         /*

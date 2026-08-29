@@ -15,11 +15,14 @@ namespace ParentCommitteeAPI.Services
     {
         private readonly AppDbContext _db;
         private readonly ILogger<AccountService> _logger;
+        private readonly IConfiguration _config;
 
-        public AccountService(AppDbContext db, ILogger<AccountService> logger)
+        public AccountService(AppDbContext db, ILogger<AccountService> logger,
+            IConfiguration config)
         {
             _db = db;
             _logger = logger;
+            _config = config;
         }
 
         /*
@@ -125,6 +128,18 @@ namespace ParentCommitteeAPI.Services
             }
             var ownerId = group.UserId;
 
+            /*
+              חשבון מוגן (בוט הבדיקות) — לא נמחק גם מהמסך של המנהלת. הבוט נראה
+              במסך בדיוק כמו גן-בדיקה, ולחיצה אחת מוטעית משביתה את בדיקות ה-E2E
+              בלי שאיש ישים לב. ראה ProtectedAccounts.
+            */
+            var owningUser = await _db.Users.AsNoTracking()
+                .FirstOrDefaultAsync(u => u.Id == ownerId);
+            if (ProtectedAccounts.IsProtectedUser(owningUser, _config))
+            {
+                return CommitteeDeleteResult.ProtectedAccount;
+            }
+
             await using var tx = await _db.Database.BeginTransactionAsync();
 
             var studentIds = await _db.Students
@@ -186,6 +201,11 @@ namespace ParentCommitteeAPI.Services
             if (user.Role == "SuperAdmin")
             {
                 return IncompleteUserDeleteResult.ProtectedAdmin;
+            }
+            // חשבון מוגן (בוט הבדיקות) — ראה ProtectedAccounts
+            if (ProtectedAccounts.IsProtectedUser(user, _config))
+            {
+                return IncompleteUserDeleteResult.ProtectedAccount;
             }
             var hasGroup = await _db.Groups.AnyAsync(g => g.UserId == userId);
             if (hasGroup)

@@ -165,3 +165,35 @@ test("ספקים אינם מקבלים את הכפתור — הפרו שלהם �
   // שני גנים = שני כפתורים בלבד, אף אחד מהם אינו של ספק
   expect(screen.getAllByRole("button", { name: /פרו/ })).toHaveLength(2);
 });
+
+/*
+  חשבון מוגן (בוט הבדיקות): נמחק פעם אחת בטעות ממסך זה והשבית את בדיקות ה-E2E
+  לשבוע. הבדיקה מוודאת שאי אפשר בכלל לסמן אותו למחיקה מרוכזת — לא שהמחיקה
+  נכשלת בשרת, אלא שהיא לא מתחילה.
+*/
+test("שורה מוגנת אינה ניתנת לסימון למחיקה ומסומנת כמוגנת", async () => {
+  getSubscriptions.mockResolvedValue({
+    ...data,
+    committees: [
+      ...data.committees,
+      {
+        id: 9,
+        name: "גן בוט הבדיקות",
+        isPro: false,
+        validUntil: null,
+        status: "free",
+        isProtected: true,
+      },
+    ],
+  });
+
+  render(<SubscriptionsCard />);
+
+  expect(await screen.findByText("גן בוט הבדיקות")).toBeInTheDocument();
+  expect(screen.getByText("מוגן")).toBeInTheDocument();
+  // לשתי השורות הרגילות יש תיבת סימון; למוגנת אין
+  expect(
+    screen.queryByRole("checkbox", { name: /בחירת גן בוט הבדיקות/ })
+  ).not.toBeInTheDocument();
+  expect(screen.getByLabelText("חשבון מוגן")).toBeInTheDocument();
+});

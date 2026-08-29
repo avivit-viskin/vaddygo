@@ -172,19 +172,36 @@ function rowFromCells(cells, map) {
 
   const rawBirth = map.birthDate == null ? "" : c[map.birthDate];
 
+  // כל הורה כיחידה אחת (שם + טלפון + מייל ביחד)
+  const parentA = {
+    name: [get("parentAFirst"), get("parentALast")].filter(Boolean).join(" "),
+    phone: get("parentAPhone"),
+    email: get("parentAEmail"),
+  };
+  const parentB = {
+    name: [get("parentBFirst"), get("parentBLast")].filter(Boolean).join(" "),
+    phone: get("parentBPhone"),
+    email: get("parentBEmail"),
+  };
+  // בקובץ משרד החינוך האמא נרשמת כ"הורה ב'". בעלת המוצר ביקשה שהמספר הראשי
+  // באפליקציה ("הורה א'") יהיה של האמא — נוח יותר לתקשר איתה. לכן כשלהורה ב'
+  // יש טלפון, הוא נכנס כהורה הראשי וההורה השני עובר ל"הורה ב'". אם אין להורה ב'
+  // טלפון — לא מרוקנים: משאירים את הורה א' כפי שהוא (עדיף מספר קיים על ריק).
+  const [primary, secondary] = parentB.phone ? [parentB, parentA] : [parentA, parentB];
+
   return {
     firstName,
     lastName,
-    parentName: [get("parentAFirst"), get("parentALast")].filter(Boolean).join(" "),
-    parentPhoneNumber: get("parentAPhone"),
+    parentName: primary.name,
+    parentPhoneNumber: primary.phone,
     birthDate: parseBirthDate(rawBirth),
     gender: get("gender"),
     allergies: get("allergies"),
     address,
-    parentEmail: get("parentAEmail"),
-    parentBName: [get("parentBFirst"), get("parentBLast")].filter(Boolean).join(" "),
-    parentBPhone: get("parentBPhone"),
-    parentBEmail: get("parentBEmail"),
+    parentEmail: primary.email,
+    parentBName: secondary.name,
+    parentBPhone: secondary.phone,
+    parentBEmail: secondary.email,
     parentsMarried: get("married"),
   };
 }

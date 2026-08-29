@@ -662,6 +662,58 @@ button.vendor-form__remove {
   opacity: 1;
 }
 
+/* מספר טלפון לחיץ שפותח בחירה בין חיוג לשליחת וואטסאפ (PhoneActions) */
+.phone-actions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.phone-actions__number {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font: inherit;
+  color: var(--color-primary, #d46a94);
+  text-decoration: underline;
+}
+
+.phone-actions__menu {
+  position: absolute;
+  top: 100%;
+  inset-inline-start: 0;
+  margin-top: 4px;
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  background: var(--color-surface, #ffffff);
+  border: 1px solid var(--color-border, #ecdfe6);
+  border-radius: 10px;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.14);
+  z-index: 5;
+}
+
+.phone-actions__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  white-space: nowrap;
+  text-decoration: none;
+  font-size: 0.9rem;
+  color: var(--color-text, #333333);
+}
+
+.phone-actions__item:hover {
+  background: var(--color-bg-soft, #f7eef2);
+}
+
+.phone-actions__item--wa {
+  color: #1f8a4c;
+}
+
 /* תג סטטוס תשלום ליד שם התלמיד: אפור=חלקי/אין, ירוק=שולם הכל */
 .pay-badge {
   display: inline-block;

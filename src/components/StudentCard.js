@@ -3,6 +3,7 @@ import Card from "./Card";
 import Button from "./Button";
 import Icon from "./Icon";
 import PaymentRequestButton from "./PaymentRequestButton";
+import PhoneActions from "./PhoneActions";
 import { formatShekels, formatBirthday } from "../services/format";
 import { paymentMethodLabel } from "../services/paymentMethods";
 
@@ -84,9 +85,10 @@ function StudentCard({
           <span className="student-card__phone">
             טלפון הורה:{" "}
             {showPhones ? (
-              <a href={`tel:${student.parentPhoneNumber}`} dir="ltr">
-                {student.parentPhoneNumber}
-              </a>
+              <PhoneActions
+                phone={student.parentPhoneNumber}
+                label={`ההורה של ${student.firstName}`}
+              />
             ) : (
               <span dir="ltr" className="student-card__masked">
                 {maskPhone(student.parentPhoneNumber)}
@@ -105,9 +107,10 @@ function StudentCard({
             <span className="student-card__phone">
               טלפון הורה ב׳:{" "}
               {showPhones ? (
-                <a href={`tel:${student.parentBPhone}`} dir="ltr">
-                  {student.parentBPhone}
-                </a>
+                <PhoneActions
+                  phone={student.parentBPhone}
+                  label={`הורה ב׳ של ${student.firstName}`}
+                />
               ) : (
                 <span dir="ltr" className="student-card__masked">
                   {maskPhone(student.parentBPhone)}

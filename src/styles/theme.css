@@ -675,7 +675,8 @@ button.vendor-form__remove {
   padding: 0;
   cursor: pointer;
   font: inherit;
-  color: var(--color-primary, #d46a94);
+  /* משאירים את המספר בצבע הרגיל של הטקסט (לא ורוד) — בקשת בעלת המוצר */
+  color: inherit;
   text-decoration: underline;
 }
 

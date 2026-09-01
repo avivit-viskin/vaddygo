@@ -29,9 +29,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<GiftResponseDto>();
             }
-            var gifts = (await _gifts.GetAllAsync())
-                .Where(g => g.GroupId == scoped.Value)
-                .ToList();
+            // סינון במסד ולא בזיכרון — אחרת נטענות המתנות של כל המוסדות
+            var gifts = await _gifts.FindAsync(g => g.GroupId == scoped.Value);
             return gifts.Select(ToResponse).ToList();
         }
 

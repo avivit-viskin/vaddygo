@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 
 namespace ParentCommitteeAPI.Repositories
@@ -18,6 +19,10 @@ namespace ParentCommitteeAPI.Repositories
         }
 
         public Task<List<T>> GetAllAsync() => _set.AsNoTracking().ToListAsync();
+
+        /* הסינון עובר ל-SQL (WHERE) ולא רץ בזיכרון — ראו ההסבר ב-IRepository. */
+        public Task<List<T>> FindAsync(Expression<Func<T, bool>> predicate) =>
+            _set.AsNoTracking().Where(predicate).ToListAsync();
 
         public async Task<T?> GetByIdAsync(int id) => await _set.FindAsync(id);
 

@@ -39,10 +39,9 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<StudentResponseDto>();
             }
-            var students = (await _students.GetAllAsync())
-                .Where(s => s.GroupId == scoped.Value)
-                .ToList();
-            var paidByStudent = await GetPaidByStudentAsync();
+            // סינון במסד ולא בזיכרון — אחרת נטענים התלמידים של כל המוסדות
+            var students = await _students.FindAsync(s => s.GroupId == scoped.Value);
+            var paidByStudent = await GetPaidByStudentAsync(students.Select(s => s.Id).ToList());
             return students
                 .Select(s => ToResponse(s, paidByStudent.GetValueOrDefault(s.Id)))
                 .ToList();
@@ -57,7 +56,7 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            var paidByStudent = await GetPaidByStudentAsync();
+            var paidByStudent = await GetPaidByStudentAsync(new List<int> { id });
             return ToResponse(student, paidByStudent.GetValueOrDefault(id));
         }
 
@@ -91,7 +90,7 @@ namespace ParentCommitteeAPI.Services
             await _students.UpdateAsync(student);
             _logger.LogInformation("Student updated (Id: {StudentId})", id);
 
-            var paidByStudent = await GetPaidByStudentAsync();
+            var paidByStudent = await GetPaidByStudentAsync(new List<int> { id });
             return ToResponse(student, paidByStudent.GetValueOrDefault(id));
         }
 
@@ -112,11 +111,21 @@ namespace ParentCommitteeAPI.Services
         }
 
         /* סך התשלומים ששולמו (IsPaid) לכל תלמיד — שאילתה אחת, קיבוץ לפי תלמיד. */
-        private async Task<Dictionary<int, decimal>> GetPaidByStudentAsync()
+        /*
+          כמה שולם לכל תלמיד — **רק** לתלמידים שנשלפו.
+
+          🔴 קודם נטענו כל התשלומים של כל המוסדות במערכת (2,000 מוסדות ≈ 180,000
+          שורות) בכל פתיחה של מסך התלמידים, וגם בכל שליפה של תלמיד בודד.
+        */
+        private async Task<Dictionary<int, decimal>> GetPaidByStudentAsync(List<int> studentIds)
         {
-            var payments = await _payments.GetAllAsync();
+            if (studentIds.Count == 0)
+            {
+                return new Dictionary<int, decimal>();
+            }
+            var payments = await _payments.FindAsync(
+                p => p.IsPaid && studentIds.Contains(p.StudentId));
             return payments
-                .Where(p => p.IsPaid)
                 .GroupBy(p => p.StudentId)
                 .ToDictionary(g => g.Key, g => g.Sum(p => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount));
         }

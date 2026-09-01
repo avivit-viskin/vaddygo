@@ -45,6 +45,23 @@ namespace ParentCommitteeAPI
         {
             base.OnModelCreating(modelBuilder);
 
+            /*
+              אינדקסים על GroupId — עמודת הסינון של כל מסך במערכת.
+
+              🔴 נוספו אחרי מדידת קיבולת (02.09.2026): כל שליפה לפי גן סרקה את
+              הטבלה כולה. על 50,000 הוצאות אותה שאילתה ירדה מ-67ms ל-2ms.
+              Students ו-StaffMembers כבר היו מאונדקסים; אלה שנשארו מאחור.
+            */
+            modelBuilder.Entity<Expense>().HasIndex(e => e.GroupId);
+            modelBuilder.Entity<Event>().HasIndex(e => e.GroupId);
+            modelBuilder.Entity<Gift>().HasIndex(g => g.GroupId);
+            modelBuilder.Entity<DriveFolder>().HasIndex(d => d.GroupId);
+            modelBuilder.Entity<Poll>().HasIndex(p => p.GroupId);
+            modelBuilder.Entity<Lead>().HasIndex(l => l.GroupId);
+
+            // בדיקת הבעלות שרצה בכל בקשה מאומתת ("אילו גנים שייכים למשתמש").
+            modelBuilder.Entity<Group>().HasIndex(g => g.UserId);
+
             // המייל הוא הזהות הייחודית (החלטת בעלת המוצר): שם משתמש יכול לחזור
             // על עצמו בין לקוחות — לכן אינדקס רגיל בלבד; המייל חייב להיות ייחודי.
             modelBuilder.Entity<User>().HasIndex(u => u.Username);

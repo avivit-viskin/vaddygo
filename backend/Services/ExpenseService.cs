@@ -38,8 +38,12 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<ExpenseResponseDto>();
             }
-            var expenses = (await _expenses.GetAllAsync())
-                .Where(e => e.GroupId == scoped.Value)
+            /*
+              🔴 סינון במסד ולא בזיכרון. קודם נטענו **כל** ההוצאות של **כל**
+              המוסדות — כולל צילומי הקבלות שלהן — ורק אז נבחר המוסד הנכון.
+              במדידה על 2,000 מוסדות זה לקח 22.6 שניות והפיל את השרת בזיכרון.
+            */
+            var expenses = (await _expenses.FindAsync(e => e.GroupId == scoped.Value))
                 .OrderByDescending(e => e.Date)
                 .Select(ToResponse)
                 .ToList();

@@ -29,9 +29,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<DriveFolderResponseDto>();
             }
-            var folders = (await _folders.GetAllAsync())
-                .Where(f => f.GroupId == scoped.Value)
-                .ToList();
+            // סינון במסד ולא בזיכרון — אחרת נטענות התיקיות של כל המוסדות
+            var folders = await _folders.FindAsync(f => f.GroupId == scoped.Value);
             return folders.Select(ToResponse).ToList();
         }
 

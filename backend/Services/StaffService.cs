@@ -29,9 +29,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<StaffMemberResponseDto>();
             }
-            var members = (await _staff.GetAllAsync())
-                .Where(m => m.GroupId == scoped.Value)
-                .ToList();
+            // סינון במסד ולא בזיכרון — אחרת נטענים אנשי הצוות של כל המוסדות
+            var members = await _staff.FindAsync(m => m.GroupId == scoped.Value);
             return members.Select(ToResponse).ToList();
         }
 

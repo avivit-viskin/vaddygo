@@ -29,9 +29,8 @@ namespace ParentCommitteeAPI.Services
             {
                 return new List<EventResponseDto>();
             }
-            var events = (await _events.GetAllAsync())
-                .Where(e => e.GroupId == scoped.Value)
-                .ToList();
+            // סינון במסד ולא בזיכרון — אחרת נטענים האירועים של כל המוסדות
+            var events = await _events.FindAsync(e => e.GroupId == scoped.Value);
             return events
                 .OrderBy(e => e.EventDate)
                 .Select(ToResponse)

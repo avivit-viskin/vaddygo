@@ -187,7 +187,7 @@ function VendorPanel({
                 <span>{product.displayName}</span>
                 {product.description && (
                   <span
-                    style={{ fontSize: 13, color: "#8a7d84", lineHeight: 1.35 }}
+                    style={{ fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.35 }}
                   >
                     {product.description}
                   </span>
@@ -262,9 +262,9 @@ function VendorPanel({
         <span
           style={{
             display: "inline-block",
-            background: "#fff3cd",
-            border: "1px solid #f0d488",
-            color: "#8a6d1a",
+            background: "linear-gradient(135deg, #fff0c2, #ffdf99)",
+            border: "1px solid #f2c25a",
+            color: "#8a5300",
             borderRadius: 999,
             padding: "3px 12px",
             fontWeight: 700,
@@ -291,13 +291,13 @@ function VendorPanel({
       {vendor.offer && (
         <div
           style={{
-            background: "#fff6e0",
-            border: "1px solid #f0d488",
+            background: "linear-gradient(135deg, #ffe3ee, #ffcfe1)",
+            border: "1px solid #f7a3c3",
             borderRadius: "var(--radius-md)",
-            padding: "8px 12px",
+            padding: "10px 14px",
             margin: "0 0 12px",
-            fontWeight: 600,
-            color: "#8a6d1a",
+            fontWeight: 700,
+            color: "#b31f5c",
             display: "flex",
             alignItems: "center",
             gap: 6,
@@ -508,7 +508,7 @@ function VendorPanel({
                               style={{
                                 margin: 0,
                                 fontSize: 13,
-                                color: "#8a7d84",
+                                color: "var(--color-text-muted)",
                               }}
                             >
                               לחצו על העין כדי להציג את פרטי החשבון.

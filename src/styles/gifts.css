@@ -304,18 +304,20 @@
   border-radius: 999px;
   padding: 2px 10px;
 }
+/* "ספק מומלץ" — זהב חמים וחי (במקום חרדל עמום) */
 .vendors__featured {
   display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: var(--font-size-sm);
   font-weight: 700;
-  color: #8a6d1a;
-  background: #fff3cd;
-  border: 1px solid #f0d488;
+  color: #8a5300;
+  background: linear-gradient(135deg, #fff0c2, #ffdf99);
+  border: 1px solid #f2c25a;
   border-radius: 999px;
   padding: 2px 10px;
 }
+/* "מבצע" — ורוד-רוז מלהיב שמושך את העין (הנעה לרכישה) */
 .vendors__offer {
   display: inline-flex;
   align-items: center;
@@ -325,17 +327,17 @@
   text-overflow: ellipsis;
   white-space: nowrap;
   font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: #8a6d1a;
-  background: #fff6e0;
-  border: 1px solid #f0d488;
+  font-weight: 700;
+  color: #b31f5c;
+  background: linear-gradient(135deg, #ffe3ee, #ffcfe1);
+  border: 1px solid #f7a3c3;
   border-radius: 999px;
   padding: 2px 10px;
 }
-/* כרטיס ספק מומלץ — הדגשה עדינה (מסגרת זהב רכה ורקע חמים) */
+/* כרטיס ספק מומלץ — הדגשה חמימה (מסגרת זהב ורקע חם עדין) */
 .vendors__item--featured {
-  border-color: #f0d488;
-  background: linear-gradient(180deg, #fffdf6, var(--color-surface) 42%);
+  border-color: #f2c25a;
+  background: linear-gradient(180deg, #fffaf0, var(--color-surface) 46%);
 }
 
 /* ── גילוי ספקים: סינון לפי קטגוריה ומיקום + תווית קטגוריה/עיר ── */
@@ -533,38 +535,65 @@
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
 
+/* קטלוג המוצרים — גריד כרטיסים אטרקטיבי (כמו חנות), במקום רשימת תמונות זעירות.
+   תמונה גדולה למעלה, שם, ומחיר בולט בגלולת הוורוד של המותג. */
 .vendor-panel__products {
   list-style: none;
   margin: 0;
   padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(144px, 1fr));
+  gap: 12px;
 }
 
 .vendor-panel__product {
   display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 8px;
-  background: var(--color-bg);
-  border-radius: var(--radius-sm);
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+  padding: 0 0 10px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.15s ease, box-shadow 0.15s ease,
+    border-color 0.15s ease;
+}
+.vendor-panel__product:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--shadow-md);
+  border-color: var(--color-primary-muted);
 }
 
 .vendor-panel__image {
-  width: 48px;
-  height: 48px;
+  width: 100%;
+  height: 150px;
   object-fit: cover;
-  border-radius: var(--radius-sm);
+  border-radius: 0;
   flex-shrink: 0;
+  display: block;
+  /* רקע ורוד-בז' עדין מאחורי תמונות עם שקיפות/טעינה — לא ריבוע אפור מת */
+  background: linear-gradient(135deg, #fdeef4, var(--color-primary-light));
 }
 
 .vendor-panel__product-name {
   flex: 1;
+  padding: 10px 12px 0;
+  font-weight: 600;
+  color: var(--color-text);
+  line-height: 1.35;
 }
 
 .vendor-panel__price {
-  font-weight: 500;
+  align-self: flex-start;
+  margin: 9px 12px 0;
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  font-weight: 800;
+  font-size: 0.95rem;
 }
 
 .vendor-form__social-label {

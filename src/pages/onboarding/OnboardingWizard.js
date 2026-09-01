@@ -75,6 +75,9 @@ function OnboardingWizard() {
   }
 
   async function handleFinish() {
+    // מונע שליחה כפולה: לחיצה חוזרת על "סיום" (או re-entry) יצרה בעבר שני גנים
+    // זהים באותו חשבון, כי יצירת הגן בשרת אינה בודקת כפילות.
+    if (isSaving) return;
     setIsSaving(true);
     const result = await saveOnboarding(data); // גם אם השרת לא זמין — נשמר מקומית וממשיכים
     // רושם את המוסד ברשימת המוסדות (בהרשמת מוסד נוסף רק מפעיל את הנוכחי),

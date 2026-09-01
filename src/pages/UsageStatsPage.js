@@ -47,6 +47,13 @@ function UsageStatsPage() {
     );
   }
 
+  // שמות מוסד שמופיעים יותר מפעם אחת ברשימה — לסימון "יתכן כפילות" (רשומה כפולה).
+  const instNameCounts = {};
+  (data?.institutions || []).forEach((it) => {
+    const k = (it.name || "").trim().toLowerCase();
+    if (k) instNameCounts[k] = (instNameCounts[k] || 0) + 1;
+  });
+
   return (
     <div className="page">
       <Card
@@ -257,6 +264,22 @@ function UsageStatsPage() {
                           <span style={{ fontWeight: 700, wordBreak: "break-word" }}>
                             {inst.name || "(ללא שם)"}
                           </span>
+                          {instNameCounts[(inst.name || "").trim().toLowerCase()] > 1 && (
+                            <span
+                              title="שם מוסד זהה מופיע יותר מפעם אחת. אם המייל זהה — זו כפילות של אותו חשבון; אם שונה — שני חשבונות נפרדים."
+                              style={{
+                                alignSelf: "flex-start",
+                                background: "#fde2ea",
+                                color: "#b03060",
+                                borderRadius: 999,
+                                padding: "1px 8px",
+                                fontSize: "11px",
+                                fontWeight: 700,
+                              }}
+                            >
+                              יתכן כפילות
+                            </span>
+                          )}
                           {inst.email && (
                             <a
                               href={`mailto:${inst.email}`}

@@ -157,6 +157,78 @@ function UsageStatsPage() {
                 </ul>
               </div>
             )}
+            {/* מצב השלמת הגדרה לכל מוסד — למי סיים ומה חסר למי שלא (לליווי לקוחות) */}
+            {data.institutions && data.institutions.length > 0 && (
+              <div style={{ margin: "0 0 22px" }}>
+                <p
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    margin: "0 0 4px",
+                    fontWeight: 700,
+                    color: "var(--color-primary-dark)",
+                  }}
+                >
+                  <Icon name="school" size={16} /> מצב השלמת הגדרה — לפי מוסד
+                </p>
+                <p
+                  style={{
+                    margin: "0 0 8px",
+                    fontSize: "var(--font-size-sm)",
+                    color: "var(--color-text-muted)",
+                  }}
+                >
+                  "הושלם" = הוגדרו קטגוריות גבייה <strong>וגם</strong> נוסף לפחות
+                  תלמיד אחד.
+                </p>
+                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
+                  {data.institutions.map((inst, i) => {
+                    const missing = [];
+                    if (!inst.hasCategories) missing.push("קטגוריות גבייה");
+                    if (!inst.hasStudents) missing.push("תלמידים");
+                    return (
+                      <li
+                        key={`${inst.name}-${i}`}
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          gap: 12,
+                          alignItems: "baseline",
+                          padding: "7px 0",
+                          borderBottom: "1px solid var(--color-border)",
+                          fontSize: "var(--font-size-sm)",
+                        }}
+                      >
+                        <span style={{ wordBreak: "break-word", fontWeight: 600 }}>
+                          {inst.name || "(ללא שם)"}
+                        </span>
+                        {inst.complete ? (
+                          <strong
+                            style={{
+                              whiteSpace: "nowrap",
+                              color: "var(--color-success)",
+                            }}
+                          >
+                            ✅ הושלם
+                          </strong>
+                        ) : (
+                          <span
+                            style={{
+                              color: "#d08a2e",
+                              fontWeight: 600,
+                              textAlign: "start",
+                            }}
+                          >
+                            ⚠️ חסר: {missing.join(", ")}
+                          </span>
+                        )}
+                      </li>
+                    );
+                  })}
+                </ul>
+              </div>
+            )}
             {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
             <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}

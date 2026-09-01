@@ -68,6 +68,30 @@ namespace ParentCommitteeAPI.Services
                 .OrderByDescending(r => r.Count)
                 .ToListAsync();
 
+            // מצב השלמת ההגדרה לכל מוסד: "הושלם" = יש קטגוריות גבייה *וגם* תלמידים.
+            // שתי שאילתות פשוטות + איחוד בזיכרון (בלי subquery מקונן), הלא-מושלמים
+            // ראשונים (הכי רלוונטי לליווי), ואז לפי שם.
+            var groupsRaw = await _db.Groups
+                .Select(g => new { g.Id, g.Name, HasCategories = g.Categories.Any() })
+                .ToListAsync();
+            var groupIdsWithStudents = new HashSet<int>(
+                await _db.Students
+                    .Where(s => s.GroupId != null)
+                    .Select(s => s.GroupId!.Value)
+                    .Distinct()
+                    .ToListAsync());
+            var institutions = groupsRaw
+                .Select(x => new InstitutionSetupDto
+                {
+                    Name = x.Name,
+                    HasCategories = x.HasCategories,
+                    HasStudents = groupIdsWithStudents.Contains(x.Id),
+                    Complete = x.HasCategories && groupIdsWithStudents.Contains(x.Id),
+                })
+                .OrderBy(i => i.Complete)
+                .ThenBy(i => i.Name)
+                .ToList();
+
             _logger.LogInformation(
                 "Usage stats requested (users: {Users}, vendors: {Vendors})",
                 users, vendors);
@@ -93,6 +117,7 @@ namespace ParentCommitteeAPI.Services
                     Pro = suppliersPro,
                 },
                 Referrals = referrals,
+                Institutions = institutions,
             };
         }
     }

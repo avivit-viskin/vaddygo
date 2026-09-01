@@ -14,6 +14,9 @@ namespace ParentCommitteeAPI.DTOs
 
         /* פירוט הרשמות ועד לפי קוד הפניה (?ref=) — מאיזה קישור/לקוח הגיעו. */
         public List<ReferralCountDto> Referrals { get; set; } = new();
+
+        /* מצב השלמת ההגדרה לכל מוסד (גן) שנוצר — מי סיים ומה חסר למי שלא. */
+        public List<InstitutionSetupDto> Institutions { get; set; } = new();
     }
 
     /* ReferralCountDto — כמה משתמשים נרשמו עם קוד הפניה מסוים. */
@@ -21,6 +24,19 @@ namespace ParentCommitteeAPI.DTOs
     {
         public string Code { get; set; } = string.Empty;
         public int Count { get; set; }
+    }
+
+    /*
+      InstitutionSetupDto — מצב השלמת ההגדרה של מוסד אחד. "הושלם" = הוגדרו
+      קטגוריות גבייה *וגם* נוסף לפחות תלמיד אחד (מוכן לגבות בפועל). אחרת מסומן
+      מה חסר. מוצג רק למנהלת VaddyGo (SuperAdmin) לצורך ליווי לקוחות.
+    */
+    public class InstitutionSetupDto
+    {
+        public string Name { get; set; } = string.Empty;
+        public bool HasCategories { get; set; }
+        public bool HasStudents { get; set; }
+        public bool Complete { get; set; }
     }
 
     /*

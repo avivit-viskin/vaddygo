@@ -34,7 +34,17 @@ import "../../styles/subscriptions.css";
 const ACTIVE_STATUSES = ["active", "expiring"];
 const SUBS_FILTER_KEY = "vaadygo.subs.activeOnly";
 
-function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, proBusyId }) {
+function SubscriptionList({
+  title,
+  icon,
+  rows,
+  selected,
+  onToggle,
+  onSetPro,
+  proBusyId,
+  showSetup,
+  dupKeys,
+}) {
   const selectable = typeof onToggle === "function";
   const canSetPro = typeof onSetPro === "function";
   if (!rows || rows.length === 0) {
@@ -82,6 +92,14 @@ function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, pro
                   />
                 ))}
               <span className="subs__name">{row.name}</span>
+              {dupKeys && dupKeys.has((row.name || "").trim().toLowerCase()) && (
+                <span
+                  className="subs__pill subs__pill--dup"
+                  title="שם גן זהה מופיע יותר מפעם אחת — ייתכן כפילות. למחיקה: סמני את השורה למטה ולחצי מחק."
+                >
+                  יתכן כפילות
+                </span>
+              )}
               {row.email && (
                 <a
                   className="subs__email"
@@ -99,6 +117,28 @@ function SubscriptionList({ title, icon, rows, selected, onToggle, onSetPro, pro
               <span className={`subs__pill subs__pill--${status.tone}`}>
                 {status.label}
               </span>
+              {showSetup &&
+                (row.complete ? (
+                  <span
+                    className="subs__pill subs__pill--good"
+                    title="הוגדרו קטגוריות גבייה וגם נוסף לפחות תלמיד אחד"
+                  >
+                    ✅ הושלם
+                  </span>
+                ) : (
+                  <span
+                    className="subs__pill subs__pill--warn"
+                    title="חסר כדי להתחיל לגבות בפועל"
+                  >
+                    ⚠️ חסר:{" "}
+                    {[
+                      !row.hasCategories && "קטגוריות גבייה",
+                      !row.hasStudents && "תלמידים",
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
+                  </span>
+                ))}
               {row.isProtected && (
                 <span
                   className="subs__pill subs__pill--protected"
@@ -198,6 +238,15 @@ function SubscriptionsCard() {
     data && Array.isArray(data.suppliers) ? data.suppliers : [];
   const committees =
     data && Array.isArray(data.committees) ? data.committees : [];
+  // שמות גן שמופיעים יותר מפעם אחת — לסימון "יתכן כפילות" ברשימה.
+  const dupCommitteeKeys = (() => {
+    const counts = {};
+    committees.forEach((c) => {
+      const k = (c.name || "").trim().toLowerCase();
+      if (k) counts[k] = (counts[k] || 0) + 1;
+    });
+    return new Set(Object.keys(counts).filter((k) => counts[k] > 1));
+  })();
   // נרשמו ולא השלימו הקמה (אין להם ועד) — לפנייה במייל או ניקוי חשבונות-בדיקה
   const incomplete =
     data && Array.isArray(data.incompleteSignups) ? data.incompleteSignups : [];
@@ -240,7 +289,7 @@ function SubscriptionsCard() {
         ? { ok: true, text: `נמחקו ${ok} גנים. הרשימה עודכנה.` }
         : {
             ok: false,
-            text: `נמחקו ${ok}, ${fail} לא נמחקו (ייתכן חשבון מנהלת או חשבון עם כמה גנים).`,
+            text: `נמחקו ${ok}, ${fail} לא נמחקו (ייתכן חשבון מנהלת או חשבון מוגן).`,
           }
     );
   }
@@ -375,6 +424,8 @@ function SubscriptionsCard() {
             onToggle={toggleSelectedCommittee}
             onSetPro={handleSetPro}
             proBusyId={proBusyId}
+            showSetup
+            dupKeys={dupCommitteeKeys}
           />
           {/* מחיקת גני-בדיקה — בטוח (רק גן יחיד של חשבון רגיל; חשבון מנהלת מוגן) */}
           {selectedC.size > 0 && (

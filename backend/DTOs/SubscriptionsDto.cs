@@ -50,6 +50,13 @@ namespace ParentCommitteeAPI.DTOs
         /* חשבון מוגן (בוט הבדיקות) — המסך מסמן אותו ולא מאפשר לסמן אותו למחיקה.
            ההגנה עצמה נאכפת בשרת; זה רק כדי שלא ינוסה. */
         public bool IsProtected { get; set; }
+
+        /* מצב השלמת ההגדרה — רלוונטי לוועדים בלבד. Complete = הוגדרו קטגוריות
+           גבייה *וגם* נוסף לפחות תלמיד אחד (מוכן לגבות בפועל). לספקים/נרשמים
+           שלא השלימו נשאר false. מאחד את "מצב השלמת הגדרה" לתוך רשימת המנויים. */
+        public bool HasCategories { get; set; }
+        public bool HasStudents { get; set; }
+        public bool Complete { get; set; }
     }
 
     /*

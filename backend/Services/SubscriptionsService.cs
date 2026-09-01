@@ -60,8 +60,18 @@ namespace ParentCommitteeAPI.Services
                         .Where(u => u.Id == g.UserId)
                         .Select(u => u.IsProtected)
                         .FirstOrDefault(),
+                    HasCategories = g.Categories.Any(),
                 })
                 .ToListAsync();
+
+            // מצב השלמת ההגדרה: אילו גנים כבר יש בהם תלמידים (כדי לאחד את
+            // "הושלם / לא הושלם" לתוך רשימת הוועדים כאן, בלי רשימה נפרדת).
+            var committeeIdsWithStudents = new HashSet<int>(
+                await _db.Students
+                    .Where(s => s.GroupId != null)
+                    .Select(s => s.GroupId!.Value)
+                    .Distinct()
+                    .ToListAsync());
 
             var suppliers = await _db.Vendors
                 .AsNoTracking()
@@ -113,9 +123,16 @@ namespace ParentCommitteeAPI.Services
                   בשני המצבים הקודמים בלבד.
                 */
                 Committees = committees
-                    .Select(c => Mark(ToRow(
-                        c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
-                        today, registeredAt: c.Created), c.Protected, protectedEmails))
+                    .Select(c =>
+                    {
+                        var row = Mark(ToRow(
+                            c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
+                            today, registeredAt: c.Created), c.Protected, protectedEmails);
+                        row.HasCategories = c.HasCategories;
+                        row.HasStudents = committeeIdsWithStudents.Contains(c.Id);
+                        row.Complete = row.HasCategories && row.HasStudents;
+                        return row;
+                    })
                     .ToList(),
                 Suppliers = suppliers
                     .Select(s => ToRow(

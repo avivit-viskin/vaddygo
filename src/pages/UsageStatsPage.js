@@ -28,8 +28,6 @@ function UsageStatsPage() {
   // כפייה על רענון אחרי "איפוס תצוגה" (קו-הבסיס נשמר ב-localStorage ונקרא ברינדור)
   const [, forceRerender] = useState(0);
   const bump = () => forceRerender((n) => n + 1);
-  // סינון רשימת המוסדות: הכל / רק שהושלמו / רק שלא הושלמו
-  const [instFilter, setInstFilter] = useState("all");
   // מי שאינה מנהלת לא פונה לשרת בכלל — אין טעם בבקשה שתחזור 403
   const fetcher = useCallback(
     () => (isAdmin ? getUsageStats() : Promise.resolve(null)),
@@ -46,13 +44,6 @@ function UsageStatsPage() {
       </div>
     );
   }
-
-  // שמות מוסד שמופיעים יותר מפעם אחת ברשימה — לסימון "יתכן כפילות" (רשומה כפולה).
-  const instNameCounts = {};
-  (data?.institutions || []).forEach((it) => {
-    const k = (it.name || "").trim().toLowerCase();
-    if (k) instNameCounts[k] = (instNameCounts[k] || 0) + 1;
-  });
 
   return (
     <div className="page">
@@ -163,164 +154,6 @@ function UsageStatsPage() {
                       </strong>
                     </li>
                   ))}
-                </ul>
-              </div>
-            )}
-            {/* מצב השלמת הגדרה לכל מוסד — למי סיים ומה חסר למי שלא (לליווי לקוחות) */}
-            {data.institutions && data.institutions.length > 0 && (
-              <div style={{ margin: "0 0 22px" }}>
-                <p
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 6,
-                    margin: "0 0 4px",
-                    fontWeight: 700,
-                    color: "var(--color-primary-dark)",
-                  }}
-                >
-                  <Icon name="school" size={16} /> מצב השלמת הגדרה — לפי מוסד
-                </p>
-                <p
-                  style={{
-                    margin: "0 0 8px",
-                    fontSize: "var(--font-size-sm)",
-                    color: "var(--color-text-muted)",
-                  }}
-                >
-                  "הושלם" = הוגדרו קטגוריות גבייה <strong>וגם</strong> נוסף לפחות
-                  תלמיד אחד.
-                </p>
-                {/* סינון: הכל / הושלמו / לא הושלמו */}
-                <div
-                  style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}
-                >
-                  {[
-                    { k: "all", label: "הכל" },
-                    { k: "complete", label: "הושלמו" },
-                    { k: "incomplete", label: "לא הושלמו" },
-                  ].map(({ k, label }) => {
-                    const active = instFilter === k;
-                    return (
-                      <button
-                        key={k}
-                        type="button"
-                        onClick={() => setInstFilter(k)}
-                        style={{
-                          border: `1px solid ${
-                            active ? "var(--color-primary-dark)" : "var(--color-border)"
-                          }`,
-                          background: active
-                            ? "var(--color-primary-dark)"
-                            : "var(--color-surface)",
-                          color: active ? "#fff" : "var(--color-text)",
-                          borderRadius: 999,
-                          padding: "4px 12px",
-                          fontFamily: "var(--font-family)",
-                          fontSize: "var(--font-size-sm)",
-                          fontWeight: active ? 700 : 600,
-                          cursor: "pointer",
-                        }}
-                      >
-                        {label}
-                      </button>
-                    );
-                  })}
-                </div>
-                <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {data.institutions
-                    .filter((inst) =>
-                      instFilter === "all"
-                        ? true
-                        : instFilter === "complete"
-                        ? inst.complete
-                        : !inst.complete
-                    )
-                    .map((inst, i) => {
-                    const missing = [];
-                    if (!inst.hasCategories) missing.push("קטגוריות גבייה");
-                    if (!inst.hasStudents) missing.push("תלמידים");
-                    return (
-                      <li
-                        key={`${inst.name}-${i}`}
-                        style={{
-                          display: "flex",
-                          justifyContent: "space-between",
-                          gap: 12,
-                          alignItems: "baseline",
-                          padding: "7px 0",
-                          borderBottom: "1px solid var(--color-border)",
-                          fontSize: "var(--font-size-sm)",
-                        }}
-                      >
-                        <span
-                          style={{
-                            display: "flex",
-                            flexDirection: "column",
-                            gap: 2,
-                            minWidth: 0,
-                          }}
-                        >
-                          <span style={{ fontWeight: 700, wordBreak: "break-word" }}>
-                            {inst.name || "(ללא שם)"}
-                          </span>
-                          {instNameCounts[(inst.name || "").trim().toLowerCase()] > 1 && (
-                            <span
-                              title="שם מוסד זהה מופיע יותר מפעם אחת. אם המייל זהה — זו כפילות של אותו חשבון; אם שונה — שני חשבונות נפרדים."
-                              style={{
-                                alignSelf: "flex-start",
-                                background: "#fde2ea",
-                                color: "#b03060",
-                                borderRadius: 999,
-                                padding: "1px 8px",
-                                fontSize: "11px",
-                                fontWeight: 700,
-                              }}
-                            >
-                              יתכן כפילות
-                            </span>
-                          )}
-                          {inst.email && (
-                            <a
-                              href={`mailto:${inst.email}`}
-                              style={{
-                                color: "var(--color-link)",
-                                wordBreak: "break-word",
-                              }}
-                            >
-                              {inst.email}
-                            </a>
-                          )}
-                          {inst.createdAt && (
-                            <span style={{ color: "var(--color-text-muted)" }}>
-                              נרשם{" "}
-                              {new Date(inst.createdAt).toLocaleDateString("he-IL")}
-                            </span>
-                          )}
-                        </span>
-                        {inst.complete ? (
-                          <strong
-                            style={{
-                              whiteSpace: "nowrap",
-                              color: "var(--color-success)",
-                            }}
-                          >
-                            ✅ הושלם
-                          </strong>
-                        ) : (
-                          <span
-                            style={{
-                              color: "#d08a2e",
-                              fontWeight: 600,
-                              textAlign: "start",
-                            }}
-                          >
-                            ⚠️ חסר: {missing.join(", ")}
-                          </span>
-                        )}
-                      </li>
-                    );
-                  })}
                 </ul>
               </div>
             )}

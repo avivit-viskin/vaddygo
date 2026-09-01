@@ -32,11 +32,35 @@
 }
 
 /* מסנן "רק פעילים" — מסתיר פג / לא מנוי מהתצוגה */
+/* סרגל חיפוש + סינונים מעל רשימת הוועדים */
+.subs__toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 18px;
+  margin: 0 0 14px;
+}
+.subs__search {
+  flex: 1 1 220px;
+  min-width: 180px;
+  padding: 8px 12px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+}
+.subs__search:focus {
+  outline: none;
+  border-color: var(--color-link);
+}
+
 .subs__filter {
   display: flex;
   align-items: center;
   gap: 8px;
-  margin: 0 0 14px;
+  margin: 0;
   font-size: var(--font-size-sm);
   font-weight: 600;
   color: var(--color-text);

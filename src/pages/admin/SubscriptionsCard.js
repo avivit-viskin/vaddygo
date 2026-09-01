@@ -251,6 +251,22 @@ function SubscriptionsCard() {
   const incomplete =
     data && Array.isArray(data.incompleteSignups) ? data.incompleteSignups : [];
 
+  // חיפוש גן (שם/מייל) ו"רק כפילויות" — סינון של רשימת הוועדים. כשאחד מהם
+  // פעיל מתעלמים ממסנן "רק פעילים", כדי שחיפוש/כפילות ימצאו גם גנים בפרו-חינם.
+  const [search, setSearch] = useState("");
+  const [dupOnly, setDupOnly] = useState(false);
+  const q = search.trim().toLowerCase();
+  const visibleCommittees = (dupOnly || q ? committees : onlyActive(committees))
+    .filter(
+      (c) => !dupOnly || dupCommitteeKeys.has((c.name || "").trim().toLowerCase())
+    )
+    .filter(
+      (c) =>
+        !q ||
+        (c.name || "").toLowerCase().includes(q) ||
+        (c.email || "").toLowerCase().includes(q)
+    );
+
   // בחירת גנים למחיקה (ניקוי גני-בדיקה) — מנגנון נפרד מהספקים
   const [selectedC, setSelectedC] = useState(() => new Set());
   const [bulkConfirmC, setBulkConfirmC] = useState(false);
@@ -407,19 +423,37 @@ function SubscriptionsCard() {
             )}
           </p>
 
-          <label className="subs__filter">
+          <div className="subs__toolbar">
             <input
-              type="checkbox"
-              checked={activeOnly}
-              onChange={(e) => toggleActiveOnly(e.target.checked)}
+              type="search"
+              className="subs__search"
+              placeholder="חיפוש גן לפי שם או מייל…"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              aria-label="חיפוש גן"
             />
-            הצג רק פעילים (הסתר פג / לא מנוי)
-          </label>
+            <label className="subs__filter">
+              <input
+                type="checkbox"
+                checked={activeOnly}
+                onChange={(e) => toggleActiveOnly(e.target.checked)}
+              />
+              הצג רק פעילים (הסתר פג / לא מנוי)
+            </label>
+            <label className="subs__filter">
+              <input
+                type="checkbox"
+                checked={dupOnly}
+                onChange={(e) => setDupOnly(e.target.checked)}
+              />
+              הצג רק כפילויות ({dupCommitteeKeys.size})
+            </label>
+          </div>
 
           <SubscriptionList
             title="ועדי הורים"
             icon="users"
-            rows={onlyActive(data.committees)}
+            rows={visibleCommittees}
             selected={selectedC}
             onToggle={toggleSelectedCommittee}
             onSetPro={handleSetPro}
@@ -427,6 +461,12 @@ function SubscriptionsCard() {
             showSetup
             dupKeys={dupCommitteeKeys}
           />
+          {q && (
+            <p className="subs__hint">
+              מציג {visibleCommittees.length} מתוך {committees.length} גנים
+              שתואמים לחיפוש "{search.trim()}".
+            </p>
+          )}
           {/* מחיקת גני-בדיקה — בטוח (רק גן יחיד של חשבון רגיל; חשבון מנהלת מוגן) */}
           {selectedC.size > 0 && (
             <div className="subs__bulk">

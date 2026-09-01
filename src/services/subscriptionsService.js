@@ -46,8 +46,10 @@ const STATUS_LABELS = {
   expiring: { label: "פג בקרוב", tone: "warn" },
   expired: { label: "פג", tone: "bad" },
   free: { label: "לא מנוי", tone: "muted" },
-  // נרשם שלא סיים את אשף ההקמה (אין לו ועד)
-  incomplete: { label: "לא השלים הרשמה", tone: "muted" },
+  // נרשם שלא סיים את אשף ההקמה (אין לו ועד) — עצר לפני פתיחת הגן. זה השלב
+  // הרחוק ביותר שהשרת מכיר: אשף ההקמה נשמר בשרת רק בסופו (כשנוצר הגן), ולכן
+  // אין לשרת מידע על באיזה מסך באשף בדיוק נעצר מי שלא פתח גן כלל.
+  incomplete: { label: "נרשם/ה — לא פתח/ה גן", tone: "muted" },
 };
 
 export function subscriptionStatus(status) {

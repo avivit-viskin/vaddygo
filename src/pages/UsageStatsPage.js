@@ -28,6 +28,8 @@ function UsageStatsPage() {
   // כפייה על רענון אחרי "איפוס תצוגה" (קו-הבסיס נשמר ב-localStorage ונקרא ברינדור)
   const [, forceRerender] = useState(0);
   const bump = () => forceRerender((n) => n + 1);
+  // סינון רשימת המוסדות: הכל / רק שהושלמו / רק שלא הושלמו
+  const [instFilter, setInstFilter] = useState("all");
   // מי שאינה מנהלת לא פונה לשרת בכלל — אין טעם בבקשה שתחזור 403
   const fetcher = useCallback(
     () => (isAdmin ? getUsageStats() : Promise.resolve(null)),
@@ -182,8 +184,52 @@ function UsageStatsPage() {
                   "הושלם" = הוגדרו קטגוריות גבייה <strong>וגם</strong> נוסף לפחות
                   תלמיד אחד.
                 </p>
+                {/* סינון: הכל / הושלמו / לא הושלמו */}
+                <div
+                  style={{ display: "flex", gap: 6, flexWrap: "wrap", marginBottom: 10 }}
+                >
+                  {[
+                    { k: "all", label: "הכל" },
+                    { k: "complete", label: "הושלמו" },
+                    { k: "incomplete", label: "לא הושלמו" },
+                  ].map(({ k, label }) => {
+                    const active = instFilter === k;
+                    return (
+                      <button
+                        key={k}
+                        type="button"
+                        onClick={() => setInstFilter(k)}
+                        style={{
+                          border: `1px solid ${
+                            active ? "var(--color-primary-dark)" : "var(--color-border)"
+                          }`,
+                          background: active
+                            ? "var(--color-primary-dark)"
+                            : "var(--color-surface)",
+                          color: active ? "#fff" : "var(--color-text)",
+                          borderRadius: 999,
+                          padding: "4px 12px",
+                          fontFamily: "var(--font-family)",
+                          fontSize: "var(--font-size-sm)",
+                          fontWeight: active ? 700 : 600,
+                          cursor: "pointer",
+                        }}
+                      >
+                        {label}
+                      </button>
+                    );
+                  })}
+                </div>
                 <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
-                  {data.institutions.map((inst, i) => {
+                  {data.institutions
+                    .filter((inst) =>
+                      instFilter === "all"
+                        ? true
+                        : instFilter === "complete"
+                        ? inst.complete
+                        : !inst.complete
+                    )
+                    .map((inst, i) => {
                     const missing = [];
                     if (!inst.hasCategories) missing.push("קטגוריות גבייה");
                     if (!inst.hasStudents) missing.push("תלמידים");
@@ -200,8 +246,34 @@ function UsageStatsPage() {
                           fontSize: "var(--font-size-sm)",
                         }}
                       >
-                        <span style={{ wordBreak: "break-word", fontWeight: 600 }}>
-                          {inst.name || "(ללא שם)"}
+                        <span
+                          style={{
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 2,
+                            minWidth: 0,
+                          }}
+                        >
+                          <span style={{ fontWeight: 700, wordBreak: "break-word" }}>
+                            {inst.name || "(ללא שם)"}
+                          </span>
+                          {inst.email && (
+                            <a
+                              href={`mailto:${inst.email}`}
+                              style={{
+                                color: "var(--color-link)",
+                                wordBreak: "break-word",
+                              }}
+                            >
+                              {inst.email}
+                            </a>
+                          )}
+                          {inst.createdAt && (
+                            <span style={{ color: "var(--color-text-muted)" }}>
+                              נרשם{" "}
+                              {new Date(inst.createdAt).toLocaleDateString("he-IL")}
+                            </span>
+                          )}
                         </span>
                         {inst.complete ? (
                           <strong

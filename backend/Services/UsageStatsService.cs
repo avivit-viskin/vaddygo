@@ -72,7 +72,7 @@ namespace ParentCommitteeAPI.Services
             // שתי שאילתות פשוטות + איחוד בזיכרון (בלי subquery מקונן), הלא-מושלמים
             // ראשונים (הכי רלוונטי לליווי), ואז לפי שם.
             var groupsRaw = await _db.Groups
-                .Select(g => new { g.Id, g.Name, HasCategories = g.Categories.Any() })
+                .Select(g => new { g.Id, g.Name, g.UserId, HasCategories = g.Categories.Any() })
                 .ToListAsync();
             var groupIdsWithStudents = new HashSet<int>(
                 await _db.Students
@@ -80,13 +80,26 @@ namespace ParentCommitteeAPI.Services
                     .Select(s => s.GroupId!.Value)
                     .Distinct()
                     .ToListAsync());
+            // מייל + תאריך ההרשמה של הבעלים (למעקב/פנייה) — לפי UserId של הגן.
+            var ownerIds = groupsRaw.Select(x => x.UserId).Distinct().ToList();
+            var owners = (await _db.Users
+                    .Where(u => ownerIds.Contains(u.Id))
+                    .Select(u => new { u.Id, u.Email, u.CreatedAt })
+                    .ToListAsync())
+                .ToDictionary(o => o.Id);
             var institutions = groupsRaw
-                .Select(x => new InstitutionSetupDto
+                .Select(x =>
                 {
-                    Name = x.Name,
-                    HasCategories = x.HasCategories,
-                    HasStudents = groupIdsWithStudents.Contains(x.Id),
-                    Complete = x.HasCategories && groupIdsWithStudents.Contains(x.Id),
+                    owners.TryGetValue(x.UserId, out var owner);
+                    return new InstitutionSetupDto
+                    {
+                        Name = x.Name,
+                        Email = owner?.Email ?? string.Empty,
+                        CreatedAt = owner?.CreatedAt,
+                        HasCategories = x.HasCategories,
+                        HasStudents = groupIdsWithStudents.Contains(x.Id),
+                        Complete = x.HasCategories && groupIdsWithStudents.Contains(x.Id),
+                    };
                 })
                 .OrderBy(i => i.Complete)
                 .ThenBy(i => i.Name)

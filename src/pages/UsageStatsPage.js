@@ -324,8 +324,6 @@ function UsageStatsPage() {
                 </ul>
               </div>
             )}
-            {/* האם ההגנות שהוגדרו ב-Railway באמת פועלות */}
-            <SecurityStatusCard />
             {/* מי משלם ל-VaddyGo ועד מתי — שני ערוצי ההכנסה במקום אחד */}
             <SubscriptionsCard />
             {/* עדכון לכל בעלי המוסדות — יושב ליד תמונת המנויים, כי משם
@@ -333,6 +331,8 @@ function UsageStatsPage() {
             <BroadcastCard />
             {/* פתיחה/סגירה של פרו למוסד הפעיל (נשמר בשרת) */}
             <ProTestControl />
+            {/* מצב ההגנות — מידע תפעולי בלבד, בתחתית הדף כדי שלא יהיה מול העיניים */}
+            <SecurityStatusCard />
           </>
         )}
       </Card>

@@ -3,6 +3,8 @@ import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
 import { createLead } from "../services/leadsService";
+import { recordLead } from "../services/vendorsService";
+import { whatsappUrlWithText } from "../services/whatsapp";
 import { getActiveInstitution } from "../services/institutionsService";
 import { getUser } from "../services/authService";
 
@@ -22,6 +24,8 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
   const [error, setError] = useState("");
   const [sending, setSending] = useState(false);
   const [sent, setSent] = useState(false);
+  // דרך השליחה בפועל: "inbox" (תיבת פניות של ספק פרו) או "whatsapp" (ספק רגיל)
+  const [sentVia, setSentVia] = useState("inbox");
 
   // איפוס בכל פתיחה; שם איש הקשר מוקדם מפרטי המשתמשת המחוברת
   useEffect(() => {
@@ -39,7 +43,25 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
     setError("");
     setSending(false);
     setSent(false);
+    setSentVia("inbox");
   }, [isOpen]);
+
+  // הודעת וואטסאפ מפורטת מכל שדות הטופס — לספק שאינו פרו (אין לו תיבת פניות).
+  function buildWhatsAppMessage() {
+    const ganName = getActiveInstitution()?.name || "";
+    const who = ganName ? `ועד ההורים של ${ganName}` : "ועד הורים";
+    const lines = [
+      `היי ${vendor?.name || ""}! 🙂 אנחנו ${who}, הגענו אליכם דרך VaddyGo ונשמח להצעת מחיר.`,
+    ];
+    if (subject.trim()) lines.push(`מה נרצה: ${subject.trim()}`);
+    if (quantity) lines.push(`כמות: ${quantity}`);
+    if (eventDate) lines.push(`תאריך האירוע: ${eventDate}`);
+    if (budget) lines.push(`תקציב משוער: ${budget} ₪`);
+    if (message.trim()) lines.push(message.trim());
+    const contact = `${contactName.trim()} ${contactPhone.trim()}`.trim();
+    if (contact) lines.push(`ליצירת קשר: ${contact}`);
+    return lines.join("\n");
+  }
 
   async function handleSubmit(event) {
     event.preventDefault();
@@ -51,6 +73,22 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
       setError("צריך טלפון כדי שהספק יוכל לחזור אליכם");
       return;
     }
+
+    // ספק שאינו פרו — אין לו תיבת פניות, ולכן שולחים את הבקשה ישירות בוואטסאפ עם
+    // כל הפרטים. פותחים סינכרונית (לפני await) כדי שלא ייחסם כחלון קופץ.
+    if (!vendor?.isPro && vendor?.whatsApp) {
+      window.open(
+        whatsappUrlWithText(vendor.whatsApp, buildWhatsAppMessage()),
+        "_blank",
+        "noopener"
+      );
+      if (vendor?.id) recordLead(vendor.id).catch(() => {});
+      setSentVia("whatsapp");
+      setSent(true);
+      if (onSent) onSent();
+      return;
+    }
+
     setSending(true);
     setError("");
     try {
@@ -64,6 +102,7 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
         contactPhone: contactPhone.trim(),
         committeeName: getActiveInstitution()?.name || "",
       });
+      setSentVia("inbox");
       setSent(true);
       if (onSent) {
         onSent();
@@ -83,10 +122,14 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
       {sent ? (
         <div style={{ textAlign: "center" }}>
           <p style={{ fontWeight: 700, color: "var(--color-success)", margin: "6px 0" }}>
-            הבקשה נשלחה לספק ✓
+            {sentVia === "whatsapp"
+              ? "הבקשה מוכנה — נפתח וואטסאפ ✓"
+              : "הבקשה נשלחה לספק ✓"}
           </p>
           <p style={{ color: "var(--color-text-muted)", margin: "0 0 14px" }}>
-            הספק יראה את הבקשה בתיבת הפניות שלו ויחזור אליכם בהקדם.
+            {sentVia === "whatsapp"
+              ? "פתחנו וואטסאפ עם כל הפרטים — רק ללחוץ שליחה, והספק יחזור אליכם."
+              : "הספק יראה את הבקשה בתיבת הפניות שלו ויחזור אליכם בהקדם."}
           </p>
           <Button onClick={onClose}>סגירה</Button>
         </div>

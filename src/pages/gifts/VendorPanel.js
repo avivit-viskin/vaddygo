@@ -6,9 +6,7 @@ import { formatShekels, formatUnit } from "../../services/format";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import { groupByFolder } from "../../services/vendorFolders";
 import { withDisplayNames } from "../../services/vendorProducts";
-import { getOnboarding } from "../../services/onboardingService";
 import {
-  recordLead,
   setVendorFeatured,
   setVendorPro,
 } from "../../services/vendorsService";
@@ -26,12 +24,6 @@ import SocialIcon from "../../components/SocialIcon";
 function supplierMessage(folderName) {
   const suffix = folderName && folderName !== "כללי" ? ` ל${folderName}` : "";
   return `היי! 🙂 הגענו אליכם דרך VaddyGo — אפליקציה לניהול ועדי הורים. אנחנו ועד הורים ומעוניינים במוצרים שלכם${suffix}, אפשר לקבל פרטים ומחירים?`;
-}
-
-// בקשת הצעת מחיר — ליד מזוהה: כולל את שם הגן כדי שהספק ידע מי פונה (לא אנונימי).
-function quoteRequestMessage(vendorName, ganName) {
-  const who = ganName ? `ועד ההורים של ${ganName}` : "ועד הורים";
-  return `היי ${vendorName || ""}! 🙂 אנחנו ${who}, הגענו אליכם דרך VaddyGo ונשמח לקבל הצעת מחיר. מה תוכלו להציע לנו?`;
 }
 
 // הודעת התעניינות לתשלום בביט — נפתחת בוואטסאפ של מספר הביט. אם הוועד גלש
@@ -127,8 +119,6 @@ function VendorPanel({
   const [rfqOpen, setRfqOpen] = useState(false);
   // מוצר בלי שם מוצג כ"מוצר N" לפי מקומו ברשימת הספק (ולא נעלם מהתצוגה)
   const folders = groupByFolder(withDisplayNames(vendor.products || []));
-  // שם הגן — נכנס להודעת "בקשת הצעת מחיר" כדי שהפנייה תהיה ליד מזוהה
-  const ganName = getOnboarding()?.ganName || "";
   // אמצעי התשלום הזמינים — מוצגים לוועד כאייקונים ממותגים (רק מה שהספק מילא)
   const payMethods = [
     vendor.paymentBit && { key: "bit", label: "ביט", brand: "bit", value: vendor.paymentBit },
@@ -308,32 +298,16 @@ function VendorPanel({
         </div>
       )}
       <div className="vendor-panel__contact">
-        {/* ספק Pro — כפתור פותח טופס בקשת הצעת מחיר מובנה (נשמר בתיבת הפניות שלו);
-            ספק שאינו Pro — פנייה בוואטסאפ + מונה, כמו קודם */}
-        {isPro ? (
-          <button
-            type="button"
-            className="btn btn--primary"
-            onClick={() => setRfqOpen(true)}
-          >
-            <Icon name="message" size={16} /> בקשת הצעת מחיר
-          </button>
-        ) : (
-          vendor.whatsApp && (
-            <a
-              className="btn btn--primary"
-              href={whatsappUrlWithText(
-                vendor.whatsApp,
-                quoteRequestMessage(vendor.name, ganName)
-              )}
-              target="_blank"
-              rel="noreferrer"
-              onClick={() => !readOnly && recordLead(vendor.id)}
-            >
-              <Icon name="message" size={16} /> בקשת הצעת מחיר
-            </a>
-          )
-        )}
+        {/* טופס "בקשת הצעת מחיר" מובנה נפתח לכל ספק (בעלת המוצר ביקשה שהטופס
+            תמיד ייפתח). בשליחה: ספק Pro → הפנייה נוחתת בתיבת הפניות שלו; ספק שאינו
+            Pro → נפתח וואטסאפ עם כל הפרטים שמילאו (כי אין לו תיבת פניות). */}
+        <button
+          type="button"
+          className="btn btn--primary"
+          onClick={() => setRfqOpen(true)}
+        >
+          <Icon name="message" size={16} /> בקשת הצעת מחיר
+        </button>
         {whatsapp && (
           <a
             className="btn btn--secondary vendor-panel__wa"

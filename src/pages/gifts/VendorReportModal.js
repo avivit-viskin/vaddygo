@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react";
 import Modal from "../../components/Modal";
 import Button from "../../components/Button";
 import Icon from "../../components/Icon";
@@ -5,6 +6,7 @@ import WhatsAppIcon from "../../components/WhatsAppIcon";
 import CopyMessageButton from "../../components/CopyMessageButton";
 import SupplierReports from "../../components/SupplierReports";
 import { vendorProgress, vendorReportText } from "../../services/vendorProgress";
+import { getVendorLeads } from "../../services/vendorsService";
 import { whatsappUrlWithText } from "../../services/whatsapp";
 import "../../styles/vendor-report.css";
 
@@ -35,6 +37,24 @@ function formatWhen(iso) {
 }
 
 function VendorReportModal({ vendor, onClose }) {
+  // מי פנה לספק (שם+טלפון) — נטען מנקודת-קצה שמורה למנהלת (SuperAdmin). הספק
+  // עצמו רואה את הפניות בתיבת הפניות שלו; כאן זה מבט המנהלת בלבד.
+  const [leads, setLeads] = useState(null);
+  useEffect(() => {
+    if (!vendor?.id) return undefined;
+    let alive = true;
+    getVendorLeads(vendor.id)
+      .then((data) => {
+        if (alive) setLeads(Array.isArray(data) ? data : []);
+      })
+      .catch(() => {
+        if (alive) setLeads([]);
+      });
+    return () => {
+      alive = false;
+    };
+  }, [vendor?.id]);
+
   if (!vendor) {
     return null;
   }
@@ -104,6 +124,79 @@ function VendorReportModal({ vendor, onClose }) {
         </ul>
 
         <SupplierReports vendor={vendor} />
+
+        {/* מי פנה לספק — שם וטלפון של כל פנייה. מבט המנהלת בלבד (נטען מנקודת-קצה
+            SuperAdmin); אין מייל — הפנייה שומרת שם וטלפון בלבד. */}
+        {Array.isArray(leads) && leads.length > 0 && (
+          <div>
+            <p
+              style={{
+                margin: "0 0 8px",
+                fontWeight: 700,
+                color: "var(--color-primary-dark)",
+              }}
+            >
+              מי פנה לספק ({leads.length})
+            </p>
+            <ul
+              style={{
+                listStyle: "none",
+                margin: 0,
+                padding: 0,
+                display: "flex",
+                flexDirection: "column",
+                gap: 8,
+              }}
+            >
+              {leads.map((l) => (
+                <li
+                  key={l.id}
+                  style={{
+                    display: "flex",
+                    flexWrap: "wrap",
+                    alignItems: "baseline",
+                    gap: "2px 10px",
+                    padding: "8px 0",
+                    borderBottom: "1px solid var(--color-border)",
+                    fontSize: 14,
+                  }}
+                >
+                  <strong>{l.contactName || l.committeeName || "פנייה"}</strong>
+                  {l.committeeName && l.contactName && (
+                    <span style={{ color: "var(--color-text-muted)" }}>
+                      ({l.committeeName})
+                    </span>
+                  )}
+                  {l.contactPhone && (
+                    <a
+                      href={`tel:${l.contactPhone}`}
+                      style={{ color: "var(--color-link)" }}
+                      title="טלפון הפונה"
+                    >
+                      ☎ {l.contactPhone}
+                    </a>
+                  )}
+                  {l.subject && (
+                    <span style={{ color: "var(--color-text-muted)" }}>
+                      · {l.subject}
+                    </span>
+                  )}
+                  {l.createdAt && (
+                    <span
+                      style={{
+                        color: "var(--color-text-muted)",
+                        marginInlineStart: "auto",
+                        fontVariantNumeric: "tabular-nums",
+                      }}
+                    >
+                      {new Date(l.createdAt).toLocaleDateString("he-IL")}
+                    </span>
+                  )}
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         {/* פעילות הספק — מתי התחבר ומתי ערך לאחרונה (עד כמה הוא פעיל) */}
         <div className="vendor-report__activity">

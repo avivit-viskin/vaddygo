@@ -586,6 +586,17 @@ namespace ParentCommitteeAPI.Services
             return leads.Select(ToLeadResponse).ToList();
         }
 
+        /* פניות של ספק לפי מזהה — למנהלת (SuperAdmin) בלבד. אין תלות בטוקן
+           העריכה: המנהלת רואה מי פנה לכל ספק (שם+טלפון) ממסך ניהול הספקים. */
+        public async Task<IReadOnlyList<LeadResponseDto>> GetLeadsByVendorIdAsync(int vendorId)
+        {
+            var leads = await _db.Leads
+                .Where(l => l.VendorId == vendorId)
+                .OrderByDescending(l => l.CreatedAt)
+                .ToListAsync();
+            return leads.Select(ToLeadResponse).ToList();
+        }
+
         /* עדכון סטטוס פנייה — רק אם הפנייה שייכת לספק של הטוקן וסטטוס חוקי. */
         public async Task<bool> UpdateLeadStatusAsync(string token, int leadId, string status)
         {

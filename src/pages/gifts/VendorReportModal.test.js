@@ -1,5 +1,17 @@
 import { render, screen } from "@testing-library/react";
 import VendorReportModal from "./VendorReportModal";
+import { getVendorLeads } from "../../services/vendorsService";
+
+// מבט המנהלת טוען את הפניות מנקודת-קצה SuperAdmin — ממקים כדי לא לפנות לרשת.
+jest.mock("../../services/vendorsService", () => ({
+  getVendorLeads: jest.fn(),
+}));
+
+// resetMocks:true (ברירת המחדל של CRA) מנקה מימוש בין טסטים — קובעים ברירת מחדל
+// (רשימה ריקה) לפני כל טסט, כדי שה-effect לא יקרא then על undefined.
+beforeEach(() => {
+  getVendorLeads.mockResolvedValue([]);
+});
 
 const vendor = {
   id: 1,
@@ -39,5 +51,26 @@ test("מציג התקדמות, סטטיסטיקות וכפתורי שיתוף", 
   expect(waLink.getAttribute("href")).toContain(encodeURIComponent("דוח ספק"));
   expect(
     screen.getByRole("button", { name: /העתקת הדוח/ })
+  ).toBeInTheDocument();
+});
+
+test("מבט המנהלת: מציג מי פנה לספק — שם וטלפון", async () => {
+  getVendorLeads.mockResolvedValueOnce([
+    {
+      id: 7,
+      contactName: "דנה כהן",
+      contactPhone: "050-1112222",
+      committeeName: "גן רימון",
+      subject: "בלוני הליום",
+      createdAt: "2026-08-01T00:00:00Z",
+    },
+  ]);
+
+  render(<VendorReportModal vendor={vendor} onClose={() => {}} />);
+
+  expect(await screen.findByText("מי פנה לספק (1)")).toBeInTheDocument();
+  expect(screen.getByText("דנה כהן")).toBeInTheDocument();
+  expect(
+    screen.getByRole("link", { name: /050-1112222/ })
   ).toBeInTheDocument();
 });

@@ -42,6 +42,14 @@ export async function getVendors() {
   }
 }
 
+/*
+  מי פנה לספק (שם+טלפון) — למנהלת VaddyGo בלבד. השרת מגן על זה ב-SuperAdmin.
+  הספק עצמו רואה את הפניות שלו בתיבת הפניות (getSupplierLeads לפי טוקן), לא כאן.
+*/
+export function getVendorLeads(id) {
+  return api.get(`/api/vendors/${id}/leads`);
+}
+
 export async function addVendor(vendor) {
   try {
     return await api.post("/api/vendors", vendor);

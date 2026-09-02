@@ -52,6 +52,9 @@ namespace ParentCommitteeAPI.Services
            UpdateLeadStatus מעדכן סטטוס פנייה (רק אם היא שייכת לספק של הטוקן). */
         Task<bool> CreateLeadAsync(int vendorId, int? groupId, LeadCreateDto dto);
         Task<IReadOnlyList<LeadResponseDto>?> GetLeadsByEditTokenAsync(string token);
+        /* פניות של ספק לפי מזהה — למנהלת VaddyGo בלבד (SuperAdmin), כדי לראות מי
+           פנה לספק (שם+טלפון) בלי טוקן העריכה. */
+        Task<IReadOnlyList<LeadResponseDto>> GetLeadsByVendorIdAsync(int vendorId);
         Task<bool> UpdateLeadStatusAsync(string token, int leadId, string status);
 
         Task<VendorResponseDto?> SetFeaturedAsync(int id, bool featured);

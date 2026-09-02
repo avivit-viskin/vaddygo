@@ -71,6 +71,16 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(new { editToken = token });
         }
 
+        // GET: api/vendors/1/leads — מי פנה לספק (שם+טלפון). למנהלת VaddyGo בלבד:
+        // היא רואה את הפניות של כל ספק ממסך הניהול. הספק עצמו רואה אותן בתיבת
+        // הפניות שלו (דרך PublicVendorsController לפי טוקן), ולא מכאן.
+        [Authorize(Roles = "SuperAdmin")]
+        [HttpGet("{id:int}/leads")]
+        public async Task<ActionResult<IEnumerable<LeadResponseDto>>> GetVendorLeads(int id)
+        {
+            return Ok(await _vendorService.GetLeadsByVendorIdAsync(id));
+        }
+
         // PUT: api/vendors/1/featured — סימון/ביטול "ספק מומלץ" (מנהלת VaddyGo בלבד)
         [Authorize(Roles = "SuperAdmin")]
         [HttpPut("{id}/featured")]

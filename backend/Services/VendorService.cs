@@ -858,9 +858,16 @@ namespace ParentCommitteeAPI.Services
             LastEditedAt = vendor.LastEditedAt,
             Offer = vendor.Offer,
             Featured = vendor.Featured,
-            // "פרו פעיל" מחושב כאן (דגל + תוקף) כדי שהפיצ'רים ייכבו אוטומטית
-            // כשהמנוי פג — הלקוח לא מחשב תפוגה בעצמו (מקור אמת אחד).
+            // "פרו פעיל" מחושב כאן (רכישה או מבצע) כדי שהפיצ'רים ייכבו
+            // אוטומטית כשהמנוי פג — הלקוח לא מחשב תפוגה בעצמו (מקור אמת אחד).
             IsPro = VendorProPolicy.IsActive(vendor),
+            IsProPurchased = VendorProPolicy.IsPurchased(vendor),
+            // "פרו חינם" = נהנה מהמבצע ולא שילם. הבאנר מוצג רק למי שזה נכון לגביו.
+            IsTrial = !VendorProPolicy.IsPurchased(vendor)
+                && VendorProPolicy.IsTrialActive(vendor.CreatedAt),
+            TrialEndsAt = VendorProPolicy.IsTrialActive(vendor.CreatedAt)
+                ? VendorProPolicy.EffectiveTrialEnd(vendor.CreatedAt)
+                : null,
             IsKosher = vendor.IsKosher,
             Products = vendor.Products.Select(p => new VendorProductResponseDto
             {

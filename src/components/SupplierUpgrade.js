@@ -49,7 +49,9 @@ const SUPPLIER_PRO_FEATURES = [
 ];
 
 function SupplierUpgrade({ vendor }) {
-  const alreadyPro = !!vendor?.isPro;
+  // "כבר פרו" = **נרכש**, לא "פעיל". בזמן המבצע (פרו חינם לכל הספקים עד
+  // 1.10) isPro דלוק אצל כולם, ולולא ההבחנה הזו אף ספק לא היה יכול לרכוש.
+  const alreadyPro = !!(vendor?.isProPurchased ?? vendor?.isPro);
   /*
     הרכישה מתבצעת בעמוד תשלום של **GROW** (החלטת בעלת המוצר, 10.08.2026) —
     לא בוואטסאפ ולא בתוך המערכת. אנחנו רק מפנים לשם; פרטי הכרטיס אינם עוברים

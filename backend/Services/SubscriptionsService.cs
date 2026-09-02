@@ -119,8 +119,9 @@ namespace ParentCommitteeAPI.Services
                   ממנו. בלי זה המסך היה מציג "לא מנוי" לכל המוסדות בזמן שלכולם
                   יש פרו בפועל — כלומר סותר את שאר המערכת.
 
-                  לספקים אין מבצע כזה, ולכן הם ממופים בלי מועד הרשמה ונשארים
-                  בשני המצבים הקודמים בלבד.
+                  הספקים צורפו למבצע ב-02.09.2026 (החלטת בעלת המוצר) ולכן
+                  מקבלים מעכשיו את אותו טיפול — עד אז הם מופו בלי תאריך
+                  ומעולם לא הוצגו כ"פרו חינם".
                 */
                 Committees = committees
                     .Select(c =>
@@ -137,7 +138,7 @@ namespace ParentCommitteeAPI.Services
                 Suppliers = suppliers
                     .Select(s => ToRow(
                         s.Id, s.Name, s.IsPro, s.Until, s.Created, s.Email, s.Phone,
-                        today, registeredAt: null))
+                        today, registeredAt: s.Created))
                     .ToList(),
                 IncompleteSignups = incomplete
                     .Select(u => new SubscriptionRowDto

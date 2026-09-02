@@ -105,8 +105,11 @@ function VendorPanel({
       setFeatured(!next);
     }
   }
-  // מסלול פרו לספק — מנהלת פותחת/סוגרת; אופטימי (נסוג אם השרת נכשל)
-  const [isPro, setIsPro] = useState(!!vendor.isPro);
+  // מסלול פרו לספק — מנהלת פותחת/סוגרת; אופטימי (נסוג אם השרת נכשל).
+  // המצב נקרא מ-isProPurchased ולא מ-isPro: בזמן המבצע (פרו חינם לכל
+  // הספקים עד 1.10) isPro דלוק אצל כולם, והכפתור היה מציג "סגור מסלול פרו"
+  // גם לספק שמעולם לא רכש.
+  const [isPro, setIsPro] = useState(!!(vendor.isProPurchased ?? vendor.isPro));
   async function togglePro() {
     const next = !isPro;
     setIsPro(next);

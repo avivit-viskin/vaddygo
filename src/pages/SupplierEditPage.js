@@ -29,6 +29,7 @@ import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierUpgrade from "../components/SupplierUpgrade";
 import SupplierAvatar from "../components/SupplierAvatar";
+import SupplierTrialBanner from "../components/SupplierTrialBanner";
 import SupplierChecklist from "../components/SupplierChecklist";
 import SupplierHome from "../components/SupplierHome";
 import SupplierOffer from "../components/SupplierOffer";
@@ -455,6 +456,9 @@ function SupplierEditPage() {
           <SupplierAvatar name={vendor.name} email={vendor.loginEmail} />
         </div>
       </div>
+
+      {/* פרו פתוח ללא עלות (עד 1.10) — מוצג רק למי שלא רכש */}
+      <SupplierTrialBanner vendor={vendor} />
 
       {importJob && (
         <div

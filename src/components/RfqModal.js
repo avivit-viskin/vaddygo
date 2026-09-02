@@ -3,7 +3,6 @@ import Modal from "./Modal";
 import Input from "./Input";
 import Button from "./Button";
 import { createLead } from "../services/leadsService";
-import { recordLead } from "../services/vendorsService";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import { getActiveInstitution } from "../services/institutionsService";
 import { getUser } from "../services/authService";
@@ -74,15 +73,30 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
       return;
     }
 
+    // פרטי הפנייה שנשמרים בשרת בכל מקרה (שם, טלפון וכו') — כדי שהמנהלת תראה מי
+    // פנה לכל ספק, גם לספק רגיל שאין לו תיבת פניות.
+    const rfqPayload = {
+      subject: subject.trim(),
+      quantity: quantity ? Number(quantity) : null,
+      eventDate: eventDate || null,
+      budget: budget ? Number(budget) : null,
+      message: message.trim(),
+      contactName: contactName.trim(),
+      contactPhone: contactPhone.trim(),
+      committeeName: getActiveInstitution()?.name || "",
+    };
+
     // ספק שאינו פרו — אין לו תיבת פניות, ולכן שולחים את הבקשה ישירות בוואטסאפ עם
-    // כל הפרטים. פותחים סינכרונית (לפני await) כדי שלא ייחסם כחלון קופץ.
+    // כל הפרטים. פותחים סינכרונית (לפני await) כדי שלא ייחסם כחלון קופץ. ובכל זאת
+    // שומרים את הפנייה בשרת (fire-and-forget): לא לספק (אין לו תיבה), אלא כדי
+    // שהמנהלת תראה מי פנה. createLead גם מגדיל את מונה הפניות (כמו recordLead).
     if (!vendor?.isPro && vendor?.whatsApp) {
       window.open(
         whatsappUrlWithText(vendor.whatsApp, buildWhatsAppMessage()),
         "_blank",
         "noopener"
       );
-      if (vendor?.id) recordLead(vendor.id).catch(() => {});
+      if (vendor?.id) createLead(vendor.id, rfqPayload).catch(() => {});
       setSentVia("whatsapp");
       setSent(true);
       if (onSent) onSent();
@@ -92,16 +106,7 @@ function RfqModal({ vendor, isOpen, onClose, onSent }) {
     setSending(true);
     setError("");
     try {
-      await createLead(vendor.id, {
-        subject: subject.trim(),
-        quantity: quantity ? Number(quantity) : null,
-        eventDate: eventDate || null,
-        budget: budget ? Number(budget) : null,
-        message: message.trim(),
-        contactName: contactName.trim(),
-        contactPhone: contactPhone.trim(),
-        committeeName: getActiveInstitution()?.name || "",
-      });
+      await createLead(vendor.id, rfqPayload);
       setSentVia("inbox");
       setSent(true);
       if (onSent) {

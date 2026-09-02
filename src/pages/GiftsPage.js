@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Button from "../components/Button";
 import Card from "../components/Card";
 import Icon from "../components/Icon";
@@ -19,6 +19,7 @@ import {
 } from "../services/vendorsService";
 import { whatsappUrl, whatsappUrlWithText } from "../services/whatsapp";
 import { recordVendorContact } from "../services/leadsService";
+import { vendorProgress } from "../services/vendorProgress";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
@@ -69,6 +70,9 @@ function GiftsPage() {
   // עימוד רשימת הספקים — 10 לעמוד (VENDORS_PER_PAGE), כדי שרשימה ארוכה לא
   // תיפרש לאורך אינסופי אלא תתחלק לעמודים.
   const [vendorPage, setVendorPage] = useState(1);
+  // ראש רשימת הספקים — כדי לגלול לשם בהחלפת עמוד (אחרת, כשעמוד חדש קצר יותר,
+  // המסך "יורד" לתוכן שמתחת הרשימה במקום להישאר בראשה).
+  const vendorsTopRef = useRef(null);
   // ספק שממתין לאישור מחיקה (מודאל אישור); null = סגור
   const [approvingVendor, setApprovingVendor] = useState(null);
   // ספק שהמנהלת בחרה למחוק ישירות (מודאל אישור); null = סגור
@@ -134,6 +138,13 @@ function GiftsPage() {
   useEffect(() => {
     setVendorPage(1);
   }, [vendorFilter, vendorCityFilter]);
+  // מעבר עמוד + גלילה חזרה לראש רשימת הספקים (אחרי הרינדור של העמוד החדש)
+  const goToVendorPage = (n) => {
+    setVendorPage(n);
+    requestAnimationFrame(() =>
+      vendorsTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" })
+    );
+  };
   // סך ששולם לכל ספק (הוצאות המקושרות אליו) — למעקב "תשלומים לספקים"
   const vendorPaidById = useMemo(() => {
     const map = {};
@@ -337,6 +348,8 @@ function GiftsPage() {
           <EmptyState icon="🛍️" message="עדיין אין ספקים — אפשר להוסיף ספק ראשון." />
         ) : (
           <>
+            {/* עוגן לגלילה לראש הרשימה בהחלפת עמוד */}
+            <div ref={vendorsTopRef} style={{ scrollMarginTop: 12 }} />
             <FilterChips
               label="קטגוריה"
               options={vendorCategories}
@@ -524,7 +537,7 @@ function GiftsPage() {
                 <button
                   type="button"
                   className="vendors-pager__btn"
-                  onClick={() => setVendorPage((p) => Math.max(1, p - 1))}
+                  onClick={() => goToVendorPage(Math.max(1, safeVendorPage - 1))}
                   disabled={safeVendorPage === 1}
                   aria-label="עמוד קודם"
                 >
@@ -539,7 +552,7 @@ function GiftsPage() {
                         "vendors-pager__num" +
                         (n === safeVendorPage ? " vendors-pager__num--active" : "")
                       }
-                      onClick={() => setVendorPage(n)}
+                      onClick={() => goToVendorPage(n)}
                       aria-current={n === safeVendorPage ? "page" : undefined}
                     >
                       {n}
@@ -550,7 +563,7 @@ function GiftsPage() {
                   type="button"
                   className="vendors-pager__btn"
                   onClick={() =>
-                    setVendorPage((p) => Math.min(vendorPageCount, p + 1))
+                    goToVendorPage(Math.min(vendorPageCount, safeVendorPage + 1))
                   }
                   disabled={safeVendorPage === vendorPageCount}
                   aria-label="עמוד הבא"

@@ -201,8 +201,16 @@ namespace ParentCommitteeAPI.Services
                   "מי משלם לי", ולצבוע את כולם כמנויים היה מרוקן אותו מתוכן
                   בדיוק בחודש שבו הכול חינם.
                 */
-                if (registeredAt != null
-                    && ProPolicy.IsTrialActive(null, registeredAt))
+                /*
+                  🔴 בלי תנאי "יש תאריך הצטרפות". התנאי הזה היה כאן וסתר את
+                  הכלל עצמו: ProPolicy מתייחס ל"אין תאריך" כ"הצטרף לפני 1.10"
+                  ונותן את המבצע, ואילו המסך דרש תאריך ולכן הציג "לא מנוי".
+
+                  לוועדים זה מעולם לא קרה (למשתמש תמיד יש תאריך יצירה), אבל
+                  לספקים ותיקים — שנוצרו לפני שנוספה העמודה — הוא ריק. התוצאה:
+                  הפרו היה פתוח להם בפועל, והמסך של המנהלת אמר "לא מנוי".
+                */
+                if (ProPolicy.IsTrialActive(null, registeredAt))
                 {
                     row.Status = "trial";
                     row.ValidUntil = ProPolicy.EffectiveTrialEnd(null, registeredAt);

@@ -36,6 +36,9 @@ namespace ParentCommitteeAPI
         // כוונת רכישת פרו — מקשרת בין לחיצת התשלום ל-webhook של GROW (שורד אתחול)
         public DbSet<PendingProIntent> PendingProIntents { get; set; }
 
+        // כתובות שהוסרו מרשימת התפוצה (ברודקאסט) — מוחרגות מכל שליחה
+        public DbSet<EmailOptOut> EmailOptOuts { get; set; }
+
         // אימות דו-שלבי: אתגר פתוח, קודי גיבוי, ומכשירים שנזכרו
         public DbSet<TwoFactorChallenge> TwoFactorChallenges { get; set; }
         public DbSet<TwoFactorBackupCode> TwoFactorBackupCodes { get; set; }
@@ -89,6 +92,9 @@ namespace ParentCommitteeAPI
             // "סל מיחזור": הוצאה מחוקה-רכה מוסתרת אוטומטית מכל שאילתה רגילה (מסנן
             // גלובלי). שאילתות סל-המיחזור מבטלות אותו ב-IgnoreQueryFilters().
             modelBuilder.Entity<Expense>().HasQueryFilter(e => !e.IsDeleted);
+
+            // כתובת אחת ברשימת המוסרים — ייחודי מונע כפילויות בהסרה חוזרת.
+            modelBuilder.Entity<EmailOptOut>().HasIndex(o => o.Email).IsUnique();
 
             // אימות דו-שלבי: כל שלוש הטבלאות נשלפות לפי טביעת אצבע או לפי משתמש,
             // ובשתי הראשונות זה קורה בתוך זרימת התחברות — לכן אינדקס ייחודי.

@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.DTOs;
 
@@ -31,13 +32,18 @@ namespace ParentCommitteeAPI.Services
     {
         private readonly AppDbContext _db;
         private readonly IEmailSender _email;
+        private readonly IUnsubscribeService _unsubscribe;
+        private readonly IHttpContextAccessor _http;
         private readonly ILogger<BroadcastService> _logger;
 
         public BroadcastService(
-            AppDbContext db, IEmailSender email, ILogger<BroadcastService> logger)
+            AppDbContext db, IEmailSender email, IUnsubscribeService unsubscribe,
+            IHttpContextAccessor http, ILogger<BroadcastService> logger)
         {
             _db = db;
             _email = email;
+            _unsubscribe = unsubscribe;
+            _http = http;
             _logger = logger;
         }
 
@@ -88,17 +94,22 @@ namespace ParentCommitteeAPI.Services
                 .Select(v => v.LoginEmail)
                 .Distinct();
 
-        /* בוחר את שאילתת הנמענים לפי הקהל (ברירת מחדל: בעלי מוסדות). */
+        /*
+          בוחר את שאילתת הנמענים לפי הקהל (ברירת מחדל: בעלי מוסדות), ומחריג כל
+          כתובת שביקשה להסיר את עצמה מרשימת התפוצה — כך שהיא "יורדת" גם מהספירה
+          וגם מהשליחה.
+        */
         private IQueryable<string> EmailsForAudience(string? audience)
         {
             var a = (audience ?? string.Empty).Trim().ToLowerInvariant();
-            return a switch
+            var query = a switch
             {
                 "incomplete" => IncompleteEmailsQuery(),
                 "suppliers" => SupplierEmailsQuery(),
                 "suppliers_empty" => SuppliersWithoutProductsEmailsQuery(),
                 _ => OwnerEmailsQuery(),
             };
+            return query.Where(e => !_db.EmailOptOuts.Any(o => o.Email == e));
         }
 
         public async Task<int> CountRecipientsAsync(string audience) =>
@@ -110,11 +121,24 @@ namespace ParentCommitteeAPI.Services
             var recipients = await EmailsForAudience(audience).ToListAsync();
             var result = new BroadcastResultDto { Total = recipients.Count };
 
+            // בסיס הכתובת לקישור ההסרה — מתוך בקשת המנהלת (host הציבורי של השרת).
+            var req = _http.HttpContext?.Request;
+            var baseUrl = req != null ? $"{req.Scheme}://{req.Host}" : string.Empty;
+
             foreach (var address in recipients)
             {
                 try
                 {
-                    await _email.SendAsync(address, subject, body);
+                    // קישור הסרה אישי (טוקן חתום) בתחתית כל מייל — חובה בדיוור המוני.
+                    var bodyWithFooter = body;
+                    if (baseUrl.Length > 0)
+                    {
+                        var link = $"{baseUrl}/api/public/unsubscribe?token={_unsubscribe.CreateToken(address)}";
+                        bodyWithFooter = body
+                            + "\n\n———\nלא מעוניינים לקבל עדכונים מ-VaddyGo? להסרה מרשימת התפוצה:\n"
+                            + link;
+                    }
+                    await _email.SendAsync(address, subject, bodyWithFooter);
                     result.Sent += 1;
                 }
                 catch (Exception ex)

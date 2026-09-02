@@ -21,10 +21,15 @@ export function recordVendorContact(vendorId) {
   if (!vendorId || !name) {
     return Promise.resolve();
   }
-  return createLead(vendorId, {
-    committeeName: name,
-    subject: "יצירת קשר בוואטסאפ",
-  }).catch(() => {});
+  // keepalive: הבקשה חייבת להסתיים גם כשהלחיצה מנווטת מיד לוואטסאפ (בעיקר בנייד).
+  // silent: בקשת-רקע — בלי הודעת "נשמר" שתבלבל את מי שרק פנה לספק.
+  return api
+    .post(
+      `/api/public/vendors/${vendorId}/lead`,
+      { committeeName: name, subject: "יצירת קשר בוואטסאפ" },
+      { keepalive: true, silent: true }
+    )
+    .catch(() => {});
 }
 
 export function getSupplierLeads(token) {

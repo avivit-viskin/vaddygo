@@ -120,10 +120,27 @@ function GiftsPage() {
       (!vendorFilter || v.category === vendorFilter) &&
       (!vendorCityFilter || v.city === vendorCityFilter)
   );
-  // מיון (ספקים מומלצים קודם) ואז חלוקה לעמודים של 10.
-  const sortedVendors = visibleVendors
-    .slice()
-    .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  // מיון: מומלצים קודם, ואז ספקים שמילאו יותר (מוצרים/מחירים/פרטים) לפני מי
+  // שבקושי מילא או ריק — כדי שהעמוד הראשון יראה את הכרטיסים המושלמים. שלמות
+  // הכרטיס מחושבת פעם אחת לכל ספק (vendorProgress), ומשמשת גם לדוח הספק.
+  const vendorScore = new Map(
+    visibleVendors.map((v) => [
+      v.id,
+      {
+        pct: vendorProgress(v).percent,
+        products: v.productCount ?? (v.products?.length || 0),
+      },
+    ])
+  );
+  const sortedVendors = visibleVendors.slice().sort((a, b) => {
+    if (!!b.featured !== !!a.featured) {
+      return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+    }
+    const sa = vendorScore.get(a.id);
+    const sb = vendorScore.get(b.id);
+    if (sb.pct !== sa.pct) return sb.pct - sa.pct;
+    return sb.products - sa.products;
+  });
   const vendorPageCount = Math.max(
     1,
     Math.ceil(sortedVendors.length / VENDORS_PER_PAGE)

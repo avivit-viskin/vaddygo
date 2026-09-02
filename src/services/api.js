@@ -77,7 +77,7 @@ async function extractErrorMessage(response) {
   return fallback;
 }
 
-async function request(path, { method = "GET", body } = {}) {
+async function request(path, { method = "GET", body, keepalive = false, silent = false } = {}) {
   if (!BASE_URL) {
     throw new ApiError(
       "כתובת השרת לא מוגדרת. יש להגדיר את משתנה הסביבה REACT_APP_API_URL."
@@ -104,6 +104,9 @@ async function request(path, { method = "GET", body } = {}) {
       method,
       headers: Object.keys(headers).length ? headers : undefined,
       body: body ? JSON.stringify(body) : undefined,
+      // keepalive: הבקשה מסתיימת גם אם הדף מנווט מיד אחריה (למשל לחיצת וואטסאפ
+      // שפותחת את האפליקציה בנייד) — אחרת פנייה כזו נקטעת ולא נשמרת.
+      keepalive: keepalive || undefined,
     });
   } catch {
     // כשל רשת: רק בנתיבים ללא גיבוי מקומי זו "לא נשמר" אמיתי (בשאר נשמר מקומית)
@@ -120,8 +123,9 @@ async function request(path, { method = "GET", body } = {}) {
     throw new ApiError(await extractErrorMessage(response), response.status);
   }
 
-  // הצלחת שמירה בשרת — משוב "נשמר" (הודעות זהות מתאחדות ב-ToastContainer)
-  if (isSaveRequest(method, path)) {
+  // הצלחת שמירה בשרת — משוב "נשמר" (הודעות זהות מתאחדות ב-ToastContainer).
+  // silent מדלג על המשוב לבקשות-רקע (למשל רישום יצירת-קשר בלחיצת וואטסאפ).
+  if (isSaveRequest(method, path) && !silent) {
     toastSuccess("השינויים נשמרו בהצלחה");
   }
 
@@ -133,7 +137,7 @@ async function request(path, { method = "GET", body } = {}) {
 
 export const api = {
   get: (path) => request(path),
-  post: (path, body) => request(path, { method: "POST", body }),
+  post: (path, body, opts) => request(path, { method: "POST", body, ...opts }),
   put: (path, body) => request(path, { method: "PUT", body }),
   del: (path) => request(path, { method: "DELETE" }),
 };

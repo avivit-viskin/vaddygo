@@ -42,6 +42,9 @@ import "../styles/gifts.css";
   רשימת מתנות עם סטטוס ותקציב, עוזרת תקציבית (מנוצל מול תקציב החג),
   וספקים עם דף מוצרים וקטלוג. עובד גם בלי שרת (נתונים מקומיים).
 */
+// כמה ספקים מציגים בעמוד אחד ברשימת הספקים (השאר עוברים לעמוד הבא)
+const VENDORS_PER_PAGE = 10;
+
 function GiftsPage() {
   // "צופה" — לצפייה בלבד: מסתירים הוספה/עריכה/מחיקה של מתנות וספקים
   const readOnly = isActiveReadOnly();
@@ -63,6 +66,9 @@ function GiftsPage() {
   // סינון הספקים לפי קטגוריה ולפי מיקום (גילוי); "" = הכל
   const [vendorFilter, setVendorFilter] = useState("");
   const [vendorCityFilter, setVendorCityFilter] = useState("");
+  // עימוד רשימת הספקים — 10 לעמוד (VENDORS_PER_PAGE), כדי שרשימה ארוכה לא
+  // תיפרש לאורך אינסופי אלא תתחלק לעמודים.
+  const [vendorPage, setVendorPage] = useState(1);
   // ספק שממתין לאישור מחיקה (מודאל אישור); null = סגור
   const [approvingVendor, setApprovingVendor] = useState(null);
   // ספק שהמנהלת בחרה למחוק ישירות (מודאל אישור); null = סגור
@@ -110,6 +116,24 @@ function GiftsPage() {
       (!vendorFilter || v.category === vendorFilter) &&
       (!vendorCityFilter || v.city === vendorCityFilter)
   );
+  // מיון (ספקים מומלצים קודם) ואז חלוקה לעמודים של 10.
+  const sortedVendors = visibleVendors
+    .slice()
+    .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0));
+  const vendorPageCount = Math.max(
+    1,
+    Math.ceil(sortedVendors.length / VENDORS_PER_PAGE)
+  );
+  // עמוד תקין גם אם הסינון צמצם את מספר העמודים אל מתחת לעמוד הנוכחי
+  const safeVendorPage = Math.min(vendorPage, vendorPageCount);
+  const pagedVendors = sortedVendors.slice(
+    (safeVendorPage - 1) * VENDORS_PER_PAGE,
+    safeVendorPage * VENDORS_PER_PAGE
+  );
+  // כשמשנים סינון — חוזרים לעמוד הראשון (אחרת נשארים בעמוד שאולי כבר לא קיים)
+  useEffect(() => {
+    setVendorPage(1);
+  }, [vendorFilter, vendorCityFilter]);
   // סך ששולם לכל ספק (הוצאות המקושרות אליו) — למעקב "תשלומים לספקים"
   const vendorPaidById = useMemo(() => {
     const map = {};
@@ -334,9 +358,7 @@ function GiftsPage() {
               />
             )}
             <ul className="vendors">
-              {visibleVendors
-                .slice()
-                .sort((a, b) => (b.featured ? 1 : 0) - (a.featured ? 1 : 0))
+              {pagedVendors
                 .map((vendor) => {
                   // אווטאר לספק: תמונת המוצר הראשונה אם יש, אחרת מונוגרם
                   // (האות הראשונה בשם) על רקע ורוד־בז' — נותן לכל ספק זהות ויזואלית
@@ -496,6 +518,47 @@ function GiftsPage() {
                   );
                 })}
             </ul>
+            {/* עימוד — מופיע רק כשיש יותר מעמוד אחד (יותר מ-10 ספקים) */}
+            {vendorPageCount > 1 && (
+              <nav className="vendors-pager" aria-label="ניווט עמודי ספקים">
+                <button
+                  type="button"
+                  className="vendors-pager__btn"
+                  onClick={() => setVendorPage((p) => Math.max(1, p - 1))}
+                  disabled={safeVendorPage === 1}
+                  aria-label="עמוד קודם"
+                >
+                  ›
+                </button>
+                {Array.from({ length: vendorPageCount }, (_, i) => i + 1).map(
+                  (n) => (
+                    <button
+                      key={n}
+                      type="button"
+                      className={
+                        "vendors-pager__num" +
+                        (n === safeVendorPage ? " vendors-pager__num--active" : "")
+                      }
+                      onClick={() => setVendorPage(n)}
+                      aria-current={n === safeVendorPage ? "page" : undefined}
+                    >
+                      {n}
+                    </button>
+                  )
+                )}
+                <button
+                  type="button"
+                  className="vendors-pager__btn"
+                  onClick={() =>
+                    setVendorPage((p) => Math.min(vendorPageCount, p + 1))
+                  }
+                  disabled={safeVendorPage === vendorPageCount}
+                  aria-label="עמוד הבא"
+                >
+                  ‹
+                </button>
+              </nav>
+            )}
           </>
         )}
         {canManageVendors && (

@@ -403,6 +403,46 @@
   font-weight: 600;
 }
 
+/* ── עימוד רשימת הספקים (10 לעמוד) ── */
+.vendors-pager {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 6px;
+  margin: 14px 0 4px;
+}
+.vendors-pager__btn,
+.vendors-pager__num {
+  min-width: 38px;
+  height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 10px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.12s ease, border-color 0.12s ease, color 0.12s ease;
+}
+.vendors-pager__btn:hover:not(:disabled),
+.vendors-pager__num:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
+}
+.vendors-pager__btn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+.vendors-pager__num--active,
+.vendors-pager__num--active:hover {
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+  color: var(--color-primary-dark);
+}
+
 /* ── מקטע "תשלום לספק" בכרטיס הספק ── */
 .vendor-panel__pay {
   background: var(--color-primary-light);

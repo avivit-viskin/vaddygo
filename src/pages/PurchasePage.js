@@ -5,6 +5,7 @@ import Card from "../components/Card";
 import Icon from "../components/Icon";
 import { getInstitutions, beginActivation } from "../services/institutionsService";
 import { formatShekels } from "../services/format";
+import { PRO_PRICE } from "../services/plan";
 import "../styles/onboarding.css";
 
 /*
@@ -12,10 +13,10 @@ import "../styles/onboarding.css";
   ניסיון); מפעילים ללא תשלום וממשיכים לאשף ההגדרה. לאחר תקופת הניסיון ייגבה
   תשלום המנוי (הכנסת VaddyGo, בשונה מכסף הגבייה שמגיע לכל ועד).
   ⏳ אכיפת סיום הניסיון והחיוב בפועל = מערכת חיוב עתידית.
-*/
-// מחיר המנוי לאחר תקופת הניסיון (ערך התחלתי — ניתן לשינוי).
-const SUBSCRIPTION_PRICE = 249;
 
+  המחיר לקוח מ-PRO_PRICE (מקור אמת יחיד, ₪149/שנה) — כדי שמסך "מוסד נוסף" יציג
+  בדיוק את אותו מחיר כמו עמוד השדרוג, ולא ייסחף ממנו.
+*/
 function PurchasePage() {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -42,7 +43,7 @@ function PurchasePage() {
           </span>
           <p className="purchase__trial-note">
             תקופת ניסיון של חודש — ללא תשלום. לאחר תקופת הניסיון ייגבה תשלום של
-            כ־{formatShekels(SUBSCRIPTION_PRICE)}.
+            כ־{formatShekels(PRO_PRICE)} לשנה.
           </p>
         </div>
         <div className="auth-page__actions">

@@ -11,6 +11,7 @@ import {
   setVendorPro,
 } from "../../services/vendorsService";
 import RfqModal from "../../components/RfqModal";
+import { recordVendorContact } from "../../services/leadsService";
 import KosherBadge from "../../components/KosherBadge";
 import SocialIcon from "../../components/SocialIcon";
 
@@ -152,6 +153,7 @@ function VendorPanel({
             href={waHref}
             target="_blank"
             rel="noreferrer"
+            onClick={() => recordVendorContact(vendor.id)}
           >
             <WhatsAppIcon color="#25d366" size={18} /> WhatsApp
           </a>
@@ -314,6 +316,7 @@ function VendorPanel({
             href={whatsapp}
             target="_blank"
             rel="noreferrer"
+            onClick={() => recordVendorContact(vendor.id)}
           >
             <WhatsAppIcon color="#25d366" size={18} /> WhatsApp
           </a>

@@ -18,6 +18,7 @@ import {
   dismissVendorDeletion,
 } from "../services/vendorsService";
 import { whatsappUrl, whatsappUrlWithText } from "../services/whatsapp";
+import { recordVendorContact } from "../services/leadsService";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
@@ -424,6 +425,7 @@ function GiftsPage() {
                       )}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => recordVendorContact(vendor.id)}
                       aria-label={`וואטסאפ ל${vendor.name}`}
                       style={{
                         flexShrink: 0,

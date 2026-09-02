@@ -366,7 +366,7 @@ function GiftsPage() {
         ) : (
           <>
             {/* עוגן לגלילה לראש הרשימה בהחלפת עמוד */}
-            <div ref={vendorsTopRef} style={{ scrollMarginTop: 12 }} />
+            <div ref={vendorsTopRef} style={{ scrollMarginTop: 120 }} />
             <FilterChips
               label="קטגוריה"
               options={vendorCategories}

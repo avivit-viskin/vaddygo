@@ -67,6 +67,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/groups/1/subgroups — עדכון החלוקה לקבוצות (שמות חופשיים)
+        [HttpPut("{id}/subgroups")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateSubgroups(
+            int id, [FromBody] GroupSubgroupsDto dto)
+        {
+            var updated = await _groupService.UpdateSubgroupsAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/payment-links — עדכון קישורי הביט/פייבוקס של הוועד
         [HttpPut("{id}/payment-links")]
         public async Task<ActionResult<GroupResponseDto>> UpdatePaymentLinks(

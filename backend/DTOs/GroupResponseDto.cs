@@ -136,6 +136,12 @@ namespace ParentCommitteeAPI.DTOs
         public string Url { get; set; } = string.Empty;
     }
 
+    /* עדכון החלוקה לקבוצות של הגן (מסך הגדרות) — שמות חופשיים (למשל "צהרון"). */
+    public class GroupSubgroupsDto
+    {
+        public List<string> Subgroups { get; set; } = new();
+    }
+
     /* עדכון מספר הילדים בגן (מסך הגדרות) — משפיע על חישוב היעד/החוב. */
     public class GroupChildrenCountDto
     {

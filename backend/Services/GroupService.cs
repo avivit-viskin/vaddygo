@@ -197,6 +197,35 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group, await OwnerTrialAsync(group));
         }
 
+        /*
+          עדכון החלוקה לקבוצות (Subgroups) — שמות חופשיים שהוועד קובע (למשל
+          "צהרון"). נשמר כמחרוזת מופרדת בפסיקים; מנקים פסיקים בתוך שם (שוברים את
+          הפיצול), שמות ריקים וכפילויות. אינו משנה נתוני תלמידים/תשלומים, ולכן
+          החוב הכללי/הפתוח אינו מושפע.
+        */
+        public async Task<GroupResponseDto?> UpdateSubgroupsAsync(int id, GroupSubgroupsDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
+
+            var names = (dto.Subgroups ?? new())
+                .Select(s => (s ?? string.Empty).Replace(",", " ").Trim())
+                .Where(s => s.Length > 0)
+                .Distinct()
+                .ToList();
+            group.Subgroups = string.Join(",", names);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation(
+                "Group subgroups updated (Id: {GroupId}, Count: {Count})", id, names.Count);
+            return ToResponse(group, await OwnerTrialAsync(group));
+        }
+
         public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
         {
             var group = await _db.Groups

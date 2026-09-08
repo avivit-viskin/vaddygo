@@ -202,7 +202,8 @@ export function buildBulkPaymentRequestMessage(_ganName, links = {}) {
     "נשמח אם ניתן להסדיר את התשלום בהקדם, כדי שנוכל להמשיך בניהול הפעילות השוטפת של הוועד.",
     "תודה רבה על שיתוף הפעולה! 🌸",
   ];
-  if (links.bit || links.paybox) {
+  const custom = (links.customLinks || []).filter((l) => l?.label && l?.url);
+  if (links.bit || links.paybox || custom.length > 0) {
     lines.push("");
   }
   if (links.bit) {
@@ -211,6 +212,8 @@ export function buildBulkPaymentRequestMessage(_ganName, links = {}) {
   if (links.paybox) {
     lines.push(`וקישור לפייבוקס: ${links.paybox}`);
   }
+  // קישורי תשלום נוספים שהוועד הגדיר (שם: כתובת)
+  custom.forEach((l) => lines.push(`${l.label}: ${l.url}`));
   return lines.join("\n");
 }
 

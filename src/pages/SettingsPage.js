@@ -16,6 +16,7 @@ import { applyAnalyticsConsent } from "../services/analytics";
 import ChangePasswordCard from "./settings/ChangePasswordCard";
 import TwoFactorCard from "./settings/TwoFactorCard";
 import RenameInstitutionCard from "./settings/RenameInstitutionCard";
+import ChildrenCountCard from "./settings/ChildrenCountCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
@@ -62,9 +63,14 @@ function SettingsPage() {
     {
       key: "institution",
       icon: "school",
-      title: "שם המוסד",
-      subtitle: "תיקון שם המוסד אם נפלה טעות",
-      render: () => <RenameInstitutionCard />,
+      title: "פרטי המוסד",
+      subtitle: "שם המוסד ומספר הילדים",
+      render: () => (
+        <>
+          <RenameInstitutionCard />
+          {!readOnly && <ChildrenCountCard />}
+        </>
+      ),
     },
     {
       key: "notifications",

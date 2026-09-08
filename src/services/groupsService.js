@@ -27,6 +27,13 @@ export function renameGroup(groupId, name) {
 }
 
 /*
+  עדכון מספר הילדים בגן — משפיע על היעד/החוב במסך הבית. מחזיר את הגן המעודכן.
+*/
+export function updateChildrenCount(groupId, childrenCount) {
+  return api.put(`/api/groups/${groupId}/children-count`, { childrenCount });
+}
+
+/*
   מחיקת מוסד (Group) וכל הנתונים שלו מהשרת — רק המוסד הזה, לא החשבון ולא
   מוסדות אחרים. השרת מאמת בעלות (רק הבעלים יכול למחוק את הגן שלו).
 */

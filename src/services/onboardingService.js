@@ -76,6 +76,24 @@ export function isOnboardingComplete() {
 }
 
 /*
+  patchOnboarding — עדכון נקודתי של המטמון המקומי (getOnboarding). למשל אחרי
+  שינוי מספר הילדים בשרת: מעדכנים גם את המטמון כדי שחישוב היעד/החוב במסך הבית
+  (dashboardService, שקורא getOnboarding) יתעדכן מיד בלי טעינה מחדש.
+*/
+export function patchOnboarding(partial) {
+  const current = getOnboarding();
+  if (!current) return;
+  try {
+    localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({ ...current, ...partial })
+    );
+  } catch {
+    /* מקום בדפדפן מלא — לא קריטי */
+  }
+}
+
+/*
   syncInstitutionsFromServer — מושך את כל הגנים מהשרת (בבעלות המשתמש + כאלה
   שהוזמן אליהם כחבר) ומסנכרן אותם לרשימת המוסדות המקומית, כדי שגם גן שהוזמנת
   אליו יופיע ב-InstitutionSwitcher עם ההרשאה שלו. נקרא אחרי כניסה ואחרי פדיון

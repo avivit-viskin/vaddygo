@@ -12,9 +12,13 @@ const STORAGE_KEY = "vaadygo.paymentLinks";
 function readLocal() {
   try {
     const saved = JSON.parse(localStorage.getItem(STORAGE_KEY));
-    return { bit: saved?.bit || "", paybox: saved?.paybox || "" };
+    return {
+      bit: saved?.bit || "",
+      paybox: saved?.paybox || "",
+      customLinks: Array.isArray(saved?.customLinks) ? saved.customLinks : [],
+    };
   } catch {
-    return { bit: "", paybox: "" };
+    return { bit: "", paybox: "", customLinks: [] };
   }
 }
 
@@ -35,7 +39,11 @@ export async function getPaymentLinks() {
   if (groupId) {
     try {
       const group = await api.get(`/api/groups/${groupId}`);
-      const links = { bit: group.bitLink || "", paybox: group.payboxLink || "" };
+      const links = {
+        bit: group.bitLink || "",
+        paybox: group.payboxLink || "",
+        customLinks: Array.isArray(group.customLinks) ? group.customLinks : [],
+      };
       writeLocal(links); // מטמון מקומי לשימוש כשאין רשת
       return links;
     } catch {
@@ -45,8 +53,16 @@ export async function getPaymentLinks() {
   return readLocal();
 }
 
-export async function savePaymentLinks({ bit, paybox }) {
-  const links = { bit: (bit || "").trim(), paybox: (paybox || "").trim() };
+export async function savePaymentLinks({ bit, paybox, customLinks }) {
+  // שומרים רק קישורים נוספים שיש בהם גם שם וגם כתובת
+  const cleanCustom = (customLinks || [])
+    .map((l) => ({ label: (l.label || "").trim(), url: (l.url || "").trim() }))
+    .filter((l) => l.label && l.url);
+  const links = {
+    bit: (bit || "").trim(),
+    paybox: (paybox || "").trim(),
+    customLinks: cleanCustom,
+  };
   const groupId = currentGroupId();
   if (!groupId) {
     // אין גן מסונכרן — נשמר מקומית בלבד
@@ -57,9 +73,14 @@ export async function savePaymentLinks({ bit, paybox }) {
     const group = await api.put(`/api/groups/${groupId}/payment-links`, {
       bitLink: links.bit,
       payboxLink: links.paybox,
+      customLinks: cleanCustom,
     });
     // מקור האמת הוא השרת — שומרים במטמון את מה שנשמר בפועל
-    const saved = { bit: group.bitLink || "", paybox: group.payboxLink || "" };
+    const saved = {
+      bit: group.bitLink || "",
+      paybox: group.payboxLink || "",
+      customLinks: Array.isArray(group.customLinks) ? group.customLinks : [],
+    };
     writeLocal(saved);
     return saved;
   } catch (err) {

@@ -198,10 +198,9 @@ namespace ParentCommitteeAPI.Services
         }
 
         /*
-          עדכון החלוקה לקבוצות (Subgroups) — שמות חופשיים שהוועד קובע (למשל
-          "צהרון"). נשמר כמחרוזת מופרדת בפסיקים; מנקים פסיקים בתוך שם (שוברים את
-          הפיצול), שמות ריקים וכפילויות. אינו משנה נתוני תלמידים/תשלומים, ולכן
-          החוב הכללי/הפתוח אינו מושפע.
+          עדכון החלוקה לקבוצות — שם חופשי (למשל "צהרון") + סכום גבייה אופציונלי
+          לכל קבוצה (אופציה 1). השמות נשמרים כמחרוזת מופרדת בפסיקים; הסכומים כ-JSON
+          (מפה שם→סכום, רק לקבוצות עם סכום > 0). מנקים פסיקים בשם, ריקים וכפילויות.
         */
         public async Task<GroupResponseDto?> UpdateSubgroupsAsync(int id, GroupSubgroupsDto dto)
         {
@@ -214,15 +213,22 @@ namespace ParentCommitteeAPI.Services
             }
             if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
 
-            var names = (dto.Subgroups ?? new())
-                .Select(s => (s ?? string.Empty).Replace(",", " ").Trim())
-                .Where(s => s.Length > 0)
-                .Distinct()
-                .ToList();
+            var names = new List<string>();
+            var amounts = new Dictionary<string, decimal>();
+            foreach (var g in dto.Groups ?? new())
+            {
+                var name = (g.Name ?? string.Empty).Replace(",", " ").Trim();
+                if (name.Length == 0 || names.Contains(name)) continue;
+                names.Add(name);
+                if (g.Amount is > 0) amounts[name] = g.Amount.Value;
+            }
             group.Subgroups = string.Join(",", names);
+            group.SubgroupAmountsJson =
+                amounts.Count > 0 ? JsonSerializer.Serialize(amounts) : null;
             await _db.SaveChangesAsync();
             _logger.LogInformation(
-                "Group subgroups updated (Id: {GroupId}, Count: {Count})", id, names.Count);
+                "Group subgroups updated (Id: {GroupId}, Count: {Count}, WithAmount: {Amt})",
+                id, names.Count, amounts.Count);
             return ToResponse(group, await OwnerTrialAsync(group));
         }
 
@@ -485,6 +491,20 @@ namespace ParentCommitteeAPI.Services
             }
         }
 
+        // סכומי הקבוצות נשמרים כ-JSON (שם→סכום); פענוח בטוח (JSON שבור = ריק).
+        private static Dictionary<string, decimal> ParseSubgroupAmounts(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return new();
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, decimal>>(json) ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
         private static GroupResponseDto ToResponse(Group group, OwnerPlanDates owner)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
@@ -500,6 +520,7 @@ namespace ParentCommitteeAPI.Services
                 Subgroups = group.Subgroups.Length == 0
                     ? new List<string>()
                     : group.Subgroups.Split(',').ToList(),
+                SubgroupAmounts = ParseSubgroupAmounts(group.SubgroupAmountsJson),
                 Categories = group.Categories.Select(c => new CollectionCategoryResponseDto
                 {
                     Id = c.Id,

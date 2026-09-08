@@ -1,3 +1,4 @@
+using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
@@ -70,7 +71,25 @@ namespace ParentCommitteeAPI.Services
             var today = DateTime.Today;
 
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
-            var target = totalPerChild * group.ChildrenCount;
+
+            /* אופציה 1 — סכום גבייה שונה לכל קבוצה. ילדים בקבוצה שהוגדר לה סכום
+               חייבים את סכום הקבוצה; שאר הילדים (מתוך מספר-הילדים המוגדר) חייבים
+               את סכום הקטגוריות הרגיל. כשאין סכומי-קבוצה — היעד זהה לקודם. */
+            var subgroupAmounts = ParseSubgroupAmounts(group.SubgroupAmountsJson);
+            var studentGroups = await _db.Students.AsNoTracking()
+                .Where(s => s.GroupId == group.Id)
+                .Select(s => new { s.Id, s.ClassName })
+                .ToListAsync();
+            var kidsInAmountGroups = 0;
+            var amountGroupsTarget = 0m;
+            foreach (var kv in subgroupAmounts)
+            {
+                var count = studentGroups.Count(s => s.ClassName == kv.Key);
+                kidsInAmountGroups += count;
+                amountGroupsTarget += count * kv.Value;
+            }
+            var remainingKids = Math.Max(0, group.ChildrenCount - kidsInAmountGroups);
+            var target = amountGroupsTarget + remainingKids * totalPerChild;
 
             /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (סכום כל האמצעים) */
             var collected = paidPayments.Sum(PaidTotal);
@@ -99,7 +118,9 @@ namespace ParentCommitteeAPI.Services
             var byCategory = group.Categories.Select(c => new DashboardCategoryDto
             {
                 Name = c.Name,
-                TargetAmount = c.AmountPerChild * group.ChildrenCount,
+                // היעד לקטגוריה מחושב על הילדים ששילום לפי קטגוריות (בלי ילדי
+                // הקבוצות שיש להן סכום כולל משלהן). כשאין סכומי-קבוצה — זהה לקודם.
+                TargetAmount = c.AmountPerChild * remainingKids,
                 CollectedAmount = paidPayments
                     .Where(p => p.CollectionCategoryId == c.Id)
                     .Sum(PaidTotal),
@@ -125,29 +146,27 @@ namespace ParentCommitteeAPI.Services
             byCategory.AddRange(extraCategories);
 
             // פילוח הגבייה לפי קבוצות הגן: לכל קבוצה מספר הילדים המשויכים אליה
-            // (ClassName == שם הקבוצה), היעד (סכום-לילד × מספר הילדים בקבוצה) וכמה
-            // נגבה. אותו סכום-לילד לכל הקבוצות — ההבדל הוא רק במספר הילדים. ריק אם
-            // לא הוגדרו קבוצות.
+            // (ClassName == שם הקבוצה), היעד (סכום-הקבוצה אם הוגדר, אחרת סכום
+            // הקטגוריות × מספר הילדים) וכמה נגבה. ריק אם לא הוגדרו קבוצות.
             var subgroupNames = group.Subgroups
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var bySubgroup = new List<DashboardSubgroupDto>();
             if (subgroupNames.Length > 0)
             {
-                var groupStudents = await _db.Students.AsNoTracking()
-                    .Where(s => s.GroupId == group.Id)
-                    .Select(s => new { s.Id, s.ClassName })
-                    .ToListAsync();
                 var collectedByStudent = paidPayments
                     .GroupBy(p => p.StudentId)
                     .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
                 foreach (var sub in subgroupNames)
                 {
-                    var kids = groupStudents.Where(s => s.ClassName == sub).ToList();
+                    var kids = studentGroups.Where(s => s.ClassName == sub).ToList();
+                    var perChild = subgroupAmounts.TryGetValue(sub, out var amt)
+                        ? amt
+                        : totalPerChild;
                     bySubgroup.Add(new DashboardSubgroupDto
                     {
                         Name = sub,
                         ChildrenCount = kids.Count,
-                        TargetAmount = totalPerChild * kids.Count,
+                        TargetAmount = perChild * kids.Count,
                         CollectedAmount = kids.Sum(k =>
                             collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
                     });
@@ -182,6 +201,20 @@ namespace ParentCommitteeAPI.Services
 
         /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים (כולל אשראי בסליקה) */
         private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount;
+
+        /* סכומי הקבוצות (שם→סכום) מ-JSON; פענוח בטוח (JSON שבור/ריק = מפה ריקה). */
+        private static Dictionary<string, decimal> ParseSubgroupAmounts(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return new();
+            try
+            {
+                return JsonSerializer.Deserialize<Dictionary<string, decimal>>(json) ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
 
         /* סך ההוצאות שיצאו מאמצעי מסוים (ביט/פייבוקס/מזומן) */
         private static decimal MethodExpenses(List<Expense> expenses, string method) =>

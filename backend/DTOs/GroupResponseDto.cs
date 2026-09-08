@@ -13,6 +13,8 @@ namespace ParentCommitteeAPI.DTOs
         public int ChildrenCount { get; set; }
         public int StaffCount { get; set; }
         public List<string> Subgroups { get; set; } = new();
+        // סכום גבייה לכל קבוצה (שם → סכום). קבוצה שאינה כאן = סכום הקטגוריות הרגיל.
+        public Dictionary<string, decimal> SubgroupAmounts { get; set; } = new();
         public List<CollectionCategoryResponseDto> Categories { get; set; } = new();
         public decimal TotalPerChild { get; set; }
         public decimal CollectionGoal { get; set; }
@@ -136,10 +138,19 @@ namespace ParentCommitteeAPI.DTOs
         public string Url { get; set; } = string.Empty;
     }
 
-    /* עדכון החלוקה לקבוצות של הגן (מסך הגדרות) — שמות חופשיים (למשל "צהרון"). */
+    /* עדכון החלוקה לקבוצות של הגן (מסך הגדרות) — שם חופשי + סכום גבייה אופציונלי. */
     public class GroupSubgroupsDto
     {
-        public List<string> Subgroups { get; set; } = new();
+        public List<SubgroupInputDto> Groups { get; set; } = new();
+    }
+
+    /* קבוצה בקלט: שם + סכום גבייה (0/null = סכום הקטגוריות הרגיל). */
+    public class SubgroupInputDto
+    {
+        public string Name { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.Range(0, 1000000)]
+        public decimal? Amount { get; set; }
     }
 
     /* עדכון מספר הילדים בגן (מסך הגדרות) — משפיע על חישוב היעד/החוב. */

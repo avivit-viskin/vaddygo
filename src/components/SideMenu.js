@@ -11,6 +11,7 @@ import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { startTour } from "../services/tourBus";
+import HelpVideoButton from "./HelpVideoButton";
 import ProBadge from "./ProBadge";
 import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
@@ -172,6 +173,11 @@ function SideMenu({ isOpen, onClose }) {
           >
             <span aria-hidden="true">🧭</span> סיור באפליקציה
           </button>
+          {/* סרטון ההסבר — לצד הסיור, לטובת מי שמעדיף לראות ולא לקרוא.
+              אינו מוצג כלל כל עוד לא הוגדרה כתובת סרטון. */}
+          <div className="sidemenu__action sidemenu__action--video">
+            <HelpVideoButton label="סרטון הסבר" onOpen={onClose} />
+          </div>
           <a
             className="sidemenu__action sidemenu__contact"
             href={SUPPORT_URL}

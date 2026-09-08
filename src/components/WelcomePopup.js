@@ -2,6 +2,7 @@ import { useState } from "react";
 import Modal from "./Modal";
 import Button from "./Button";
 import BrandName from "./BrandName";
+import HelpVideoButton from "./HelpVideoButton";
 import { isNewUser, clearNewUser } from "../services/authService";
 import { startTour } from "../services/tourBus";
 
@@ -38,8 +39,18 @@ function WelcomePopup() {
         טיפ קטן: השתמשו בלשוניות שבתחתית המסך למעבר בין הגבייה, לוח החגים, המתנות
         והקבצים — ואל תשכחו את עוזרת ה-AI
       </p>
-      <div style={{ marginTop: 14 }}>
+      <div
+        style={{
+          marginTop: 14,
+          display: "flex",
+          gap: 10,
+          alignItems: "center",
+          flexWrap: "wrap",
+        }}
+      >
         <Button onClick={close}>הבנתי, בואו נתחיל 🙂</Button>
+        {/* מוצע ולא נכפה: מי שרוצה לראות לפני שמתחיל — יכול. */}
+        <HelpVideoButton label="או לראות סרטון קצר" />
       </div>
     </Modal>
   );

@@ -23,6 +23,7 @@ import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
+import HelpVideoButton from "../components/HelpVideoButton";
 import StudentCard from "../components/StudentCard";
 import StudentForm from "../components/StudentForm";
 import ConfirmDialog from "../components/ConfirmDialog";
@@ -380,7 +381,17 @@ function StudentsPage() {
       </div>
 
       {totalCount === 0 ? (
-        <EmptyState message="עדיין אין תלמידים — אפשר להוסיף את הראשון!" />
+        <EmptyState message="עדיין אין תלמידים — אפשר להוסיף את הראשון!">
+          {/*
+            כאן בדיוק נעצרים: בנתוני השימוש הרבה ועדים פתחו גן ולא הזינו
+            תלמידים אף פעם. הסרטון מוצע במקום שבו התקיעה קורית, ולא בתפריט
+            שצריך לחפש אותו.
+          */}
+          <HelpVideoButton
+            variant="button"
+            label="לראות איך מוסיפים תלמידים"
+          />
+        </EmptyState>
       ) : (
         <>
           <div className="toolbar">

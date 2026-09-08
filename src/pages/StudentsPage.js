@@ -285,13 +285,8 @@ function StudentsPage() {
     }
   }
 
-  /* העברת כל התלמידים שנבחרו לקבוצה (קיימת או שם חדש חופשי), במקביל. */
-  async function confirmMoveGroup() {
-    const target = moveTarget.trim();
-    if (!target) {
-      setMoveError("צריך לבחור קבוצה או לכתוב שם חדש");
-      return;
-    }
+  /* העברת כל התלמידים שנבחרו לקבוצת יעד (target). "" = הקבוצה הכללית. */
+  async function applyMove(target) {
     setIsMoving(true);
     setMoveError("");
     try {
@@ -313,6 +308,21 @@ function StudentsPage() {
     } finally {
       setIsMoving(false);
     }
+  }
+
+  /* העברה לקבוצה קיימת או לשם חדש חופשי. */
+  async function confirmMoveGroup() {
+    const target = moveTarget.trim();
+    if (!target) {
+      setMoveError('צריך לבחור קבוצה, לכתוב שם חדש, או ללחוץ "העברה לקבוצה הכללית"');
+      return;
+    }
+    await applyMove(target);
+  }
+
+  /* הסרה מהקבוצה — העברת הנבחרים לקבוצה הכללית (ClassName ריק). */
+  function moveToGeneral() {
+    applyMove("");
   }
 
   function closeDeleteDialog() {
@@ -642,7 +652,7 @@ function StudentsPage() {
       >
         <p style={{ margin: "0 0 10px", color: "var(--color-text-muted)" }}>
           בוחרים קבוצה קיימת או כותבים שם חדש (למשל "צהרון"), וכל התלמידים
-          שנבחרו יעברו אליה.
+          שנבחרו יעברו אליה. או מעבירים אותם לקבוצה הכללית (הסרה מקבוצה).
         </p>
         <Input
           id="move-group-target"
@@ -666,9 +676,12 @@ function StudentsPage() {
             {moveError}
           </p>
         )}
-        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+        <div style={{ display: "flex", flexWrap: "wrap", gap: 8, marginTop: 12 }}>
           <Button onClick={confirmMoveGroup} isLoading={isMoving}>
             העברה לקבוצה
+          </Button>
+          <Button variant="secondary" onClick={moveToGeneral} disabled={isMoving}>
+            העברה לקבוצה הכללית
           </Button>
           <Button variant="secondary" onClick={() => setShowMoveGroup(false)}>
             ביטול

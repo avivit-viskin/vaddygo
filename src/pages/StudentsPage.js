@@ -359,9 +359,10 @@ function StudentsPage() {
               onClick={async () => {
                 setExporting(true);
                 try {
-                  const n = await exportStudentsToExcel();
+                  // מייצאים בדיוק את מה שרואים אחרי הסינון (טרם שילמו / קטגוריה / חיפוש)
+                  const n = await exportStudentsToExcel(visibleStudents);
                   if (n === 0) {
-                    toastError("אין תלמידים לייצוא");
+                    toastError("אין תלמידים לייצוא (אולי הסינון מסתיר את כולם)");
                   } else {
                     toastSuccess(`יוצאו ${n} תלמידים לאקסל 📊`);
                   }

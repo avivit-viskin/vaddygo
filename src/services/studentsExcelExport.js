@@ -1,18 +1,22 @@
 /*
-  studentsExcelExport — ייצוא רשימת כל התלמידים לקובץ אקסל (.xlsx) לוועד.
-  עמודות: שם, שם משפחה, טלפון הורה, ואז עמודה לכל קטגוריית תשלום שהוועד הגדיר.
-  כל תא קטגוריה צבוע לפי הסטטוס: ירוק "שולם", צהוב "חלקית", אדום "לא שולם".
+  studentsExcelExport — ייצוא רשימת התלמידים לקובץ אקסל (.xlsx) לוועד.
 
-  התאמת תשלום↔קטגוריה נעשית לפי *שם הקטגוריה* — כי הגדרת הגן המקומית
-  (getOnboarding) לא כוללת מזהה שרת, רק שם. מושכים את כל שורות התשלום בבקשה
-  אחת (getAllStudentPayments) במקום בקשה לכל תלמיד.
+  עמודות: שם, שם משפחה, טלפון הורה, עמודה לכל קטגוריית תשלום (עם הסכום המבוקש
+  בכותרת, למשל "הזנה (₪500)"), ולבסוף עמודת "יתרה לתשלום" — סך מה שהתלמיד עוד
+  חייב בכל הקטגוריות. כל תא קטגוריה צבוע לפי הסטטוס: ירוק "שולם", צהוב "חלקית",
+  אדום "לא שולם".
 
-  משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעת תאים) בטעינה עצלה.
+  הייצוא מכבד את הסינון במסך: מקבל את רשימת התלמידים המסוננת (visibleStudents).
+  אם לא הועברה רשימה — מייצא את כל התלמידים (תאימות לאחור).
+
+  התאמת תשלום↔קטגוריה נעשית לפי *שם הקטגוריה* (הגדרת הגן המקומית לא כוללת מזהה
+  שרת). משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעה) בטעינה עצלה.
 */
 import { getStudents } from "./studentsService";
 import {
   getAllStudentPayments,
   amountPaidSoFar,
+  amountRemaining,
   isCategoryFullyPaid,
 } from "./paymentsService";
 import { getOnboarding } from "./onboardingService";
@@ -31,13 +35,15 @@ function statusFor(payment) {
 }
 
 /*
-  אוסף את כל התלמידים + כל שורות התשלום, בונה גיליון צבוע ומוריד קובץ.
-  מחזיר את מספר התלמידים שיוצאו (0 = אין תלמידים).
+  אוסף תלמידים + כל שורות התשלום, בונה גיליון צבוע ומוריד קובץ. מקבל רשימת
+  תלמידים מסוננת (אופציונלי). מחזיר את מספר התלמידים שיוצאו (0 = אין תלמידים).
 */
-export async function exportStudentsToExcel() {
+export async function exportStudentsToExcel(filteredStudents) {
   const [mod, students, rows] = await Promise.all([
     import("xlsx-js-style"),
-    getStudents().then((s) => s || []),
+    Array.isArray(filteredStudents)
+      ? Promise.resolve(filteredStudents)
+      : getStudents().then((s) => s || []),
     getAllStudentPayments()
       .then((r) => r || [])
       .catch(() => []),
@@ -71,20 +77,48 @@ export async function exportStudentsToExcel() {
     categoryNames = [...seen];
   }
 
-  const header = ["שם", "שם משפחה", "טלפון הורה", ...categoryNames];
+  // הסכום המבוקש לכל קטגוריה — קודם מהגדרת הגן (amountPerChild), ואם אין, מתוך
+  // שורת תשלום כלשהי של אותה קטגוריה. משמש גם בכותרת וגם בחישוב היתרה.
+  const amountByName = new Map();
+  (getOnboarding()?.categories || []).forEach((c) => {
+    if (c.name && Number(c.amount) > 0) amountByName.set(c.name, Number(c.amount));
+  });
+  rows.forEach((p) => {
+    if (p.categoryName && !amountByName.has(p.categoryName) && Number(p.amount) > 0) {
+      amountByName.set(p.categoryName, Number(p.amount));
+    }
+  });
+
+  // כותרת: פרטים + קטגוריה עם סכום מבוקש + עמודת יתרה לתשלום
+  const catHeader = (name) =>
+    amountByName.has(name) ? `${name} (₪${amountByName.get(name)})` : name;
+  const header = [
+    "שם",
+    "שם משפחה",
+    "טלפון הורה",
+    ...categoryNames.map(catHeader),
+    "יתרה לתשלום (₪)",
+  ];
   const aoa = [header];
   const statusMeta = []; // סטטוס לכל תא-קטגוריה, לצביעה אחרי הבנייה
+  const remainingMeta = []; // יתרה לכל שורה, לצביעה (אדום=חייב, ירוק=סגר)
   students.forEach((s) => {
     const m = byStudent.get(Number(s.id)) || new Map();
     const row = [s.firstName || "", s.lastName || "", s.parentPhoneNumber || ""];
     const rowStatus = [];
+    let remaining = 0;
     categoryNames.forEach((name) => {
-      const st = statusFor(m.get(name));
+      const p = m.get(name);
+      const st = statusFor(p);
       row.push(LABEL[st]);
       rowStatus.push(st);
+      // יתרה: אם יש שורת תשלום — לפי הנותר בה; אם אין — חייב את מלוא סכום הקטגוריה.
+      remaining += p ? amountRemaining(p) : amountByName.get(name) || 0;
     });
+    row.push(remaining);
     aoa.push(row);
     statusMeta.push(rowStatus);
+    remainingMeta.push(remaining);
   });
 
   const ws = XLSX.utils.aoa_to_sheet(aoa);
@@ -113,12 +147,27 @@ export async function exportStudentsToExcel() {
     });
   });
 
+  // עמודת "יתרה לתשלום" — אחרי כל הקטגוריות. אדום אם עוד חייב, ירוק אם סגר הכל.
+  const remainingCol = 3 + categoryNames.length;
+  remainingMeta.forEach((remaining, ri) => {
+    const ref = XLSX.utils.encode_cell({ r: ri + 1, c: remainingCol });
+    if (!ws[ref]) return;
+    ws[ref].s = {
+      font: {
+        bold: true,
+        color: { rgb: remaining > 0 ? "9C0006" : "1D6F42" },
+      },
+      alignment: { horizontal: "center", vertical: "center" },
+    };
+  });
+
   // רוחב עמודות
   ws["!cols"] = [
     { wch: 14 },
     { wch: 16 },
     { wch: 16 },
-    ...categoryNames.map(() => ({ wch: 12 })),
+    ...categoryNames.map(() => ({ wch: 16 })),
+    { wch: 16 },
   ];
 
   const wb = XLSX.utils.book_new();

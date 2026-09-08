@@ -32,7 +32,13 @@ namespace ParentCommitteeAPI.Services
                 return null;
             }
 
-            var categories = await GetGroupCategoriesAsync(student.GroupId);
+            var allCategories = await GetGroupCategoriesAsync(student.GroupId);
+            // קטגוריה רגילה חלה על כל התלמידים; קטגוריית "תוספת קבוצה" חלה רק על
+            // תלמידי אותה קבוצה (ClassName == SubgroupName) — כך התוספת מופיעה
+            // כשורת תשלום רק למי שבאמת חייב אותה.
+            var categories = allCategories
+                .Where(c => c.SubgroupName == null || c.SubgroupName == student.ClassName)
+                .ToList();
             var existing = await _db.Payments
                 .AsNoTracking()
                 .Where(p => p.StudentId == studentId)
@@ -55,31 +61,37 @@ namespace ParentCommitteeAPI.Services
                 return new List<PaymentResponseDto>();
             }
 
-            var studentIds = await _db.Students.AsNoTracking()
+            var students = await _db.Students.AsNoTracking()
                 .Where(s => s.GroupId == scoped.Value)
-                .Select(s => s.Id)
+                .Select(s => new { s.Id, s.ClassName })
                 .ToListAsync();
             var categories = await GetGroupCategoriesAsync(scoped.Value);
-            if (studentIds.Count == 0 || categories.Count == 0)
+            if (students.Count == 0 || categories.Count == 0)
             {
                 return new List<PaymentResponseDto>();
             }
 
+            var studentIds = students.Select(s => s.Id).ToList();
             // כל התשלומים הקיימים של תלמידי הגן — שאילתה אחת, ממופתחים לפי (תלמיד, קטגוריה)
             var existing = (await _db.Payments.AsNoTracking()
                 .Where(p => studentIds.Contains(p.StudentId))
                 .ToListAsync())
                 .ToDictionary(p => (p.StudentId, p.CollectionCategoryId));
 
-            // שורה לכל תלמיד × קטגוריה: הרשומה הקיימת, או ברירת מחדל "טרם שולם"
-            var result = new List<PaymentResponseDto>(studentIds.Count * categories.Count);
-            foreach (var studentId in studentIds)
+            // שורה לכל תלמיד × קטגוריה: הרשומה הקיימת, או ברירת מחדל "טרם שולם".
+            // קטגוריית "תוספת קבוצה" נכללת רק לתלמידי אותה קבוצה (לא לכולם).
+            var result = new List<PaymentResponseDto>(students.Count * categories.Count);
+            foreach (var student in students)
             {
                 foreach (var category in categories)
                 {
-                    result.Add(existing.TryGetValue((studentId, category.Id), out var payment)
+                    if (category.SubgroupName != null && category.SubgroupName != student.ClassName)
+                    {
+                        continue;
+                    }
+                    result.Add(existing.TryGetValue((student.Id, category.Id), out var payment)
                         ? ToResponse(payment, category)
-                        : DefaultResponse(studentId, category));
+                        : DefaultResponse(student.Id, category));
                 }
             }
             return result;
@@ -99,6 +111,11 @@ namespace ParentCommitteeAPI.Services
             var category = await _db.CollectionCategories
                 .FirstOrDefaultAsync(c => c.Id == categoryId && c.GroupId == student.GroupId);
             if (category == null)
+            {
+                return null;
+            }
+            // קטגוריית "תוספת קבוצה" חלה רק על תלמידי אותה קבוצה — אחרת לא רושמים
+            if (category.SubgroupName != null && category.SubgroupName != student.ClassName)
             {
                 return null;
             }

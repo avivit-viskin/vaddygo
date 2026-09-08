@@ -11,6 +11,11 @@ namespace ParentCommitteeAPI.Models
         public decimal AmountPerChild { get; set; }
         public int Installments { get; set; } = 1;
 
+        // קטגוריית "תוספת קבוצה" (אופציה 1): null = קטגוריה רגילה שכל הילדים
+        // משלמים. אחרת = שם הקבוצה (ClassName) שהתוספת חלה עליה בלבד — מופיעה
+        // כשורת תשלום בעדכון היתרה רק לתלמידי אותה קבוצה, ונאספת ככל קטגוריה.
+        public string? SubgroupName { get; set; }
+
         // קשר לגן שאליו שייכת הקטגוריה
         public int GroupId { get; set; }
         public Group? Group { get; set; }

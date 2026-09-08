@@ -70,7 +70,9 @@ namespace ParentCommitteeAPI.Services
                 .ToListAsync();
             var today = DateTime.Today;
 
-            var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
+            // קטגוריות רגילות בלבד (בלי "תוספת קבוצה") — הגבייה הכללית שכולם משלמים
+            var baseCategories = group.Categories.Where(c => c.SubgroupName == null).ToList();
+            var totalPerChild = baseCategories.Sum(c => c.AmountPerChild);
 
             /* סכום גבייה נוסף לכל קבוצה (אופציה 1) — מודל **תוספת**: כל הילדים
                משלמים את הגבייה הכללית (סכום הקטגוריות), ובנוסף ילדי קבוצה שהוגדרה
@@ -114,7 +116,7 @@ namespace ParentCommitteeAPI.Services
             // תשלומים לפי קטגוריה: קודם קטגוריות הגבייה (עם יעד), ואז קטגוריות
             // הוצאה בלבד (בלי יעד גבייה).
             var collectionNames = group.Categories.Select(c => c.Name).ToHashSet();
-            var byCategory = group.Categories.Select(c => new DashboardCategoryDto
+            var byCategory = baseCategories.Select(c => new DashboardCategoryDto
             {
                 Name = c.Name,
                 // היעד לקטגוריה = הסכום-לילד × כל הילדים. הקטגוריות הן הגבייה

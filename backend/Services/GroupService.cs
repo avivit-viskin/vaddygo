@@ -225,6 +225,41 @@ namespace ParentCommitteeAPI.Services
             group.Subgroups = string.Join(",", names);
             group.SubgroupAmountsJson =
                 amounts.Count > 0 ? JsonSerializer.Serialize(amounts) : null;
+
+            // סנכרון קטגוריות "תוספת קבוצה" (scoped): לכל קבוצה עם תוספת קיימת
+            // קטגוריה נסתרת (SubgroupName=שם הקבוצה), כדי שהתוספת תופיע כשורת
+            // תשלום בעדכון היתרה של תלמידי הקבוצה ותיאסף ככל קטגוריה. מעדכנים
+            // במקום כדי לשמר תשלומים; מסירים כשהתוספת בוטלה (התשלומים נמחקים
+            // ב-cascade — כמו ביטול קטגוריה). ה-JSON נשאר מקור-האמת ליעד (מסונכרן).
+            var addonCats = group.Categories.Where(c => c.SubgroupName != null).ToList();
+            foreach (var cat in addonCats)
+            {
+                if (!amounts.ContainsKey(cat.SubgroupName!))
+                {
+                    _db.CollectionCategories.Remove(cat);
+                }
+            }
+            foreach (var kv in amounts)
+            {
+                var cat = addonCats.FirstOrDefault(c => c.SubgroupName == kv.Key);
+                if (cat != null)
+                {
+                    cat.AmountPerChild = kv.Value;
+                    cat.Name = $"תוספת קבוצה — {kv.Key}";
+                }
+                else
+                {
+                    group.Categories.Add(new CollectionCategory
+                    {
+                        GroupId = group.Id,
+                        Name = $"תוספת קבוצה — {kv.Key}",
+                        AmountPerChild = kv.Value,
+                        Installments = 1,
+                        SubgroupName = kv.Key,
+                    });
+                }
+            }
+
             await _db.SaveChangesAsync();
             _logger.LogInformation(
                 "Group subgroups updated (Id: {GroupId}, Count: {Count}, WithAmount: {Amt})",
@@ -355,7 +390,9 @@ namespace ParentCommitteeAPI.Services
                 .Where(c => c.Name.Length > 0)
                 .ToList();
             var incomingNames = incoming.Select(c => c.Name).ToHashSet();
-            var existingCategories = group.Categories.ToList();
+            // רק קטגוריות רגילות; קטגוריות "תוספת קבוצה" (SubgroupName != null)
+            // מנוהלות במסך החלוקה-לקבוצות, ואסור שעורך הגבייה ימחק אותן.
+            var existingCategories = group.Categories.Where(c => c.SubgroupName == null).ToList();
 
             // מוחקים רק קטגוריות שהוסרו מהרשימה (התשלומים שלהן נמחקים איתן ב-cascade)
             var toRemove = existingCategories.Where(c => !incomingNames.Contains(c.Name)).ToList();
@@ -507,7 +544,10 @@ namespace ParentCommitteeAPI.Services
 
         private static GroupResponseDto ToResponse(Group group, OwnerPlanDates owner)
         {
-            var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
+            // קטגוריות רגילות בלבד (בלי קטגוריות "תוספת קבוצה") — הן הגבייה
+            // הכללית; התוספות מנוהלות בנפרד (SubgroupAmounts) ולא מוצגות בעורך.
+            var baseCategories = group.Categories.Where(c => c.SubgroupName == null).ToList();
+            var totalPerChild = baseCategories.Sum(c => c.AmountPerChild);
             return new GroupResponseDto
             {
                 Id = group.Id,
@@ -521,7 +561,7 @@ namespace ParentCommitteeAPI.Services
                     ? new List<string>()
                     : group.Subgroups.Split(',').ToList(),
                 SubgroupAmounts = ParseSubgroupAmounts(group.SubgroupAmountsJson),
-                Categories = group.Categories.Select(c => new CollectionCategoryResponseDto
+                Categories = baseCategories.Select(c => new CollectionCategoryResponseDto
                 {
                     Id = c.Id,
                     Name = c.Name,

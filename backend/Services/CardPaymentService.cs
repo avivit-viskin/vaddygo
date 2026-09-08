@@ -113,9 +113,12 @@ namespace ParentCommitteeAPI.Services
                 .ToListAsync();
 
             // מזהה עסקה משותף לכל הקטגוריות שטרם שולמו — כך שאישור אחד יסמן את כולן.
+            // קטגוריית "תוספת קבוצה" נכללת רק אם התלמיד באותה קבוצה (חייב אותה).
             var reff = Guid.NewGuid().ToString("N");
             decimal total = 0m;
-            foreach (var category in group.Categories)
+            var dueCategories = group.Categories
+                .Where(c => c.SubgroupName == null || c.SubgroupName == student.ClassName);
+            foreach (var category in dueCategories)
             {
                 var payment = payments.FirstOrDefault(p => p.CollectionCategoryId == category.Id);
                 var alreadyPaid = payment == null

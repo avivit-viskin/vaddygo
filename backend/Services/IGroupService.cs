@@ -9,6 +9,7 @@ namespace ParentCommitteeAPI.Services
         Task<GroupResponseDto> CreateAsync(GroupCreateDto dto);
         Task<GroupResponseDto?> UpdateNameAsync(int id, GroupNameDto dto);
         Task<GroupResponseDto?> UpdateChildrenCountAsync(int id, GroupChildrenCountDto dto);
+        Task<GroupResponseDto?> UpdateAllergiesNoteAsync(int id, GroupAllergiesNoteDto dto);
         Task<GroupResponseDto?> UpdateSubgroupsAsync(int id, GroupSubgroupsDto dto);
         Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto);
         Task<GroupResponseDto?> UpdatePaymentProviderAsync(int id, GroupPaymentProviderDto dto);

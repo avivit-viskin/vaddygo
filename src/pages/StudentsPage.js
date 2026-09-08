@@ -26,6 +26,7 @@ import EmptyState from "../components/EmptyState";
 import HelpVideoButton from "../components/HelpVideoButton";
 import StudentCard from "../components/StudentCard";
 import StudentForm from "../components/StudentForm";
+import InstitutionAllergyBanner from "../components/InstitutionAllergyBanner";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
 import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
@@ -425,6 +426,9 @@ function StudentsPage() {
           </div>
         )}
       </div>
+
+      {/* הערת אלרגיות אחת למוסד (במקום אלרגיה לכל ילד) — מוצגת באדום */}
+      <InstitutionAllergyBanner readOnly={readOnly} />
 
       {totalCount === 0 ? (
         <EmptyState message="עדיין אין תלמידים — אפשר להוסיף את הראשון!">

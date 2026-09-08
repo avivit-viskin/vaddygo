@@ -29,6 +29,10 @@ namespace ParentCommitteeAPI.DTOs
         // שמות הקבוצות שסומנו באשף (תינוקייה, פעוטות...) — יכול להיות ריק
         public List<string> Subgroups { get; set; } = new();
 
+        // הערת אלרגיות כללית למוסד (לא לכל ילד) — נאספת באשף ומוצגת באדום ברשימת התלמידים
+        [StringLength(500, ErrorMessage = "הערת האלרגיות ארוכה מדי")]
+        public string? AllergiesNote { get; set; }
+
         public List<CollectionCategoryDto> Categories { get; set; } = new();
     }
 

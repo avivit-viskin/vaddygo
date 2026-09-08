@@ -137,7 +137,6 @@ test("buildColumnMap ממפה את כל עמודות קובץ משרד החינ�
     lastName: 1,
     gender: 3,
     birthDate: 4,
-    allergies: 5,
     street: 6,
     houseNumber: 7,
     apartment: 8,
@@ -188,7 +187,6 @@ test("קובץ משרד החינוך: כל השדות נשלפים, וההורה
     lastName: "לוי",
     gender: "נ",
     birthDate: "2020-05-12",
-    allergies: "בוטנים",
     address: "הרצל 5, דירה 3",
     // האמא (הורה ב' בקובץ) הפכה להורה הראשי באפליקציה
     parentName: "דנה לוי",
@@ -329,7 +327,6 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
       parentName: "דנה לוי",
       parentPhoneNumber: "0501234567",
       birthDate: "2020-05-12",
-      allergies: "בוטנים",
       parentBName: "אבי לוי",
       parentsMarried: "כן",
     },
@@ -341,7 +338,6 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
     expect.objectContaining({
       firstName: "הילי",
       birthDate: "2020-05-12",
-      allergies: "בוטנים",
       parentBName: "אבי לוי",
       parentsMarried: "כן",
     })

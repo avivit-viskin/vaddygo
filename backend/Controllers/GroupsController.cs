@@ -67,6 +67,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/groups/1/allergies-note — עדכון הערת האלרגיות הכללית של המוסד
+        [HttpPut("{id}/allergies-note")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateAllergiesNote(
+            int id, [FromBody] GroupAllergiesNoteDto dto)
+        {
+            var updated = await _groupService.UpdateAllergiesNoteAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/subgroups — עדכון החלוקה לקבוצות (שמות חופשיים)
         [HttpPut("{id}/subgroups")]
         public async Task<ActionResult<GroupResponseDto>> UpdateSubgroups(

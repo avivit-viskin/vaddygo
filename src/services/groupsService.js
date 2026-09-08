@@ -34,6 +34,15 @@ export function updateChildrenCount(groupId, childrenCount) {
 }
 
 /*
+  עדכון הערת האלרגיות הכללית של המוסד — מוצגת באדום ברשימת התלמידים לכל חברות
+  הוועד. טקסט חופשי; ריק = הסרת ההערה. מאפשר גם למוסדות קיימים (שכבר סיימו אשף)
+  להוסיף/לעדכן אותה. מחזיר את הגן המעודכן.
+*/
+export function updateAllergiesNote(groupId, allergiesNote) {
+  return api.put(`/api/groups/${groupId}/allergies-note`, { allergiesNote });
+}
+
+/*
   עדכון החלוקה לקבוצות של הגן: לכל קבוצה שם + סכום גבייה אופציונלי (0/ריק =
   סכום הקטגוריות הרגיל). מקבל מערך של { name, amount } ומחזיר את הגן המעודכן.
 */

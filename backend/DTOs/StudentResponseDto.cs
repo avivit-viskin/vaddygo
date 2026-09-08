@@ -17,7 +17,7 @@ namespace ParentCommitteeAPI.DTOs
         public DateOnly? BirthDate { get; set; }
 
         public string Gender { get; set; } = string.Empty;
-        public string Allergies { get; set; } = string.Empty;
+        // אלרגיות ברמת הילד אינן מוחזרות עוד ללקוח (09.09.2026) — ראו Group.AllergiesNote.
         public string Address { get; set; } = string.Empty;
         public string ParentEmail { get; set; } = string.Empty;
         public string ParentBName { get; set; } = string.Empty;

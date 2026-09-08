@@ -22,7 +22,6 @@ function emptyExtras() {
   return {
     birthDate: "",
     gender: "",
-    allergies: "",
     address: "",
     parentEmail: "",
     parentBName: "",
@@ -66,7 +65,7 @@ function classifyHeader(raw) {
     return `parent${slot}First`; // "שם פרטי הורה" / "שם הורה" / "הורה"
   }
 
-  if (/אלרג/.test(h)) return "allergies";
+  // אלרגיות ברמת הילד לא מיובאות עוד (09.09.2026) — יש הערת אלרגיות אחת למוסד.
   if (/מגדר|מין/.test(h)) return "gender";
   if (/לידה/.test(h)) return "birthDate";
   if (/רחוב|כתובת/.test(h)) return "street";
@@ -196,7 +195,6 @@ function rowFromCells(cells, map) {
     parentPhoneNumber: primary.phone,
     birthDate: parseBirthDate(rawBirth),
     gender: get("gender"),
-    allergies: get("allergies"),
     address,
     parentEmail: primary.email,
     parentBName: secondary.name,
@@ -485,7 +483,6 @@ export async function importStudents(
         parentPhoneNumber: row.parentPhoneNumber || "",
         birthDate: row.birthDate || null,
         gender: row.gender || "",
-        allergies: row.allergies || "",
         address: row.address || "",
         parentEmail: row.parentEmail || "",
         parentBName: row.parentBName || "",

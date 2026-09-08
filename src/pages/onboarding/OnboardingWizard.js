@@ -39,6 +39,7 @@ function OnboardingWizard() {
     ganName: "",
     childrenCount: "",
     staffCount: "",
+    allergiesNote: "",
     hasGroups: null,
     institutionType: "gan",
     groups: [],

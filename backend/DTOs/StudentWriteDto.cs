@@ -35,8 +35,8 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(20, ErrorMessage = "שדה המין ארוך מדי")]
         public string Gender { get; set; } = string.Empty;
 
-        [StringLength(200, ErrorMessage = "שדה האלרגיות ארוך מדי")]
-        public string Allergies { get; set; } = string.Empty;
+        // אלרגיות ברמת הילד הוסרו (09.09.2026, החלטת בעלת המוצר): לא אוספים ולא
+        // מציגים אלרגיה לכל ילד. במקומן יש הערת אלרגיות אחת לכל המוסד (Group.AllergiesNote).
 
         [StringLength(150, ErrorMessage = "הכתובת ארוכה מדי")]
         public string Address { get; set; } = string.Empty;

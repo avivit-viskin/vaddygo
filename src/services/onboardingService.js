@@ -17,6 +17,7 @@ function toGroupPayload(data) {
     city: data.city.trim(),
     childrenCount: Number(data.childrenCount) || 0,
     staffCount: Number(data.staffCount) || 0,
+    allergiesNote: (data.allergiesNote || "").trim(),
     subgroups: data.hasGroups ? data.groups : [],
     categories: data.categories
       .filter((c) => Number(c.amount) > 0)
@@ -126,6 +127,7 @@ function groupToOnboardingData(group) {
     city: group.city || "",
     childrenCount: String(group.childrenCount ?? ""),
     staffCount: String(group.staffCount ?? ""),
+    allergiesNote: group.allergiesNote || "",
     hasGroups: Array.isArray(group.subgroups) && group.subgroups.length > 0,
     groups: group.subgroups || [],
     categories: (group.categories || []).map((c) => ({

@@ -72,6 +72,16 @@ function GanDetailsStep({ data, errors, onChange }) {
         onChange={(e) => onChange({ staffCount: e.target.value })}
         error={errors.staffCount}
       />
+      <p className="wizard__question" style={{ marginTop: 6 }}>
+        האם יש אלרגיות במוסד?
+      </p>
+      <Input
+        id="ob-allergies"
+        label="אם יש — אפשר לכתוב כאן (יוצג באדום ברשימת התלמידים)"
+        placeholder="למשל: אלרגיה לבוטנים, לאגוזים ולביצים"
+        value={data.allergiesNote || ""}
+        onChange={(e) => onChange({ allergiesNote: e.target.value })}
+      />
     </>
   );
 }

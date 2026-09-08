@@ -719,6 +719,74 @@ button.vendor-form__remove {
   color: #1f8a4c;
 }
 
+/* הערת אלרגיות ברמת המוסד — אדום ובולט בראש רשימת התלמידים */
+.allergy-banner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 16px;
+  padding: 12px 16px;
+  border-radius: 12px;
+  background: var(--color-error-bg);
+  border: 1px solid var(--color-error);
+  color: var(--color-error);
+}
+.allergy-banner__icon {
+  display: inline-flex;
+  flex: none;
+}
+.allergy-banner__text {
+  flex: 1;
+  line-height: 1.4;
+  color: var(--color-text);
+}
+.allergy-banner__text strong {
+  color: var(--color-error);
+  font-weight: 700;
+}
+.allergy-banner__edit {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-error);
+  text-decoration: underline;
+  font: inherit;
+  padding: 2px 6px;
+  flex: none;
+}
+.allergy-banner--add {
+  background: transparent;
+  border: none;
+  padding: 0;
+  margin: 0 0 14px;
+}
+.allergy-banner--edit {
+  display: block;
+}
+.allergy-banner__label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+.allergy-banner__input {
+  width: 100%;
+  box-sizing: border-box;
+  resize: vertical;
+  font: inherit;
+  border: 1px solid var(--color-error);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: #fff;
+  color: var(--color-text);
+}
+.allergy-banner__actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 10px;
+}
+
 /* תג סטטוס תשלום ליד שם התלמיד: אפור=חלקי/אין, ירוק=שולם הכל */
 .pay-badge {
   display: inline-block;

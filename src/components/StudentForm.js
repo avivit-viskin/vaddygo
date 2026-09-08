@@ -46,7 +46,6 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
         // שדות נוספים (מיובאים מקובץ משרד החינוך; כולם לא חובה)
         gender: initialStudent?.gender ?? "",
-        allergies: initialStudent?.allergies ?? "",
         address: initialStudent?.address ?? "",
         parentEmail: initialStudent?.parentEmail ?? "",
         parentBName: initialStudent?.parentBName ?? "",
@@ -160,14 +159,6 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
           name="gender"
           label="מין"
           value={values.gender}
-          onChange={handleChange}
-        />
-        <Input
-          id="student-allergies"
-          name="allergies"
-          label="אלרגיות"
-          placeholder="למשל: בוטנים, ביצים"
-          value={values.allergies}
           onChange={handleChange}
         />
         <Input

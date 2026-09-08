@@ -118,11 +118,6 @@ function StudentCard({
               )}
             </span>
           )}
-          {student.allergies && (
-            <small className="student-card__allergies">
-              <Icon name="warning" size={13} /> אלרגיות: {student.allergies}
-            </small>
-          )}
           </div>
         </div>
         <div className="student-card__actions">

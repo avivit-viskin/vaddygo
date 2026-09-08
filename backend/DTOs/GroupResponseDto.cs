@@ -53,6 +53,9 @@ namespace ParentCommitteeAPI.DTOs
         // תקציבי החגים של הוועד: מפתח "שם|שנה עברית" → סכום
         public Dictionary<string, decimal> HolidayBudgets { get; set; } = new();
 
+        // הערת אלרגיות כללית למוסד (מוצגת באדום ברשימת התלמידים). null/ריק = אין.
+        public string? AllergiesNote { get; set; }
+
         // חשבון סליקת האשראי של הוועד — מוחזרים רק פרטים לא-סודיים + דגל "מוגדר".
         // המפתחות (ApiKey/SecretKey) לעולם לא מוחזרים ללקוח.
         public string? PayProvider { get; set; }
@@ -151,6 +154,14 @@ namespace ParentCommitteeAPI.DTOs
 
         [System.ComponentModel.DataAnnotations.Range(0, 1000000)]
         public decimal? Amount { get; set; }
+    }
+
+    /* עדכון הערת האלרגיות הכללית של המוסד (מסך התלמידים) — טקסט חופשי, ריק = הסרה. */
+    public class GroupAllergiesNoteDto
+    {
+        [System.ComponentModel.DataAnnotations.StringLength(500,
+            ErrorMessage = "הערת האלרגיות ארוכה מדי")]
+        public string? AllergiesNote { get; set; }
     }
 
     /* עדכון מספר הילדים בגן (מסך הגדרות) — משפיע על חישוב היעד/החוב. */

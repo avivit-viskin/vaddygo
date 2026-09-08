@@ -1,5 +1,6 @@
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
+using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
 
@@ -75,6 +76,9 @@ namespace ParentCommitteeAPI.Services
                 ChildrenCount = dto.ChildrenCount,
                 StaffCount = dto.StaffCount,
                 Subgroups = string.Join(",", dto.Subgroups.Select(s => s.Trim()).Where(s => s.Length > 0)),
+                AllergiesNote = string.IsNullOrWhiteSpace(dto.AllergiesNote)
+                    ? null
+                    : FieldEncryption.Protect(dto.AllergiesNote.Trim()),
                 Categories = dto.Categories.Select(c => new CollectionCategory
                 {
                     Name = c.Name.Trim(),
@@ -194,6 +198,29 @@ namespace ParentCommitteeAPI.Services
             _logger.LogInformation(
                 "Group children count updated (Id: {GroupId}, Count: {Count})",
                 id, dto.ChildrenCount);
+            return ToResponse(group, await OwnerTrialAsync(group));
+        }
+
+        /*
+          עדכון הערת האלרגיות הכללית של המוסד (מסך התלמידים). מוצגת באדום לכל
+          חברות הוועד. הרשאת עריכה: בעלים/מנהל/עורך; "צופה" נחסם. ריק = הסרה.
+          נשמרת מוצפנת במנוחה (מידע רפואי), כמו אלרגיות התלמיד לשעבר.
+        */
+        public async Task<GroupResponseDto?> UpdateAllergiesNoteAsync(int id, GroupAllergiesNoteDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
+
+            var note = (dto.AllergiesNote ?? string.Empty).Trim();
+            group.AllergiesNote = note.Length == 0 ? null : FieldEncryption.Protect(note);
+            await _db.SaveChangesAsync();
+            _logger.LogInformation("Group allergies note updated (Id: {GroupId})", id);
             return ToResponse(group, await OwnerTrialAsync(group));
         }
 
@@ -587,6 +614,9 @@ namespace ParentCommitteeAPI.Services
                 PayboxLink = group.PayboxLink,
                 CustomLinks = ParseCustomLinks(group.PaymentLinksJson),
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),
+                AllergiesNote = string.IsNullOrEmpty(group.AllergiesNote)
+                    ? null
+                    : FieldEncryption.Unprotect(group.AllergiesNote),
                 // חשבון הסליקה — רק פרטים לא-סודיים + דגל "מוגדר"; לעולם לא המפתחות
                 PayProvider = group.PayProvider,
                 PayPageUid = group.PayPageUid,

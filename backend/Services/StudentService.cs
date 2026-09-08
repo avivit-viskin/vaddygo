@@ -148,7 +148,8 @@ namespace ParentCommitteeAPI.Services
             student.BirthDate = dto.BirthDate;
             // שדות משרד החינוך
             student.Gender = dto.Gender.Trim();
-            student.Allergies = FieldEncryption.Protect(dto.Allergies.Trim());
+            // אלרגיות ברמת הילד לא נאספות עוד (09.09.2026) — יש הערת אלרגיות למוסד.
+            // עמודת Student.Allergies נשארת במסד לנתונים קיימים אך אינה נכתבת/נקראת.
             student.Address = FieldEncryption.Protect(dto.Address.Trim());
             student.ParentEmail = FieldEncryption.Protect(dto.ParentEmail.Trim());
             student.ParentBName = dto.ParentBName.Trim();
@@ -168,7 +169,6 @@ namespace ParentCommitteeAPI.Services
             ParentPhoneNumber = FieldEncryption.Unprotect(student.ParentPhoneNumber),
             BirthDate = student.BirthDate,
             Gender = student.Gender,
-            Allergies = FieldEncryption.Unprotect(student.Allergies),
             Address = FieldEncryption.Unprotect(student.Address),
             ParentEmail = FieldEncryption.Unprotect(student.ParentEmail),
             ParentBName = student.ParentBName,

@@ -3,20 +3,25 @@ import Card from "../../components/Card";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
 import { formatShekels } from "../../services/format";
+import ExpenseModal from "./ExpenseModal";
 
 /*
-  SubgroupBreakdown — פילוח הגבייה לפי קבוצות הגן (תינוקייה/פעוטות/צהרון...):
-  לכל קבוצה כמה ילדים משויכים אליה, כמה צריך לגבות (הסכום-לילד של הקבוצה ×
-  מספר הילדים) וכמה כבר נגבה. לחיצה על קבוצה פותחת חלון עם ה"מצב הכספי" שלה
-  (כמו דף הבית): יעד, נגבה, חוב פתוח והתקדמות. מוצג רק כשיש קבוצות עם ילדים.
+  SubgroupBreakdown — פילוח הגבייה לפי קבוצות הגן (תינוקייה/פעוטות/צהרון...).
+  לכל קבוצה: מספר ילדים, בר התקדמות וכמה נגבה מול היעד. לחיצה על קבוצה פותחת
+  את "כרטיס הקבוצה" — מצב כספי מלא (יתרת קופה, חוב פתוח, יעד, הוצאות) עם אפשרות
+  לעדכן יתרה (רישום הוצאה שמשויכת לקבוצה ויורדת מיתרת הקופה שלה). מוצג רק
+  כשיש קבוצות עם ילדים.
 */
-function SubgroupBreakdown({ subgroups }) {
+function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
   const rows = (subgroups || []).filter((s) => (Number(s.childrenCount) || 0) > 0);
-  const [selected, setSelected] = useState(null);
+  const [selectedName, setSelectedName] = useState(null);
 
   if (rows.length === 0) {
     return null;
   }
+
+  // נגזר מה-props כדי שהכרטיס יתעדכן אוטומטית אחרי רישום הוצאה (רענון הדשבורד)
+  const selected = rows.find((r) => r.name === selectedName) || null;
 
   return (
     <Card
@@ -30,24 +35,35 @@ function SubgroupBreakdown({ subgroups }) {
         {rows.map((sg) => {
           const target = Number(sg.targetAmount) || 0;
           const collected = Number(sg.collectedAmount) || 0;
+          const percent =
+            target > 0 ? Math.min(100, Math.round((collected / target) * 100)) : 0;
           return (
-            <li key={sg.name} className="subgroups__item">
+            <li key={sg.name}>
               <button
                 type="button"
-                className="subgroups__row"
-                onClick={() => setSelected(sg)}
-                aria-label={`פרטי הקבוצה ${sg.name}`}
+                className="subgroup-row"
+                onClick={() => setSelectedName(sg.name)}
               >
-                <div className="subgroups__head">
-                  <span className="subgroups__name">{sg.name}</span>
-                  <span className="subgroups__count">{sg.childrenCount} ילדים</span>
+                <div className="subgroup-row__head">
+                  <span className="subgroup-row__name">{sg.name}</span>
+                  <span className="subgroup-row__chip">{sg.childrenCount} ילדים</span>
+                  <Icon name="chart" size={16} className="subgroup-row__go" />
                 </div>
-                <span className="subgroups__amounts">
-                  נגבה {formatShekels(collected)} מתוך {formatShekels(target)}
-                </span>
-                <span className="subgroups__more" aria-hidden="true">
-                  לחצו לפרטים ‹
-                </span>
+                <div
+                  className="subgroup-row__bar"
+                  role="progressbar"
+                  aria-valuenow={percent}
+                  aria-valuemin={0}
+                  aria-valuemax={100}
+                >
+                  <div className="subgroup-row__fill" style={{ width: `${percent}%` }} />
+                </div>
+                <div className="subgroup-row__amounts">
+                  <span className="subgroup-row__collected">
+                    {formatShekels(collected)}
+                  </span>
+                  <span className="subgroup-row__of">מתוך {formatShekels(target)}</span>
+                </div>
               </button>
             </li>
           );
@@ -56,52 +72,98 @@ function SubgroupBreakdown({ subgroups }) {
 
       <SubgroupDetailModal
         subgroup={selected}
-        onClose={() => setSelected(null)}
+        onClose={() => setSelectedName(null)}
+        onExpenseChanged={onExpenseChanged}
+        readOnly={readOnly}
       />
     </Card>
   );
 }
 
-/* חלון פרטי קבוצה — המצב הכספי שלה כמו דף הבית (יעד/נגבה/חוב פתוח/התקדמות). */
-function SubgroupDetailModal({ subgroup, onClose }) {
+/* כרטיס הקבוצה — מצב כספי מלא + עדכון יתרה (רישום הוצאה משויכת לקבוצה). */
+function SubgroupDetailModal({ subgroup, onClose, onExpenseChanged, readOnly }) {
+  const [expenseOpen, setExpenseOpen] = useState(false);
+
   if (!subgroup) {
     return null;
   }
   const target = Number(subgroup.targetAmount) || 0;
   const collected = Number(subgroup.collectedAmount) || 0;
+  const spent = Number(subgroup.spentAmount) || 0;
+  const boxBalance = collected - spent;
   const openDebt = Math.max(0, target - collected);
   const percent = target > 0 ? Math.min(100, Math.round((collected / target) * 100)) : 0;
 
   return (
-    <Modal isOpen onClose={onClose} title={`קבוצה: ${subgroup.name}`}>
-      <p className="subgroup-detail__count">{subgroup.childrenCount} ילדים בקבוצה</p>
-      <div className="subgroup-detail__grid">
-        <div className="subgroup-detail__stat">
-          <span className="subgroup-detail__label">יעד גבייה</span>
-          <span className="subgroup-detail__value">{formatShekels(target)}</span>
+    <Modal isOpen onClose={onClose} title={`קבוצת ${subgroup.name}`}>
+      <div className="subgroup-card">
+        <div className="subgroup-card__top">
+          <div className="subgroup-card__balance">
+            <div>
+              <p className="collection__label">יתרת הקופה</p>
+              <p
+                className={`collection__amount collection__amount--${
+                  boxBalance < 0 ? "negative" : "positive"
+                }`}
+              >
+                {formatShekels(boxBalance)}
+              </p>
+            </div>
+            <div>
+              <p className="collection__label">חוב פתוח</p>
+              <p className="collection__amount collection__amount--debt">
+                {formatShekels(openDebt)}
+              </p>
+            </div>
+          </div>
+          {!readOnly && (
+            <button
+              type="button"
+              className="collection__edit"
+              onClick={() => setExpenseOpen(true)}
+            >
+              <Icon name="pencil" size={15} /> עדכון יתרה
+            </button>
+          )}
         </div>
-        <div className="subgroup-detail__stat">
-          <span className="subgroup-detail__label">נגבה עד כה</span>
-          <span className="subgroup-detail__value subgroup-detail__value--good">
-            {formatShekels(collected)}
-          </span>
+
+        <div
+          className="progress"
+          role="progressbar"
+          aria-valuenow={percent}
+          aria-valuemin={0}
+          aria-valuemax={100}
+        >
+          <div className="progress__fill" style={{ width: `${percent}%` }} />
         </div>
-        <div className="subgroup-detail__stat">
-          <span className="subgroup-detail__label">חוב פתוח</span>
-          <span className="subgroup-detail__value subgroup-detail__value--debt">
-            {formatShekels(openDebt)}
-          </span>
-        </div>
+        <p className="progress__text">{percent}% מהיעד נגבה</p>
+
+        <ul className="subgroup-stats">
+          <li className="subgroup-stats__item">
+            <span className="subgroup-stats__label">יעד גבייה</span>
+            <span className="subgroup-stats__value">{formatShekels(target)}</span>
+          </li>
+          <li className="subgroup-stats__item">
+            <span className="subgroup-stats__label">נגבה עד כה</span>
+            <span className="subgroup-stats__value">{formatShekels(collected)}</span>
+          </li>
+          <li className="subgroup-stats__item">
+            <span className="subgroup-stats__label">הוצאות הקבוצה</span>
+            <span className="subgroup-stats__value">{formatShekels(spent)}</span>
+          </li>
+          <li className="subgroup-stats__item">
+            <span className="subgroup-stats__label">ילדים בקבוצה</span>
+            <span className="subgroup-stats__value">{subgroup.childrenCount}</span>
+          </li>
+        </ul>
       </div>
-      <div className="subgroup-detail__progress">
-        <div className="subgroup-detail__bar">
-          <div
-            className="subgroup-detail__fill"
-            style={{ width: `${percent}%` }}
-          />
-        </div>
-        <span className="subgroup-detail__percent">{percent}% נגבו</span>
-      </div>
+
+      <ExpenseModal
+        isOpen={expenseOpen}
+        onClose={() => setExpenseOpen(false)}
+        onSaved={onExpenseChanged}
+        subgroupName={subgroup.name}
+      />
     </Modal>
   );
 }

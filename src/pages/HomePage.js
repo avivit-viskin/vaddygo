@@ -153,7 +153,11 @@ function HomePage() {
         readOnly={readOnly}
       />
       <CategoryList categories={dashboard.byCategory} />
-      <SubgroupBreakdown subgroups={dashboard.bySubgroup} />
+      <SubgroupBreakdown
+        subgroups={dashboard.bySubgroup}
+        onExpenseChanged={refreshAll}
+        readOnly={readOnly}
+      />
       <StaffBirthdays onChanged={refreshAll} readOnly={readOnly} />
       <ExpensesList
         refreshSignal={expensesVersion}

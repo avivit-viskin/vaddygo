@@ -22,8 +22,19 @@ import {
   ExpenseModal — "עדכון יתרת הקופה": רישום הוצאה (כמה יצא ומאיזה אמצעי),
   והיסטוריית ההוצאות שאפשר למחוק. אחרי כל שינוי מרעננים את מסך הבית (onSaved)
   כדי שהיתרה והקוביות יתעדכנו.
+
+  subgroupName (אופציונלי) — כשמלא, ההוצאה משויכת לקבוצה הזו (יורדת מיתרת הקופה
+  שלה בפירוט "גבייה לפי קבוצות"), וההיסטוריה מציגה רק את הוצאות אותה קבוצה.
 */
-function ExpenseModal({ isOpen, onClose, onSaved }) {
+/* בעדכון-יתרה של קבוצה מציגים רק את הוצאות אותה קבוצה; במסך הכללי — הכול. */
+function filterBySubgroup(list, subgroupName) {
+  if (!subgroupName) {
+    return list;
+  }
+  return (list || []).filter((e) => e.subgroupName === subgroupName);
+}
+
+function ExpenseModal({ isOpen, onClose, onSaved, subgroupName = null }) {
   const [amount, setAmount] = useState("");
   const [method, setMethod] = useState("bit");
   const [category, setCategory] = useState("");
@@ -49,10 +60,10 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     setError("");
     setEditingId(null);
     getExpenses()
-      .then(setHistory)
+      .then((list) => setHistory(filterBySubgroup(list, subgroupName)))
       .catch(() => setHistory([]));
     getCollectionCategoryNames().then(setCollectionCategories);
-  }, [isOpen]);
+  }, [isOpen, subgroupName]);
 
   function resetForm() {
     setEditingId(null);
@@ -75,7 +86,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
 
   async function reloadHistory() {
     try {
-      setHistory(await getExpenses());
+      setHistory(filterBySubgroup(await getExpenses(), subgroupName));
     } catch {
       // אם השרת לא זמין — משאירים את מה שיש
     }
@@ -96,6 +107,7 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
         method,
         category,
         description: description.trim(),
+        ...(subgroupName ? { subgroupName } : {}),
       };
       if (editingId != null) {
         await updateExpense(editingId, payload);
@@ -134,7 +146,11 @@ function ExpenseModal({ isOpen, onClose, onSaved }) {
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="כדאי לעדכן כדי שנמשיך לנהל נכון"
+      title={
+        subgroupName
+          ? `עדכון יתרה — קבוצת ${subgroupName}`
+          : "כדאי לעדכן כדי שנמשיך לנהל נכון"
+      }
     >
       <form onSubmit={handleSubmit} noValidate>
         <Input

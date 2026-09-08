@@ -10,11 +10,26 @@ import { patchOnboarding } from "../../services/onboardingService";
 /*
   SubgroupsCard — עריכת החלוקה לקבוצות של המוסד ממסך ההגדרות (פרטי המוסד).
   מי שלא חילק בהקמה — יכול להוסיף כאן; אפשר לכתוב כל שם חופשי (למשל "צהרון").
-  התלמידים משויכים לקבוצות האלה (ברשימת התלמידים). לא משנה תשלומים/חוב.
+  לכל קבוצה אפשר גם לקבוע סכום גבייה משלה (כי מכל קבוצה גובים אחרת) — ריק =
+  סכום הקטגוריות הרגיל. השרת מחשב לפי זה את היעד/החוב (מסתנכרן עם היתרה).
 */
+
+/* המרת { name, amount } מהשרת (subgroups + subgroupAmounts) לשורות העריכה */
+function toRows(group) {
+  const names = Array.isArray(group?.subgroups) ? group.subgroups : [];
+  const amounts = group?.subgroupAmounts || {};
+  return names.map((name) => ({
+    name,
+    amount:
+      amounts[name] != null && Number(amounts[name]) > 0
+        ? String(amounts[name])
+        : "",
+  }));
+}
+
 function SubgroupsCard() {
   const [groupId, setGroupId] = useState(null);
-  const [names, setNames] = useState([]);
+  const [rows, setRows] = useState([]);
   const [isSaving, setIsSaving] = useState(false);
   const [saved, setSaved] = useState(false);
   const [error, setError] = useState("");
@@ -27,36 +42,45 @@ function SubgroupsCard() {
           (groups || []).find((g) => g.id === activeId) ?? (groups || [])[0];
         if (active) {
           setGroupId(active.id);
-          setNames(Array.isArray(active.subgroups) ? active.subgroups : []);
+          setRows(toRows(active));
         }
       })
       .catch(() => {});
   }, []);
 
   function touched(next) {
-    setNames(next);
+    setRows(next);
     setSaved(false);
     setError("");
   }
-  const addGroup = () => touched([...names, ""]);
-  const updateGroup = (i, value) =>
-    touched(names.map((n, idx) => (idx === i ? value : n)));
-  const removeGroup = (i) => touched(names.filter((_, idx) => idx !== i));
+  const addGroup = () => touched([...rows, { name: "", amount: "" }]);
+  const updateField = (i, field, value) =>
+    touched(rows.map((r, idx) => (idx === i ? { ...r, [field]: value } : r)));
+  const removeGroup = (i) => touched(rows.filter((_, idx) => idx !== i));
 
   async function handleSave() {
-    const unique = [...new Set(names.map((n) => n.trim()).filter(Boolean))];
+    // מסננים שורות ריקות ומאחדים שמות כפולים (הראשון מנצח על הסכום)
+    const seen = new Set();
+    const clean = [];
+    for (const r of rows) {
+      const name = (r.name || "").trim();
+      if (!name || seen.has(name)) continue;
+      seen.add(name);
+      clean.push({ name, amount: r.amount });
+    }
     setIsSaving(true);
     setSaved(false);
     setError("");
     try {
-      const group = await updateSubgroups(groupId, unique);
-      const savedList = Array.isArray(group.subgroups) ? group.subgroups : unique;
-      setNames(savedList);
+      const group = await updateSubgroups(groupId, clean);
+      const savedRows = toRows(group);
+      setRows(savedRows);
+      const savedNames = savedRows.map((r) => r.name);
       // מעדכנים את המטמון כדי שהמסכים האחרים (טופס/סינון) יראו את הקבוצות מיד
       patchOnboarding({
-        groups: savedList,
-        subgroups: savedList,
-        hasGroups: savedList.length > 0,
+        groups: savedNames,
+        subgroups: savedNames,
+        hasGroups: savedNames.length > 0,
       });
       setSaved(true);
     } catch (err) {
@@ -76,12 +100,13 @@ function SubgroupsCard() {
     >
       <p className="settings__hint">
         חלוקת המוסד לקבוצות (למשל: תינוקייה / פעוטות / צהרון). אפשר לכתוב כל שם.
-        אחר כך משייכים כל תלמיד לקבוצה ברשימת התלמידים.
+        אפשר גם לקבוע לכל קבוצה כמה גובים ממנה — אם משאירים ריק, גובים את סכום
+        הקטגוריות הרגיל. אחר כך משייכים כל תלמיד לקבוצה ברשימת התלמידים.
       </p>
-      {names.length === 0 && (
+      {rows.length === 0 && (
         <p className="settings__hint">עדיין אין קבוצות — אפשר להוסיף למטה.</p>
       )}
-      {names.map((name, i) => (
+      {rows.map((row, i) => (
         <div
           key={i}
           style={{ display: "flex", gap: 8, alignItems: "flex-end", marginBottom: 8 }}
@@ -90,9 +115,20 @@ function SubgroupsCard() {
             <Input
               id={`settings-subgroup-${i}`}
               label={`קבוצה ${i + 1}`}
-              value={name}
-              onChange={(e) => updateGroup(i, e.target.value)}
+              value={row.name}
+              onChange={(e) => updateField(i, "name", e.target.value)}
               placeholder="למשל: צהרון"
+            />
+          </div>
+          <div style={{ width: 120, flexShrink: 0 }}>
+            <Input
+              id={`settings-subgroup-amount-${i}`}
+              label="כמה נגבה (₪)"
+              type="number"
+              min="0"
+              value={row.amount}
+              onChange={(e) => updateField(i, "amount", e.target.value)}
+              placeholder="רגיל"
             />
           </div>
           <button

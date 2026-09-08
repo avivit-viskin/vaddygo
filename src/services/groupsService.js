@@ -34,10 +34,18 @@ export function updateChildrenCount(groupId, childrenCount) {
 }
 
 /*
-  עדכון החלוקה לקבוצות של הגן (שמות חופשיים). מחזיר את הגן המעודכן.
+  עדכון החלוקה לקבוצות של הגן: לכל קבוצה שם + סכום גבייה אופציונלי (0/ריק =
+  סכום הקטגוריות הרגיל). מקבל מערך של { name, amount } ומחזיר את הגן המעודכן.
 */
-export function updateSubgroups(groupId, subgroups) {
-  return api.put(`/api/groups/${groupId}/subgroups`, { subgroups });
+export function updateSubgroups(groupId, groups) {
+  const payload = (groups || []).map((g) => ({
+    name: (g.name || "").trim(),
+    amount:
+      g.amount === "" || g.amount == null || Number.isNaN(Number(g.amount))
+        ? null
+        : Number(g.amount),
+  }));
+  return api.put(`/api/groups/${groupId}/subgroups`, { groups: payload });
 }
 
 /*

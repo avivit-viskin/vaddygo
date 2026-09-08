@@ -618,6 +618,86 @@
   font-size: var(--font-size-lg);
 }
 
+/* ── "על מה הוציאו" בכרטיס הקבוצה ── */
+.subgroup-spent {
+  margin-top: 18px;
+}
+
+.subgroup-spent__title {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 0 10px;
+  font-size: var(--font-size-base);
+  font-weight: 700;
+}
+
+.subgroup-spent__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.subgroup-spent__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subgroup-spent__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.subgroup-spent__info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  flex: 1;
+}
+
+.subgroup-spent__amount {
+  font-weight: 700;
+}
+
+.subgroup-spent__meta {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.subgroup-spent__date {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+
+.subgroup-spent__delete {
+  flex-shrink: 0;
+  width: 28px;
+  height: 28px;
+  border: none;
+  border-radius: 8px;
+  background: none;
+  color: var(--color-error);
+  font-size: var(--font-size-base);
+  cursor: pointer;
+}
+
+.subgroup-spent__delete:hover {
+  background: var(--color-error-bg);
+}
+
 /* ── צוות וימי הולדת ────────────────────────────────────── */
 
 .staff {

@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Card from "../../components/Card";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
-import { formatShekels } from "../../services/format";
+import ConfirmDialog from "../../components/ConfirmDialog";
+import { formatShekels, formatDayMonth } from "../../services/format";
+import { paymentMethodLabel } from "../../services/paymentMethods";
+import { getExpenses, deleteExpense } from "../../services/expensesService";
 import ExpenseModal from "./ExpenseModal";
 
 /*
@@ -83,6 +86,46 @@ function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
 /* כרטיס הקבוצה — מצב כספי מלא + עדכון יתרה (רישום הוצאה משויכת לקבוצה). */
 function SubgroupDetailModal({ subgroup, onClose, onExpenseChanged, readOnly }) {
   const [expenseOpen, setExpenseOpen] = useState(false);
+  const [expenses, setExpenses] = useState([]);
+  const [toDelete, setToDelete] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const name = subgroup?.name;
+
+  // רשימת "על מה הוציאו" של הקבוצה — הוצאות ששויכו לקבוצה הזו
+  const loadExpenses = useCallback(() => {
+    if (!name) {
+      return;
+    }
+    getExpenses()
+      .then((list) =>
+        setExpenses((list || []).filter((e) => e.subgroupName === name))
+      )
+      .catch(() => setExpenses([]));
+  }, [name]);
+
+  useEffect(() => {
+    loadExpenses();
+  }, [loadExpenses]);
+
+  // אחרי רישום/מחיקת הוצאה: לרענן גם את הדשבורד (המספרים) וגם את הרשימה כאן
+  const afterExpenseChange = () => {
+    if (onExpenseChanged) {
+      onExpenseChanged();
+    }
+    loadExpenses();
+  };
+
+  async function confirmDelete() {
+    setIsDeleting(true);
+    try {
+      await deleteExpense(toDelete.id);
+      setToDelete(null);
+      afterExpenseChange();
+    } finally {
+      setIsDeleting(false);
+    }
+  }
 
   if (!subgroup) {
     return null;
@@ -156,13 +199,67 @@ function SubgroupDetailModal({ subgroup, onClose, onExpenseChanged, readOnly }) 
             <span className="subgroup-stats__value">{subgroup.childrenCount}</span>
           </li>
         </ul>
+
+        <div className="subgroup-spent">
+          <h3 className="subgroup-spent__title">
+            <Icon name="wallet" size={16} /> על מה הוציאו בקבוצה
+          </h3>
+          {expenses.length === 0 ? (
+            <p className="subgroup-spent__empty">
+              עדיין לא נרשמו הוצאות לקבוצה הזו.
+            </p>
+          ) : (
+            <ul className="subgroup-spent__list">
+              {expenses.map((e) => (
+                <li key={e.id} className="subgroup-spent__item">
+                  <div className="subgroup-spent__info">
+                    <span className="subgroup-spent__amount">
+                      {formatShekels(e.amount)}
+                    </span>
+                    <span className="subgroup-spent__meta">
+                      {e.category ? `${e.category} · ` : ""}
+                      {paymentMethodLabel(e.method)}
+                      {e.description ? ` · ${e.description}` : ""}
+                    </span>
+                  </div>
+                  <span className="subgroup-spent__date">
+                    {formatDayMonth(e.date)}
+                  </span>
+                  {!readOnly && (
+                    <button
+                      type="button"
+                      className="subgroup-spent__delete"
+                      aria-label="מחיקת הוצאה"
+                      onClick={() => setToDelete(e)}
+                    >
+                      ✕
+                    </button>
+                  )}
+                </li>
+              ))}
+            </ul>
+          )}
+        </div>
       </div>
 
       <ExpenseModal
         isOpen={expenseOpen}
         onClose={() => setExpenseOpen(false)}
-        onSaved={onExpenseChanged}
+        onSaved={afterExpenseChange}
         subgroupName={subgroup.name}
+      />
+
+      <ConfirmDialog
+        isOpen={toDelete !== null}
+        title="מחיקת הוצאה"
+        message={
+          toDelete
+            ? `למחוק את ההוצאה על סך ${formatShekels(toDelete.amount)}? אפשר לשחזר מסל המיחזור.`
+            : ""
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setToDelete(null)}
+        isLoading={isDeleting}
       />
     </Modal>
   );

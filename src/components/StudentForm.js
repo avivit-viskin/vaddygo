@@ -5,8 +5,8 @@ import Button from "./Button";
 /* פורמט טלפון נייד ישראלי: 05X-XXXXXXX (המקף אופציונלי) — זהה לוולידציה בשרת. */
 const ISRAELI_MOBILE_PATTERN = /^05\d-?\d{7}$/;
 
-/* hasGroups=true → שדה הקבוצה חובה (רק כשהמוסד מחולק לקבוצות). */
-export function validateStudent(values, hasGroups = false) {
+/* בחירת קבוצה אינה חובה — תלמיד בלי קבוצה שייך אוטומטית לקבוצה הכללית. */
+export function validateStudent(values) {
   const errors = {};
 
   if (!values.firstName.trim()) {
@@ -14,9 +14,6 @@ export function validateStudent(values, hasGroups = false) {
   }
   if (!values.lastName.trim()) {
     errors.lastName = "שם משפחה הוא שדה חובה";
-  }
-  if (hasGroups && !values.className.trim()) {
-    errors.className = "יש לבחור קבוצה";
   }
 
   const phone = values.parentPhoneNumber.trim();
@@ -57,8 +54,12 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         parentBEmail: initialStudent?.parentBEmail ?? "",
         parentsMarried: initialStudent?.parentsMarried ?? "",
       },
-      (v) => validateStudent(v, hasGroups)
+      (v) => validateStudent(v)
     );
+
+  // הסרת התלמיד מהקבוצה → חוזר לקבוצה הכללית (שדה הקבוצה מתרוקן)
+  const clearGroup = () =>
+    handleChange({ target: { name: "className", value: "" } });
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate>
@@ -97,23 +98,44 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
       />
       {hasGroups && (
         <>
-          {/* בחירה מהרשימה או כתיבה חופשית של קבוצה חדשה (למשל "צהרון") */}
+          {/* בחירה מהרשימה או כתיבה חופשית של קבוצה חדשה (למשל "צהרון").
+              לא חובה — ריק = הקבוצה הכללית. */}
           <Input
             id="student-class-name"
             name="className"
-            label="קבוצה"
+            label="קבוצה (לא חובה)"
             value={values.className}
             onChange={handleChange}
             error={errors.className}
             list="student-groups-list"
             autoComplete="off"
-            placeholder="לבחור מהרשימה או לכתוב קבוצה חדשה"
+            placeholder="ריק = הקבוצה הכללית"
           />
           <datalist id="student-groups-list">
             {subgroups.map((group) => (
               <option key={group} value={group} />
             ))}
           </datalist>
+          {values.className.trim() && (
+            <button
+              type="button"
+              onClick={clearGroup}
+              style={{
+                marginTop: -6,
+                marginBottom: 12,
+                background: "none",
+                border: "none",
+                padding: 0,
+                color: "var(--color-primary-dark)",
+                font: "inherit",
+                fontSize: "var(--font-size-sm)",
+                textDecoration: "underline",
+                cursor: "pointer",
+              }}
+            >
+              הסרה מהקבוצה (העברה לקבוצה הכללית)
+            </button>
+          )}
         </>
       )}
       <Input

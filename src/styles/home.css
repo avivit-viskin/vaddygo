@@ -497,10 +497,32 @@
   background: var(--color-surface);
   border: 1px solid var(--color-border);
   border-radius: 14px;
-  padding: 10px 12px;
+  overflow: hidden;
+}
+
+.subgroups__row {
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 2px;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+}
+
+.subgroups__row:hover {
+  background: var(--color-primary-muted);
+}
+
+.subgroups__more {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  align-self: flex-start;
+  margin-top: 2px;
 }
 
 .subgroups__head {
@@ -524,6 +546,70 @@
 .subgroups__amounts {
   color: var(--color-primary-dark);
   font-size: var(--font-size-sm);
+}
+
+/* ── חלון פרטי קבוצה (לחיצה על קבוצה) ── */
+.subgroup-detail__count {
+  color: var(--color-text-muted);
+  margin: 0 0 12px;
+}
+
+.subgroup-detail__grid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.subgroup-detail__stat {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+}
+
+.subgroup-detail__label {
+  color: var(--color-text-muted);
+}
+
+.subgroup-detail__value {
+  font-weight: 700;
+  font-size: var(--font-size-lg);
+}
+
+.subgroup-detail__value--good {
+  color: var(--color-success);
+}
+
+.subgroup-detail__value--debt {
+  color: var(--color-primary-dark);
+}
+
+.subgroup-detail__progress {
+  margin-top: 14px;
+}
+
+.subgroup-detail__bar {
+  height: 10px;
+  background: var(--color-border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.subgroup-detail__fill {
+  height: 100%;
+  background: var(--color-primary);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.subgroup-detail__percent {
+  display: block;
+  margin-top: 6px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
 }
 
 /* ── צוות וימי הולדת ────────────────────────────────────── */

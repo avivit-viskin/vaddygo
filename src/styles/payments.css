@@ -23,6 +23,26 @@
   color: var(--color-text-muted);
 }
 
+/* תוספת הקבוצה של התלמיד (למשל צהרון +300) — הבהרה מעל שורות הקטגוריות */
+.payments__addon {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 10px 12px;
+  background: var(--color-primary-muted);
+  border: 1px solid var(--color-primary-light);
+  border-radius: 12px;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
+.payments__addon svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: var(--color-primary-dark);
+}
+
 /* ===== שורת תשלום לקטגוריה ===== */
 
 .payment-row {

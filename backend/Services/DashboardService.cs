@@ -72,24 +72,23 @@ namespace ParentCommitteeAPI.Services
 
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
 
-            /* אופציה 1 — סכום גבייה שונה לכל קבוצה. ילדים בקבוצה שהוגדר לה סכום
-               חייבים את סכום הקבוצה; שאר הילדים (מתוך מספר-הילדים המוגדר) חייבים
-               את סכום הקטגוריות הרגיל. כשאין סכומי-קבוצה — היעד זהה לקודם. */
+            /* סכום גבייה נוסף לכל קבוצה (אופציה 1) — מודל **תוספת**: כל הילדים
+               משלמים את הגבייה הכללית (סכום הקטגוריות), ובנוסף ילדי קבוצה שהוגדרה
+               לה תוספת משלמים אותה מעל לכך (למשל צהרון: 1000 כללי + 300 = 1300).
+               היעד הכולל = כל הילדים × הכללי + Σ(ילדי קבוצה × תוספת הקבוצה).
+               כשאין תוספות — היעד זהה לקודם והחלוקה לקטגוריות לא משתנה. */
             var subgroupAmounts = ParseSubgroupAmounts(group.SubgroupAmountsJson);
             var studentGroups = await _db.Students.AsNoTracking()
                 .Where(s => s.GroupId == group.Id)
                 .Select(s => new { s.Id, s.ClassName })
                 .ToListAsync();
-            var kidsInAmountGroups = 0;
-            var amountGroupsTarget = 0m;
+            var addonTarget = 0m;
             foreach (var kv in subgroupAmounts)
             {
                 var count = studentGroups.Count(s => s.ClassName == kv.Key);
-                kidsInAmountGroups += count;
-                amountGroupsTarget += count * kv.Value;
+                addonTarget += count * kv.Value;
             }
-            var remainingKids = Math.Max(0, group.ChildrenCount - kidsInAmountGroups);
-            var target = amountGroupsTarget + remainingKids * totalPerChild;
+            var target = group.ChildrenCount * totalPerChild + addonTarget;
 
             /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (סכום כל האמצעים) */
             var collected = paidPayments.Sum(PaidTotal);
@@ -118,9 +117,10 @@ namespace ParentCommitteeAPI.Services
             var byCategory = group.Categories.Select(c => new DashboardCategoryDto
             {
                 Name = c.Name,
-                // היעד לקטגוריה מחושב על הילדים ששילום לפי קטגוריות (בלי ילדי
-                // הקבוצות שיש להן סכום כולל משלהן). כשאין סכומי-קבוצה — זהה לקודם.
-                TargetAmount = c.AmountPerChild * remainingKids,
+                // היעד לקטגוריה = הסכום-לילד × כל הילדים. הקטגוריות הן הגבייה
+                // הכללית שמשלמים כולם; תוספות הקבוצות אינן קטגוריה ולכן אינן כאן
+                // (הן מופיעות בפילוח לפי קבוצות ובסך היעד הכולל).
+                TargetAmount = c.AmountPerChild * group.ChildrenCount,
                 CollectedAmount = paidPayments
                     .Where(p => p.CollectionCategoryId == c.Id)
                     .Sum(PaidTotal),
@@ -146,8 +146,9 @@ namespace ParentCommitteeAPI.Services
             byCategory.AddRange(extraCategories);
 
             // פילוח הגבייה לפי קבוצות הגן: לכל קבוצה מספר הילדים המשויכים אליה
-            // (ClassName == שם הקבוצה), היעד (סכום-הקבוצה אם הוגדר, אחרת סכום
-            // הקטגוריות × מספר הילדים) וכמה נגבה. ריק אם לא הוגדרו קבוצות.
+            // (ClassName == שם הקבוצה), היעד (הסכום-לילד של הקבוצה = הכללי + תוספת
+            // הקבוצה אם הוגדרה) × מספר הילדים, וכמה נגבה בפועל מילדיה. ריק אם לא
+            // הוגדרו קבוצות.
             var subgroupNames = group.Subgroups
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var bySubgroup = new List<DashboardSubgroupDto>();
@@ -159,9 +160,8 @@ namespace ParentCommitteeAPI.Services
                 foreach (var sub in subgroupNames)
                 {
                     var kids = studentGroups.Where(s => s.ClassName == sub).ToList();
-                    var perChild = subgroupAmounts.TryGetValue(sub, out var amt)
-                        ? amt
-                        : totalPerChild;
+                    var perChild = totalPerChild
+                        + (subgroupAmounts.TryGetValue(sub, out var amt) ? amt : 0m);
                     bySubgroup.Add(new DashboardSubgroupDto
                     {
                         Name = sub,

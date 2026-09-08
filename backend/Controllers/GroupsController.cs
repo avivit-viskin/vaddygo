@@ -56,6 +56,17 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(updated);
         }
 
+        // PUT: api/groups/1/children-count — עדכון מספר הילדים (משפיע על היעד/החוב)
+        [HttpPut("{id}/children-count")]
+        public async Task<ActionResult<GroupResponseDto>> UpdateChildrenCount(
+            int id, [FromBody] GroupChildrenCountDto dto)
+        {
+            var updated = await _groupService.UpdateChildrenCountAsync(id, dto);
+            if (updated == null)
+                return NotFound(new { message = "גן לא נמצא" });
+            return Ok(updated);
+        }
+
         // PUT: api/groups/1/payment-links — עדכון קישורי הביט/פייבוקס של הוועד
         [HttpPut("{id}/payment-links")]
         public async Task<ActionResult<GroupResponseDto>> UpdatePaymentLinks(

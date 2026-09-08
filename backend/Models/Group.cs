@@ -48,6 +48,10 @@ namespace ParentCommitteeAPI.Models
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }
 
+        // קישורי תשלום נוספים שהוועד מוסיף בעצמו — JSON של מערך {label,url}.
+        // null/ריק = אין נוספים. נשמר כ-JSON כדי לא לדרוש טבלה/מספר קבוע.
+        public string? PaymentLinksJson { get; set; }
+
         // חשבון סליקת האשראי של הוועד — כל ועד מזין את המפתחות של *חשבון הספק
         // שלו* (המקושר לחשבון הבנק שלו), כדי שכסף הגבייה יגיע ישירות אליו.
         // הסודות נשמרים כאן ולעולם לא מוחזרים ללקוח (ראה GroupResponseDto).

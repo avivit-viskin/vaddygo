@@ -173,6 +173,30 @@ namespace ParentCommitteeAPI.Services
             return ToResponse(group, await OwnerTrialAsync(group));
         }
 
+        /*
+          עדכון מספר הילדים בגן (מסך הגדרות). משפיע ישירות על חישוב היעד/החוב
+          במסך הבית (dashboardService: יעד = מספר ילדים × סכומי הקטגוריות), ולכן
+          אחרי העדכון הפרונט מרענן את המטמון והיתרה מתעדכנת.
+        */
+        public async Task<GroupResponseDto?> UpdateChildrenCountAsync(int id, GroupChildrenCountDto dto)
+        {
+            var group = await _db.Groups
+                .Include(g => g.Categories)
+                .FirstOrDefaultAsync(g => g.Id == id);
+            if (group == null)
+            {
+                return null;
+            }
+            if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
+
+            group.ChildrenCount = dto.ChildrenCount;
+            await _db.SaveChangesAsync();
+            _logger.LogInformation(
+                "Group children count updated (Id: {GroupId}, Count: {Count})",
+                id, dto.ChildrenCount);
+            return ToResponse(group, await OwnerTrialAsync(group));
+        }
+
         public async Task<GroupResponseDto?> UpdatePaymentLinksAsync(int id, GroupPaymentLinksDto dto)
         {
             var group = await _db.Groups
@@ -189,6 +213,18 @@ namespace ParentCommitteeAPI.Services
             // מחרוזת ריקה נשמרת כ-null (== "לא הוגדר")
             group.BitLink = string.IsNullOrWhiteSpace(dto.BitLink) ? null : dto.BitLink.Trim();
             group.PayboxLink = string.IsNullOrWhiteSpace(dto.PayboxLink) ? null : dto.PayboxLink.Trim();
+
+            // קישורים נוספים: שומרים רק שורות עם שם *וגם* כתובת; ריק = מנקים (null).
+            var custom = (dto.CustomLinks ?? new())
+                .Select(l => new CustomPaymentLinkDto
+                {
+                    Label = (l.Label ?? string.Empty).Trim(),
+                    Url = (l.Url ?? string.Empty).Trim(),
+                })
+                .Where(l => l.Label.Length > 0 && l.Url.Length > 0)
+                .ToList();
+            group.PaymentLinksJson = custom.Count > 0 ? JsonSerializer.Serialize(custom) : null;
+
             await _db.SaveChangesAsync();
             _logger.LogInformation("Group payment links updated (Id: {GroupId})", id);
             return ToResponse(group, await OwnerTrialAsync(group));
@@ -406,6 +442,20 @@ namespace ParentCommitteeAPI.Services
             return new OwnerPlanDates(owner?.SubscriptionValidUntil, owner?.CreatedAt);
         }
 
+        // קישורי התשלום הנוספים נשמרים כ-JSON; פענוח בטוח (JSON שבור = רשימה ריקה).
+        private static List<CustomPaymentLinkDto> ParseCustomLinks(string? json)
+        {
+            if (string.IsNullOrWhiteSpace(json)) return new();
+            try
+            {
+                return JsonSerializer.Deserialize<List<CustomPaymentLinkDto>>(json) ?? new();
+            }
+            catch
+            {
+                return new();
+            }
+        }
+
         private static GroupResponseDto ToResponse(Group group, OwnerPlanDates owner)
         {
             var totalPerChild = group.Categories.Sum(c => c.AmountPerChild);
@@ -445,6 +495,7 @@ namespace ParentCommitteeAPI.Services
                 TrialEndsAt = ProPolicy.EffectiveTrialEnd(owner.TrialUntil, owner.RegisteredAt),
                 BitLink = group.BitLink,
                 PayboxLink = group.PayboxLink,
+                CustomLinks = ParseCustomLinks(group.PaymentLinksJson),
                 HolidayBudgets = ParseHolidayBudgets(group.HolidayBudgetsJson),
                 // חשבון הסליקה — רק פרטים לא-סודיים + דגל "מוגדר"; לעולם לא המפתחות
                 PayProvider = group.PayProvider,

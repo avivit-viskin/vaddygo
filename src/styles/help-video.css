@@ -1,0 +1,77 @@
+/*
+  סרטון ההסבר — הכפתור שפותח אותו והמסגרת שבתוכה הוא מנוגן.
+
+  הרכיב גלובלי (מופיע בתפריט, במסך התלמידים ובפופאפ הפתיחה), ולכן הוא מייבא
+  את ה-CSS הזה בעצמו ולא נשען על קובץ של עמוד מסוים — אחרי פיצול הקוד, CSS
+  של עמוד אינו נטען בכל chunk.
+*/
+
+/* גרסת קישור — משתלבת בתוך טקסט או מתחת להודעת "מצב ריק" */
+.help-video__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 4px 2px;
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-link);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.help-video__link:hover {
+  opacity: 0.85;
+}
+
+/* גרסת כפתור — כשהסרטון הוא הפעולה המוצעת ולא הערת שוליים */
+.help-video__cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 16px;
+  border-radius: var(--radius-md, 10px);
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.help-video__cta:hover {
+  border-color: var(--color-link);
+  color: var(--color-link);
+}
+
+.help-video__link:focus-visible,
+.help-video__cta:focus-visible {
+  outline: 2px solid var(--color-link);
+  outline-offset: 2px;
+}
+
+/*
+  יחס 16:9 קבוע: הגובה נקבע כאן ולא ע"י הנגן, אחרת החלון היה קופץ בגובה
+  ברגע שהסרטון נטען.
+*/
+.help-video__frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+  border-radius: var(--radius-md, 10px);
+  overflow: hidden;
+}
+
+.help-video__frame iframe,
+.help-video__frame video {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+  display: block;
+}

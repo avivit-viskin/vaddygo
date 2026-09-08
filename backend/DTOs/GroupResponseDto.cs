@@ -45,6 +45,9 @@ namespace ParentCommitteeAPI.DTOs
         public string? BitLink { get; set; }
         public string? PayboxLink { get; set; }
 
+        // קישורי תשלום נוספים שהוועד מוסיף בעצמו (שם + כתובת) — מעבר לביט/פייבוקס
+        public List<CustomPaymentLinkDto> CustomLinks { get; set; } = new();
+
         // תקציבי החגים של הוועד: מפתח "שם|שנה עברית" → סכום
         public Dictionary<string, decimal> HolidayBudgets { get; set; } = new();
 
@@ -118,6 +121,27 @@ namespace ParentCommitteeAPI.DTOs
             @"^$|^https?://.+",
             ErrorMessage = "קישור פייבוקס חייב להתחיל ב-http:// או https://")]
         public string? PayboxLink { get; set; }
+
+        // קישורים נוספים שהוועד מוסיף בעצמו (שם + כתובת). ריק/חסר = אין נוספים.
+        public List<CustomPaymentLinkDto>? CustomLinks { get; set; }
+    }
+
+    /* קישור תשלום נוסף שהוועד מגדיר: שם לתצוגה + כתובת. */
+    public class CustomPaymentLinkDto
+    {
+        [System.ComponentModel.DataAnnotations.StringLength(40)]
+        public string Label { get; set; } = string.Empty;
+
+        [System.ComponentModel.DataAnnotations.StringLength(500)]
+        public string Url { get; set; } = string.Empty;
+    }
+
+    /* עדכון מספר הילדים בגן (מסך הגדרות) — משפיע על חישוב היעד/החוב. */
+    public class GroupChildrenCountDto
+    {
+        [System.ComponentModel.DataAnnotations.Range(0, 10000,
+            ErrorMessage = "מספר הילדים חייב להיות בין 0 ל-10000")]
+        public int ChildrenCount { get; set; }
     }
 
     public class CollectionCategoryResponseDto

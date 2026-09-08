@@ -100,15 +100,11 @@ function StudentPaymentsPage() {
     buildReminderMessage(fullName, unpaid)
   );
 
-  // תוספת הקבוצה של התלמיד (למשל צהרון +300): מוצגת כדי שרואים כמה הוא חייב
-  // מעבר לקטגוריות. נכללת ביעד הגבייה של הקבוצה במסך הבית.
+  // תוספת הקבוצה של התלמיד (למשל צהרון +300): מוצגת כהבהרה מעל השורות. התוספת
+  // עצמה מופיעה כשורת תשלום נפרדת ("תוספת קבוצה — ...") שאפשר לגבות ככל קטגוריה.
   const className = student.className || "";
   const subgroupAmounts = activeGroup?.subgroupAmounts || {};
   const groupAddon = Number(subgroupAmounts[className]) || 0;
-  const categoriesTotal = payments.reduce(
-    (sum, p) => sum + (Number(p.amount) || 0),
-    0
-  );
 
   // שמירת כל הקטגוריות יחד; קטגוריה עם סכום כלשהו מסומנת "שולם".
   async function confirm() {
@@ -173,9 +169,9 @@ function StudentPaymentsPage() {
           <div className="payments__addon">
             <Icon name="users" size={16} />
             <span>
-              בקבוצת <strong>{className}</strong> יש תוספת גבייה של{" "}
-              <strong>{formatShekels(groupAddon)}</strong> מעבר לקטגוריות — סה"כ
-              לתלמיד: <strong>{formatShekels(categoriesTotal + groupAddon)}</strong>.
+              התלמיד בקבוצת <strong>{className}</strong> — יש תוספת גבייה של{" "}
+              <strong>{formatShekels(groupAddon)}</strong> מעבר לקטגוריות. אפשר
+              לגבות אותה בשורת <strong>"תוספת קבוצה — {className}"</strong> למטה.
             </span>
           </div>
         )}

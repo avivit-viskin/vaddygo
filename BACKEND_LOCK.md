@@ -7,7 +7,7 @@
 
 ## מצב הנעילה (השורה הבאה היא האמת היחידה):
 
-STATUS: LOCKED by [Claude Opus (delete subgroup → move its students to general), 2026-09-09]
+STATUS: LOCKED by [Claude Opus (group add-on = separate bucket, out of general totals), 2026-09-09]
 
 <!-- כשנעול, השורה למעלה תיראה כך: STATUS: LOCKED by [שם הסוכן, YYYY-MM-DD HH:MM] -->
 

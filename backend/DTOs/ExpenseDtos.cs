@@ -26,6 +26,10 @@ namespace ParentCommitteeAPI.DTOs
 
         // אם ההוצאה היא תשלום לספק מהפורטל — מזהה הספק (אופציונלי)
         public int? VendorId { get; set; }
+
+        // שיוך אופציונלי לקבוצה בתוך הגן (למשל "צהרון") — יורד מיתרת אותה קבוצה
+        [StringLength(100)]
+        public string? SubgroupName { get; set; }
     }
 
     public class ExpenseResponseDto
@@ -38,6 +42,9 @@ namespace ParentCommitteeAPI.DTOs
         public string ReceiptImage { get; set; } = string.Empty;
         public DateTime Date { get; set; }
         public int? VendorId { get; set; }
+
+        // שיוך לקבוצה בתוך הגן (null = הוצאה כללית)
+        public string? SubgroupName { get; set; }
 
         // מתי נמחקה (סל מיחזור) — null בהוצאה פעילה, מלא בפריט בסל.
         public DateTime? DeletedAt { get; set; }

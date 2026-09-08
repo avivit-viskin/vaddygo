@@ -66,6 +66,9 @@ namespace ParentCommitteeAPI.Services
                 Date = DateTime.UtcNow,
                 GroupId = scoped,
                 VendorId = dto.VendorId,
+                SubgroupName = string.IsNullOrWhiteSpace(dto.SubgroupName)
+                    ? null
+                    : dto.SubgroupName.Trim(),
             };
             await _expenses.AddAsync(expense);
             _logger.LogInformation("Expense created (Id: {ExpenseId}, Group: {GroupId})",
@@ -162,6 +165,7 @@ namespace ParentCommitteeAPI.Services
             ReceiptImage = e.ReceiptImage,
             Date = e.Date,
             VendorId = e.VendorId,
+            SubgroupName = e.SubgroupName,
             DeletedAt = e.DeletedAt,
         };
     }

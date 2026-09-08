@@ -43,6 +43,10 @@ namespace ParentCommitteeAPI.DTOs
         public int ChildrenCount { get; set; }
         public decimal TargetAmount { get; set; }
         public decimal CollectedAmount { get; set; }
+
+        // הוצאות ששויכו לקבוצה הזו (SubgroupName == Name). יתרת הקופה של הקבוצה
+        // = CollectedAmount − SpentAmount (מחושב בלקוח, כמו במסך הבית).
+        public decimal SpentAmount { get; set; }
     }
 
     /* סכום לפי אמצעי תשלום: bit / paybox / cash */

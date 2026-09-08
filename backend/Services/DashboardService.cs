@@ -171,6 +171,10 @@ namespace ParentCommitteeAPI.Services
                         TargetAmount = perChild * kids.Count,
                         CollectedAmount = kids.Sum(k =>
                             collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
+                        // הוצאות ששויכו לקבוצה — יורדות מיתרת הקופה שלה
+                        SpentAmount = expenses
+                            .Where(e => e.SubgroupName == sub)
+                            .Sum(e => e.Amount),
                     });
                 }
             }

@@ -242,7 +242,7 @@ test("הוספת תלמיד: שולח POST לשרת ומציג את התלמיד
   await userEvent.type(screen.getByLabelText("שם משפחה"), "לוי");
   await userEvent.type(screen.getByLabelText("טלפון הורה"), "050-1112223");
   // המוסד מחולק לקבוצות → שדה הקבוצה חובה
-  await userEvent.selectOptions(await screen.findByLabelText("קבוצה"), "פרפרים");
+  await userEvent.type(await screen.findByLabelText("קבוצה"), "פרפרים");
   await userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 
   expect(await screen.findByText(/הילי לוי/)).toBeInTheDocument();
@@ -295,7 +295,7 @@ async function fillDuplicateName() {
   await userEvent.type(screen.getByLabelText("שם פרטי"), "דנה");
   await userEvent.type(screen.getByLabelText("שם משפחה"), "כהן");
   await userEvent.type(screen.getByLabelText("טלפון הורה"), "050-9998887");
-  await userEvent.selectOptions(await screen.findByLabelText("קבוצה"), "פרפרים");
+  await userEvent.type(await screen.findByLabelText("קבוצה"), "פרפרים");
   await userEvent.click(screen.getByRole("button", { name: "שמירה" }));
 }
 

@@ -1,6 +1,5 @@
 import useForm from "../hooks/useForm";
 import Input from "./Input";
-import Select from "./Select";
 import Button from "./Button";
 
 /* פורמט טלפון נייד ישראלי: 05X-XXXXXXX (המקף אופציונלי) — זהה לוולידציה בשרת. */
@@ -97,21 +96,25 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         error={errors.birthDate}
       />
       {hasGroups && (
-        <Select
-          id="student-class-name"
-          name="className"
-          label="קבוצה"
-          value={values.className}
-          onChange={handleChange}
-          error={errors.className}
-        >
-          <option value="">בחירת קבוצה...</option>
-          {subgroups.map((group) => (
-            <option key={group} value={group}>
-              {group}
-            </option>
-          ))}
-        </Select>
+        <>
+          {/* בחירה מהרשימה או כתיבה חופשית של קבוצה חדשה (למשל "צהרון") */}
+          <Input
+            id="student-class-name"
+            name="className"
+            label="קבוצה"
+            value={values.className}
+            onChange={handleChange}
+            error={errors.className}
+            list="student-groups-list"
+            autoComplete="off"
+            placeholder="לבחור מהרשימה או לכתוב קבוצה חדשה"
+          />
+          <datalist id="student-groups-list">
+            {subgroups.map((group) => (
+              <option key={group} value={group} />
+            ))}
+          </datalist>
+        </>
       )}
       <Input
         id="student-parent-phone"

@@ -17,6 +17,7 @@ import ChangePasswordCard from "./settings/ChangePasswordCard";
 import TwoFactorCard from "./settings/TwoFactorCard";
 import RenameInstitutionCard from "./settings/RenameInstitutionCard";
 import ChildrenCountCard from "./settings/ChildrenCountCard";
+import SubgroupsCard from "./settings/SubgroupsCard";
 import PaymentLinksCard from "./settings/PaymentLinksCard";
 import BankAccountCard from "./settings/BankAccountCard";
 import DeleteAccountCard from "./settings/DeleteAccountCard";
@@ -64,11 +65,12 @@ function SettingsPage() {
       key: "institution",
       icon: "school",
       title: "פרטי המוסד",
-      subtitle: "שם המוסד ומספר הילדים",
+      subtitle: "שם המוסד, מספר הילדים וחלוקה לקבוצות",
       render: () => (
         <>
           <RenameInstitutionCard />
           {!readOnly && <ChildrenCountCard />}
+          {!readOnly && <SubgroupsCard />}
         </>
       ),
     },

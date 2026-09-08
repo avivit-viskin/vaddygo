@@ -34,6 +34,13 @@ export function updateChildrenCount(groupId, childrenCount) {
 }
 
 /*
+  עדכון החלוקה לקבוצות של הגן (שמות חופשיים). מחזיר את הגן המעודכן.
+*/
+export function updateSubgroups(groupId, subgroups) {
+  return api.put(`/api/groups/${groupId}/subgroups`, { subgroups });
+}
+
+/*
   מחיקת מוסד (Group) וכל הנתונים שלו מהשרת — רק המוסד הזה, לא החשבון ולא
   מוסדות אחרים. השרת מאמת בעלות (רק הבעלים יכול למחוק את הגן שלו).
 */

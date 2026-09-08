@@ -79,6 +79,12 @@ function StudentsPage() {
   const [isBulkDeleting, setIsBulkDeleting] = useState(false);
   const [bulkDeleteError, setBulkDeleteError] = useState("");
 
+  // העברת הנבחרים לקבוצה אחרת (מהרשימה, בלי לפתוח כל כרטיס)
+  const [showMoveGroup, setShowMoveGroup] = useState(false);
+  const [moveTarget, setMoveTarget] = useState("");
+  const [isMoving, setIsMoving] = useState(false);
+  const [moveError, setMoveError] = useState("");
+
   // אישור הוספה כשהשם כבר קיים ברשימה (payload ממתין לאישור)
   const [duplicatePending, setDuplicatePending] = useState(null);
   const [isAddingDuplicate, setIsAddingDuplicate] = useState(false);
@@ -133,7 +139,17 @@ function StudentsPage() {
       groups.find((g) => g.id === activeId) ?? groups[0];
     return activeGroup?.subgroups ?? [];
   }, [groups]);
-  const hasGroups = subgroups.length > 0;
+  // הקבוצות בפועל: מההגדרה + כל קבוצה חופשית שכבר שויכה לתלמיד (למשל "צהרון"),
+  // כדי שקבוצות שנכתבו בכתיבה חופשית יופיעו גם בסינון וגם בבחירת היעד.
+  const effectiveGroups = useMemo(() => {
+    const set = new Set(subgroups);
+    (students ?? []).forEach((s) => {
+      const c = (s.className || "").trim();
+      if (c) set.add(c);
+    });
+    return [...set];
+  }, [subgroups, students]);
+  const hasGroups = effectiveGroups.length > 0;
 
   const visibleStudents = useMemo(() => {
     const term = searchTerm.trim().toLowerCase();
@@ -265,6 +281,36 @@ function StudentsPage() {
       setBulkDeleteError(err.message);
     } finally {
       setIsBulkDeleting(false);
+    }
+  }
+
+  /* העברת כל התלמידים שנבחרו לקבוצה (קיימת או שם חדש חופשי), במקביל. */
+  async function confirmMoveGroup() {
+    const target = moveTarget.trim();
+    if (!target) {
+      setMoveError("צריך לבחור קבוצה או לכתוב שם חדש");
+      return;
+    }
+    setIsMoving(true);
+    setMoveError("");
+    try {
+      const byId = new Map((students ?? []).map((s) => [s.id, s]));
+      await Promise.all(
+        [...selectedIds].map((id) => {
+          const s = byId.get(id);
+          return s
+            ? updateStudent(id, { ...s, className: target })
+            : Promise.resolve();
+        })
+      );
+      setSelectedIds(new Set());
+      setShowMoveGroup(false);
+      setMoveTarget("");
+      await reload();
+    } catch (err) {
+      setMoveError(err.message || "ההעברה נכשלה, אפשר לנסות שוב");
+    } finally {
+      setIsMoving(false);
     }
   }
 
@@ -411,7 +457,7 @@ function StudentsPage() {
                 onChange={(event) => setClassFilter(event.target.value)}
               >
                 <option value="">כל הקבוצות</option>
-                {subgroups.map((group) => (
+                {effectiveGroups.map((group) => (
                   <option key={group} value={group}>
                     {group}
                   </option>
@@ -465,6 +511,16 @@ function StudentsPage() {
               <span className="students-selection__count">
                 {selectedIds.size} נבחרו
               </span>
+              <Button
+                variant="brand"
+                onClick={() => {
+                  setMoveTarget("");
+                  setMoveError("");
+                  setShowMoveGroup(true);
+                }}
+              >
+                <Icon name="users" size={16} /> העברה לקבוצה
+              </Button>
               <Button variant="danger" onClick={() => setShowBulkDelete(true)}>
                 <Icon name="trash" size={16} /> מחיקת הנבחרים
               </Button>
@@ -506,7 +562,7 @@ function StudentsPage() {
         <StudentForm
           key={editedStudent?.id ?? "new"}
           initialStudent={editedStudent}
-          subgroups={subgroups}
+          subgroups={effectiveGroups}
           onSubmit={saveStudent}
           onCancel={closeForm}
         />
@@ -573,6 +629,48 @@ function StudentsPage() {
         isLoading={isBulkDeleting}
         error={bulkDeleteError}
       />
+
+      {/* העברת הנבחרים לקבוצה — בחירה מהרשימה או שם חדש חופשי */}
+      <Modal
+        isOpen={showMoveGroup}
+        onClose={() => setShowMoveGroup(false)}
+        title={`העברת ${selectedIds.size} תלמידים לקבוצה`}
+      >
+        <p style={{ margin: "0 0 10px", color: "var(--color-text-muted)" }}>
+          בוחרים קבוצה קיימת או כותבים שם חדש (למשל "צהרון"), וכל התלמידים
+          שנבחרו יעברו אליה.
+        </p>
+        <Input
+          id="move-group-target"
+          label="קבוצת יעד"
+          value={moveTarget}
+          onChange={(e) => {
+            setMoveTarget(e.target.value);
+            setMoveError("");
+          }}
+          list="move-group-list"
+          autoComplete="off"
+          placeholder="לבחור מהרשימה או לכתוב קבוצה"
+        />
+        <datalist id="move-group-list">
+          {effectiveGroups.map((group) => (
+            <option key={group} value={group} />
+          ))}
+        </datalist>
+        {moveError && (
+          <p className="field__error" role="alert">
+            {moveError}
+          </p>
+        )}
+        <div style={{ display: "flex", gap: 8, marginTop: 12 }}>
+          <Button onClick={confirmMoveGroup} isLoading={isMoving}>
+            העברה לקבוצה
+          </Button>
+          <Button variant="secondary" onClick={() => setShowMoveGroup(false)}>
+            ביטול
+          </Button>
+        </div>
+      </Modal>
     </div>
   );
 }

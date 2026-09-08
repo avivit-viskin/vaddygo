@@ -100,8 +100,9 @@ function SubgroupsCard() {
     >
       <p className="settings__hint">
         חלוקת המוסד לקבוצות (למשל: תינוקייה / פעוטות / צהרון). אפשר לכתוב כל שם.
-        אפשר גם לקבוע לכל קבוצה כמה גובים ממנה — אם משאירים ריק, גובים את סכום
-        הקטגוריות הרגיל. אחר כך משייכים כל תלמיד לקבוצה ברשימת התלמידים.
+        אם מקבוצה מסוימת גובים <strong>תוספת</strong> מעבר לגבייה הכללית (למשל
+        צהרון +300&nbsp;₪) — כותבים אותה בשדה "תוספת". ריק = בלי תוספת (משלמים רק
+        את הגבייה הכללית). אחר כך משייכים כל תלמיד לקבוצה ברשימת התלמידים.
       </p>
       {rows.length === 0 && (
         <p className="settings__hint">עדיין אין קבוצות — אפשר להוסיף למטה.</p>
@@ -123,12 +124,12 @@ function SubgroupsCard() {
           <div style={{ width: 116, flexShrink: 0 }}>
             <Input
               id={`settings-subgroup-amount-${i}`}
-              label="סכום (₪)"
+              label="תוספת (₪)"
               type="number"
               min="0"
               value={row.amount}
               onChange={(e) => updateField(i, "amount", e.target.value)}
-              placeholder="רגיל"
+              placeholder="0"
             />
           </div>
           <button

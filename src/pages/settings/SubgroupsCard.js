@@ -120,10 +120,10 @@ function SubgroupsCard() {
               placeholder="למשל: צהרון"
             />
           </div>
-          <div style={{ width: 120, flexShrink: 0 }}>
+          <div style={{ width: 116, flexShrink: 0 }}>
             <Input
               id={`settings-subgroup-amount-${i}`}
-              label="כמה נגבה (₪)"
+              label="סכום (₪)"
               type="number"
               min="0"
               value={row.amount}
@@ -137,14 +137,15 @@ function SubgroupsCard() {
             aria-label="הסרת הקבוצה"
             style={{
               flexShrink: 0,
-              width: 42,
-              height: 42,
+              width: "var(--touch-target)",
+              height: "var(--touch-target)",
               border: "1px solid var(--color-border)",
               borderRadius: 10,
               background: "none",
               color: "var(--color-error)",
               cursor: "pointer",
-              marginBottom: 2,
+              // אותו margin-bottom כמו של .field כדי שהפח יתיישר בדיוק עם שדות הקלט
+              marginBottom: 16,
             }}
           >
             <Icon name="trash" size={16} />

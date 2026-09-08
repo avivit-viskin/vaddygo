@@ -1,4 +1,3 @@
-using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using ParentCommitteeAPI.DTOs;
 using ParentCommitteeAPI.Models;
@@ -74,30 +73,34 @@ namespace ParentCommitteeAPI.Services
             var baseCategories = group.Categories.Where(c => c.SubgroupName == null).ToList();
             var totalPerChild = baseCategories.Sum(c => c.AmountPerChild);
 
-            /* סכום גבייה נוסף לכל קבוצה (אופציה 1) — מודל **תוספת**: כל הילדים
-               משלמים את הגבייה הכללית (סכום הקטגוריות), ובנוסף ילדי קבוצה שהוגדרה
-               לה תוספת משלמים אותה מעל לכך (למשל צהרון: 1000 כללי + 300 = 1300).
-               היעד הכולל = כל הילדים × הכללי + Σ(ילדי קבוצה × תוספת הקבוצה).
-               כשאין תוספות — היעד זהה לקודם והחלוקה לקטגוריות לא משתנה. */
-            var subgroupAmounts = ParseSubgroupAmounts(group.SubgroupAmountsJson);
+            // מזהי קטגוריות "תוספת קבוצה" — הגבייה שלהן מנוהלת בנפרד בכרטיס הקבוצה
+            var addonCategoryIds = group.Categories
+                .Where(c => c.SubgroupName != null)
+                .Select(c => c.Id)
+                .ToHashSet();
             var studentGroups = await _db.Students.AsNoTracking()
                 .Where(s => s.GroupId == group.Id)
                 .Select(s => new { s.Id, s.ClassName })
                 .ToListAsync();
-            var addonTarget = 0m;
-            foreach (var kv in subgroupAmounts)
-            {
-                var count = studentGroups.Count(s => s.ClassName == kv.Key);
-                addonTarget += count * kv.Value;
-            }
-            var target = group.ChildrenCount * totalPerChild + addonTarget;
 
-            /* הנגבה בפועל = סכום התשלומים שסומנו "שולם" (סכום כל האמצעים) */
-            var collected = paidPayments.Sum(PaidTotal);
+            /* מודל "דלי נפרד" (החלטת בעלת המוצר 09.09): הגבייה הכללית וההוצאות
+               הכלליות כוללות **רק** את הבסיס. תוספות הקבוצות נגבות, נספרות ומוצאות
+               בנפרד בכרטיס הקבוצה (bySubgroup) — תשלום/הוצאה של קבוצה משפיע רק על
+               הקבוצה, ולא על המספרים הכלליים. */
+            var basePayments = paidPayments
+                .Where(p => !addonCategoryIds.Contains(p.CollectionCategoryId))
+                .ToList();
+            var generalExpenses = expenses
+                .Where(e => string.IsNullOrEmpty(e.SubgroupName))
+                .ToList();
+
+            var target = group.ChildrenCount * totalPerChild;
+            /* הנגבה בפועל = תשלומי הגבייה הכללית שסומנו "שולם" (בלי תוספות קבוצה) */
+            var collected = basePayments.Sum(PaidTotal);
             /* חוב פתוח = כמה עוד צריך להיגבות מההורים (לא מושפע מהוצאות) */
             var openDebt = target - collected;
-            /* יתרת הקופה = מה שיש בקופה בפועל = נגבה − הוצאות */
-            var totalExpenses = expenses.Sum(e => e.Amount);
+            /* יתרת הקופה הכללית = נגבה כללי − הוצאות כלליות (בלי כספי הקבוצות) */
+            var totalExpenses = generalExpenses.Sum(e => e.Amount);
             var boxBalance = collected - totalExpenses;
 
             var birthdays = staff
@@ -126,15 +129,16 @@ namespace ParentCommitteeAPI.Services
                 CollectedAmount = paidPayments
                     .Where(p => p.CollectionCategoryId == c.Id)
                     .Sum(PaidTotal),
-                /* מה שיצא מהקטגוריה = הוצאות שסווגו לשם הקטגוריה (למשל "ועד") */
-                SpentAmount = expenses.Where(e => e.Category == c.Name).Sum(e => e.Amount),
+                /* מה שיצא מהקטגוריה = הוצאות כלליות שסווגו לשם הקטגוריה (למשל "ועד");
+                   הוצאות שמשויכות לקבוצה נספרות בכרטיס הקבוצה, לא כאן */
+                SpentAmount = generalExpenses.Where(e => e.Category == c.Name).Sum(e => e.Amount),
             }).ToList();
 
             // קטגוריות הוצאה בלבד (בלת"ם / מתנות סוף שנה / חגים...) שאין להן קטגוריית
             // גבייה — כל אחת מקבלת ריבוע משלה עם מה שיצא, כדי שסך הריבועים יתאזן עם
             // סך ההוצאות. הוצאה בלי קטגוריה מקובצת ל"ללא קטגוריה". TargetAmount=0
             // מסמן ללקוח להציג "יצא X" בלבד (בלי "מתוך").
-            var extraCategories = expenses
+            var extraCategories = generalExpenses
                 .Where(e => !collectionNames.Contains(e.Category))
                 .GroupBy(e => string.IsNullOrWhiteSpace(e.Category) ? "ללא קטגוריה" : e.Category)
                 .Select(g => new DashboardCategoryDto
@@ -147,36 +151,31 @@ namespace ParentCommitteeAPI.Services
                 .OrderByDescending(c => c.SpentAmount);
             byCategory.AddRange(extraCategories);
 
-            // פילוח הגבייה לפי קבוצות הגן: לכל קבוצה מספר הילדים המשויכים אליה
-            // (ClassName == שם הקבוצה), היעד (הסכום-לילד של הקבוצה = הכללי + תוספת
-            // הקבוצה אם הוגדרה) × מספר הילדים, וכמה נגבה בפועל מילדיה. ריק אם לא
-            // הוגדרו קבוצות.
-            var subgroupNames = group.Subgroups
-                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            // פילוח "גבייה לפי קבוצות" — דלי נפרד לכל קבוצה שיש לה **תוספת**:
+            // היעד = התוספת × מספר ילדי הקבוצה; הנגבה = תשלומי התוספת של אותם ילדים
+            // (קטגוריית "תוספת קבוצה" בלבד); ההוצאות = הוצאות ששויכו לקבוצה. כך
+            // תשלום/הוצאה של קבוצה משפיע רק על הקבוצה ולא על הכלל. קבוצה בלי תוספת
+            // אינה דלי גבייה נפרד ולכן אינה מופיעה כאן.
+            var addonPaidByCategory = paidPayments
+                .Where(p => addonCategoryIds.Contains(p.CollectionCategoryId))
+                .GroupBy(p => p.CollectionCategoryId)
+                .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
             var bySubgroup = new List<DashboardSubgroupDto>();
-            if (subgroupNames.Length > 0)
+            foreach (var cat in group.Categories.Where(c => c.SubgroupName != null))
             {
-                var collectedByStudent = paidPayments
-                    .GroupBy(p => p.StudentId)
-                    .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
-                foreach (var sub in subgroupNames)
+                var sub = cat.SubgroupName!;
+                var kids = studentGroups.Count(s => s.ClassName == sub);
+                bySubgroup.Add(new DashboardSubgroupDto
                 {
-                    var kids = studentGroups.Where(s => s.ClassName == sub).ToList();
-                    var perChild = totalPerChild
-                        + (subgroupAmounts.TryGetValue(sub, out var amt) ? amt : 0m);
-                    bySubgroup.Add(new DashboardSubgroupDto
-                    {
-                        Name = sub,
-                        ChildrenCount = kids.Count,
-                        TargetAmount = perChild * kids.Count,
-                        CollectedAmount = kids.Sum(k =>
-                            collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
-                        // הוצאות ששויכו לקבוצה — יורדות מיתרת הקופה שלה
-                        SpentAmount = expenses
-                            .Where(e => e.SubgroupName == sub)
-                            .Sum(e => e.Amount),
-                    });
-                }
+                    Name = sub,
+                    ChildrenCount = kids,
+                    // היעד = התוספת בלבד × ילדי הקבוצה (לא כולל הגבייה הכללית)
+                    TargetAmount = cat.AmountPerChild * kids,
+                    // הנגבה = תשלומי התוספת בלבד (מסתנכרן רק בקבוצה)
+                    CollectedAmount = addonPaidByCategory.TryGetValue(cat.Id, out var c) ? c : 0m,
+                    // הוצאות ששויכו לקבוצה — יורדות מיתרת הקופה של הקבוצה בלבד
+                    SpentAmount = expenses.Where(e => e.SubgroupName == sub).Sum(e => e.Amount),
+                });
             }
 
             return new DashboardResponseDto
@@ -190,13 +189,14 @@ namespace ParentCommitteeAPI.Services
                 OpenDebt = openDebt,
                 BoxBalance = boxBalance,
                 ProgressPercent = target == 0 ? 0 : (int)Math.Round(collected / target * 100),
-                /* קוביות האמצעים = מה שנגבה בכל אמצעי פחות מה שיצא ממנו בהוצאות */
+                /* קוביות האמצעים = הגבייה הכללית בכל אמצעי פחות ההוצאות הכלליות
+                   (בלי כספי/הוצאות הקבוצות — הם בכרטיס הקבוצה) */
                 ByPaymentMethod = new List<DashboardAmountDto>
                 {
-                    new() { Method = "bit", Amount = paidPayments.Sum(p => p.BitAmount) - MethodExpenses(expenses, "bit") },
-                    new() { Method = "paybox", Amount = paidPayments.Sum(p => p.PayBoxAmount) - MethodExpenses(expenses, "paybox") },
-                    new() { Method = "cash", Amount = paidPayments.Sum(p => p.CashAmount) - MethodExpenses(expenses, "cash") },
-                    new() { Method = "card", Amount = paidPayments.Sum(p => p.CardAmount) - MethodExpenses(expenses, "card") },
+                    new() { Method = "bit", Amount = basePayments.Sum(p => p.BitAmount) - MethodExpenses(generalExpenses, "bit") },
+                    new() { Method = "paybox", Amount = basePayments.Sum(p => p.PayBoxAmount) - MethodExpenses(generalExpenses, "paybox") },
+                    new() { Method = "cash", Amount = basePayments.Sum(p => p.CashAmount) - MethodExpenses(generalExpenses, "cash") },
+                    new() { Method = "card", Amount = basePayments.Sum(p => p.CardAmount) - MethodExpenses(generalExpenses, "card") },
                 },
                 ByCategory = byCategory,
                 BySubgroup = bySubgroup,
@@ -208,19 +208,6 @@ namespace ParentCommitteeAPI.Services
         /* הסך ששולם ברשומת תשלום אחת = סכום כל האמצעים (כולל אשראי בסליקה) */
         private static decimal PaidTotal(Payment p) => p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount;
 
-        /* סכומי הקבוצות (שם→סכום) מ-JSON; פענוח בטוח (JSON שבור/ריק = מפה ריקה). */
-        private static Dictionary<string, decimal> ParseSubgroupAmounts(string? json)
-        {
-            if (string.IsNullOrWhiteSpace(json)) return new();
-            try
-            {
-                return JsonSerializer.Deserialize<Dictionary<string, decimal>>(json) ?? new();
-            }
-            catch
-            {
-                return new();
-            }
-        }
 
         /* סך ההוצאות שיצאו מאמצעי מסוים (ביט/פייבוקס/מזומן) */
         private static decimal MethodExpenses(List<Expense> expenses, string method) =>

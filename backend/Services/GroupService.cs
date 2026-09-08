@@ -240,6 +240,11 @@ namespace ParentCommitteeAPI.Services
             }
             if (!await _access.CanEditGroupAsync(group.Id)) throw new ForbiddenException();
 
+            // שמות הקבוצות שהיו לפני העדכון — כדי לזהות אילו קבוצות נמחקו
+            var oldNames = group.Subgroups
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
+
             var names = new List<string>();
             var amounts = new Dictionary<string, decimal>();
             foreach (var g in dto.Groups ?? new())
@@ -288,9 +293,21 @@ namespace ParentCommitteeAPI.Services
             }
 
             await _db.SaveChangesAsync();
+
+            // קבוצה שנמחקה → התלמידים שהיו משויכים אליה עוברים לקבוצה הכללית
+            // (ClassName מתרוקן), אחרת הם היו "תקועים" בקבוצה שכבר לא קיימת.
+            var removed = oldNames.Where(n => !names.Contains(n)).ToList();
+            if (removed.Count > 0)
+            {
+                await _db.Students
+                    .Where(s => s.GroupId == group.Id && removed.Contains(s.ClassName))
+                    .ExecuteUpdateAsync(setters =>
+                        setters.SetProperty(s => s.ClassName, string.Empty));
+            }
+
             _logger.LogInformation(
-                "Group subgroups updated (Id: {GroupId}, Count: {Count}, WithAmount: {Amt})",
-                id, names.Count, amounts.Count);
+                "Group subgroups updated (Id: {GroupId}, Count: {Count}, WithAmount: {Amt}, Removed: {Removed})",
+                id, names.Count, amounts.Count, removed.Count);
             return ToResponse(group, await OwnerTrialAsync(group));
         }
 

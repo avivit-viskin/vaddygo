@@ -98,3 +98,79 @@
     display: none !important;
   }
 }
+
+/* ── כפתור קבוע בפוטר: "הורידו את האפליקציה" + חלון ההסבר (InstallAppButton) ── */
+.install-app-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin: 0 auto 10px;
+  border: 1px solid var(--color-primary);
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-family: inherit;
+  font-weight: 700;
+  font-size: var(--font-size-base);
+  padding: 9px 20px;
+  cursor: pointer;
+}
+
+.install-app-btn:hover {
+  filter: brightness(0.97);
+}
+
+.install-intro {
+  margin: 0 0 14px;
+  color: var(--color-text);
+  line-height: 1.55;
+}
+
+.install-native {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 14px;
+}
+
+.install-native__or {
+  color: var(--color-text-muted);
+  font-size: 14px;
+}
+
+.install-platform {
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  padding: 12px 14px;
+  margin-bottom: 12px;
+  background: var(--color-surface);
+}
+
+/* מדגיש את סוג הטלפון שזוהה (אנדרואיד/אייפון) — הצעד הרלוונטי בולט */
+.install-platform--active {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 2px var(--color-primary);
+}
+
+.install-platform h4 {
+  margin: 0 0 6px;
+  font-size: 15px;
+}
+
+.install-steps {
+  margin: 0;
+  padding-inline-start: 20px;
+  line-height: 1.6;
+}
+
+.install-steps li {
+  margin: 4px 0;
+}
+
+@media print {
+  .install-app-btn {
+    display: none !important;
+  }
+}

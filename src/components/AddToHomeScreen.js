@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import BrandName from "./BrandName";
+import { isStandalone, isIOS, isIOSSafari, isChrome } from "../services/pwaInstall";
 import "../styles/install-prompt.css";
 
 /*
@@ -9,47 +10,9 @@ import "../styles/install-prompt.css";
     שמפעיל את ההתקנה האמיתית של הדפדפן.
   • אייפון (Safari): אין התקנה תוכנתית — מציגים רמז ידני (שיתוף → הוספה למסך הבית).
   לא מוצג אם האתר כבר רץ כאפליקציה מותקנת (standalone).
+  זיהוי הסביבה משותף עם כפתור "הורידו את האפליקציה" (services/pwaInstall).
 */
 const DISMISS_KEY = "vaadygo.a2hsDismissed";
-
-function isStandalone() {
-  // matchMedia לא קיים בכל סביבה (למשל jsdom בטסטים) — מגינים
-  const standaloneDisplay =
-    typeof window.matchMedia === "function" &&
-    window.matchMedia("(display-mode: standalone)").matches;
-  return Boolean(standaloneDisplay || window.navigator.standalone);
-}
-
-function isIOS() {
-  return /iphone|ipad|ipod/i.test(window.navigator.userAgent);
-}
-
-// ספארי "אמיתי" באייפון — רק בו יש "הוספה למסך הבית". בדפדפן-בתוך-אפליקציה
-// (וואטסאפ/פייסבוק/אינסטגרם) או בכרום/פיירפוקס לאייפון אין את האפשרות, ולכן
-// צריך קודם לפתוח בספארי. מזהים לפי היעדר "Safari" או נוכחות טוקן של אפליקציה/דפדפן אחר.
-function isIOSSafari() {
-  const ua = window.navigator.userAgent || "";
-  return (
-    isIOS() &&
-    /Safari/i.test(ua) &&
-    !/CriOS|FxiOS|EdgiOS|OPiOS|FBAN|FBAV|Instagram|Line|MicroMessenger|Twitter|Snapchat|Pinterest/i.test(
-      ua
-    )
-  );
-}
-
-// כרום "אמיתי" (לא Edge/Opera/Samsung/פיירפוקס, ולא דפדפן-בתוך-אפליקציה כמו
-// וואטסאפ/פייסבוק/אינסטגרם — שמזוהים ב-"wv" או בטוקן של האפליקציה). רק בכרום
-// ההוספה למסך הבית עובדת חלק באנדרואיד; אחרת צריך קודם לפתוח בכרום.
-function isChrome() {
-  const ua = window.navigator.userAgent || "";
-  return (
-    /Chrome/i.test(ua) &&
-    !/wv|Edg|EdgA|OPR|OPT|SamsungBrowser|CriOS|FxiOS|Firefox|FBAN|FBAV|Instagram|Line|MicroMessenger|Twitter|Snapchat|Pinterest|GSA/i.test(
-      ua
-    )
-  );
-}
 
 function AddToHomeScreen() {
   const [show, setShow] = useState(false);

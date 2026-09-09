@@ -545,6 +545,31 @@
   color: var(--color-primary);
 }
 
+/* קבוצה שנמחקה (מחיקה רכה) — עמומה, עם תווית "נמחקה" */
+.subgroup-row--archived {
+  opacity: 0.72;
+}
+
+.subgroup-row__deleted {
+  background: var(--color-error-bg);
+  color: var(--color-error);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  padding: 2px 8px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.subgroup-card__archived-note {
+  margin: 0 0 14px;
+  padding: 10px 12px;
+  background: var(--color-error-bg);
+  border-radius: 12px;
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+
 .subgroup-row__bar {
   height: 8px;
   background: var(--color-primary-muted);

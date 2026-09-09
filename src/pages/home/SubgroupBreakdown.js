@@ -16,7 +16,10 @@ import ExpenseModal from "./ExpenseModal";
   כשיש קבוצות עם ילדים.
 */
 function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
-  const rows = (subgroups || []).filter((s) => (Number(s.childrenCount) || 0) > 0);
+  // קבוצות פעילות עם ילדים, וגם קבוצות שנמחקו (נשמרות למעקב)
+  const rows = (subgroups || []).filter(
+    (s) => (Number(s.childrenCount) || 0) > 0 || s.archived
+  );
   const [selectedName, setSelectedName] = useState(null);
 
   if (rows.length === 0) {
@@ -44,11 +47,12 @@ function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
             <li key={sg.name}>
               <button
                 type="button"
-                className="subgroup-row"
+                className={`subgroup-row${sg.archived ? " subgroup-row--archived" : ""}`}
                 onClick={() => setSelectedName(sg.name)}
               >
                 <div className="subgroup-row__head">
                   <span className="subgroup-row__name">{sg.name}</span>
+                  {sg.archived && <span className="subgroup-row__deleted">נמחקה</span>}
                   <span className="subgroup-row__chip">{sg.childrenCount} ילדים</span>
                   <Icon name="chart" size={16} className="subgroup-row__go" />
                 </div>
@@ -138,8 +142,17 @@ function SubgroupDetailModal({ subgroup, onClose, onExpenseChanged, readOnly }) 
   const percent = target > 0 ? Math.min(100, Math.round((collected / target) * 100)) : 0;
 
   return (
-    <Modal isOpen onClose={onClose} title={`קבוצת ${subgroup.name}`}>
+    <Modal
+      isOpen
+      onClose={onClose}
+      title={`קבוצת ${subgroup.name}${subgroup.archived ? " (נמחקה)" : ""}`}
+    >
       <div className="subgroup-card">
+        {subgroup.archived && (
+          <p className="subgroup-card__archived-note">
+            הקבוצה נמחקה ונשמרת כאן למעקב — הכסף שנגבה וההוצאות שלה נשמרו.
+          </p>
+        )}
         <div className="subgroup-card__top">
           <div className="subgroup-card__balance">
             <div>

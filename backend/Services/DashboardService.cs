@@ -151,31 +151,37 @@ namespace ParentCommitteeAPI.Services
                 .OrderByDescending(c => c.SpentAmount);
             byCategory.AddRange(extraCategories);
 
-            // פילוח "גבייה לפי קבוצות" — דלי נפרד לכל קבוצה שיש לה **תוספת**:
-            // היעד = התוספת × מספר ילדי הקבוצה; הנגבה = תשלומי התוספת של אותם ילדים
-            // (קטגוריית "תוספת קבוצה" בלבד); ההוצאות = הוצאות ששויכו לקבוצה. כך
-            // תשלום/הוצאה של קבוצה משפיע רק על הקבוצה ולא על הכלל. קבוצה בלי תוספת
-            // אינה דלי גבייה נפרד ולכן אינה מופיעה כאן.
-            var addonPaidByCategory = paidPayments
-                .Where(p => addonCategoryIds.Contains(p.CollectionCategoryId))
-                .GroupBy(p => p.CollectionCategoryId)
-                .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
+            // פילוח "גבייה לפי קבוצות" — **כל** קבוצה שהוגדרה (גם בלי תוספת), כדי
+            // שהחלוקה תיראה בדף הבית. לכל קבוצה: הסכום-לילד שלה = הכללי + תוספת
+            // הקבוצה (אם יש) × מספר ילדיה; הנגבה = כל תשלומי ילדי הקבוצה (בסיס+תוספת);
+            // ההוצאות = הוצאות ששויכו לקבוצה. כך תוספת נגבית/מוצאת של קבוצה נשמרת
+            // בכרטיס הקבוצה, ואינה נכנסת למספרים הכלליים (שהם בסיס בלבד).
+            var addonByName = group.Categories
+                .Where(c => c.SubgroupName != null)
+                .ToDictionary(c => c.SubgroupName!, c => c.AmountPerChild);
+            var subgroupNames = group.Subgroups
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             var bySubgroup = new List<DashboardSubgroupDto>();
-            foreach (var cat in group.Categories.Where(c => c.SubgroupName != null))
+            if (subgroupNames.Length > 0)
             {
-                var sub = cat.SubgroupName!;
-                var kids = studentGroups.Count(s => s.ClassName == sub);
-                bySubgroup.Add(new DashboardSubgroupDto
+                var collectedByStudent = paidPayments
+                    .GroupBy(p => p.StudentId)
+                    .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
+                foreach (var sub in subgroupNames)
                 {
-                    Name = sub,
-                    ChildrenCount = kids,
-                    // היעד = התוספת בלבד × ילדי הקבוצה (לא כולל הגבייה הכללית)
-                    TargetAmount = cat.AmountPerChild * kids,
-                    // הנגבה = תשלומי התוספת בלבד (מסתנכרן רק בקבוצה)
-                    CollectedAmount = addonPaidByCategory.TryGetValue(cat.Id, out var c) ? c : 0m,
-                    // הוצאות ששויכו לקבוצה — יורדות מיתרת הקופה של הקבוצה בלבד
-                    SpentAmount = expenses.Where(e => e.SubgroupName == sub).Sum(e => e.Amount),
-                });
+                    var kids = studentGroups.Where(s => s.ClassName == sub).ToList();
+                    var perChild = totalPerChild
+                        + (addonByName.TryGetValue(sub, out var a) ? a : 0m);
+                    bySubgroup.Add(new DashboardSubgroupDto
+                    {
+                        Name = sub,
+                        ChildrenCount = kids.Count,
+                        TargetAmount = perChild * kids.Count,
+                        CollectedAmount = kids.Sum(k =>
+                            collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
+                        SpentAmount = expenses.Where(e => e.SubgroupName == sub).Sum(e => e.Amount),
+                    });
+                }
             }
 
             return new DashboardResponseDto

@@ -244,6 +244,9 @@ namespace ParentCommitteeAPI.Services
             var oldNames = group.Subgroups
                 .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
                 .ToList();
+            var oldArchived = group.ArchivedSubgroups
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+                .ToList();
 
             var names = new List<string>();
             var amounts = new Dictionary<string, decimal>();
@@ -254,19 +257,40 @@ namespace ParentCommitteeAPI.Services
                 names.Add(name);
                 if (g.Amount is > 0) amounts[name] = g.Amount.Value;
             }
+
+            var addonCats = group.Categories.Where(c => c.SubgroupName != null).ToList();
+
+            // קבוצות שהוסרו מהרשימה הפעילה. קבוצה שגבו/הוציאו ממנה כסף עוברת
+            // ל"נמחקות" (מחיקה רכה — נשמרת למעקב); קבוצה ריקה נמחקת לגמרי.
+            var removed = oldNames.Where(n => !names.Contains(n)).ToList();
+            var newlyArchived = new List<string>();
+            foreach (var name in removed)
+            {
+                var cat = addonCats.FirstOrDefault(c => c.SubgroupName == name);
+                var hasMoney = cat != null &&
+                    await _db.Payments.AnyAsync(p => p.CollectionCategoryId == cat.Id && p.IsPaid);
+                var hasExpense =
+                    await _db.Expenses.AnyAsync(e => e.GroupId == group.Id && e.SubgroupName == name);
+                if (hasMoney || hasExpense) newlyArchived.Add(name);
+            }
+
+            // רשימת ה"נמחקות" = הישנות + החדשות, פחות כל שם שחזר להיות פעיל (שוחזר)
+            var archived = oldArchived.Concat(newlyArchived)
+                .Where(n => !names.Contains(n))
+                .Distinct()
+                .ToList();
+
             group.Subgroups = string.Join(",", names);
+            group.ArchivedSubgroups = string.Join(",", archived);
             group.SubgroupAmountsJson =
                 amounts.Count > 0 ? JsonSerializer.Serialize(amounts) : null;
 
-            // סנכרון קטגוריות "תוספת קבוצה" (scoped): לכל קבוצה עם תוספת קיימת
-            // קטגוריה נסתרת (SubgroupName=שם הקבוצה), כדי שהתוספת תופיע כשורת
-            // תשלום בעדכון היתרה של תלמידי הקבוצה ותיאסף ככל קטגוריה. מעדכנים
-            // במקום כדי לשמר תשלומים; מסירים כשהתוספת בוטלה (התשלומים נמחקים
-            // ב-cascade — כמו ביטול קטגוריה). ה-JSON נשאר מקור-האמת ליעד (מסונכרן).
-            var addonCats = group.Categories.Where(c => c.SubgroupName != null).ToList();
+            // סנכרון קטגוריות "תוספת קבוצה" (scoped): קטגוריה נסתרת (SubgroupName)
+            // לכל קבוצה פעילה עם תוספת. מסירים קטגוריה רק אם הקבוצה אינה פעילה
+            // **וגם לא נמחקה-רכה** (נמחקת = שומרים את הקטגוריה והתשלומים למעקב).
             foreach (var cat in addonCats)
             {
-                if (!amounts.ContainsKey(cat.SubgroupName!))
+                if (!amounts.ContainsKey(cat.SubgroupName!) && !archived.Contains(cat.SubgroupName!))
                 {
                     _db.CollectionCategories.Remove(cat);
                 }
@@ -294,9 +318,8 @@ namespace ParentCommitteeAPI.Services
 
             await _db.SaveChangesAsync();
 
-            // קבוצה שנמחקה → התלמידים שהיו משויכים אליה עוברים לקבוצה הכללית
-            // (ClassName מתרוקן), אחרת הם היו "תקועים" בקבוצה שכבר לא קיימת.
-            var removed = oldNames.Where(n => !names.Contains(n)).ToList();
+            // קבוצה שנמחקה (רכה או לגמרי) → התלמידים שהיו משויכים אליה עוברים
+            // לקבוצה הכללית (ClassName מתרוקן), כדי שלא יישארו בקבוצה שאינה פעילה.
             if (removed.Count > 0)
             {
                 await _db.Students

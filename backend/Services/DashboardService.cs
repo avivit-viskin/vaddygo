@@ -184,6 +184,30 @@ namespace ParentCommitteeAPI.Services
                 }
             }
 
+            // קבוצות שנמחקו (מחיקה רכה) — נשמרות בפילוח למעקב, מסומנות "נמחקה".
+            // התלמידים כבר לא משויכים אליהן, לכן הנתונים נלקחים מהרשומות שנשמרו:
+            // הנגבה = תשלומי קטגוריית-התוספת של הקבוצה; ההוצאות = הוצאות הקבוצה.
+            var archivedNames = group.ArchivedSubgroups
+                .Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            foreach (var sub in archivedNames)
+            {
+                var cat = group.Categories.FirstOrDefault(c => c.SubgroupName == sub);
+                var pays = cat == null
+                    ? new List<Payment>()
+                    : paidPayments.Where(p => p.CollectionCategoryId == cat.Id).ToList();
+                var collectedArchived = pays.Sum(PaidTotal);
+                bySubgroup.Add(new DashboardSubgroupDto
+                {
+                    Name = sub,
+                    ChildrenCount = pays.Select(p => p.StudentId).Distinct().Count(),
+                    // קבוצה שנמחקה = רשומה סגורה; היעד = מה שנגבה בפועל (בר מלא)
+                    TargetAmount = collectedArchived,
+                    CollectedAmount = collectedArchived,
+                    SpentAmount = expenses.Where(e => e.SubgroupName == sub).Sum(e => e.Amount),
+                    Archived = true,
+                });
+            }
+
             return new DashboardResponseDto
             {
                 GanName = group.Name,

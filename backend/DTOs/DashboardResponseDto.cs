@@ -47,6 +47,9 @@ namespace ParentCommitteeAPI.DTOs
         // הוצאות ששויכו לקבוצה הזו (SubgroupName == Name). יתרת הקופה של הקבוצה
         // = CollectedAmount − SpentAmount (מחושב בלקוח, כמו במסך הבית).
         public decimal SpentAmount { get; set; }
+
+        // קבוצה שנמחקה (מחיקה רכה) — נשמרת בפילוח למעקב עם תווית "נמחקה".
+        public bool Archived { get; set; }
     }
 
     /* סכום לפי אמצעי תשלום: bit / paybox / cash */

@@ -60,15 +60,34 @@ namespace ParentCommitteeAPI.Services
                         .Where(u => u.Id == g.UserId)
                         .Select(u => u.IsProtected)
                         .FirstOrDefault(),
-                    HasCategories = g.Categories.Any(),
+                    // קטגוריות גבייה "אמיתיות" (בלי תוספות-קבוצה scoped) — לפי אלו
+                    // נמדד אם הוגדרה גבייה בכלל.
+                    CategoryCount = g.Categories.Count(c => c.SubgroupName == null),
+                    g.ChildrenCount,
+                    // האם הוגדרו קישורי תשלום להורים (ביט/פייבוקס) — שלב "איך משלמים"
+                    HasPaymentLinks = (g.BitLink != null && g.BitLink != "")
+                        || (g.PayboxLink != null && g.PayboxLink != ""),
                 })
                 .ToListAsync();
 
-            // מצב השלמת ההגדרה: אילו גנים כבר יש בהם תלמידים (כדי לאחד את
-            // "הושלם / לא הושלם" לתוך רשימת הוועדים כאן, בלי רשימה נפרדת).
-            var committeeIdsWithStudents = new HashSet<int>(
-                await _db.Students
+            // מצב השלמת ההגדרה: כמה תלמידים בכל גן (לספירה ולדגל "יש תלמידים").
+            var studentCountByGroup = (await _db.Students
                     .Where(s => s.GroupId != null)
+                    .GroupBy(s => s.GroupId!.Value)
+                    .Select(g => new { GroupId = g.Key, Count = g.Count() })
+                    .ToListAsync())
+                .ToDictionary(x => x.GroupId, x => x.Count);
+
+            // אילו גנים כבר נרשמה בהם גבייה בפועל (לפחות תשלום אחד עם סכום > 0) —
+            // כך רואים מי רק הגדיר לעומת מי שכבר התחיל לגבות מההורים.
+            var paidStudentIds = await _db.Payments
+                .Where(p => (p.BitAmount + p.PayBoxAmount + p.CashAmount + p.CardAmount) > 0)
+                .Select(p => p.StudentId)
+                .Distinct()
+                .ToListAsync();
+            var committeeIdsWithPayments = new HashSet<int>(
+                await _db.Students
+                    .Where(s => s.GroupId != null && paidStudentIds.Contains(s.Id))
                     .Select(s => s.GroupId!.Value)
                     .Distinct()
                     .ToListAsync());
@@ -129,8 +148,14 @@ namespace ParentCommitteeAPI.Services
                         var row = Mark(ToRow(
                             c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
                             today, registeredAt: c.Created), c.Protected, protectedEmails);
-                        row.HasCategories = c.HasCategories;
-                        row.HasStudents = committeeIdsWithStudents.Contains(c.Id);
+                        var studentCount = studentCountByGroup.TryGetValue(c.Id, out var n) ? n : 0;
+                        row.CategoryCount = c.CategoryCount;
+                        row.StudentCount = studentCount;
+                        row.ChildrenCount = c.ChildrenCount;
+                        row.HasCategories = c.CategoryCount > 0;
+                        row.HasStudents = studentCount > 0;
+                        row.HasPaymentLinks = c.HasPaymentLinks;
+                        row.HasPayments = committeeIdsWithPayments.Contains(c.Id);
                         row.Complete = row.HasCategories && row.HasStudents;
                         return row;
                     })

@@ -34,6 +34,28 @@ import "../../styles/subscriptions.css";
 const ACTIVE_STATUSES = ["active", "expiring"];
 const SUBS_FILTER_KEY = "vaadygo.subs.activeOnly";
 
+/*
+  committeeSetupInfo — "איפה הגן נעצר בתהליך": השלב האחרון שהושלם והמה שחסר כדי
+  להשלים את ההקמה והגבייה. השרשרת: קטגוריות גבייה → תלמידים → גבייה בפועל
+  (נרשם תשלום). קישורי תשלום להורים הם נוחות ולא חובה (יש ועדים שגובים במזומן),
+  ולכן מוצגים כמידע ולא כ"חסר".
+*/
+function committeeSetupInfo(row) {
+  const missing = [
+    !row.hasCategories && "קטגוריות גבייה",
+    !row.hasStudents && "תלמידים",
+    !row.hasPayments && "גבייה בפועל",
+  ].filter(Boolean);
+  const stage = row.hasPayments
+    ? "גבייה פעילה — נרשמו תשלומים"
+    : row.hasStudents
+      ? "נוספו תלמידים — טרם התחילו לגבות"
+      : row.hasCategories
+        ? "הוגדרו קטגוריות — טרם נוספו תלמידים"
+        : "הוקם הגן בלבד — טרם הוגדרו קטגוריות גבייה";
+  return { missing, stage };
+}
+
 function SubscriptionList({
   title,
   icon,
@@ -66,6 +88,7 @@ function SubscriptionList({
       <ul className="subs__list">
         {rows.map((row) => {
           const status = subscriptionStatus(row.status);
+          const setup = showSetup ? committeeSetupInfo(row) : null;
           return (
             <li key={row.id} className="subs__row">
               {/*
@@ -117,28 +140,39 @@ function SubscriptionList({
               <span className={`subs__pill subs__pill--${status.tone}`}>
                 {status.label}
               </span>
-              {showSetup &&
-                (row.complete ? (
-                  <span
-                    className="subs__pill subs__pill--good"
-                    title="הוגדרו קטגוריות גבייה וגם נוסף לפחות תלמיד אחד"
-                  >
-                    ✅ הושלם
+              {setup && (
+                <>
+                  {/* איפה הגן נעצר — השלב האחרון שהושלם */}
+                  <span className="subs__created" title="השלב האחרון שהושלם בהקמה">
+                    שלב: {setup.stage}
                   </span>
-                ) : (
+                  {/* פירוט מלא: תלמידים מתוך היעד · קטגוריות · קישורי תשלום */}
                   <span
-                    className="subs__pill subs__pill--warn"
-                    title="חסר כדי להתחיל לגבות בפועל"
+                    className="subs__created"
+                    title="תלמידים שהוזנו מתוך מספר הילדים שהוגדר · מספר קטגוריות גבייה · האם הוגדרו קישורי תשלום להורים (ביט/פייבוקס)"
                   >
-                    ⚠️ חסר:{" "}
-                    {[
-                      !row.hasCategories && "קטגוריות גבייה",
-                      !row.hasStudents && "תלמידים",
-                    ]
-                      .filter(Boolean)
-                      .join(", ")}
+                    {row.studentCount || 0}
+                    {row.childrenCount ? `/${row.childrenCount}` : ""} תלמידים ·{" "}
+                    {row.categoryCount || 0} קטגוריות · תשלום להורים:{" "}
+                    {row.hasPaymentLinks ? "הוגדר" : "לא הוגדר"}
                   </span>
-                ))}
+                  {setup.missing.length === 0 ? (
+                    <span
+                      className="subs__pill subs__pill--good"
+                      title="הוגדרו קטגוריות, נוספו תלמידים, וכבר נרשמה גבייה בפועל"
+                    >
+                      ✅ הושלם הכל
+                    </span>
+                  ) : (
+                    <span
+                      className="subs__pill subs__pill--warn"
+                      title="מה שחסר כדי להשלים את ההקמה והגבייה"
+                    >
+                      ⚠️ חסר: {setup.missing.join(", ")}
+                    </span>
+                  )}
+                </>
+              )}
               {row.isProtected && (
                 <span
                   className="subs__pill subs__pill--protected"

@@ -57,6 +57,15 @@ namespace ParentCommitteeAPI.DTOs
         public bool HasCategories { get; set; }
         public bool HasStudents { get; set; }
         public bool Complete { get; set; }
+
+        /* פירוט "איפה נעצרו" — כמה נעשה בכל שלב, כדי לראות ליד כל מוסד מדוע לא
+           השלים את ההקמה (כמה תלמידים מתוך היעד, כמה קטגוריות, האם הוגדרו
+           קישורי תשלום להורים, והאם כבר נרשמה גבייה בפועל). רלוונטי לוועדים. */
+        public int StudentCount { get; set; }
+        public int CategoryCount { get; set; }
+        public int ChildrenCount { get; set; }
+        public bool HasPaymentLinks { get; set; }
+        public bool HasPayments { get; set; }
     }
 
     /*

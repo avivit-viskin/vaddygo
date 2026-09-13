@@ -171,6 +171,43 @@ test("ספקים אינם מקבלים את הכפתור — הפרו שלהם �
   לשבוע. הבדיקה מוודאת שאי אפשר בכלל לסמן אותו למחיקה מרוכזת — לא שהמחיקה
   נכשלת בשרת, אלא שהיא לא מתחילה.
 */
+/*
+  "איפה נעצרו בתהליך" — ליד כל גן מוצג השלב האחרון שהושלם, ספירת תלמידים/
+  קטגוריות, ומה חסר כדי להשלים. כך המנהלת רואה למה מוסד לא סיים את ההקמה.
+*/
+test("מציג ליד כל גן באיזה שלב נעצר ומה חסר להשלמה", async () => {
+  getSubscriptions.mockResolvedValue({
+    ...data,
+    committees: [
+      {
+        id: 1,
+        name: "גן שנעצר",
+        isPro: false,
+        validUntil: null,
+        status: "free",
+        hasCategories: true,
+        hasStudents: false,
+        hasPayments: false,
+        hasPaymentLinks: false,
+        studentCount: 0,
+        categoryCount: 2,
+        childrenCount: 25,
+      },
+    ],
+    suppliers: [],
+  });
+
+  render(<SubscriptionsCard />);
+  await screen.findByText("גן שנעצר");
+
+  // השלב האחרון שהושלם
+  expect(screen.getByText(/שלב:.*הוגדרו קטגוריות/)).toBeInTheDocument();
+  // ספירת קטגוריות/תלמידים
+  expect(screen.getByText(/2 קטגוריות/)).toBeInTheDocument();
+  // מה שחסר כדי להשלים — כולל גבייה בפועל
+  expect(screen.getByText(/חסר:.*גבייה בפועל/)).toBeInTheDocument();
+});
+
 test("שורה מוגנת אינה ניתנת לסימון למחיקה ומסומנת כמוגנת", async () => {
   getSubscriptions.mockResolvedValue({
     ...data,

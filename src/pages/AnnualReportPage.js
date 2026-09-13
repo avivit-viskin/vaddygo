@@ -112,11 +112,13 @@ function AnnualReportPage() {
         </div>
       </div>
 
-      {/* בחירת פירוט הוצאות לשיתוף — לא מודפס בדוח עצמו (no-print). אפשר לבחור
-          רק חלק מהקטגוריות, או לבטל את כולן כדי לא לשתף פירוט הוצאות. */}
+      {/* בחירת פירוט הוצאות לשיתוף — מקופל כברירת מחדל כדי לא לדחוף את הדוח
+          למטה. לא מודפס בדוח עצמו (no-print). */}
       {expenseCats.length > 0 && (
-        <section className="report-controls no-print" aria-label="פירוט הוצאות לשיתוף">
-          <h2 className="report-controls__title">🧾 פירוט הוצאות בדוח</h2>
+        <details className="report-controls no-print">
+          <summary className="report-controls__summary">
+            🧾 פירוט הוצאות בדוח — בחירת קטגוריות לשיתוף
+          </summary>
           <p className="report-controls__hint">
             בחרו אילו קטגוריות הוצאה יופיעו בדוח שנשלח להורים. אפשר לבחור רק חלק —
             או לבטל את כולן כדי לא לשתף פירוט הוצאות.
@@ -132,7 +134,7 @@ function AnnualReportPage() {
               />
             ))}
           </div>
-        </section>
+        </details>
       )}
 
       <article className="report" dir="rtl">

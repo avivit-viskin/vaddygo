@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { loadDashboard } from "../services/dashboardService";
@@ -7,6 +8,7 @@ import { paymentMethodLabel } from "../services/paymentMethods";
 import Spinner from "../components/Spinner";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
+import Checkbox from "../components/Checkbox";
 import Icon from "../components/Icon";
 import { whatsappShareUrl } from "../services/whatsapp";
 import { getBranding } from "../services/branding";
@@ -20,6 +22,18 @@ import "../styles/report.css";
 */
 function AnnualReportPage() {
   const { data: dashboard, isLoading } = useApi(loadDashboard);
+  // אילו קטגוריות הוצאה להסתיר מהדוח שנשלח להורים (ברירת מחדל: ריק = מציגים
+  // הכול). מאפשר לשתף רק חלק מהקטגוריות — או לבטל את כל פירוט ההוצאות.
+  const [hiddenExpenseCats, setHiddenExpenseCats] = useState(() => new Set());
+
+  function toggleExpenseCat(name) {
+    setHiddenExpenseCats((prev) => {
+      const next = new Set(prev);
+      if (next.has(name)) next.delete(name);
+      else next.add(name);
+      return next;
+    });
+  }
 
   if (isLoading) {
     return <Spinner text="מכינים את הדוח השנתי..." />;
@@ -51,12 +65,31 @@ function AnnualReportPage() {
   const totalSpent = byCategory.reduce((sum, c) => sum + (c.spentAmount || 0), 0);
   const branding = getBranding();
 
+  // קטגוריות שיצאה מהן הוצאה בפועל — אלו שאפשר לבחור לשתף/להסתיר בדוח.
+  const expenseCats = byCategory.filter((c) => (c.spentAmount || 0) > 0);
+  const shownExpenseCats = expenseCats.filter(
+    (c) => !hiddenExpenseCats.has(c.name)
+  );
+  // מציגים שורת "סה״כ הוצאות" רק כשכל הקטגוריות מוצגות — אחרת סכום חלקי היה
+  // מטעה (נראה כאילו זה כל ההוצאות). התמצית למעלה ממילא מציגה את הסך המלא.
+  const allExpensesShown =
+    expenseCats.length > 0 && shownExpenseCats.length === expenseCats.length;
+
   const shareText = [
     `📄 דוח שנתי — ${ganName} (${year})`,
     `נגבה: ${formatShekels(collectedTotal)} מתוך יעד ${formatShekels(
       collectionTarget
     )} (${progressPercent}%)`,
     `הוצאות: ${formatShekels(totalSpent)}`,
+    // פירוט הוצאות בהודעה — רק הקטגוריות שנבחרו לשיתוף (אם בכלל)
+    ...(shownExpenseCats.length > 0
+      ? [
+          "פירוט הוצאות:",
+          ...shownExpenseCats.map(
+            (c) => `• ${c.name}: ${formatShekels(c.spentAmount || 0)}`
+          ),
+        ]
+      : []),
     `יתרה בקופה: ${formatShekels(boxBalance)}`,
     "הופק ב-VaddyGo 💗",
   ].join("\n");
@@ -78,6 +111,29 @@ function AnnualReportPage() {
           <Button onClick={() => window.print()}>🖨️ הדפסה / שמירה כ-PDF</Button>
         </div>
       </div>
+
+      {/* בחירת פירוט הוצאות לשיתוף — לא מודפס בדוח עצמו (no-print). אפשר לבחור
+          רק חלק מהקטגוריות, או לבטל את כולן כדי לא לשתף פירוט הוצאות. */}
+      {expenseCats.length > 0 && (
+        <section className="report-controls no-print" aria-label="פירוט הוצאות לשיתוף">
+          <h2 className="report-controls__title">🧾 פירוט הוצאות בדוח</h2>
+          <p className="report-controls__hint">
+            בחרו אילו קטגוריות הוצאה יופיעו בדוח שנשלח להורים. אפשר לבחור רק חלק —
+            או לבטל את כולן כדי לא לשתף פירוט הוצאות.
+          </p>
+          <div className="report-controls__list">
+            {expenseCats.map((c) => (
+              <Checkbox
+                key={c.name}
+                id={`exp-cat-${c.name}`}
+                label={`${c.name} — ${formatShekels(c.spentAmount || 0)}`}
+                checked={!hiddenExpenseCats.has(c.name)}
+                onChange={() => toggleExpenseCat(c.name)}
+              />
+            ))}
+          </div>
+        </section>
+      )}
 
       <article className="report" dir="rtl">
         <header
@@ -143,33 +199,42 @@ function AnnualReportPage() {
           </table>
         </section>
 
-        <section className="report__section">
-          <h2 className="report__h2">הוצאות לפי קטגוריה</h2>
-          {byCategory.length === 0 ? (
-            <p className="report__empty">עדיין לא נרשמו הוצאות.</p>
-          ) : (
-            <table className="report__table">
-              <thead>
-                <tr>
-                  <th>קטגוריה</th>
-                  <th className="report__num">הוצאה</th>
-                </tr>
-              </thead>
-              <tbody>
-                {byCategory.map((c) => (
-                  <tr key={c.name}>
-                    <td>{c.name}</td>
-                    <td className="report__num">{formatShekels(c.spentAmount || 0)}</td>
+        {/* מדור הוצאות לפי קטגוריה — מציג רק את הקטגוריות שנבחרו לשיתוף. אם אין
+            הוצאות בכלל → הודעה; אם יש הוצאות אבל בוטלו כל הקטגוריות → המדור אינו
+            מופיע בדוח (בעלת המוצר בחרה לא לשתף פירוט הוצאות). */}
+        {(expenseCats.length === 0 || shownExpenseCats.length > 0) && (
+          <section className="report__section">
+            <h2 className="report__h2">הוצאות לפי קטגוריה</h2>
+            {expenseCats.length === 0 ? (
+              <p className="report__empty">עדיין לא נרשמו הוצאות.</p>
+            ) : (
+              <table className="report__table">
+                <thead>
+                  <tr>
+                    <th>קטגוריה</th>
+                    <th className="report__num">הוצאה</th>
                   </tr>
-                ))}
-                <tr className="report__total-row">
-                  <td>סה״כ הוצאות</td>
-                  <td className="report__num">{formatShekels(totalSpent)}</td>
-                </tr>
-              </tbody>
-            </table>
-          )}
-        </section>
+                </thead>
+                <tbody>
+                  {shownExpenseCats.map((c) => (
+                    <tr key={c.name}>
+                      <td>{c.name}</td>
+                      <td className="report__num">
+                        {formatShekels(c.spentAmount || 0)}
+                      </td>
+                    </tr>
+                  ))}
+                  {allExpensesShown && (
+                    <tr className="report__total-row">
+                      <td>סה״כ הוצאות</td>
+                      <td className="report__num">{formatShekels(totalSpent)}</td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            )}
+          </section>
+        )}
 
         {byPaymentMethod.some((m) => m.amount > 0) && (
           <section className="report__section">

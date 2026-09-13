@@ -23,6 +23,15 @@ jest.mock("../services/dashboardService", () => ({
     }),
 }));
 
+jest.mock("../services/expensesService", () => ({
+  getExpenses: () =>
+    Promise.resolve([
+      { id: 1, category: "מתנות", description: "מגש פירות", amount: 200, date: "2026-01-05", method: "cash" },
+      { id: 2, category: "מתנות", description: "בלונים", amount: 7800, date: "2026-01-06", method: "cash" },
+      { id: 3, category: "ציוד", description: "צבעים", amount: 2000, date: "2026-02-01", method: "cash" },
+    ]),
+}));
+
 test("מציג דוח שנתי עם שם הגן, סכומי הגבייה וההוצאות", async () => {
   render(
     <MemoryRouter>
@@ -38,6 +47,9 @@ test("מציג דוח שנתי עם שם הגן, סכומי הגבייה והה�
   expect(screen.getAllByText(/8,000/).length).toBeGreaterThan(0);
   // קטגוריית ההוצאה מופיעה
   expect(screen.getByText("מתנות")).toBeInTheDocument();
+  // ופירוט ההוצאה עצמה (הפריט בתוך הקטגוריה) מופיע בדוח
+  expect(await screen.findByText("מגש פירות")).toBeInTheDocument();
+  expect(screen.getByText("בלונים")).toBeInTheDocument();
 });
 
 test("אפשר לבחור אילו קטגוריות הוצאה יופיעו — ביטול קטגוריה מסיר אותה מהדוח", async () => {
@@ -52,10 +64,15 @@ test("אפשר לבחור אילו קטגוריות הוצאה יופיעו — 
   expect(screen.getByText("מתנות")).toBeInTheDocument();
   expect(screen.getByText("ציוד")).toBeInTheDocument();
 
+  // הפריט של "ציוד" מופיע לפני הביטול
+  expect(await screen.findByText("צבעים")).toBeInTheDocument();
+
   // מבטלים את "ציוד" בבורר (צ'קבוקס עם השם והסכום)
   await userEvent.click(screen.getByLabelText(/ציוד — /));
 
-  // "ציוד" ירד מפירוט הדוח; "מתנות" נשאר
+  // "ציוד" והפריט שלו ירדו מהדוח; "מתנות" והפריט שלו נשארו
   expect(screen.queryByText("ציוד")).not.toBeInTheDocument();
+  expect(screen.queryByText("צבעים")).not.toBeInTheDocument();
   expect(screen.getByText("מתנות")).toBeInTheDocument();
+  expect(screen.getByText("מגש פירות")).toBeInTheDocument();
 });

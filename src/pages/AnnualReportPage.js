@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { loadDashboard } from "../services/dashboardService";
+import { getExpenses } from "../services/expensesService";
 import { currentHebrewYearName } from "../services/schoolYear";
 import { formatShekels } from "../services/format";
 import { paymentMethodLabel } from "../services/paymentMethods";
@@ -22,6 +23,8 @@ import "../styles/report.css";
 */
 function AnnualReportPage() {
   const { data: dashboard, isLoading } = useApi(loadDashboard);
+  // רשימת ההוצאות עצמן — כדי להציג בדוח את הפירוט (מה יצא בכל קטגוריה)
+  const { data: expenses } = useApi(getExpenses);
   // אילו קטגוריות הוצאה להסתיר מהדוח שנשלח להורים (ברירת מחדל: ריק = מציגים
   // הכול). מאפשר לשתף רק חלק מהקטגוריות — או לבטל את כל פירוט ההוצאות.
   const [hiddenExpenseCats, setHiddenExpenseCats] = useState(() => new Set());
@@ -74,6 +77,23 @@ function AnnualReportPage() {
   // מטעה (נראה כאילו זה כל ההוצאות). התמצית למעלה ממילא מציגה את הסך המלא.
   const allExpensesShown =
     expenseCats.length > 0 && shownExpenseCats.length === expenseCats.length;
+
+  // פירוט ההוצאות עצמן, מקובצות לפי קטגוריה — כדי להציג בדוח מה בדיוק יצא בכל
+  // קטגוריה (למשל בהזנה: "מגש פירות — 200 ₪"). מתעלמים מהוצאות המשויכות לקבוצה
+  // (subgroupName) כי הן נספרות בכרטיס הקבוצה ולא בפילוח הכללי — כמו בשרת.
+  const expensesByCategory = new Map();
+  (expenses || [])
+    .filter((e) => !e.subgroupName)
+    .forEach((e) => {
+      const key = (e.category || "").trim() || "ללא קטגוריה";
+      const list = expensesByCategory.get(key) || [];
+      list.push(e);
+      expensesByCategory.set(key, list);
+    });
+  const itemsFor = (categoryName) =>
+    [...(expensesByCategory.get(categoryName) || [])].sort(
+      (a, b) => new Date(a.date) - new Date(b.date)
+    );
 
   const shareText = [
     `📄 דוח שנתי — ${ganName} (${year})`,
@@ -210,30 +230,41 @@ function AnnualReportPage() {
             {expenseCats.length === 0 ? (
               <p className="report__empty">עדיין לא נרשמו הוצאות.</p>
             ) : (
-              <table className="report__table">
-                <thead>
-                  <tr>
-                    <th>קטגוריה</th>
-                    <th className="report__num">הוצאה</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {shownExpenseCats.map((c) => (
-                    <tr key={c.name}>
-                      <td>{c.name}</td>
-                      <td className="report__num">
-                        {formatShekels(c.spentAmount || 0)}
-                      </td>
-                    </tr>
-                  ))}
-                  {allExpensesShown && (
-                    <tr className="report__total-row">
-                      <td>סה״כ הוצאות</td>
-                      <td className="report__num">{formatShekels(totalSpent)}</td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
+              <div className="report__expenses">
+                {shownExpenseCats.map((c) => {
+                  const items = itemsFor(c.name);
+                  return (
+                    <div className="report__exp-cat" key={c.name}>
+                      <div className="report__exp-cat-head">
+                        <span>{c.name}</span>
+                        <span className="report__num">
+                          {formatShekels(c.spentAmount || 0)}
+                        </span>
+                      </div>
+                      {items.length > 0 && (
+                        <ul className="report__exp-items">
+                          {items.map((it) => (
+                            <li key={it.id}>
+                              <span className="report__exp-desc">
+                                {it.description?.trim() || "הוצאה"}
+                              </span>
+                              <span className="report__num">
+                                {formatShekels(it.amount)}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </div>
+                  );
+                })}
+                {allExpensesShown && (
+                  <div className="report__exp-total">
+                    <span>סה״כ הוצאות</span>
+                    <span className="report__num">{formatShekels(totalSpent)}</span>
+                  </div>
+                )}
+              </div>
             )}
           </section>
         )}

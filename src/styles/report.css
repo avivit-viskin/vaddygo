@@ -271,3 +271,48 @@
 .report-controls__list .field {
   margin: 0;
 }
+
+/* פירוט הוצאות לפי קטגוריה — כל קטגוריה עם הפריטים שיצאו בה (בגוף הדוח) */
+.report__expenses {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.report__exp-cat-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-border);
+  padding-bottom: 4px;
+}
+
+.report__exp-items {
+  list-style: none;
+  margin: 4px 0 0;
+  padding-inline-start: 14px;
+}
+
+.report__exp-items li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 2px 0;
+  color: var(--color-text);
+}
+
+.report__exp-desc::before {
+  content: "•";
+  color: var(--color-text-muted);
+  margin-inline-end: 6px;
+}
+
+.report__exp-total {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  font-weight: 700;
+  border-top: 2px solid var(--color-border);
+  padding-top: 6px;
+}

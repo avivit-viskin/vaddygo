@@ -173,10 +173,19 @@ function SideMenu({ isOpen, onClose }) {
           >
             <span aria-hidden="true">🧭</span> סיור באפליקציה
           </button>
-          {/* סרטון ההסבר — לצד הסיור, לטובת מי שמעדיף לראות ולא לקרוא.
-              אינו מוצג כלל כל עוד לא הוגדרה כתובת סרטון. */}
+          {/*
+            סרטון ההסבר — לצד הסיור, לטובת מי שמעדיף לראות ולא לקרוא.
+
+            🔴 **בלי onClose כאן, בכוונה.** התפריט מתפרק בסגירה
+            (`if (!isOpen) return null`), ולכן סגירתו הייתה מפרקת גם את
+            HelpVideoButton ואת החלון שבתוכו — הכפתור נלחץ והסרטון פשוט לא
+            נפתח. נתפס באימות מול האתר החי, אחרי שהטסטים עברו.
+
+            המודאל ב-z-index 100 והתפריט ב-60, ולכן הסרטון מופיע מעליו —
+            בדיוק כמו ShareLinkModal ו"הוספת מוסד" שכבר עובדים כך כאן.
+          */}
           <div className="sidemenu__action sidemenu__action--video">
-            <HelpVideoButton label="סרטון הסבר" onOpen={onClose} />
+            <HelpVideoButton label="סרטון הסבר" />
           </div>
           <a
             className="sidemenu__action sidemenu__contact"

@@ -23,12 +23,12 @@ import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
-import HelpVideoButton from "../components/HelpVideoButton";
 import StudentCard from "../components/StudentCard";
 import StudentForm from "../components/StudentForm";
 import InstitutionAllergyBanner from "../components/InstitutionAllergyBanner";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
+import StudentsStartOptions from "./students/StudentsStartOptions";
 import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
 import { exportStudentsToExcel } from "../services/studentsExcelExport";
 import { toastSuccess, toastError } from "../services/toastBus";
@@ -400,12 +400,24 @@ function StudentsPage() {
             ? `${totalCount} מתוך ${configuredCount} תלמידים`
             : `${totalCount} תלמידים`}
         </h2>
-        {!readOnly && (
+        {/*
+          כשהרשימה ריקה — שורת הפעולות אינה מוצגת כלל: "הוספה" ו"ייבוא" כבר
+          מוצגים בגדול במסך הריק, ו"ייצוא לאקסל"/"בקשת תשלום" אין להם על מה
+          לפעול. כך המסך הראשון שהוועד רואה מציג **שתי אפשרויות ברורות** ולא
+          שש, ואין שני כפתורים זהים באותו מסך.
+        */}
+        {!readOnly && totalCount > 0 && (
           <div className="page-header__actions">
             <Button variant="brand" onClick={openAddForm} dataTour="add-student">
               + הוספת תלמיד
             </Button>
-            <Button variant="secondary" onClick={() => setIsImportOpen(true)}>
+            {/* הכיתוב מזכיר את קובץ משרד החינוך — זה הקובץ שכבר ביד של
+                מנהלת המוסד, ואיש לא מנחש לבד שהמערכת קוראת אותו. */}
+            <Button
+              variant="secondary"
+              onClick={() => setIsImportOpen(true)}
+              title="אקסל, CSV, או קובץ משרד החינוך כמו שהוא"
+            >
               📄 ייבוא מקובץ
             </Button>
             <ProGate feature="bulkReminders" label="בקשת תשלום בוואטסאפ">
@@ -448,16 +460,20 @@ function StudentsPage() {
       <InstitutionAllergyBanner readOnly={readOnly} />
 
       {totalCount === 0 ? (
-        <EmptyState message="עדיין אין תלמידים — אפשר להוסיף את הראשון!">
+        <EmptyState message="עדיין אין תלמידים ברשימה">
           {/*
             כאן בדיוק נעצרים: בנתוני השימוש הרבה ועדים פתחו גן ולא הזינו
-            תלמידים אף פעם. הסרטון מוצע במקום שבו התקיעה קורית, ולא בתפריט
-            שצריך לחפש אותו.
+            תלמידים אף פעם. לכן שתי הדרכים (ידנית / קובץ) מוצגות דווקא כאן,
+            ולא רק ככפתורים בשורת הפעולות שלמעלה.
+
+            לצופה בלבד אין מה להציע — הכפתורים ממילא יכשלו בשרת.
           */}
-          <HelpVideoButton
-            variant="button"
-            label="לראות איך מוסיפים תלמידים"
-          />
+          {!readOnly && (
+            <StudentsStartOptions
+              onAddOne={openAddForm}
+              onImport={() => setIsImportOpen(true)}
+            />
+          )}
         </EmptyState>
       ) : (
         <>

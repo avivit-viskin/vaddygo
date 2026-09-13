@@ -146,7 +146,7 @@ function StudentsImport({ onDone, onCancel }) {
     <div className="students-import">
       <p className="students-import__intro">
         אפשר להעלות ישירות את <strong>קובץ משרד החינוך</strong> — המערכת מזהה לבד את
-        העמודות (שם, ת"ז, תאריך לידה, אלרגיות, כתובת ופרטי שני ההורים) לפי שמן.{" "}
+        העמודות (שם, ת"ז, תאריך לידה, כתובת ופרטי שני ההורים) לפי שמן.{" "}
         <strong>ולא חייבים את כל השדות</strong> — אפשר גם קובץ פשוט עם מה שיש לך.
       </p>
       <ol className="students-import__steps">

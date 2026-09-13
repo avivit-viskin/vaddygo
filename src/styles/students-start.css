@@ -1,0 +1,70 @@
+/*
+  שתי הדרכים להזין תלמידים, במסך הריק.
+
+  שני הכרטיסים שווים במשקל בכוונה: אין כאן דרך "נכונה". מי שיש לה רשימה
+  מהגננת צריכה לראות את הייבוא באותה בולטות שבה היא רואה את ההוספה הידנית.
+*/
+
+.students-start {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 18px;
+  width: 100%;
+  margin-top: 4px;
+}
+
+.students-start__lead {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.students-start__options {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 14px;
+  width: 100%;
+  max-width: 640px;
+}
+
+.students-start__option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 9px;
+  text-align: center;
+  padding: 20px 18px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-surface);
+}
+
+.students-start__icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-link);
+}
+
+.students-start__title {
+  margin: 0;
+  font-size: var(--font-size-md, 1rem);
+  font-weight: 700;
+  color: var(--color-text);
+}
+
+.students-start__text {
+  margin: 0 0 4px;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text-muted);
+}
+
+.students-start__video {
+  margin-top: 2px;
+}

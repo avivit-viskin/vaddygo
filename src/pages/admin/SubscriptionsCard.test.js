@@ -182,6 +182,7 @@ test("מציג ליד כל גן באיזה שלב נעצר ומה חסר להש�
       {
         id: 1,
         name: "גן שנעצר",
+        city: "חיפה",
         isPro: false,
         validUntil: null,
         status: "free",
@@ -200,6 +201,8 @@ test("מציג ליד כל גן באיזה שלב נעצר ומה חסר להש�
   render(<SubscriptionsCard />);
   await screen.findByText("גן שנעצר");
 
+  // עיר המוסד מוצגת ליד השם
+  expect(screen.getByText(/חיפה/)).toBeInTheDocument();
   // השלב האחרון שהושלם
   expect(screen.getByText(/שלב:.*הוגדרו קטגוריות/)).toBeInTheDocument();
   // ספירת קטגוריות/תלמידים

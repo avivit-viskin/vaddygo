@@ -115,6 +115,11 @@ function SubscriptionList({
                   />
                 ))}
               <span className="subs__name">{row.name}</span>
+              {row.city && (
+                <span className="subs__created" title="עיר המוסד">
+                  📍 {row.city}
+                </span>
+              )}
               {dupKeys && dupKeys.has((row.name || "").trim().toLowerCase()) && (
                 <span
                   className="subs__pill subs__pill--dup"
@@ -153,8 +158,8 @@ function SubscriptionList({
                   >
                     {row.studentCount || 0}
                     {row.childrenCount ? `/${row.childrenCount}` : ""} תלמידים ·{" "}
-                    {row.categoryCount || 0} קטגוריות · תשלום להורים:{" "}
-                    {row.hasPaymentLinks ? "הוגדר" : "לא הוגדר"}
+                    {row.categoryCount || 0} קטגוריות · קישורי תשלום
+                    (ביט/פייבוקס): {row.hasPaymentLinks ? "הוגדרו" : "לא הוגדרו"}
                   </span>
                   {setup.missing.length === 0 ? (
                     <span

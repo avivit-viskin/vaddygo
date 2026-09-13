@@ -203,7 +203,11 @@
   }
   .report {
     position: absolute;
-    inset: 0;
+    /* בלי bottom! עם inset:0 הגובה ננעל לעמוד אחד והפירוט הארוך נחתך ב-PDF.
+       top+left+right בלבד → גובה אוטומטי, והדוח נשפך על כמה עמודים. */
+    top: 0;
+    left: 0;
+    right: 0;
     margin: 0;
     border: none;
     box-shadow: none;

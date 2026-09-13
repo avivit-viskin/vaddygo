@@ -50,6 +50,12 @@ test("מציג דוח שנתי עם שם הגן, סכומי הגבייה והה�
   // ופירוט ההוצאה עצמה (הפריט בתוך הקטגוריה) מופיע בדוח
   expect(await screen.findByText("מגש פירות")).toBeInTheDocument();
   expect(screen.getByText("בלונים")).toBeInTheDocument();
+
+  // גם הודעת השיתוף בוואטסאפ כוללת את פירוט ההוצאות (הפריטים)
+  const shareLink = screen.getByRole("link", { name: /שיתוף להורים/ });
+  const shared = decodeURIComponent(shareLink.getAttribute("href"));
+  expect(shared).toContain("מגש פירות");
+  expect(shared).toContain("צבעים");
 });
 
 test("אפשר לבחור אילו קטגוריות הוצאה יופיעו — ביטול קטגוריה מסיר אותה מהדוח", async () => {

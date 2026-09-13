@@ -101,13 +101,17 @@ function AnnualReportPage() {
       collectionTarget
     )} (${progressPercent}%)`,
     `הוצאות: ${formatShekels(totalSpent)}`,
-    // פירוט הוצאות בהודעה — רק הקטגוריות שנבחרו לשיתוף (אם בכלל)
+    // פירוט הוצאות בהודעה — הקטגוריות שנבחרו, כל אחת עם הפריטים שיצאו בה
     ...(shownExpenseCats.length > 0
       ? [
           "פירוט הוצאות:",
-          ...shownExpenseCats.map(
-            (c) => `• ${c.name}: ${formatShekels(c.spentAmount || 0)}`
-          ),
+          ...shownExpenseCats.flatMap((c) => [
+            `${c.name} — ${formatShekels(c.spentAmount || 0)}`,
+            ...itemsFor(c.name).map(
+              (it) =>
+                `   • ${it.description?.trim() || "הוצאה"}: ${formatShekels(it.amount)}`
+            ),
+          ]),
         ]
       : []),
     `יתרה בקופה: ${formatShekels(boxBalance)}`,

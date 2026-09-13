@@ -7,7 +7,9 @@
   אדום "לא שולם".
 
   הייצוא מכבד את הסינון במסך: מקבל את רשימת התלמידים המסוננת (visibleStudents).
-  אם לא הועברה רשימה — מייצא את כל התלמידים (תאימות לאחור).
+  אם לא הועברה רשימה — מייצא את כל התלמידים (תאימות לאחור). כשמסננים לפי קטגוריה
+  אחת (options.onlyCategories) — מייצאים רק את עמודת אותה קטגוריה, כך שהקובץ מכיל
+  בדיוק את מה שרואים במסך (בקשת בעלת המוצר).
 
   התאמת תשלום↔קטגוריה נעשית לפי *שם הקטגוריה* (הגדרת הגן המקומית לא כוללת מזהה
   שרת). משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעה) בטעינה עצלה.
@@ -38,7 +40,7 @@ function statusFor(payment) {
   אוסף תלמידים + כל שורות התשלום, בונה גיליון צבוע ומוריד קובץ. מקבל רשימת
   תלמידים מסוננת (אופציונלי). מחזיר את מספר התלמידים שיוצאו (0 = אין תלמידים).
 */
-export async function exportStudentsToExcel(filteredStudents) {
+export async function exportStudentsToExcel(filteredStudents, options = {}) {
   const [mod, students, rows] = await Promise.all([
     import("xlsx-js-style"),
     Array.isArray(filteredStudents)
@@ -75,6 +77,17 @@ export async function exportStudentsToExcel(filteredStudents) {
     const seen = new Set();
     rows.forEach((p) => p.categoryName && seen.add(p.categoryName));
     categoryNames = [...seen];
+  }
+
+  // סינון לפי קטגוריה שנבחרה במסך — מייצאים רק את העמודות של אותן קטגוריות
+  // (בדרך כלל אחת). שומרים על סדר הקטגוריות; אם שם הקטגוריה לא זוהה ברשימה,
+  // משתמשים בשם שהתקבל כמו שהוא כדי שהעמודה עדיין תופיע.
+  const only = Array.isArray(options.onlyCategories)
+    ? options.onlyCategories.filter(Boolean)
+    : null;
+  if (only && only.length > 0) {
+    const kept = categoryNames.filter((n) => only.includes(n));
+    categoryNames = kept.length > 0 ? kept : only;
   }
 
   // הסכום המבוקש לכל קטגוריה — קודם מהגדרת הגן (amountPerChild), ואם אין, מתוך

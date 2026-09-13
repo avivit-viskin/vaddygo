@@ -417,8 +417,15 @@ function StudentsPage() {
               onClick={async () => {
                 setExporting(true);
                 try {
-                  // מייצאים בדיוק את מה שרואים אחרי הסינון (טרם שילמו / קטגוריה / חיפוש)
-                  const n = await exportStudentsToExcel(visibleStudents);
+                  // מייצאים בדיוק את מה שרואים אחרי הסינון (טרם שילמו / קטגוריה / חיפוש):
+                  // גם רק התלמידים המסוננים, וגם — אם נבחרה קטגוריה — רק עמודת אותה קטגוריה.
+                  const selectedCat = categoryFilter
+                    ? categories.find((c) => String(c.id) === String(categoryFilter))
+                    : null;
+                  const n = await exportStudentsToExcel(
+                    visibleStudents,
+                    selectedCat ? { onlyCategories: [selectedCat.name] } : undefined
+                  );
                   if (n === 0) {
                     toastError("אין תלמידים לייצוא (אולי הסינון מסתיר את כולם)");
                   } else {

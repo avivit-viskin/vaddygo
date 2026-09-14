@@ -128,6 +128,15 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="link" size={18} /> שיתוף קישור להרשמה
         </button>
 
+        {/* גישה מהירה לספקים (מדור הספקים במסך המתנות) */}
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/gifts")}
+        >
+          <Icon name="tag" size={18} /> ספקים
+        </button>
+
         <h3 className="sidemenu__title">הגדרות</h3>
         <button
           type="button"

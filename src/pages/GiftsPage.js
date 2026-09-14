@@ -323,37 +323,6 @@ function GiftsPage() {
 
       <Card
         title={
-          <>
-            <Icon name="gift" size={20} /> המתנות שרכשתי
-          </>
-        }
-      >
-        {gifts.length === 0 ? (
-          <EmptyState icon="🎁" message="עדיין אין מתנות — נוסיף את הראשונה?" />
-        ) : (
-          <div className="gifts__list">
-            {gifts.map((gift) => (
-              <GiftCard
-                key={gift.id}
-                gift={gift}
-                vendorName={vendorsById.get(gift.vendorId)?.name}
-                onEdit={() => setEditingGift(gift)}
-                onDelete={() => setDeletingGift(gift)}
-                onOpenVendor={() => setOpenVendor(vendorsById.get(gift.vendorId))}
-                readOnly={readOnly}
-              />
-            ))}
-          </div>
-        )}
-        {!readOnly && (
-          <Button variant="secondary" onClick={() => setEditingGift({})}>
-            + הוספת מתנה
-          </Button>
-        )}
-      </Card>
-
-      <Card
-        title={
           // צבע שחור-פחם מפורש (inline) — כדי שהכותרת תישאר שחורה בוודאות, בלי
           // תלות בקובץ העיצוב של אזור הספקים (שנמצא כרגע בעריכה של תהליך אחר).
           <span data-tour="suppliers" style={{ color: "var(--color-primary-dark)" }}>
@@ -594,6 +563,37 @@ function GiftsPage() {
         {canManageVendors && (
           <Button variant="secondary" onClick={() => setEditingVendor({})}>
             + הוספת ספק
+          </Button>
+        )}
+      </Card>
+
+      <Card
+        title={
+          <>
+            <Icon name="gift" size={20} /> המתנות שרכשתי
+          </>
+        }
+      >
+        {gifts.length === 0 ? (
+          <EmptyState icon="🎁" message="עדיין אין מתנות — נוסיף את הראשונה?" />
+        ) : (
+          <div className="gifts__list">
+            {gifts.map((gift) => (
+              <GiftCard
+                key={gift.id}
+                gift={gift}
+                vendorName={vendorsById.get(gift.vendorId)?.name}
+                onEdit={() => setEditingGift(gift)}
+                onDelete={() => setDeletingGift(gift)}
+                onOpenVendor={() => setOpenVendor(vendorsById.get(gift.vendorId))}
+                readOnly={readOnly}
+              />
+            ))}
+          </div>
+        )}
+        {!readOnly && (
+          <Button variant="secondary" onClick={() => setEditingGift({})}>
+            + הוספת מתנה
           </Button>
         )}
       </Card>

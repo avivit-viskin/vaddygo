@@ -1,5 +1,7 @@
 /*
   sidemenu.css — תפריט הצד ומחליף המוסדות (UI_SPEC ס' 3.5), על בסיס theme.css.
+  עיצוב "פרופיל" בהשראת PayBox (בקשת בעלת המוצר): כותרת עם עיגול ראשי-תיבות
+  ומסלול, וקבוצות פעולות ככרטיסים רכים עם אייקון בכל שורה.
 */
 
 /* מתחיל מתחת לכותרת כדי שהלוגו יישאר בהיר ולא מעומעם */
@@ -20,13 +22,13 @@
   right: 0;
   top: 60px;
   bottom: 0;
-  width: min(300px, 82vw);
+  width: min(320px, 86vw);
   background: var(--color-surface);
   box-shadow: var(--shadow-md);
-  padding: 16px 16px 24px;
+  padding: 12px 14px 24px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   overflow-y: auto;
   animation: sidemenu-slide-in 0.2s ease;
 }
@@ -48,9 +50,7 @@
 
 .sidemenu__header {
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  font-size: var(--font-size-lg);
+  justify-content: flex-end;
 }
 
 .sidemenu__close {
@@ -62,10 +62,58 @@
   min-height: 44px;
 }
 
-.sidemenu__title {
-  margin: 8px 0 0;
-  font-size: var(--font-size-base);
+/* ── כרטיס פרופיל (עיגול ראשי-תיבות + שם + מסלול) ── */
+.sidemenu__profile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 6px;
+  padding: 0 0 4px;
+}
+
+.sidemenu__avatar {
+  width: 82px;
+  height: 82px;
+  border-radius: 50%;
+  background: var(--color-primary-light);
+  color: var(--color-primary-dark);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+.sidemenu__profile-name {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 1.1rem;
+  font-weight: 700;
   color: #000000;
+}
+
+.sidemenu__profile-edit {
+  border: none;
+  background: none;
+  cursor: pointer;
+  color: var(--color-text-muted);
+  padding: 2px;
+  display: inline-flex;
+}
+
+.sidemenu__profile-plan {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+
+/* כותרת מדור — אפורה ועדינה, כמו ב-PayBox */
+.sidemenu__title {
+  margin: 8px 4px 2px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-text-muted);
 }
 
 /* שורת כותרת עם פעולה בצד — "המוסדות שלי" + "הוספת מוסד" באותה שורה */
@@ -95,6 +143,7 @@
   text-decoration: underline;
 }
 
+/* ── מחליף המוסדות ── */
 .institutions {
   list-style: none;
   margin: 0;
@@ -178,29 +227,69 @@
   opacity: 1;
 }
 
-/* "צור קשר" + התנתקות — ישר מתחת להגדרות (לא נדחפים לתחתית המוסתרת) */
-.sidemenu__footer {
-  margin-top: 16px;
-  border-top: 1px solid var(--color-border);
-  padding-top: 12px;
+/* ── קבוצת פעולות ככרטיס רך עם שורות (בסגנון PayBox) ── */
+.sidemenu__group {
+  background: var(--color-primary-light);
+  border-radius: 16px;
+  overflow: hidden;
 }
 
-/* פעולה בתפריט — קישור/כפתור בעיצוב פריט תפריט */
-.sidemenu__action {
+.sidemenu__row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  color: #000000;
-  text-decoration: none;
-  font-weight: 600;
+  gap: 12px;
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-family);
   font-size: var(--font-size-base);
-  min-height: 44px;
-  padding: 10px 0;
+  font-weight: 600;
+  color: #000000;
+  text-align: start;
+  text-decoration: none;
+  padding: 13px 14px;
+  min-height: 52px;
 }
 
-/* "צור קשר" — ירוק (פנייה לתמיכה בוואטסאפ), עם אייקון טלפון 📞 */
-.sidemenu__contact {
+.sidemenu__row + .sidemenu__row {
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.sidemenu__row:hover {
+  background: rgba(0, 0, 0, 0.03);
+}
+
+.sidemenu__row-icon {
+  flex-shrink: 0;
+  display: inline-flex;
+  color: var(--color-primary-dark);
+}
+
+.sidemenu__row-label {
+  flex: 1;
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.sidemenu__row-chevron {
+  flex-shrink: 0;
+  color: var(--color-text-muted);
+  font-size: 1.2rem;
+  line-height: 1;
+}
+
+/* "צור קשר" — אייקון ירוק (פנייה לתמיכה בוואטסאפ) */
+.sidemenu__row--contact .sidemenu__row-icon {
   color: var(--color-success);
+}
+
+/* ── תחתית — התנתקות + גרסה/מותג ── */
+.sidemenu__footer {
+  margin-top: 8px;
+  padding-top: 4px;
 }
 
 .sidemenu__logout {
@@ -217,7 +306,14 @@
   font-size: var(--font-size-base);
   font-weight: 600;
   min-height: 44px;
-  padding: 10px 0;
+  padding: 10px 4px;
+}
+
+.sidemenu__version {
+  text-align: center;
+  color: var(--color-text-muted);
+  font-size: 0.8rem;
+  margin: 8px 0 0;
 }
 
 /* כפתור התפריט בכותרת + שם המוסד הפעיל */

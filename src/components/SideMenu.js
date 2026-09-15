@@ -1,29 +1,87 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import BrandName from "./BrandName";
 import Icon from "./Icon";
 import InstitutionSwitcher from "./InstitutionSwitcher";
 import Modal from "./Modal";
 import ShareLinkModal from "./ShareLinkModal";
 import Input from "./Input";
 import Button from "./Button";
-import { logout, isSuperAdmin } from "../services/authService";
-import { addInstitution } from "../services/institutionsService";
+import { logout, isSuperAdmin, getUser } from "../services/authService";
+import {
+  addInstitution,
+  getActiveInstitution,
+} from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { startTour } from "../services/tourBus";
 import ProBadge from "./ProBadge";
-import { isFeatureLocked } from "../services/plan";
+import { isFeatureLocked, isPro } from "../services/plan";
 import "../styles/sidemenu.css";
 
 /*
-  SideMenu — תפריט צד נשלף (UI_SPEC ס' 3.5): מחליף המוסדות, צור קשר והתנתקות.
-  נפתח מכפתור ☰ שבכותרת, נשלף מצד ימין מתחת לכותרת (לא מכסה את הלוגו).
+  SideMenu — תפריט צד נשלף (UI_SPEC ס' 3.5). עיצוב בסגנון "פרופיל" (בהשראת
+  PayBox, בקשת בעלת המוצר): כותרת עם עיגול ראשי-תיבות, שם המוסד הפעיל והמסלול,
+  ואז קבוצות פעולות מעוצבות ככרטיסים רכים עם אייקון בכל שורה. נפתח מכפתור ☰.
 */
 // מספר הוואטסאפ של התמיכה (מספר ציבורי — לא סוד)
 const SUPPORT_PHONE = "054-4579179";
 const SUPPORT_URL = `${whatsappUrl(SUPPORT_PHONE)}?text=${encodeURIComponent(
   "שלום, אשמח לעזרה עם VaddyGo 🙂"
 )}`;
+
+// ראשי-תיבות לעיגול הפרופיל: שתי המילים הראשונות (למשל "גן כוכב" → "גכ")
+function initials(name) {
+  const words = (name || "").trim().split(/\s+/).filter(Boolean);
+  if (words.length === 0) return "?";
+  return words
+    .slice(0, 2)
+    .map((w) => w[0])
+    .join("");
+}
+
+/*
+  MenuRow — שורת פעולה בכרטיס: אייקון בהתחלה, תווית (ואולי תג פרו), וחץ בסוף.
+  href → קישור חיצוני (נפתח בטאב חדש); אחרת כפתור. tone צובע שורה מיוחדת.
+*/
+function MenuRow({ icon, label, badge, dataTour, onClick, href, tone }) {
+  const cls = `sidemenu__row${tone ? ` sidemenu__row--${tone}` : ""}`;
+  const inner = (
+    <>
+      <span className="sidemenu__row-icon" aria-hidden="true">
+        {icon}
+      </span>
+      <span className="sidemenu__row-label">
+        {label}
+        {badge}
+      </span>
+      <span className="sidemenu__row-chevron" aria-hidden="true">
+        ‹
+      </span>
+    </>
+  );
+  if (href) {
+    return (
+      <a
+        className={cls}
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        onClick={onClick}
+      >
+        {inner}
+      </a>
+    );
+  }
+  return (
+    <button
+      type="button"
+      className={cls}
+      data-tour={dataTour || undefined}
+      onClick={onClick}
+    >
+      {inner}
+    </button>
+  );
+}
 
 function SideMenu({ isOpen, onClose }) {
   const navigate = useNavigate();
@@ -74,6 +132,9 @@ function SideMenu({ isOpen, onClose }) {
     navigate(`/institutions/${id}/purchase`);
   }
 
+  const displayName =
+    getActiveInstitution()?.name || getUser()?.username || "VaddyGo";
+
   return (
     <div className="sidemenu-overlay" onClick={onClose}>
       <aside
@@ -82,7 +143,6 @@ function SideMenu({ isOpen, onClose }) {
         onClick={(event) => event.stopPropagation()}
       >
         <div className="sidemenu__header">
-          <BrandName withHeart />
           <button
             type="button"
             className="sidemenu__close"
@@ -93,6 +153,28 @@ function SideMenu({ isOpen, onClose }) {
           </button>
         </div>
 
+        {/* כרטיס פרופיל — עיגול ראשי-תיבות, שם המוסד הפעיל, והמסלול */}
+        <div className="sidemenu__profile">
+          <div className="sidemenu__avatar" aria-hidden="true">
+            {initials(displayName)}
+          </div>
+          <div className="sidemenu__profile-name">
+            <span>{displayName}</span>
+            <button
+              type="button"
+              className="sidemenu__profile-edit"
+              aria-label="עריכת פרטי המוסד"
+              onClick={() => go("/settings?section=institution")}
+            >
+              <Icon name="pencil" size={14} />
+            </button>
+          </div>
+          <span className="sidemenu__profile-plan">
+            המסלול שלי: {isPro() ? "פרו ✨" : "חינם"}
+          </span>
+        </div>
+
+        {/* המוסדות שלי — כותרת + הוספת מוסד + מחליף המוסדות */}
         <div className="sidemenu__section-head">
           <h3 className="sidemenu__title">המוסדות שלי</h3>
           <button
@@ -106,107 +188,93 @@ function SideMenu({ isOpen, onClose }) {
         </div>
         <InstitutionSwitcher onClose={onClose} />
 
-        <button
-          type="button"
-          className="sidemenu__action sidemenu__upgrade"
-          data-tour="menu-pro"
-          onClick={() => go("/upgrade")}
-        >
-          מסלול פרו{" "}
-          <ProBadge title="כל כלי הפרו במקום אחד" />
-        </button>
-
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/gifts")}
-        >
-          <Icon name="tag" size={18} /> ספקים
-        </button>
-
-        <button
-          type="button"
-          className="sidemenu__action"
-          data-tour="menu-collection"
-          onClick={() => go("/collection-settings")}
-        >
-          <Icon name="wallet" size={18} /> עריכת גבייה
-        </button>
-
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/settings?section=team")}
-        >
-          <Icon name="users" size={18} /> חברי ועד והרשאות{" "}
-          <ProBadge title="חברי ועד והרשאות — פיצ'ר פרו" />
-        </button>
-
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => go("/settings?section=payments")}
-        >
-          <Icon name="card" size={18} /> תשלומים
-        </button>
-
-        <button
-          type="button"
-          className="sidemenu__action"
-          data-tour="menu-settings"
-          onClick={() => go("/settings")}
-        >
-          <Icon name="settings" size={18} /> הגדרות מערכת
-        </button>
+        {/* קבוצת הניהול הראשית */}
+        <div className="sidemenu__group">
+          <MenuRow
+            icon={<Icon name="crown" size={20} />}
+            label="מסלול פרו"
+            badge={<ProBadge title="כל כלי הפרו במקום אחד" />}
+            dataTour="menu-pro"
+            onClick={() => go("/upgrade")}
+          />
+          <MenuRow
+            icon={<Icon name="tag" size={20} />}
+            label="ספקים"
+            onClick={() => go("/gifts")}
+          />
+          <MenuRow
+            icon={<Icon name="wallet" size={20} />}
+            label="עריכת גבייה"
+            dataTour="menu-collection"
+            onClick={() => go("/collection-settings")}
+          />
+          <MenuRow
+            icon={<Icon name="users" size={20} />}
+            label="חברי ועד והרשאות"
+            badge={<ProBadge title="חברי ועד והרשאות — פיצ'ר פרו" />}
+            onClick={() => go("/settings?section=team")}
+          />
+          <MenuRow
+            icon={<Icon name="card" size={20} />}
+            label="תשלומים"
+            onClick={() => go("/settings?section=payments")}
+          />
+          <MenuRow
+            icon={<Icon name="settings" size={20} />}
+            label="הגדרות מערכת"
+            dataTour="menu-settings"
+            onClick={() => go("/settings")}
+          />
+        </div>
 
         {/* אזור המנהלת — מוצג רק ל-SuperAdmin (בעלת VaddyGo), לא לוועדים */}
         {isSuperAdmin() && (
           <>
             <h3 className="sidemenu__title">ניהול VaddyGo</h3>
-            <button
-              type="button"
-              className="sidemenu__action"
-              onClick={() => go("/admin/usage")}
-            >
-              <Icon name="chart" size={18} /> נתוני שימוש
-            </button>
+            <div className="sidemenu__group">
+              <MenuRow
+                icon={<Icon name="chart" size={20} />}
+                label="נתוני שימוש"
+                onClick={() => go("/admin/usage")}
+              />
+            </div>
           </>
         )}
 
-        <div className="sidemenu__footer">
-          <button
-            type="button"
-            className="sidemenu__action"
+        {/* שירות */}
+        <h3 className="sidemenu__title">שירות</h3>
+        <div className="sidemenu__group">
+          <MenuRow
+            icon={<span aria-hidden="true">🧭</span>}
+            label="סיור באפליקציה"
             onClick={() => {
               // סוגרים את התפריט ואז מפעילים את הסיור — כדי שהחלוניות יופיעו
               // מעל המסך ולא מתחת לתפריט הפתוח
               onClose();
               startTour();
             }}
-          >
-            <span aria-hidden="true">🧭</span> סיור באפליקציה
-          </button>
-          {/* שיתוף קישור ההרשמה — נשאר כאן כי במצב אפליקציה מותקנת אין דרך
-              אחרת לשתף (הדפדפן מסתיר את שורת הכתובת ואת כפתור השיתוף שלו). */}
-          <button
-            type="button"
-            className="sidemenu__action"
+          />
+          {/* שיתוף קישור ההרשמה — נשאר כי במצב אפליקציה מותקנת אין דרך אחרת לשתף
+              (הדפדפן מסתיר את שורת הכתובת ואת כפתור השיתוף שלו). */}
+          <MenuRow
+            icon={<Icon name="link" size={20} />}
+            label="שיתוף קישור להרשמה"
             onClick={() => setIsShareOpen(true)}
-          >
-            <Icon name="link" size={18} /> שיתוף קישור להרשמה
-          </button>
-          <a
-            className="sidemenu__action sidemenu__contact"
+          />
+          <MenuRow
+            icon={<Icon name="phone" size={20} />}
+            label="צור קשר"
             href={SUPPORT_URL}
-            target="_blank"
-            rel="noreferrer"
             onClick={onClose}
-          >
-            <Icon name="phone" size={18} /> צור קשר
-          </a>
+            tone="contact"
+          />
+        </div>
+
+        <div className="sidemenu__footer">
           <button type="button" className="sidemenu__logout" onClick={handleLogout}>
             <Icon name="logout" size={18} /> התנתק
           </button>
+          <p className="sidemenu__version">VaddyGo 💗</p>
         </div>
       </aside>
 

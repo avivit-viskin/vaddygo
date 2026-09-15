@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Icon from "./Icon";
 import InstitutionSwitcher from "./InstitutionSwitcher";
@@ -91,6 +91,17 @@ function SideMenu({ isOpen, onClose }) {
   // שיתוף קישור ההרשמה — הדרך היחידה לשתף כשהאפליקציה מותקנת במסך הבית (אז
   // הדפדפן מסתיר את שורת הכתובת וכפתור השיתוף שלו). דווח מהשטח.
   const [isShareOpen, setIsShareOpen] = useState(false);
+
+  // נעילת גלילת הרקע כשהתפריט פתוח — כדי שהמסך מאחור לא יזוז/יגלול. משוחזר
+  // בסגירה. חייב לרוץ לפני ה-return המוקדם (כללי ה-hooks).
+  useEffect(() => {
+    if (!isOpen) return undefined;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [isOpen]);
 
   if (!isOpen) {
     return null;

@@ -33,6 +33,12 @@
   animation: sidemenu-slide-in 0.2s ease;
 }
 
+/* לא לכווץ פריטים: כל פריט שומר על גובהו הטבעי והתפריט גולל במקום להידחס —
+   אחרת בתפריט ארוך (עם "ניהול VaddyGo") השורות נמעכות ונחתכות. */
+.sidemenu > * {
+  flex-shrink: 0;
+}
+
 @keyframes sidemenu-slide-in {
   from {
     transform: translateX(100%);
@@ -229,7 +235,8 @@
 
 /* ── קבוצת פעולות ככרטיס רך עם שורות (בסגנון PayBox) ── */
 .sidemenu__group {
-  background: var(--color-primary-light);
+  /* גרסה בהירה יותר של הבז' (--color-primary-light: #efe4d2) — עדין יותר */
+  background: #f6f0e6;
   border-radius: 16px;
   overflow: hidden;
 }

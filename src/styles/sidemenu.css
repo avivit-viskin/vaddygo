@@ -68,6 +68,33 @@
   color: #000000;
 }
 
+/* שורת כותרת עם פעולה בצד — "המוסדות שלי" + "הוספת מוסד" באותה שורה */
+.sidemenu__section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.sidemenu__add-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  padding: 4px 6px;
+  white-space: nowrap;
+}
+
+.sidemenu__add-link:hover {
+  text-decoration: underline;
+}
+
 .institutions {
   list-style: none;
   margin: 0;

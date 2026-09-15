@@ -11,7 +11,6 @@ import { logout, isSuperAdmin } from "../services/authService";
 import { addInstitution } from "../services/institutionsService";
 import { whatsappUrl } from "../services/whatsapp";
 import { startTour } from "../services/tourBus";
-import HelpVideoButton from "./HelpVideoButton";
 import ProBadge from "./ProBadge";
 import { isFeatureLocked } from "../services/plan";
 import "../styles/sidemenu.css";
@@ -31,14 +30,8 @@ function SideMenu({ isOpen, onClose }) {
   const [isAddOpen, setIsAddOpen] = useState(false);
   const [newName, setNewName] = useState("");
   const [addError, setAddError] = useState("");
-  /*
-    שיתוף האפליקציה מתוך התפריט.
-
-    🔴 למה זה נחוץ: המניפסט מוגדר `display: standalone`, ולכן כשהאפליקציה
-    מותקנת במסך הבית הדפדפן **מסתיר את שורת הכתובת ואת כפתור השיתוף שלו**.
-    זו התנהגות מכוונת של אפליקציה מותקנת — אבל בלי כפתור שיתוף פנימי, אין
-    שום דרך להעתיק את הכתובת או לשלוח אותה למישהו. דווח מהשטח.
-  */
+  // שיתוף קישור ההרשמה — הדרך היחידה לשתף כשהאפליקציה מותקנת במסך הבית (אז
+  // הדפדפן מסתיר את שורת הכתובת וכפתור השיתוף שלו). דווח מהשטח.
   const [isShareOpen, setIsShareOpen] = useState(false);
 
   if (!isOpen) {
@@ -53,6 +46,18 @@ function SideMenu({ isOpen, onClose }) {
   function handleLogout() {
     logout();
     window.location.href = "/login";
+  }
+
+  // הוספת מוסד נוסף = פיצ'ר פרו (החלטת בעלת המוצר, 10.08.2026). מעבר בין
+  // מוסדות קיימים חינם — רק ההוספה חסומה, ומי שאינה מנויה מגיעה לעמוד השדרוג.
+  function openAddInstitution() {
+    if (isFeatureLocked("multiInstitution")) {
+      go("/upgrade");
+      return;
+    }
+    setAddError("");
+    setNewName("");
+    setIsAddOpen(true);
   }
 
   function handleAddInstitution(event) {
@@ -88,27 +93,18 @@ function SideMenu({ isOpen, onClose }) {
           </button>
         </div>
 
-        <h3 className="sidemenu__title">המוסדות שלי</h3>
+        <div className="sidemenu__section-head">
+          <h3 className="sidemenu__title">המוסדות שלי</h3>
+          <button
+            type="button"
+            className="sidemenu__add-link"
+            onClick={openAddInstitution}
+          >
+            <Icon name="plus" size={15} /> הוספת מוסד{" "}
+            <ProBadge title="הוספת מוסד נוסף — פיצ'ר פרו" />
+          </button>
+        </div>
         <InstitutionSwitcher onClose={onClose} />
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => {
-            // הוספת מוסד נוסף = פיצ'ר פרו (החלטת בעלת המוצר, 10.08.2026).
-            // מעבר בין מוסדות קיימים נשאר חינם — רק ההוספה חסומה, ומי שאינה
-            // מנויה מגיעה לעמוד השדרוג במקום לטופס.
-            if (isFeatureLocked("multiInstitution")) {
-              go("/upgrade");
-              return;
-            }
-            setAddError("");
-            setNewName("");
-            setIsAddOpen(true);
-          }}
-        >
-          <Icon name="plus" size={18} /> הוסף מוסד{" "}
-          <ProBadge title="הוספת מוסד נוסף — פיצ'ר פרו" />
-        </button>
 
         <button
           type="button"
@@ -116,19 +112,10 @@ function SideMenu({ isOpen, onClose }) {
           data-tour="menu-pro"
           onClick={() => go("/upgrade")}
         >
-          שדרוגי פרו{" "}
+          מסלול פרו{" "}
           <ProBadge title="כל כלי הפרו במקום אחד" />
         </button>
 
-        <button
-          type="button"
-          className="sidemenu__action"
-          onClick={() => setIsShareOpen(true)}
-        >
-          <Icon name="link" size={18} /> שיתוף קישור להרשמה
-        </button>
-
-        {/* גישה מהירה לספקים (מדור הספקים במסך המתנות) */}
         <button
           type="button"
           className="sidemenu__action"
@@ -137,7 +124,6 @@ function SideMenu({ isOpen, onClose }) {
           <Icon name="tag" size={18} /> ספקים
         </button>
 
-        <h3 className="sidemenu__title">הגדרות</h3>
         <button
           type="button"
           className="sidemenu__action"
@@ -146,13 +132,31 @@ function SideMenu({ isOpen, onClose }) {
         >
           <Icon name="wallet" size={18} /> עריכת גבייה
         </button>
+
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/settings?section=team")}
+        >
+          <Icon name="users" size={18} /> חברי ועד והרשאות{" "}
+          <ProBadge title="חברי ועד והרשאות — פיצ'ר פרו" />
+        </button>
+
+        <button
+          type="button"
+          className="sidemenu__action"
+          onClick={() => go("/settings?section=payments")}
+        >
+          <Icon name="card" size={18} /> תשלומים
+        </button>
+
         <button
           type="button"
           className="sidemenu__action"
           data-tour="menu-settings"
           onClick={() => go("/settings")}
         >
-          <Icon name="bell" size={18} /> הגדרות התראות
+          <Icon name="settings" size={18} /> הגדרות מערכת
         </button>
 
         {/* אזור המנהלת — מוצג רק ל-SuperAdmin (בעלת VaddyGo), לא לוועדים */}
@@ -182,20 +186,15 @@ function SideMenu({ isOpen, onClose }) {
           >
             <span aria-hidden="true">🧭</span> סיור באפליקציה
           </button>
-          {/*
-            סרטון ההסבר — לצד הסיור, לטובת מי שמעדיף לראות ולא לקרוא.
-
-            🔴 **בלי onClose כאן, בכוונה.** התפריט מתפרק בסגירה
-            (`if (!isOpen) return null`), ולכן סגירתו הייתה מפרקת גם את
-            HelpVideoButton ואת החלון שבתוכו — הכפתור נלחץ והסרטון פשוט לא
-            נפתח. נתפס באימות מול האתר החי, אחרי שהטסטים עברו.
-
-            המודאל ב-z-index 100 והתפריט ב-60, ולכן הסרטון מופיע מעליו —
-            בדיוק כמו ShareLinkModal ו"הוספת מוסד" שכבר עובדים כך כאן.
-          */}
-          <div className="sidemenu__action sidemenu__action--video">
-            <HelpVideoButton label="סרטון הסבר" />
-          </div>
+          {/* שיתוף קישור ההרשמה — נשאר כאן כי במצב אפליקציה מותקנת אין דרך
+              אחרת לשתף (הדפדפן מסתיר את שורת הכתובת ואת כפתור השיתוף שלו). */}
+          <button
+            type="button"
+            className="sidemenu__action"
+            onClick={() => setIsShareOpen(true)}
+          >
+            <Icon name="link" size={18} /> שיתוף קישור להרשמה
+          </button>
           <a
             className="sidemenu__action sidemenu__contact"
             href={SUPPORT_URL}
@@ -211,11 +210,7 @@ function SideMenu({ isOpen, onClose }) {
         </div>
       </aside>
 
-      {/*
-        הקישור מוביל ל**הרשמה** ולא לדף הבית (בקשת בעלת המוצר): מי שמקבל אותו
-        הוא ועד שעדיין אינו במערכת, ודף הבית היה מחייב אותו לחפש איפה נרשמים.
-        הבסיס נלקח מהדפדפן עצמו כדי שהכתובת תהיה נכונה בכל סביבה.
-      */}
+      {/* הקישור מוביל ל-/register (מי שמקבל אותו עדיין אינו במערכת). */}
       <ShareLinkModal
         isOpen={isShareOpen}
         onClose={() => setIsShareOpen(false)}

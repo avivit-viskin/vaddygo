@@ -38,20 +38,20 @@ test("צור קשר פותח וואטסאפ למספר התמיכה, ויש כפ
   הכפתור אינו פותח את הטופס אלא מוביל לעמוד השדרוג. מעבר בין מוסדות קיימים
   נשאר חינם, ולכן הכפתור עצמו כן מוצג — עם כתר.
 */
-test("בלי פרו, 'הוסף מוסד' מוביל לשדרוג ולא פותח את הטופס", () => {
+test("בלי פרו, 'הוספת מוסד' מוביל לשדרוג ולא פותח את הטופס", () => {
   renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
 
-  const addButton = screen.getByRole("button", { name: /הוסף מוסד/ });
+  const addButton = screen.getByRole("button", { name: /הוספת מוסד/ });
   userEvent.click(addButton);
 
   expect(screen.queryByLabelText("שם המוסד")).not.toBeInTheDocument();
 });
 
-test("עם פרו, 'הוסף מוסד' פותח את טופס ההוספה", () => {
+test("עם פרו, 'הוספת מוסד' פותח את טופס ההוספה", () => {
   grantProLocally();
   renderMenu(<SideMenu isOpen={true} onClose={() => {}} />);
 
-  userEvent.click(screen.getByRole("button", { name: /הוסף מוסד/ }));
+  userEvent.click(screen.getByRole("button", { name: /הוספת מוסד/ }));
 
   expect(screen.getByLabelText("שם המוסד")).toBeInTheDocument();
 });

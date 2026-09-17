@@ -5,6 +5,7 @@ import { formatShekels, formatUnit } from "../services/format";
 import { groupByFolder } from "../services/vendorFolders";
 import { withDisplayNames } from "../services/vendorProducts";
 import { getCommitteeCount } from "../services/publicStatsService";
+import { productImageStyle } from "../services/productImage";
 import "../styles/supplier-app.css";
 
 /*
@@ -21,16 +22,16 @@ function isMissing(p) {
 // וקטור (SVG) — חד בכל גודל, ולכן לא נבדק לרזולוציה נמוכה (naturalWidth שלו לא אמין)
 const isVectorSrc = (s) => /^data:image\/svg|\.svg(\?|#|$)/i.test(s || "");
 
-function ProductCardImage({ src, alt, onLowRes, onBadgeClick, objectPosition }) {
+function ProductCardImage({ src, alt, onLowRes, onBadgeClick, imgStyle }) {
   const [lowQuality, setLowQuality] = useState(false);
   return (
-    <div style={{ position: "relative" }}>
+    <div style={{ position: "relative", overflow: "hidden" }}>
       <img
         className="sup-prod__img"
         src={src}
         alt={alt}
         loading="lazy"
-        style={objectPosition ? { objectPosition } : undefined}
+        style={imgStyle}
         onLoad={(e) => {
           if (isVectorSrc(src)) return;
           const w = e.target.naturalWidth;
@@ -253,7 +254,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                       <ProductCardImage
                         src={product.imageUrl}
                         alt={product.displayName}
-                        objectPosition={product.imagePosition}
+                        imgStyle={productImageStyle(product)}
                         onLowRes={() => markLowRes(product.imageUrl)}
                         onBadgeClick={() =>
                           setOpenMsgSrc((s) =>

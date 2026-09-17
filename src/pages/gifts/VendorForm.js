@@ -3,6 +3,7 @@ import Button from "../../components/Button";
 import Icon from "../../components/Icon";
 import Modal from "../../components/Modal";
 import ImagePositionEditor from "../../components/ImagePositionEditor";
+import { productImageStyle } from "../../services/productImage";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import SuccessDialog from "../../components/SuccessDialog";
@@ -56,16 +57,23 @@ function joinUnit(qty, word) {
 
 /* תמונה ממוזערת של מוצר בטופס — עם סימן קריאה לחיץ אם הרזולוציה נמוכה. הלחיצה
    פותחת הודעה עם המלצת הגודל, ומדווחת להורה (onLowRes) כדי לספור "דורש טיפול". */
-function VendorThumb({ src, alt, onLowRes, objectPosition }) {
+function VendorThumb({ src, alt, onLowRes, imgStyle }) {
   const [lowQuality, setLowQuality] = useState(false);
   const [showMsg, setShowMsg] = useState(false);
   return (
-    <span style={{ position: "relative", display: "inline-block" }}>
+    <span
+      style={{
+        position: "relative",
+        display: "inline-block",
+        overflow: "hidden",
+        borderRadius: 12,
+      }}
+    >
       <img
         className="vendor-form__thumb"
         src={src}
         alt={alt}
-        style={objectPosition ? { objectPosition } : undefined}
+        style={imgStyle}
         onLoad={(e) => {
           if (isVectorSrc(src)) return;
           const w = e.target.naturalWidth;
@@ -1568,7 +1576,7 @@ function VendorForm({
                 src={product.imageUrl}
                 alt={`תמונת ${productDisplayName(product, index)}`}
                 onLowRes={() => markLowRes(product.imageUrl)}
-                objectPosition={product.imagePosition}
+                imgStyle={productImageStyle(product)}
               />
             ) : (
               <span
@@ -1748,9 +1756,13 @@ function VendorForm({
             </p>
             <ImagePositionEditor
               src={products[positionIndex].imageUrl}
-              value={products[positionIndex].imagePosition}
-              onChange={(pos) =>
+              position={products[positionIndex].imagePosition}
+              zoom={products[positionIndex].imageZoom}
+              onPositionChange={(pos) =>
                 updateItem(setProducts, positionIndex, { imagePosition: pos })
+              }
+              onZoomChange={(zoom) =>
+                updateItem(setProducts, positionIndex, { imageZoom: zoom })
               }
             />
           </>

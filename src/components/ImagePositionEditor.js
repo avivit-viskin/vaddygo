@@ -1,10 +1,9 @@
 import { useRef } from "react";
 
 /*
-  ImagePositionEditor — גרירת תמונת מוצר בתוך ריבוע כדי למרכז אותה. התמונה מוצגת
-  ב-object-fit: cover (בדיוק כמו בכל מקום שהיא מוצגת), והגרירה מזיזה את המוקד
-  (object-position). מחזיר מחרוזת "x% y%" ל-onChange. תצוגה גדולה כדי שהספק
-  יראה אם התמונה "יושבת טוב".
+  ImagePositionEditor — עריכת תמונת מוצר בתוך ריבוע: **גרירה** ממרכזת (object-
+  position) ו**מחוון זום** מגדיל/מקטין (transform scale). התצוגה גדולה כדי שהספק
+  יראה אם התמונה "יושבת טוב". מחזיר position ("x% y%") ו-zoom (1-4) דרך callbacks.
 */
 function parsePos(v) {
   const m = /(-?\d+(?:\.\d+)?)%\s+(-?\d+(?:\.\d+)?)%/.exec(v || "");
@@ -12,10 +11,18 @@ function parsePos(v) {
 }
 const clamp = (n) => Math.max(0, Math.min(100, n));
 
-function ImagePositionEditor({ src, value, onChange, size = 240 }) {
+function ImagePositionEditor({
+  src,
+  position,
+  zoom = 1,
+  onPositionChange,
+  onZoomChange,
+  size = 240,
+}) {
   const frameRef = useRef(null);
   const drag = useRef(null);
-  const pos = parsePos(value);
+  const pos = parsePos(position);
+  const z = Number(zoom) || 1;
 
   function onPointerDown(e) {
     e.currentTarget.setPointerCapture(e.pointerId);
@@ -24,14 +31,15 @@ function ImagePositionEditor({ src, value, onChange, size = 240 }) {
   function onPointerMove(e) {
     if (!drag.current || !frameRef.current) return;
     const rect = frameRef.current.getBoundingClientRect();
-    // גרירת התמונה ימינה חושפת את הצד השמאלי → object-position x קטן; לכן מחסירים
     const dx = ((e.clientX - drag.current.startX) / rect.width) * 100;
     const dy = ((e.clientY - drag.current.startY) / rect.height) * 100;
-    onChange(`${clamp(drag.current.x - dx)}% ${clamp(drag.current.y - dy)}%`);
+    onPositionChange(`${clamp(drag.current.x - dx)}% ${clamp(drag.current.y - dy)}%`);
   }
   function endDrag() {
     drag.current = null;
   }
+
+  const posStr = `${pos.x}% ${pos.y}%`;
 
   return (
     <div className="img-pos">
@@ -49,17 +57,38 @@ function ImagePositionEditor({ src, value, onChange, size = 240 }) {
           alt=""
           className="img-pos__img"
           draggable={false}
-          style={{ objectPosition: `${pos.x}% ${pos.y}%` }}
+          style={{
+            objectPosition: posStr,
+            transform: z > 1 ? `scale(${z})` : undefined,
+            transformOrigin: posStr,
+          }}
         />
       </div>
+
+      <label className="img-pos__zoom">
+        <span aria-hidden="true">🔍</span> הגדלה
+        <input
+          type="range"
+          min="1"
+          max="4"
+          step="0.1"
+          value={z}
+          onChange={(e) => onZoomChange(Number(e.target.value))}
+          aria-label="הגדלת התמונה"
+        />
+      </label>
+
       <div className="img-pos__actions">
-        <p className="img-pos__hint">גררו את התמונה כדי למרכז אותה בריבוע 🎯</p>
+        <p className="img-pos__hint">גררו את התמונה למירכוז, והזיזו את המחוון להגדלה 🎯</p>
         <button
           type="button"
           className="img-pos__reset"
-          onClick={() => onChange("50% 50%")}
+          onClick={() => {
+            onPositionChange("50% 50%");
+            onZoomChange(1);
+          }}
         >
-          איפוס למרכז
+          איפוס
         </button>
       </div>
     </div>

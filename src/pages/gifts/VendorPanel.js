@@ -15,6 +15,7 @@ import { recordVendorContact } from "../../services/leadsService";
 import KosherBadge from "../../components/KosherBadge";
 import SocialIcon from "../../components/SocialIcon";
 import VendorReviews from "../../components/VendorReviews";
+import { productImageStyle } from "../../services/productImage";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -168,17 +169,16 @@ function VendorPanel({
           {openFolder.products.map((product, index) => (
             <li key={index} className="vendor-panel__product">
               {product.imageUrl && (
-                <img
-                  className="vendor-panel__image"
-                  src={product.imageUrl}
-                  alt={product.displayName}
-                  loading="lazy"
-                  onClick={() => setZoomImage(product.imageUrl)}
-                  style={{
-                    cursor: "zoom-in",
-                    objectPosition: product.imagePosition || undefined,
-                  }}
-                />
+                <span className="vendor-panel__image-wrap">
+                  <img
+                    className="vendor-panel__image"
+                    src={product.imageUrl}
+                    alt={product.displayName}
+                    loading="lazy"
+                    onClick={() => setZoomImage(product.imageUrl)}
+                    style={{ cursor: "zoom-in", ...productImageStyle(product) }}
+                  />
+                </span>
               )}
               <div
                 className="vendor-panel__product-name"

@@ -88,6 +88,10 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(20)]
         public string ImagePosition { get; set; } = string.Empty;
 
+        /* זום התמונה (1 = רגיל, עד 4) */
+        [Range(0, 4)]
+        public decimal ImageZoom { get; set; } = 1;
+
         [StringLength(40, ErrorMessage = "שם התיקייה ארוך מדי")]
         public string Folder { get; set; } = string.Empty;
 
@@ -310,6 +314,7 @@ namespace ParentCommitteeAPI.DTOs
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
         public string ImagePosition { get; set; } = string.Empty;
+        public decimal ImageZoom { get; set; } = 1;
         public string Folder { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
     }

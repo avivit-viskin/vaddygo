@@ -20,6 +20,9 @@ namespace ParentCommitteeAPI.Models
            שהספק ימרכז את התמונה. ריק = מרכז (50% 50%). מוחל בכל מקום שהתמונה מוצגת. */
         public string ImagePosition { get; set; } = string.Empty;
 
+        /* זום/הגדלה של התמונה בריבוע (1 = ברירת מחדל, עד 4). 0 (רשומות ישנות) = 1. */
+        public decimal ImageZoom { get; set; } = 1;
+
         /* התיקייה/חג שאליו שייך המוצר (ראש השנה, סוכות, מתנות לצוות...). ריק = ללא. */
         public string Folder { get; set; } = string.Empty;
 

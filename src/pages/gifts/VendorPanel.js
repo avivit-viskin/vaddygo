@@ -173,7 +173,10 @@ function VendorPanel({
                   alt={product.displayName}
                   loading="lazy"
                   onClick={() => setZoomImage(product.imageUrl)}
-                  style={{ cursor: "zoom-in" }}
+                  style={{
+                    cursor: "zoom-in",
+                    objectPosition: product.imagePosition || undefined,
+                  }}
                 />
               )}
               <div

@@ -21,7 +21,7 @@ function isMissing(p) {
 // וקטור (SVG) — חד בכל גודל, ולכן לא נבדק לרזולוציה נמוכה (naturalWidth שלו לא אמין)
 const isVectorSrc = (s) => /^data:image\/svg|\.svg(\?|#|$)/i.test(s || "");
 
-function ProductCardImage({ src, alt, onLowRes, onBadgeClick }) {
+function ProductCardImage({ src, alt, onLowRes, onBadgeClick, objectPosition }) {
   const [lowQuality, setLowQuality] = useState(false);
   return (
     <div style={{ position: "relative" }}>
@@ -30,6 +30,7 @@ function ProductCardImage({ src, alt, onLowRes, onBadgeClick }) {
         src={src}
         alt={alt}
         loading="lazy"
+        style={objectPosition ? { objectPosition } : undefined}
         onLoad={(e) => {
           if (isVectorSrc(src)) return;
           const w = e.target.naturalWidth;
@@ -252,6 +253,7 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
                       <ProductCardImage
                         src={product.imageUrl}
                         alt={product.displayName}
+                        objectPosition={product.imagePosition}
                         onLowRes={() => markLowRes(product.imageUrl)}
                         onBadgeClick={() =>
                           setOpenMsgSrc((s) =>

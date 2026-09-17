@@ -1145,3 +1145,61 @@
   text-align: left;
   font-size: var(--font-size-sm);
 }
+
+/* ── מירכוז תמונת מוצר (גרירה בתוך ריבוע) ── */
+.vendor-form__img-center {
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-primary-muted);
+  color: var(--color-primary-dark);
+  border-radius: 999px;
+  padding: 5px 12px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.img-pos {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+}
+.img-pos__frame {
+  border-radius: 16px;
+  overflow: hidden;
+  border: 2px solid var(--color-primary-muted);
+  background: var(--color-primary-light);
+  touch-action: none;
+  cursor: grab;
+  max-width: 100%;
+}
+.img-pos__frame:active {
+  cursor: grabbing;
+}
+.img-pos__img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+.img-pos__actions {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+.img-pos__hint {
+  margin: 0;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.img-pos__reset {
+  background: none;
+  border: none;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: underline;
+}

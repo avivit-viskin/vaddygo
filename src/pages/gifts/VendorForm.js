@@ -1,6 +1,8 @@
 import { useState, useEffect } from "react";
 import Button from "../../components/Button";
 import Icon from "../../components/Icon";
+import Modal from "../../components/Modal";
+import ImagePositionEditor from "../../components/ImagePositionEditor";
 import Input from "../../components/Input";
 import Select from "../../components/Select";
 import SuccessDialog from "../../components/SuccessDialog";
@@ -54,7 +56,7 @@ function joinUnit(qty, word) {
 
 /* תמונה ממוזערת של מוצר בטופס — עם סימן קריאה לחיץ אם הרזולוציה נמוכה. הלחיצה
    פותחת הודעה עם המלצת הגודל, ומדווחת להורה (onLowRes) כדי לספור "דורש טיפול". */
-function VendorThumb({ src, alt, onLowRes }) {
+function VendorThumb({ src, alt, onLowRes, objectPosition }) {
   const [lowQuality, setLowQuality] = useState(false);
   const [showMsg, setShowMsg] = useState(false);
   return (
@@ -63,6 +65,7 @@ function VendorThumb({ src, alt, onLowRes }) {
         className="vendor-form__thumb"
         src={src}
         alt={alt}
+        style={objectPosition ? { objectPosition } : undefined}
         onLoad={(e) => {
           if (isVectorSrc(src)) return;
           const w = e.target.naturalWidth;
@@ -174,6 +177,8 @@ function VendorForm({
     vendor?.paymentInstallments || 0
   );
   const [products, setProducts] = useState(vendor?.products || []);
+  // איזה מוצר פתוח כרגע במסך מירכוז התמונה (null = סגור)
+  const [positionIndex, setPositionIndex] = useState(null);
   const [socialLinks, setSocialLinks] = useState(vendor?.socialLinks || []);
   // srcs של תמונות שזוהו כרזולוציה נמוכה — נכללות בסינון "דורש טיפול"
   const [lowResSrcs, setLowResSrcs] = useState(() => new Set());
@@ -1563,6 +1568,7 @@ function VendorForm({
                 src={product.imageUrl}
                 alt={`תמונת ${productDisplayName(product, index)}`}
                 onLowRes={() => markLowRes(product.imageUrl)}
+                objectPosition={product.imagePosition}
               />
             ) : (
               <span
@@ -1592,15 +1598,24 @@ function VendorForm({
                 לצילום, מספריית התמונות או מהקבצים
               </span>
               {product.imageUrl && (
-                <button
-                  type="button"
-                  className="vendor-form__img-remove"
-                  onClick={() =>
-                    updateItem(setProducts, index, { imageUrl: "" })
-                  }
-                >
-                  הסרת תמונה
-                </button>
+                <>
+                  <button
+                    type="button"
+                    className="vendor-form__img-center"
+                    onClick={() => setPositionIndex(index)}
+                  >
+                    🎯 מירכוז תמונה
+                  </button>
+                  <button
+                    type="button"
+                    className="vendor-form__img-remove"
+                    onClick={() =>
+                      updateItem(setProducts, index, { imageUrl: "" })
+                    }
+                  >
+                    הסרת תמונה
+                  </button>
+                </>
               )}
             </div>
           </div>
@@ -1718,6 +1733,29 @@ function VendorForm({
         message="השינויים נשמרו ✓"
         onClose={() => setSavedOpen(false)}
       />
+
+      {/* מירכוז תמונת מוצר — גרירת התמונה בתוך הריבוע. השינוי נשמר עם הכרטיס. */}
+      <Modal
+        isOpen={positionIndex !== null}
+        onClose={() => setPositionIndex(null)}
+        title="מירכוז תמונת המוצר"
+      >
+        {positionIndex !== null && products[positionIndex] && (
+          <>
+            <p style={{ margin: "0 0 12px", color: "var(--color-text-muted)" }}>
+              כך תיראה התמונה לוועדים. גררו אותה כדי למרכז, וסגרו — השינוי יישמר
+              עם שמירת הכרטיס.
+            </p>
+            <ImagePositionEditor
+              src={products[positionIndex].imageUrl}
+              value={products[positionIndex].imagePosition}
+              onChange={(pos) =>
+                updateItem(setProducts, positionIndex, { imagePosition: pos })
+              }
+            />
+          </>
+        )}
+      </Modal>
     </form>
   );
 }

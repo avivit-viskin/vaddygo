@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import EmptyState from "./EmptyState";
 import Icon from "./Icon";
 import { formatShekels, formatUnit } from "../services/format";
 import { groupByFolder } from "../services/vendorFolders";
 import { withDisplayNames } from "../services/vendorProducts";
+import { getCommitteeCount } from "../services/publicStatsService";
 import "../styles/supplier-app.css";
 
 /*
@@ -109,12 +110,42 @@ function SupplierHome({ vendor, onGoTo, onShareCatalog }) {
       return next;
     });
 
+  // מספר הוועדים הרשומים — תמריץ לספק, מתעדכן "חי" כל 30 שניות
+  const [committeeCount, setCommitteeCount] = useState(null);
+  useEffect(() => {
+    let cancelled = false;
+    const load = () =>
+      getCommitteeCount()
+        .then((n) => {
+          if (!cancelled) setCommitteeCount(n);
+        })
+        .catch(() => {});
+    load();
+    const id = setInterval(load, 30000);
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, []);
+
   const goToProducts = (folder) => onGoTo && onGoTo("products", folder);
   // אריח שנלחץ → דף המוצרים מסונן לפי הסטטוס (מוכנים / דורש טיפול / הכל)
   const goToStatus = (status) => onGoTo && onGoTo("products", "", status);
 
   return (
     <div>
+      {/* מספר הוועדים הרשומים — מתעדכן חי; תמריץ לספק (הקטלוג גלוי לכולם) */}
+      {committeeCount != null && committeeCount > 0 && (
+        <div className="sup-committee-count" role="status">
+          <span className="sup-committee-count__num">
+            {committeeCount.toLocaleString("he-IL")}
+          </span>
+          <span className="sup-committee-count__text">
+            ועדי הורים כבר רשומים ל-VaddyGo — הקטלוג שלך גלוי לכולם 🎉
+          </span>
+        </div>
+      )}
+
       {/* שורה עליונה — אריחי מדד גדולים: פניות + צפיות */}
       <div className="sup-stats sup-stats--primary" data-tour="sup-stats">
         <div className="sup-stat sup-stat--big">

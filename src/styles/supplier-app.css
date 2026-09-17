@@ -553,3 +553,28 @@
     transition: none;
   }
 }
+
+/* מספר הוועדים הרשומים (חי) בדף הבית של הספק — תמריץ צבעוני */
+.sup-committee-count {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0 0 14px;
+  padding: 12px 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, var(--color-primary), #f6d9a8);
+  color: #6a2544;
+  box-shadow: 0 3px 14px rgba(194, 92, 138, 0.22);
+}
+.sup-committee-count__num {
+  font-size: 30px;
+  font-weight: 800;
+  line-height: 1;
+  color: #8f1f4d;
+  font-variant-numeric: tabular-nums;
+}
+.sup-committee-count__text {
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.4;
+}

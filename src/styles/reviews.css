@@ -1,0 +1,139 @@
+/* ── כוכבי דירוג ── */
+.stars {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  color: #d9d2cf;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+.stars .is-on {
+  color: #f4b400;
+}
+.stars--input .stars__btn {
+  background: none;
+  border: none;
+  padding: 0 2px;
+  cursor: pointer;
+  color: #d9d2cf;
+  font-size: inherit;
+  line-height: 1;
+}
+.stars--input .stars__btn.is-on {
+  color: #f4b400;
+}
+
+/* ── לשונית הביקורות בכרטיס הספק ── */
+.vendor-reviews {
+  margin-top: 14px;
+  border-top: 1px solid var(--color-border);
+  padding-top: 10px;
+}
+.vendor-reviews__toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 8px 4px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+.vendor-reviews__summary {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.vendor-reviews__count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+}
+.vendor-reviews__label {
+  color: var(--color-primary-dark);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+.vendor-reviews__body {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.vendor-reviews__form {
+  background: var(--color-primary-light);
+  border-radius: 14px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  align-items: flex-start;
+}
+.vendor-reviews__form-title {
+  margin: 0;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+.vendor-reviews__text {
+  width: 100%;
+  border: 1px solid var(--color-border);
+  border-radius: 10px;
+  padding: 8px 10px;
+  font-family: inherit;
+  font-size: var(--font-size-base);
+  resize: vertical;
+}
+.vendor-reviews__saved {
+  margin: 0;
+  color: var(--color-success);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+}
+
+.vendor-reviews__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.vendor-reviews__item {
+  border: 1px solid var(--color-border);
+  border-radius: 12px;
+  padding: 10px 12px;
+  background: var(--color-surface);
+}
+.vendor-reviews__item-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.vendor-reviews__author {
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+}
+.vendor-reviews__date {
+  margin-inline-start: auto;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  white-space: nowrap;
+}
+.vendor-reviews__item-text {
+  margin: 6px 0 0;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.vendor-reviews__loading,
+.vendor-reviews__empty {
+  margin: 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}

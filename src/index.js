@@ -2,6 +2,7 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter } from 'react-router-dom';
 import './styles/theme.css';
+import './styles/reviews.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initMonitoring } from './services/monitoring';

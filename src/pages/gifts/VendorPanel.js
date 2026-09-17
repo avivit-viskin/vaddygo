@@ -14,6 +14,7 @@ import RfqModal from "../../components/RfqModal";
 import { recordVendorContact } from "../../services/leadsService";
 import KosherBadge from "../../components/KosherBadge";
 import SocialIcon from "../../components/SocialIcon";
+import VendorReviews from "../../components/VendorReviews";
 
 /*
   VendorPanel — דף ספק (UI_SPEC ס' 12): שם הספק → תיקיות לפי חג/אירוע →
@@ -556,6 +557,14 @@ function VendorPanel({
       ) : (
         <EmptyState icon="📦" message="עדיין אין מוצרים לספק הזה." />
       )}
+
+      {/* לשונית ביקורות — ממוצע הכוכבים, רשימת הביקורות, וטופס לוועד (לא readOnly) */}
+      <VendorReviews
+        vendorId={vendor.id}
+        average={vendor.averageRating}
+        count={vendor.reviewCount}
+        readOnly={readOnly}
+      />
 
       {/* בקשת מחיקת חשבון מהספק — לאישור/דחייה ע"י המנהלת */}
       {!readOnly && (onApproveDelete || onDismissDelete) && (

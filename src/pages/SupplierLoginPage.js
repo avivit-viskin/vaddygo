@@ -6,6 +6,7 @@ import Input from "../components/Input";
 import ErrorMessage from "../components/ErrorMessage";
 import GoogleSignInButton from "../components/GoogleSignInButton";
 import SupportLink from "../components/SupportLink";
+import SupplierProPromo from "../components/SupplierProPromo";
 import PullToRefresh from "../components/PullToRefresh";
 import { supplierLogin, supplierLoginWithGoogle } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
@@ -93,6 +94,7 @@ function SupplierLoginPage() {
         </header>
 
         <div className="login-card">
+          <SupplierProPromo />
           <h2 className="login-card__title">כניסת ספקים 🙂</h2>
           <p className="auth-page__hint" style={{ margin: "0 0 14px" }}>
             התחברו עם המייל והסיסמה שהגדרתם בעמוד העריכה, כדי לעדכן את הכרטיס

@@ -7,6 +7,7 @@ import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
 import { registerVendor } from "../services/vendorsService";
 import { setSupplierSession } from "../services/supplierSession";
+import SupplierProPromo from "../components/SupplierProPromo";
 import "../styles/login.css";
 
 /*
@@ -74,6 +75,7 @@ function SupplierRegisterPage() {
         </header>
 
         <div className="login-card">
+          <SupplierProPromo />
           <h2 className="login-card__title">הרשמת ספק חדש 🙂</h2>
           <p className="auth-page__hint" style={{ margin: "0 0 14px" }}>
             פותחים חשבון עם מייל וסיסמה, וממשיכים למלא את הכרטיס והמוצרים שלכם —

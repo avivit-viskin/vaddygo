@@ -233,3 +233,26 @@
     transition: none;
   }
 }
+
+/* הודעת המבצע לספקים (פרו חינם עד 1.1.2027) — כניסה/הרשמה */
+.supplier-promo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 11px 14px;
+  border-radius: 14px;
+  background: linear-gradient(135deg, #f7c9dd, #f6d9a8);
+  color: #7a3350;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  line-height: 1.5;
+  box-shadow: 0 2px 10px rgba(194, 92, 138, 0.18);
+}
+.supplier-promo strong {
+  color: #b0295e;
+}
+.supplier-promo__spark {
+  font-size: 20px;
+  flex-shrink: 0;
+}

@@ -40,13 +40,100 @@ namespace ParentCommitteeAPI.Services
                 .OrderByDescending(v => v.Featured)
                 .ThenBy(v => v.Name)
                 .ToListAsync();
-            return vendors.Select(ToResponse).ToList();
+            // ממוצע הדירוג ומספר הביקורות לכל הספקים — שאילתה מקובצת אחת (בלי N+1)
+            var ids = vendors.Select(v => v.Id).ToList();
+            var agg = (await _db.VendorReviews
+                    .Where(r => ids.Contains(r.VendorId))
+                    .GroupBy(r => r.VendorId)
+                    .Select(g => new { VendorId = g.Key, Sum = g.Sum(r => r.Stars), Count = g.Count() })
+                    .ToListAsync())
+                .ToDictionary(x => x.VendorId);
+            return vendors.Select(v =>
+            {
+                var dto = ToResponse(v);
+                if (agg.TryGetValue(v.Id, out var a) && a.Count > 0)
+                {
+                    dto.ReviewCount = a.Count;
+                    dto.AverageRating = Math.Round((decimal)a.Sum / a.Count, 1);
+                }
+                return dto;
+            }).ToList();
         }
 
         public async Task<VendorResponseDto?> GetByIdAsync(int id)
         {
             var vendor = await WithChildren(_db.Vendors).FirstOrDefaultAsync(v => v.Id == id);
-            return vendor == null ? null : ToResponse(vendor);
+            if (vendor == null) return null;
+            var dto = ToResponse(vendor);
+            var stats = await _db.VendorReviews
+                .Where(r => r.VendorId == id)
+                .GroupBy(r => 1)
+                .Select(g => new { Sum = g.Sum(r => r.Stars), Count = g.Count() })
+                .FirstOrDefaultAsync();
+            if (stats != null && stats.Count > 0)
+            {
+                dto.ReviewCount = stats.Count;
+                dto.AverageRating = Math.Round((decimal)stats.Sum / stats.Count, 1);
+            }
+            return dto;
+        }
+
+        /* כל הביקורות של ספק (החדשות ראשונות) — לתצוגה בלשונית הביקורות. */
+        public async Task<List<VendorReviewDto>> GetReviewsAsync(int vendorId)
+        {
+            return await _db.VendorReviews
+                .Where(r => r.VendorId == vendorId)
+                .OrderByDescending(r => r.CreatedAt)
+                .Select(r => new VendorReviewDto
+                {
+                    Id = r.Id,
+                    AuthorName = r.CommitteeName,
+                    Stars = r.Stars,
+                    Text = r.Text,
+                    CreatedAt = r.CreatedAt,
+                })
+                .ToListAsync();
+        }
+
+        /* כתיבת/עדכון ביקורת של ועד (groupId) על ספק — ביקורת אחת לכל מוסד (upsert).
+           false אם הספק לא קיים. */
+        public async Task<bool> UpsertReviewAsync(int vendorId, int groupId, VendorReviewWriteDto dto)
+        {
+            if (!await _db.Vendors.AnyAsync(v => v.Id == vendorId))
+            {
+                return false;
+            }
+            var stars = Math.Clamp(dto.Stars, 1, 5);
+            var text = (dto.Text ?? string.Empty).Trim();
+            var groupName = await _db.Groups
+                .Where(g => g.Id == groupId)
+                .Select(g => g.Name)
+                .FirstOrDefaultAsync();
+            var authorName = string.IsNullOrWhiteSpace(groupName) ? "ועד הורים" : groupName!;
+
+            var existing = await _db.VendorReviews
+                .FirstOrDefaultAsync(r => r.VendorId == vendorId && r.GroupId == groupId);
+            if (existing == null)
+            {
+                _db.VendorReviews.Add(new VendorReview
+                {
+                    VendorId = vendorId,
+                    GroupId = groupId,
+                    CommitteeName = authorName,
+                    Stars = stars,
+                    Text = text,
+                    CreatedAt = DateTime.UtcNow,
+                });
+            }
+            else
+            {
+                existing.Stars = stars;
+                existing.Text = text;
+                existing.CommitteeName = authorName;
+                existing.CreatedAt = DateTime.UtcNow;
+            }
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         public async Task<VendorResponseDto> CreateAsync(VendorCreateDto dto)

@@ -17,10 +17,12 @@ namespace ParentCommitteeAPI.Controllers
     public class VendorsController : ControllerBase
     {
         private readonly IVendorService _vendorService;
+        private readonly IAccessScope _access;
 
-        public VendorsController(IVendorService vendorService)
+        public VendorsController(IVendorService vendorService, IAccessScope access)
         {
             _vendorService = vendorService;
+            _access = access;
         }
 
         // GET: api/vendors
@@ -38,6 +40,34 @@ namespace ParentCommitteeAPI.Controllers
             if (vendor == null)
                 return NotFound(new { message = "ספק לא נמצא" });
             return Ok(vendor);
+        }
+
+        // GET: api/vendors/1/reviews — ביקורות הספק. פתוח (גם לספק שצופה בקטלוג
+        // וגם לוועד בכרטיס). מחזיר שם המוסד, דירוג וטקסט — בלי מזהים.
+        [AllowAnonymous]
+        [HttpGet("{id:int}/reviews")]
+        public async Task<ActionResult<IEnumerable<VendorReviewDto>>> GetReviews(int id)
+        {
+            return Ok(await _vendorService.GetReviewsAsync(id));
+        }
+
+        // POST: api/vendors/1/reviews — ועד כותב/מעדכן ביקורת ודירוג על ספק.
+        // דורש התחברות (JWT) + מוסד פעיל (X-Institution). ביקורת אחת לכל מוסד.
+        [HttpPost("{id:int}/reviews")]
+        public async Task<IActionResult> AddReview(int id, [FromBody] VendorReviewWriteDto dto)
+        {
+            var requested = int.TryParse(Request.Headers["X-Institution"], out var g)
+                ? g
+                : (int?)null;
+            var groupId = await _access.ScopeGroupIdAsync(requested);
+            if (groupId == null)
+            {
+                return BadRequest(new { message = "רק ועד רשום למוסד יכול לכתוב ביקורת" });
+            }
+            var ok = await _vendorService.UpsertReviewAsync(id, groupId.Value, dto);
+            if (!ok)
+                return NotFound(new { message = "ספק לא נמצא" });
+            return NoContent();
         }
 
         // POST: api/vendors

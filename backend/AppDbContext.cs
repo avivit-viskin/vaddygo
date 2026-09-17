@@ -29,6 +29,7 @@ namespace ParentCommitteeAPI
         public DbSet<PollOption> PollOptions { get; set; }
         public DbSet<PollVote> PollVotes { get; set; }
         public DbSet<Lead> Leads { get; set; }
+        public DbSet<VendorReview> VendorReviews { get; set; }
 
         // צפיות בכרטיס הספק לפי יום — הבסיס להשוואת תקופות בדוח הספק
         public DbSet<VendorViewDay> VendorViewDays { get; set; }
@@ -88,6 +89,11 @@ namespace ParentCommitteeAPI
 
             // תיבת הפניות של הספק נשלפת לפי VendorId — אינדקס לשליפה מהירה.
             modelBuilder.Entity<Lead>().HasIndex(l => l.VendorId);
+
+            // ביקורות הספק — שליפה לפי VendorId, וביקורת אחת בלבד לכל (ספק, מוסד).
+            modelBuilder.Entity<VendorReview>().HasIndex(r => r.VendorId);
+            modelBuilder.Entity<VendorReview>()
+                .HasIndex(r => new { r.VendorId, r.GroupId }).IsUnique();
 
             // "סל מיחזור": הוצאה מחוקה-רכה מוסתרת אוטומטית מכל שאילתה רגילה (מסנן
             // גלובלי). שאילתות סל-המיחזור מבטלות אותו ב-IgnoreQueryFilters().

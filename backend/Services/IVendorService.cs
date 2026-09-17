@@ -9,6 +9,11 @@ namespace ParentCommitteeAPI.Services
     {
         Task<List<VendorResponseDto>> GetAllAsync();
         Task<VendorResponseDto?> GetByIdAsync(int id);
+
+        /* ביקורות ודירוג של ועדים על ספק. GetReviews לתצוגה; Upsert = ביקורת אחת
+           לכל מוסד (groupId), כתיבה חוזרת מעדכנת. */
+        Task<List<VendorReviewDto>> GetReviewsAsync(int vendorId);
+        Task<bool> UpsertReviewAsync(int vendorId, int groupId, VendorReviewWriteDto dto);
         Task<VendorResponseDto> CreateAsync(VendorCreateDto dto);
         Task<VendorResponseDto?> UpdateAsync(int id, VendorUpdateDto dto);
         Task<bool> DeleteAsync(int id);

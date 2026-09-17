@@ -253,6 +253,10 @@ namespace ParentCommitteeAPI.DTOs
         /* הספק מסומן "כשר" — תגית ליד שם הספק */
         public bool IsKosher { get; set; }
 
+        /* דירוג הביקורות: הממוצע (1-5, מעוגל לעשירית) ומספר הביקורות. 0 = אין עדיין */
+        public decimal AverageRating { get; set; }
+        public int ReviewCount { get; set; }
+
         /*
           האם רכישת פרו בכרטיס אשראי זמינה כרגע — כלומר האם מחוברת סליקה
           אמיתית. false כשהמערכת עדיין על ספק הסליקה המדומה (החלטת בעלת המוצר:
@@ -260,6 +264,28 @@ namespace ParentCommitteeAPI.DTOs
           התשלום כשזה false, כדי שספק אמיתי לא יגיע לעמוד תשלום מדומה.
         */
         public bool ProCheckoutAvailable { get; set; }
+    }
+
+    /* ביקורת בודדת של ועד על ספק (לתצוגה בלשונית הביקורות). */
+    public class VendorReviewDto
+    {
+        public int Id { get; set; }
+        public string AuthorName { get; set; } = string.Empty;
+        public int Stars { get; set; }
+        public string Text { get; set; } = string.Empty;
+        public System.DateTime CreatedAt { get; set; }
+    }
+
+    /* כתיבת/עדכון ביקורת ע"י ועד: דירוג (חובה) + טקסט (אופציונלי). */
+    public class VendorReviewWriteDto
+    {
+        [System.ComponentModel.DataAnnotations.Range(1, 5,
+            ErrorMessage = "הדירוג חייב להיות בין 1 ל-5 כוכבים")]
+        public int Stars { get; set; }
+
+        [System.ComponentModel.DataAnnotations.StringLength(600,
+            ErrorMessage = "הביקורת יכולה להכיל עד 600 תווים")]
+        public string? Text { get; set; }
     }
 
     public class VendorProductResponseDto

@@ -84,6 +84,7 @@ function VendorPanel({
   onDismissDelete,
   paidTotal = 0,
   readOnly = false,
+  supplierToken = null,
 }) {
   const [openFolder, setOpenFolder] = useState(null);
   // התיקייה האחרונה שהוועד פתח — משמשת להודעת הביט ("מתיקיית ...") גם אחרי חזרה
@@ -567,6 +568,7 @@ function VendorPanel({
         average={vendor.averageRating}
         count={vendor.reviewCount}
         readOnly={readOnly}
+        supplierToken={supplierToken}
       />
 
       {/* בקשת מחיקת חשבון מהספק — לאישור/דחייה ע"י המנהלת */}

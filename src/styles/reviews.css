@@ -137,3 +137,49 @@
   color: var(--color-text-muted);
   font-size: var(--font-size-sm);
 }
+
+/* דירוג הספק בכרטיס הרשימה (לפני פתיחה) */
+.vendors__rating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  margin-top: 1px;
+}
+.vendors__rating-num {
+  font-weight: 700;
+}
+.vendors__rating-count {
+  color: var(--color-text-muted);
+}
+
+/* תגובת הספק לביקורת */
+.vendor-reviews__reply {
+  margin: 8px 0 0;
+  padding: 8px 10px;
+  background: var(--color-primary-light);
+  border-radius: 10px;
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.vendor-reviews__reply-label {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.vendor-reviews__reply-form {
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  align-items: flex-start;
+}
+.vendor-reviews__reply-btn {
+  background: none;
+  border: none;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  text-decoration: underline;
+  padding: 0;
+}

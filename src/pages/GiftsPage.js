@@ -8,6 +8,7 @@ import EmptyState from "../components/EmptyState";
 import Modal from "../components/Modal";
 import Spinner from "../components/Spinner";
 import KosherBadge from "../components/KosherBadge";
+import StarRating from "../components/StarRating";
 import { getGifts, addGift, updateGift, deleteGift } from "../services/giftsService";
 import {
   getVendors,
@@ -395,6 +396,17 @@ function GiftsPage() {
                             <span className="vendors__cat">
                               {vendor.category}
                               {vendor.city ? ` · ${vendor.city}` : ""}
+                            </span>
+                          )}
+                          {vendor.reviewCount > 0 && (
+                            <span className="vendors__rating">
+                              <StarRating value={vendor.averageRating} size={13} />
+                              <span className="vendors__rating-num">
+                                {vendor.averageRating}
+                              </span>
+                              <span className="vendors__rating-count">
+                                ({vendor.reviewCount})
+                              </span>
                             </span>
                           )}
                           {(vendor.featured ||

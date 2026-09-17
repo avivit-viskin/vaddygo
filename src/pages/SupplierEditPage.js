@@ -703,7 +703,7 @@ function SupplierEditPage() {
             כך נראה הכרטיס שלך לוועדים באפליקציה. אפשר ללחוץ על תיקייה כדי לראות
             את המוצרים שבתוכה.
           </p>
-          <VendorPanel vendor={vendor} readOnly />
+          <VendorPanel vendor={vendor} readOnly supplierToken={token} />
 
           <h2 className="sup-section-title" style={{ marginTop: 22 }}>
             <Icon name="users" size={22} /> כל הספקים במערכת

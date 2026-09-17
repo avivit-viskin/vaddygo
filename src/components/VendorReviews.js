@@ -1,7 +1,11 @@
 import { useState } from "react";
 import StarRating from "./StarRating";
 import Button from "./Button";
-import { getVendorReviews, saveVendorReview } from "../services/reviewsService";
+import {
+  getVendorReviews,
+  saveVendorReview,
+  saveReviewReply,
+} from "../services/reviewsService";
 import { formatDayMonth } from "../services/format";
 
 /*
@@ -9,7 +13,13 @@ import { formatDayMonth } from "../services/format";
   לפתוח: רשימת הביקורות, וכשלא readOnly (צד הוועד) גם טופס לכתיבת/עדכון ביקורת.
   רשימת הביקורות נטענת רק בפתיחה (כדי לא לשלוח בקשה לכל ספק ברשימה).
 */
-function VendorReviews({ vendorId, average = 0, count = 0, readOnly = false }) {
+function VendorReviews({
+  vendorId,
+  average = 0,
+  count = 0,
+  readOnly = false,
+  supplierToken = null,
+}) {
   const [open, setOpen] = useState(false);
   const [reviews, setReviews] = useState(null);
   const [stars, setStars] = useState(0);
@@ -17,6 +27,28 @@ function VendorReviews({ vendorId, average = 0, count = 0, readOnly = false }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
   const [savedMsg, setSavedMsg] = useState("");
+  // תגובת הספק: לאיזו ביקורת פתוח טופס תגובה, והטקסט שלה
+  const [replyTo, setReplyTo] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [replySaving, setReplySaving] = useState(false);
+
+  function openReply(r) {
+    setReplyTo(r.id);
+    setReplyText(r.replyText || "");
+  }
+  async function submitReply(reviewId) {
+    setReplySaving(true);
+    try {
+      await saveReviewReply(supplierToken, reviewId, replyText.trim());
+      setReplyTo(null);
+      setReplyText("");
+      loadReviews();
+    } catch {
+      // נשאר פתוח כדי לנסות שוב
+    } finally {
+      setReplySaving(false);
+    }
+  }
 
   function loadReviews() {
     getVendorReviews(vendorId)
@@ -119,6 +151,50 @@ function VendorReviews({ vendorId, average = 0, count = 0, readOnly = false }) {
                   {r.text && (
                     <p className="vendor-reviews__item-text">{r.text}</p>
                   )}
+
+                  {/* תגובת הספק (אם קיימת) */}
+                  {r.replyText && replyTo !== r.id && (
+                    <p className="vendor-reviews__reply">
+                      <span className="vendor-reviews__reply-label">
+                        תגובת הספק:{" "}
+                      </span>
+                      {r.replyText}
+                    </p>
+                  )}
+
+                  {/* צד הספק — כפתור/טופס תגובה */}
+                  {supplierToken &&
+                    (replyTo === r.id ? (
+                      <div className="vendor-reviews__reply-form">
+                        <textarea
+                          className="vendor-reviews__text"
+                          rows={2}
+                          placeholder="התגובה שלך לביקורת…"
+                          value={replyText}
+                          maxLength={600}
+                          onChange={(e) => setReplyText(e.target.value)}
+                        />
+                        <div style={{ display: "flex", gap: 8 }}>
+                          <Button
+                            onClick={() => submitReply(r.id)}
+                            isLoading={replySaving}
+                          >
+                            שמירת התגובה
+                          </Button>
+                          <Button variant="secondary" onClick={() => setReplyTo(null)}>
+                            ביטול
+                          </Button>
+                        </div>
+                      </div>
+                    ) : (
+                      <button
+                        type="button"
+                        className="vendor-reviews__reply-btn"
+                        onClick={() => openReply(r)}
+                      >
+                        {r.replyText ? "עריכת התגובה" : "הגב לביקורת"}
+                      </button>
+                    ))}
                 </li>
               ))}
             </ul>

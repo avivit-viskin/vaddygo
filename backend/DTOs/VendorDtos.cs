@@ -167,6 +167,12 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(120, ErrorMessage = "כתובת המייל ארוכה מדי")]
         public string LoginEmail { get; set; } = string.Empty;
 
+        // טלפון/וואטסאפ של הספק — נאסף בהרשמה (משמש לכפתור wa.me ולפנייה מהמנהלת).
+        [Required(ErrorMessage = "צריך מספר טלפון")]
+        [RegularExpression(@"^05\d-?\d{7}$",
+            ErrorMessage = "מספר הטלפון אינו תקין — הפורמט: 05X-XXXXXXX")]
+        public string WhatsApp { get; set; } = string.Empty;
+
         [Required(ErrorMessage = "צריך סיסמה")]
         [StringLength(100, MinimumLength = 8, ErrorMessage = "הסיסמה חייבת להכיל 8 תווים לפחות")]
         public string Password { get; set; } = string.Empty;

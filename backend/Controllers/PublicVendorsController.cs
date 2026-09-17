@@ -156,7 +156,7 @@ namespace ParentCommitteeAPI.Controllers
         public async Task<ActionResult> Register([FromBody] VendorRegisterDto dto)
         {
             var (token, error) = await _vendorService.RegisterAsync(
-                dto.Name, dto.LoginEmail, dto.Password);
+                dto.Name, dto.LoginEmail, dto.WhatsApp, dto.Password);
             if (token == null)
                 return BadRequest(new { message = error });
             return Ok(new { editToken = token });

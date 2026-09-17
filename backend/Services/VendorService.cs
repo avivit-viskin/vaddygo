@@ -278,13 +278,18 @@ namespace ParentCommitteeAPI.Services
         }
 
         public async Task<(string? Token, string? Error)> RegisterAsync(
-            string name, string loginEmail, string password)
+            string name, string loginEmail, string whatsApp, string password)
         {
             var vendorName = (name ?? string.Empty).Trim();
             var email = (loginEmail ?? string.Empty).Trim().ToLowerInvariant();
+            var phone = (whatsApp ?? string.Empty).Trim();
             if (vendorName.Length == 0)
             {
                 return (null, "צריך שם עסק/ספק");
+            }
+            if (phone.Length == 0)
+            {
+                return (null, "צריך מספר טלפון");
             }
             if (email.Length == 0 || !email.Contains('@'))
             {
@@ -307,6 +312,7 @@ namespace ParentCommitteeAPI.Services
             {
                 Name = vendorName,
                 LoginEmail = email,
+                WhatsApp = phone,
                 PasswordHash = PasswordHasher.Hash(password),
                 EditToken = Guid.NewGuid().ToString("N"),
                 EditTokenIssuedAt = DateTime.UtcNow,

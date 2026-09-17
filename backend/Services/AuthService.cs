@@ -65,6 +65,8 @@ namespace ParentCommitteeAPI.Services
             {
                 Username = username,
                 Email = email,
+                // טלפון מוצפן במנוחה (כמו כל טלפון), נשמר בלי מקפים
+                Phone = FieldEncryption.Protect(dto.Phone.Trim().Replace("-", "")),
                 PasswordHash = PasswordHasher.Hash(dto.Password),
                 Role = "Member",
                 // קוד הפניה (?ref=) מהקישור שדרכו נרשמו — למקור ההרשמה בדוח השימוש.

@@ -11,6 +11,11 @@ namespace ParentCommitteeAPI.Models
         public string Username { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
 
+        // מספר הטלפון של בעל/ת המוסד — נאסף בהרשמה (ליצירת קשר/וואטסאפ מהמנהלת).
+        // **מוצפן** במנוחה (FieldEncryption) כמו כל טלפון אחר במערכת. null = ישן
+        // (נרשם לפני שהשדה נוסף, או דרך Google).
+        public string? Phone { get; set; }
+
         // גיבוב הסיסמה (PBKDF2) — לעולם לא הסיסמה עצמה. ריק אם המשתמש נרשם רק דרך Google.
         public string PasswordHash { get; set; } = string.Empty;
 

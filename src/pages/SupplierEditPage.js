@@ -441,16 +441,11 @@ function SupplierEditPage() {
         >
           ☰
         </button>
-        {/* מותג במרכז — אריח VG + שם + תת-כותרת (במקום לוגו PNG, שנועד לרקע בהיר
-            ולא נקרא על הכותרת הכהה). זו החתימה ה"פרימיום" של פורטל הספקים. */}
+        {/* מותג במרכז — לוגו VaddyGo (כמו בסרגל העליון של בעלי המוסדות) +
+            תת-כותרת "פורטל ספקים" כדי להבדיל מהאפליקציה של הוועדים */}
         <div className="sup-head__brand">
-          <span className="sup-head__mark" aria-hidden="true">
-            VG
-          </span>
-          <span className="sup-head__brandtext">
-            <span className="sup-head__name">VaddyGo</span>
-            <span className="sup-head__sub">פורטל ספקים</span>
-          </span>
+          <Logo />
+          <span className="sup-head__sub">פורטל ספקים</span>
         </div>
         {/* אווטאר החשבון בצד שמאל — לחיצה מציגה שם העסק ומייל ההתחברות */}
         <div style={{ marginInlineStart: "auto" }}>
@@ -745,6 +740,7 @@ function SupplierEditPage() {
       <SupplierSideMenu
         isOpen={isMenuOpen}
         isPro={vendor?.isPro}
+        name={vendor?.name}
         onClose={() => setIsMenuOpen(false)}
         onUpgrade={() => setUpgradeOpen(true)}
         onReport={() => setReportOpen(true)}

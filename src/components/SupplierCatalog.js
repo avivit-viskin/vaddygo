@@ -2,20 +2,15 @@ import { useEffect, useState } from "react";
 import Spinner from "./Spinner";
 import ProBadge from "./ProBadge";
 import Button from "./Button";
+import VendorPanel from "../pages/gifts/VendorPanel";
 import { getSupplierCatalog } from "../services/vendorsService";
-import { whatsappUrlWithText } from "../services/whatsapp";
 import "../styles/supplier-app.css";
 
 /*
-  SupplierCatalog — צפייה בכל הספקים הרשומים במערכת. **פיצ'ר פרו**: ספק ללא פרו
-  רואה הזמנה לשדרג, וספק עם פרו רואה רשימה קומפקטית (שם, קטגוריה, וואטסאפ).
-  הרשימה נטענת מ-endpoint שמאמת פרו בשרת (403 לספק ללא פרו).
+  SupplierCatalog — צפייה בכל הספקים הרשומים במערכת, **כולל המוצרים והמחירים**
+  (בדיוק כפי שהוועדים רואים אותם, לקריאה בלבד). **פיצ'ר פרו**: ספק ללא פרו רואה
+  הזמנה לשדרג. הרשימה נטענת מ-endpoint שמאמת פרו בשרת (403 לספק ללא פרו).
 */
-function initials(name) {
-  const w = (name || "").trim().split(/\s+/).filter(Boolean);
-  return ((w[0]?.[0] || "") + (w[1]?.[0] || "")).toUpperCase() || "ספ";
-}
-
 function SupplierCatalog({ token, isPro, onUpgrade }) {
   const [vendors, setVendors] = useState(null);
   const [error, setError] = useState("");
@@ -66,31 +61,11 @@ function SupplierCatalog({ token, isPro, onUpgrade }) {
   return (
     <div className="sup-catalog">
       <p className="sup-catalog__count">{vendors.length} ספקים רשומים במערכת</p>
-      <ul className="sup-catalog__list">
+      <div className="sup-catalog__vendors">
         {vendors.map((v) => (
-          <li key={v.id} className="sup-catalog__card">
-            <span className="sup-catalog__avatar" aria-hidden="true">
-              {initials(v.name)}
-            </span>
-            <span className="sup-catalog__info">
-              <span className="sup-catalog__name">{v.name || "ספק"}</span>
-              {v.category && (
-                <span className="sup-catalog__cat">{v.category}</span>
-              )}
-            </span>
-            {v.whatsApp && (
-              <a
-                className="sup-catalog__wa"
-                href={whatsappUrlWithText(v.whatsApp, "")}
-                target="_blank"
-                rel="noreferrer"
-              >
-                וואטסאפ
-              </a>
-            )}
-          </li>
+          <VendorPanel key={v.id} vendor={v} readOnly />
         ))}
-      </ul>
+      </div>
     </div>
   );
 }

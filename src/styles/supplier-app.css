@@ -28,32 +28,25 @@
   align-items: center;
   gap: 10px;
   position: relative;
-  /* בז' רך ואחיד — לא כהה/חום ולא גרדיאנט "מפוצל"; הקו הוורוד למטה שומר על
-     החתימה ה"פרימיום" שמבדילה את פורטל הספקים מהאפליקציה הרכה */
+  /* זהה לסרגל העליון של בעלי המוסדות (.app-header): רקע בהיר וקו הפרדה נקי
+     בתחתית — בלי גרדיאנט ורוד "מפוצל" */
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
+  border-bottom: 1px solid var(--color-border);
   min-height: 58px;
-  padding: 12px 16px 14px;
+  padding: 10px 16px;
   /* יוצא מה-padding של .supplier-edit (12px 14px) כדי להיות סרגל צמוד לקצוות */
   margin: -12px -14px 14px;
 }
-/* קו ורוד עדין בתחתית הכותרת — החתימה ה"פרימיום" של הפורטל */
-.sup-head::after {
-  content: "";
-  position: absolute;
-  inset-inline: 0;
-  bottom: 0;
-  height: 2px;
-  background: linear-gradient(90deg, transparent, #c25c8a, transparent);
-}
-/* מותג במרכז: אריח "VG" + שם + תת-כותרת (במקום לוגו PNG שנועד לרקע בהיר) */
+/* מותג במרכז: הלוגו + תת-כותרת "פורטל ספקים" */
 .sup-head__brand {
   flex: 1;
   min-width: 0;
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 9px;
+  gap: 1px;
 }
 .sup-head__mark {
   flex-shrink: 0;
@@ -658,4 +651,11 @@
   font-size: var(--font-size-sm);
   color: var(--color-text);
   line-height: 1.5;
+}
+
+/* קטלוג הספקים לפרו — מציג כרטיס מלא (VendorPanel) לכל ספק, מרווח ביניהם */
+.sup-catalog__vendors {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }

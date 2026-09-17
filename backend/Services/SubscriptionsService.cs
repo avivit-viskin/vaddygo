@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using ParentCommitteeAPI.Auth;
 using ParentCommitteeAPI.DTOs;
 
 namespace ParentCommitteeAPI.Services
@@ -55,7 +56,7 @@ namespace ParentCommitteeAPI.Services
                         .FirstOrDefault(),
                     Phone = _db.Users
                         .Where(u => u.Id == g.UserId)
-                        .Select(u => u.TwoFactorPhone)
+                        .Select(u => u.Phone)
                         .FirstOrDefault(),
                     Protected = _db.Users
                         .Where(u => u.Id == g.UserId)
@@ -120,7 +121,7 @@ namespace ParentCommitteeAPI.Services
                 {
                     u.Id,
                     u.Email,
-                    Phone = u.TwoFactorPhone,
+                    Phone = u.Phone,
                     Created = (DateTime?)u.CreatedAt,
                     Protected = u.IsProtected,
                 })
@@ -147,7 +148,7 @@ namespace ParentCommitteeAPI.Services
                     .Select(c =>
                     {
                         var row = Mark(ToRow(
-                            c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, c.Phone,
+                            c.Id, c.Name, c.IsPro, c.Until, c.Created, c.Email, DecryptPhone(c.Phone),
                             today, registeredAt: c.Created), c.Protected, protectedEmails);
                         var studentCount = studentCountByGroup.TryGetValue(c.Id, out var n) ? n : 0;
                         row.City = c.City ?? string.Empty;
@@ -173,7 +174,7 @@ namespace ParentCommitteeAPI.Services
                         Id = u.Id,
                         Name = u.Email, // אין שם עסק — מציגים את המייל
                         Email = u.Email,
-                        Phone = u.Phone ?? string.Empty,
+                        Phone = DecryptPhone(u.Phone),
                         CreatedAt = u.Created,
                         Status = "incomplete",
                         IsProtected = u.Protected
@@ -190,6 +191,11 @@ namespace ParentCommitteeAPI.Services
             result.TrialCount = all.Count(r => r.Status == "trial");
             return result;
         }
+
+        /* טלפון הבעלים נשמר מוצפן במסד — מפוענח לתצוגה. ריק/null = אין (נרשם/ה
+           לפני שהשדה נוסף, או דרך Google). */
+        private static string DecryptPhone(string? enc) =>
+            string.IsNullOrEmpty(enc) ? string.Empty : FieldEncryption.Unprotect(enc);
 
         /* מסמן שורה כמוגנת — דגל במסד או כתובת ברשימה. ראה ProtectedAccounts. */
         private static SubscriptionRowDto Mark(

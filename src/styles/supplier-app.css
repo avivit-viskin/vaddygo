@@ -8,7 +8,18 @@
 .supplier-edit {
   /* מסך מלא — לא עמודה צרה שנראית "חצויה" באמצע המסך */
   max-width: none;
-  padding: 12px 14px 44px;
+  /* מרווח תחתון שמפנה מקום לסרגל הניווט התחתון הקבוע (כמו בבעלי המוסדות) */
+  padding: 12px 14px
+    calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 28px);
+}
+
+/* סרגל הניווט התחתון של הספק — כפתורים המשתמשים בעיצוב bottom-nav של בעלי
+   המוסדות; מאפסים את סגנון הכפתור כדי שיישבו כמו הקישורים המקוריים */
+.sup-bottom-nav .bottom-nav__link {
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
 }
 
 /* ── סרגל עליון בסגנון הוועדים (.app-header): ☰ מימין, לוגו במרכז, אווטאר משמאל ── */

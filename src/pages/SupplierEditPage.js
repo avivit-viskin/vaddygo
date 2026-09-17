@@ -548,16 +548,21 @@ function SupplierEditPage() {
       )}
 
       {/* פס ניווט בין הדפים — סגנון ניווט (אייקון + פס תחתון), דביק */}
-      <nav className="sup-tabs" aria-label="ניווט אזור הספק" data-tour="sup-nav">
+      {/* ניווט תחתון קבוע — זהה לעיצוב של מערכת בעלי המוסדות (BottomNav) */}
+      <nav
+        className="bottom-nav sup-bottom-nav"
+        aria-label="ניווט אזור הספק"
+        data-tour="sup-nav"
+      >
         {TABS.map((tab) => (
           <button
             key={tab.key}
             type="button"
             onClick={() => goTo(tab.key)}
-            className={`sup-tab${view === tab.key ? " sup-tab--active" : ""}`}
+            className={`bottom-nav__link${view === tab.key ? " active" : ""}`}
           >
-            <span className="sup-tab__icon">
-              <Icon name={tab.icon} size={20} />
+            <span className="bottom-nav__icon" aria-hidden="true">
+              <Icon name={tab.icon} size={24} />
             </span>
             <span>{tab.label}</span>
           </button>

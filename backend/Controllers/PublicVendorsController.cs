@@ -92,6 +92,19 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(vendor);
         }
 
+        // GET: api/public/vendors/catalog/{token} — כל הספקים במערכת. **פיצ'ר פרו**:
+        // רק ספק עם פרו פעיל (בתשלום או במבצע החינם) רשאי לצפות בקטלוג המלא.
+        [HttpGet("catalog/{token}")]
+        public async Task<ActionResult<IEnumerable<VendorResponseDto>>> Catalog(string token)
+        {
+            var me = await _vendorService.GetByEditTokenAsync(token);
+            if (me == null)
+                return NotFound(new { message = "הקישור אינו תקין או שכבר אינו בתוקף" });
+            if (!me.IsPro)
+                return StatusCode(403, new { message = "צפייה בכל הספקים היא פיצ'ר פרו" });
+            return Ok(await _vendorService.GetAllAsync());
+        }
+
         // PUT: api/public/vendors/{token} — שמירת השינויים שהספק ביצע בכרטיס שלו
         [HttpPut("{token}")]
         public async Task<ActionResult<VendorResponseDto>> UpdateByToken(

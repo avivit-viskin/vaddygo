@@ -66,6 +66,7 @@ test("הרשמה מוצלחת שומרת את ה-token וממשיכה לאשף",
 
   userEvent.type(screen.getByLabelText("שם משתמש"), "avivit");
   userEvent.type(screen.getByLabelText("כתובת מייל"), "avivit@example.com");
+  userEvent.type(screen.getByLabelText("טלפון נייד"), "050-1234567");
   userEvent.type(screen.getByLabelText("סיסמה"), "secret123");
   userEvent.click(screen.getByRole("button", { name: "יצירת חשבון" }));
 

@@ -140,12 +140,13 @@ function store(auth) {
   );
 }
 
-export async function register({ username, email, password }) {
+export async function register({ username, email, phone, password }) {
   // קוד הפניה (?ref=) שנלכד בקישור ההרשמה — נשלח כדי שהמנהלת תראה מקור ההרשמה.
   const ref = getReferralCode();
   const auth = await api.post("/api/auth/register", {
     username,
     email,
+    phone,
     password,
     ...(ref ? { ref } : {}),
   });

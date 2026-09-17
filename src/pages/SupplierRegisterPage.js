@@ -18,6 +18,7 @@ function SupplierRegisterPage() {
   const navigate = useNavigate();
   const [name, setName] = useState("");
   const [loginEmail, setLoginEmail] = useState("");
+  const [whatsApp, setWhatsApp] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -31,6 +32,8 @@ function SupplierRegisterPage() {
     if (!name.trim()) next.name = "צריך שם עסק/ספק";
     if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(loginEmail.trim()))
       next.loginEmail = "כתובת המייל אינה תקינה";
+    if (!/^05\d-?\d{7}$/.test(whatsApp.trim()))
+      next.whatsApp = "מספר הטלפון אינו תקין — הפורמט: 05X-XXXXXXX";
     if (!password || password.length < 8)
       next.password = "הסיסמה חייבת להכיל לפחות 8 תווים";
     setErrors(next);
@@ -42,6 +45,7 @@ function SupplierRegisterPage() {
       const token = await registerVendor({
         name: name.trim(),
         loginEmail: loginEmail.trim(),
+        whatsApp: whatsApp.trim(),
         password,
       });
       // כבר נרשמו עם מייל+סיסמה — פותחים סשן כדי שלא יתבקשו להתחבר/להירשם שוב
@@ -93,6 +97,17 @@ function SupplierRegisterPage() {
               onChange={(e) => setLoginEmail(e.target.value)}
               error={errors.loginEmail}
               placeholder="you@example.com"
+            />
+            <Input
+              id="reg-phone"
+              label="טלפון / וואטסאפ"
+              type="tel"
+              dir="ltr"
+              autoComplete="tel"
+              value={whatsApp}
+              onChange={(e) => setWhatsApp(e.target.value)}
+              error={errors.whatsApp}
+              placeholder="050-1234567"
             />
             <div className="password-field">
               <Input

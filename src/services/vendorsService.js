@@ -121,10 +121,11 @@ export async function supplierLoginWithGoogle(credential) {
   הרשמת ספק חדש בעצמו (שם עסק + מייל + סיסמה). מחזיר את טוקן העריכה, והלקוח
   ממשיך איתו לעמוד מילוי הכרטיס והמוצרים.
 */
-export async function registerVendor({ name, loginEmail, password }) {
+export async function registerVendor({ name, loginEmail, whatsApp, password }) {
   const { editToken } = await api.post("/api/public/vendors/register", {
     name,
     loginEmail,
+    whatsApp,
     password,
   });
   return editToken;

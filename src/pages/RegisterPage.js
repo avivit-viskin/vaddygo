@@ -28,6 +28,11 @@ function validate(values) {
   } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(values.email.trim())) {
     errors.email = "כתובת המייל אינה תקינה";
   }
+  if (!values.phone.trim()) {
+    errors.phone = "צריך למלא מספר טלפון";
+  } else if (!/^05\d-?\d{7}$/.test(values.phone.trim())) {
+    errors.phone = "מספר הטלפון אינו תקין — הפורמט: 05X-XXXXXXX";
+  }
   if (!values.password || values.password.length < 8) {
     errors.password = "הסיסמה חייבת להכיל לפחות 8 תווים";
   }
@@ -46,12 +51,13 @@ function RegisterPage() {
     captureReferralFromUrl(window.location.search);
   }, []);
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
-    useForm({ username: "", email: "", password: "" }, validate);
+    useForm({ username: "", email: "", phone: "", password: "" }, validate);
 
   const onSubmit = handleSubmit(async (formValues) => {
     await register({
       username: formValues.username.trim(),
       email: formValues.email.trim(),
+      phone: formValues.phone.trim(),
       password: formValues.password,
     });
     navigate(safeNext || "/onboarding");
@@ -83,6 +89,18 @@ function RegisterPage() {
             value={values.email}
             onChange={handleChange}
             error={errors.email}
+          />
+          <Input
+            id="register-phone"
+            name="phone"
+            label="טלפון נייד"
+            type="tel"
+            dir="ltr"
+            autoComplete="tel"
+            placeholder="050-1234567"
+            value={values.phone}
+            onChange={handleChange}
+            error={errors.phone}
           />
           <PasswordField
             id="register-password"

@@ -16,6 +16,10 @@ namespace ParentCommitteeAPI.Models
         /* קישור לתמונת המוצר (URL). העלאת קובץ ישירה תיכנס עם תשתית ה-Drive (שלב 8) */
         public string ImageUrl { get; set; } = string.Empty;
 
+        /* מיקום התמונה בתוך הריבוע (CSS object-position, למשל "50% 30%") — כדי
+           שהספק ימרכז את התמונה. ריק = מרכז (50% 50%). מוחל בכל מקום שהתמונה מוצגת. */
+        public string ImagePosition { get; set; } = string.Empty;
+
         /* התיקייה/חג שאליו שייך המוצר (ראש השנה, סוכות, מתנות לצוות...). ריק = ללא. */
         public string Folder { get; set; } = string.Empty;
 

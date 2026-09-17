@@ -84,6 +84,10 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(3_000_000, ErrorMessage = "קובץ התמונה גדול מדי")]
         public string ImageUrl { get; set; } = string.Empty;
 
+        /* מיקום התמונה בריבוע (object-position, למשל "50% 30%"); ריק = מרכז */
+        [StringLength(20)]
+        public string ImagePosition { get; set; } = string.Empty;
+
         [StringLength(40, ErrorMessage = "שם התיקייה ארוך מדי")]
         public string Folder { get; set; } = string.Empty;
 
@@ -295,6 +299,7 @@ namespace ParentCommitteeAPI.DTOs
         public string Description { get; set; } = string.Empty;
         public decimal Price { get; set; }
         public string ImageUrl { get; set; } = string.Empty;
+        public string ImagePosition { get; set; } = string.Empty;
         public string Folder { get; set; } = string.Empty;
         public string Unit { get; set; } = string.Empty;
     }

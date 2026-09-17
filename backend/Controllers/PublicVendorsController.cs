@@ -105,6 +105,18 @@ namespace ParentCommitteeAPI.Controllers
             return Ok(await _vendorService.GetAllAsync());
         }
 
+        // POST: api/public/vendors/{token}/reviews/{reviewId}/reply — הספק מגיב
+        // לביקורת שכתבו עליו (טקסט ריק = הסרת התגובה). מאומת מול הטוקן של הספק.
+        [HttpPost("{token}/reviews/{reviewId:int}/reply")]
+        public async Task<IActionResult> ReplyToReview(
+            string token, int reviewId, [FromBody] VendorReviewReplyDto dto)
+        {
+            var ok = await _vendorService.ReplyToReviewAsync(token, reviewId, dto.Text);
+            if (!ok)
+                return NotFound(new { message = "הביקורת לא נמצאה" });
+            return NoContent();
+        }
+
         // PUT: api/public/vendors/{token} — שמירת השינויים שהספק ביצע בכרטיס שלו
         [HttpPut("{token}")]
         public async Task<ActionResult<VendorResponseDto>> UpdateByToken(

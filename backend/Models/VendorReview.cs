@@ -28,5 +28,9 @@ namespace ParentCommitteeAPI.Models
 
         // מתי נכתבה/עודכנה לאחרונה
         public DateTime CreatedAt { get; set; }
+
+        // תגובת הספק לביקורת (אופציונלי) — הספק יכול להגיב לביקורת שכתבו עליו.
+        public string ReplyText { get; set; } = string.Empty;
+        public DateTime? RepliedAt { get; set; }
     }
 }

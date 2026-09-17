@@ -14,6 +14,8 @@ namespace ParentCommitteeAPI.Services
            לכל מוסד (groupId), כתיבה חוזרת מעדכנת. */
         Task<List<VendorReviewDto>> GetReviewsAsync(int vendorId);
         Task<bool> UpsertReviewAsync(int vendorId, int groupId, VendorReviewWriteDto dto);
+        /* הספק (לפי editToken) מגיב לביקורת שכתבו עליו. */
+        Task<bool> ReplyToReviewAsync(string editToken, int reviewId, string? text);
         Task<VendorResponseDto> CreateAsync(VendorCreateDto dto);
         Task<VendorResponseDto?> UpdateAsync(int id, VendorUpdateDto dto);
         Task<bool> DeleteAsync(int id);

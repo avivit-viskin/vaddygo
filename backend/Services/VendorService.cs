@@ -91,8 +91,34 @@ namespace ParentCommitteeAPI.Services
                     Stars = r.Stars,
                     Text = r.Text,
                     CreatedAt = r.CreatedAt,
+                    ReplyText = r.ReplyText,
                 })
                 .ToListAsync();
+        }
+
+        /* הספק מגיב לביקורת שכתבו עליו (או מסיר תגובה בטקסט ריק). מאמת שהביקורת
+           שייכת לספק של הטוקן (IDOR). false אם הביקורת/הטוקן לא נמצאו/לא תואמים. */
+        public async Task<bool> ReplyToReviewAsync(string editToken, int reviewId, string? text)
+        {
+            var vendorId = await _db.Vendors
+                .Where(v => v.EditToken == editToken)
+                .Select(v => (int?)v.Id)
+                .FirstOrDefaultAsync();
+            if (vendorId == null)
+            {
+                return false;
+            }
+            var review = await _db.VendorReviews
+                .FirstOrDefaultAsync(r => r.Id == reviewId && r.VendorId == vendorId.Value);
+            if (review == null)
+            {
+                return false;
+            }
+            var reply = (text ?? string.Empty).Trim();
+            review.ReplyText = reply;
+            review.RepliedAt = reply.Length == 0 ? null : DateTime.UtcNow;
+            await _db.SaveChangesAsync();
+            return true;
         }
 
         /* כתיבת/עדכון ביקורת של ועד (groupId) על ספק — ביקורת אחת לכל מוסד (upsert).

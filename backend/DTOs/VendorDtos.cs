@@ -278,6 +278,16 @@ namespace ParentCommitteeAPI.DTOs
         public int Stars { get; set; }
         public string Text { get; set; } = string.Empty;
         public System.DateTime CreatedAt { get; set; }
+        // תגובת הספק (אם הגיב) — מוצגת מתחת לביקורת
+        public string ReplyText { get; set; } = string.Empty;
+    }
+
+    /* תגובת הספק לביקורת: טקסט (ריק = הסרת התגובה). */
+    public class VendorReviewReplyDto
+    {
+        [System.ComponentModel.DataAnnotations.StringLength(600,
+            ErrorMessage = "התגובה יכולה להכיל עד 600 תווים")]
+        public string? Text { get; set; }
     }
 
     /* כתיבת/עדכון ביקורת ע"י ועד: דירוג (חובה) + טקסט (אופציונלי). */

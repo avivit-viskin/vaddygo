@@ -13,6 +13,7 @@ import {
   setCommitteePro,
 } from "../../services/subscriptionsService";
 import { deleteVendor } from "../../services/vendorsService";
+import { buildWhatsappReminderUrl } from "../../services/paymentsService";
 import "../../styles/subscriptions.css";
 
 /*
@@ -140,6 +141,17 @@ function SubscriptionList({
               {row.phone && (
                 <a className="subs__phone" href={`tel:${row.phone}`} title="טלפון">
                   ☎ {row.phone}
+                </a>
+              )}
+              {row.phone && (
+                <a
+                  className="subs__whatsapp"
+                  href={buildWhatsappReminderUrl(row.phone, "")}
+                  target="_blank"
+                  rel="noreferrer"
+                  title="שליחת הודעה בוואטסאפ"
+                >
+                  <Icon name="message" size={13} /> וואטסאפ
                 </a>
               )}
               <span className={`subs__pill subs__pill--${status.tone}`}>

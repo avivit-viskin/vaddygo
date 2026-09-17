@@ -28,6 +28,7 @@ import ConfirmDialog from "../components/ConfirmDialog";
 import ProBadge from "../components/ProBadge";
 import SupplierSideMenu from "../components/SupplierSideMenu";
 import SupplierUpgrade from "../components/SupplierUpgrade";
+import SupplierCatalog from "../components/SupplierCatalog";
 import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierTrialBanner from "../components/SupplierTrialBanner";
 import SupplierChecklist from "../components/SupplierChecklist";
@@ -708,6 +709,16 @@ function SupplierEditPage() {
             את המוצרים שבתוכה.
           </p>
           <VendorPanel vendor={vendor} readOnly />
+
+          <h2 className="sup-section-title" style={{ marginTop: 22 }}>
+            <Icon name="users" size={22} /> כל הספקים במערכת
+            <ProBadge title="פיצ'ר פרו" isPro={vendor?.isPro} />
+          </h2>
+          <SupplierCatalog
+            token={token}
+            isPro={vendor?.isPro}
+            onUpgrade={() => setUpgradeOpen(true)}
+          />
         </div>
       )}
 

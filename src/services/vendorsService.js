@@ -92,6 +92,13 @@ export async function getVendorByToken(token) {
   return api.get(`/api/public/vendors/${token}`);
 }
 
+/*
+  קטלוג כל הספקים במערכת — פיצ'ר פרו. השרת מחזיר 403 לספק ללא פרו.
+*/
+export async function getSupplierCatalog(token) {
+  return api.get(`/api/public/vendors/catalog/${token}`);
+}
+
 export async function updateVendorByToken(token, vendor) {
   return api.put(`/api/public/vendors/${token}`, vendor);
 }

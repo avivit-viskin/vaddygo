@@ -578,3 +578,84 @@
   font-weight: 600;
   line-height: 1.4;
 }
+
+/* ── קטלוג "כל הספקים" (פיצ'ר פרו) ── */
+.sup-catalog__count {
+  margin: 0 0 10px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.sup-catalog__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 8px;
+}
+.sup-catalog__card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+}
+.sup-catalog__avatar {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-weight: 800;
+  font-size: 14px;
+  color: #7a3350;
+  background: linear-gradient(140deg, #f7c9dd, #f6d9a8);
+}
+.sup-catalog__info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  flex: 1;
+}
+.sup-catalog__name {
+  font-weight: 700;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.sup-catalog__cat {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.sup-catalog__wa {
+  flex-shrink: 0;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: #fff;
+  background: #25d366;
+  padding: 5px 12px;
+  border-radius: 999px;
+  text-decoration: none;
+}
+.sup-catalog-locked {
+  padding: 16px;
+  border: 1px dashed var(--color-primary-muted);
+  border-radius: 16px;
+  background: var(--color-primary-light);
+  text-align: center;
+}
+.sup-catalog-locked__title {
+  margin: 0 0 6px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+}
+.sup-catalog-locked__text {
+  margin: 0 0 12px;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  line-height: 1.5;
+}

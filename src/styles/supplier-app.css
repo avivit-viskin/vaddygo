@@ -659,3 +659,35 @@
   flex-direction: column;
   gap: 16px;
 }
+
+/* שורת ספק לחיצה בקטלוג — פותחת את הכרטיס המלא */
+.sup-catalog__row {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  background: var(--color-surface);
+  font: inherit;
+  color: inherit;
+  text-align: inherit;
+  cursor: pointer;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+.sup-catalog__row:hover {
+  border-color: var(--color-primary);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+.sup-catalog__row:active {
+  transform: scale(0.995);
+}
+.sup-catalog__open {
+  flex-shrink: 0;
+  margin-inline-start: auto;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-primary-dark);
+  white-space: nowrap;
+}

@@ -21,8 +21,15 @@ test("הוספת תלמיד → מופיע ברשימה → מחיקה → נע�
 
   await page.goto("/students", { waitUntil: "load" });
 
-  // הוספה
-  await page.getByRole("button", { name: "+ הוספת תלמיד" }).click();
+  /*
+    הוספה — כפתור ההוספה נמצא בשני מקומות לפי מצב המסך: בשורת הפעולות
+    כשיש תלמידים, ובכרטיס "להוסיף ילד אחד" כשהרשימה ריקה (23.09.2026).
+    הבדיקה מתחילה אחרי מחיקת כל התלמידים, ולכן חייבת לקבל את שניהם.
+  */
+  await page
+    .getByRole("button", { name: /הוספת תלמיד/ })
+    .first()
+    .click();
   await page.locator("#student-first-name").fill(FIRST);
   await page.locator("#student-last-name").fill(LAST);
   await page.locator("#student-parent-phone").fill("0500000000");

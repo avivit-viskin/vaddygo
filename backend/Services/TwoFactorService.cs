@@ -49,17 +49,22 @@ namespace ParentCommitteeAPI.Services
         /* רק כדי לדעת אם אפשר לשלוח בכלל — ראו IsMandatoryAsync. */
         private readonly IEmailSender _email;
 
+        /* לזיהוי חשבונות מוגנים (בוט הבדיקות) — ראו IsMandatoryAsync. */
+        private readonly IConfiguration _config;
+
         public TwoFactorService(
             AppDbContext db,
             IEnumerable<ITwoFactorChannel> channels,
             ISmsSender sms,
             IEmailSender email,
+            IConfiguration config,
             ILogger<TwoFactorService> logger)
         {
             _db = db;
             _channels = channels;
             _sms = sms;
             _email = email;
+            _config = config;
             _logger = logger;
         }
 
@@ -91,6 +96,20 @@ namespace ParentCommitteeAPI.Services
         public async Task<bool> IsMandatoryAsync(User user)
         {
             if (!_email.IsConfigured)
+            {
+                return false;
+            }
+
+            /*
+              🔴 חשבון בוט-הבדיקות מוחרג. הוא **בעלים** של גן בדיקה, ולכן היה
+              נכנס לאכיפה ונחסם — ובדיקות ה-E2E מול האתר החי היו נהיות אדומות
+              בשקט, בדיוק כמו בשתי הפעמים שהחשבון נמחק. חשבון מכונה אינו יכול
+              לפתוח מייל ולהקליד קוד.
+
+              בטוח: זהו חשבון מוגן ומנוטר, נתוניו מומצאים, והוא מזוהה באותה
+              רשימה שכבר מגינה עליו מפני מחיקה (ProtectedAccounts).
+            */
+            if (ProtectedAccounts.IsProtectedUser(user, _config))
             {
                 return false;
             }

@@ -137,6 +137,18 @@ namespace ParentCommitteeAPI.Services
           אלרגיות (מידע רפואי), כתובת המגורים, וטלפוני/מיילי ההורים. שם ושם
           משפחה נשארים גלויים כי הם מוצגים, ממוינים ומחופשים בכל מסך.
         */
+        /*
+          משאיר יום וחודש בלבד ומחליף את שנת הלידה בשנת-דמה קבועה.
+
+          שנת הלידה היא מה שהופך "14 במרץ" לנתון מזהה; ברכת יום הולדת לא
+          זקוקה לה. מנורמל כאן — בנקודה היחידה שבה תלמיד נכתב — כדי שלא תהיה
+          דרך לשמור שנה אמיתית דרך מסלול אחר (כולל ייבוא מקובץ).
+        */
+        private static DateOnly? NormalizeBirthDate(DateOnly? value) =>
+            value == null
+                ? null
+                : new DateOnly(Student.BirthYearPlaceholder, value.Value.Month, value.Value.Day);
+
         private static void ApplyWrite(Student student, StudentWriteDto dto)
         {
             student.FirstName = dto.FirstName.Trim();
@@ -145,18 +157,17 @@ namespace ParentCommitteeAPI.Services
             student.ClassName = dto.ClassName.Trim();
             student.ParentPhoneNumber = FieldEncryption.Protect(
                 dto.ParentPhoneNumber.Trim().Replace("-", ""));
-            student.BirthDate = dto.BirthDate;
+            // יום וחודש בלבד — שנת הלידה אינה נשמרת (ראו Student.BirthYearPlaceholder)
+            student.BirthDate = NormalizeBirthDate(dto.BirthDate);
             // שדות משרד החינוך
             student.Gender = dto.Gender.Trim();
             // אלרגיות ברמת הילד לא נאספות עוד (09.09.2026) — יש הערת אלרגיות למוסד.
             // עמודת Student.Allergies נשארת במסד לנתונים קיימים אך אינה נכתבת/נקראת.
-            student.Address = FieldEncryption.Protect(dto.Address.Trim());
             student.ParentEmail = FieldEncryption.Protect(dto.ParentEmail.Trim());
             student.ParentBName = dto.ParentBName.Trim();
             student.ParentBPhone = FieldEncryption.Protect(
                 dto.ParentBPhone.Trim().Replace("-", ""));
             student.ParentBEmail = FieldEncryption.Protect(dto.ParentBEmail.Trim());
-            student.ParentsMarried = dto.ParentsMarried.Trim();
         }
 
         private static StudentResponseDto ToResponse(Student student, decimal totalPaid) => new()
@@ -169,12 +180,10 @@ namespace ParentCommitteeAPI.Services
             ParentPhoneNumber = FieldEncryption.Unprotect(student.ParentPhoneNumber),
             BirthDate = student.BirthDate,
             Gender = student.Gender,
-            Address = FieldEncryption.Unprotect(student.Address),
             ParentEmail = FieldEncryption.Unprotect(student.ParentEmail),
             ParentBName = student.ParentBName,
             ParentBPhone = FieldEncryption.Unprotect(student.ParentBPhone),
             ParentBEmail = FieldEncryption.Unprotect(student.ParentBEmail),
-            ParentsMarried = student.ParentsMarried,
             TotalPaid = totalPaid,
         };
     }

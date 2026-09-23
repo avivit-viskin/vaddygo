@@ -22,6 +22,9 @@ namespace ParentCommitteeAPI.Services
         private readonly IConfiguration _config;
         private readonly ILogger<ResendEmailSender> _logger;
 
+        /* בלי מפתח אין שליחה בפועל — ראו ההסבר ב-IEmailSender.IsConfigured. */
+        public bool IsConfigured => !string.IsNullOrWhiteSpace(_config["Resend:ApiKey"]);
+
         public ResendEmailSender(HttpClient http, IConfiguration config, ILogger<ResendEmailSender> logger)
         {
             _http = http;

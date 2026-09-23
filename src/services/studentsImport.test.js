@@ -186,8 +186,8 @@ test("קובץ משרד החינוך: כל השדות נשלפים, וההורה
     firstName: "הילי",
     lastName: "לוי",
     gender: "נ",
-    birthDate: "2020-05-12",
-    address: "הרצל 5, דירה 3",
+    // 🔒 שנת הלידה נחתכת בייבוא (בדיקת פרטיות 23.09.2026) — יום וחודש בלבד
+    birthDate: "2000-05-12",
     // האמא (הורה ב' בקובץ) הפכה להורה הראשי באפליקציה
     parentName: "דנה לוי",
     parentPhoneNumber: "050-1234567",
@@ -196,8 +196,12 @@ test("קובץ משרד החינוך: כל השדות נשלפים, וההורה
     parentBName: "אבי לוי",
     parentBPhone: "052-7654321",
     parentBEmail: "avi@example.com",
-    parentsMarried: "כן",
   });
+
+  // 🔒 מה ש**לא** נכנס: כתובת הילד ומצב הנישואין קיימים בקובץ משרד החינוך,
+  // ודווקא לכן נבדק במפורש שהם אינם נקלטים.
+  expect(rows[0].address).toBeUndefined();
+  expect(rows[0].parentsMarried).toBeUndefined();
 });
 
 test("כשלהורה ב' אין טלפון — הורה א' נשאר הראשי (לא מרוקנים את המספר)", () => {
@@ -227,8 +231,8 @@ test("תאריך לידה נקרא גם מפורמט dd/mm/yyyy וגם מאוב�
     ["רון", "לוי", new Date(2019, 10, 3)], // 3.11.2019
   ];
   const rows = parseStudentGrid(grid);
-  expect(rows[0].birthDate).toBe("2020-05-12");
-  expect(rows[1].birthDate).toBe("2019-11-03");
+  expect(rows[0].birthDate).toBe("2000-05-12");
+  expect(rows[1].birthDate).toBe("2000-11-03");
 });
 
 test("סדר עמודות שונה — הזיהוי לפי שם ולא לפי מיקום", () => {
@@ -255,7 +259,7 @@ test("קובץ פשוט: שם תלמיד, טלפון ותאריך לידה בל�
     firstName: "הילי",
     lastName: "לוי",
     parentPhoneNumber: "050-1234567",
-    birthDate: "2020-05-12",
+    birthDate: "2000-05-12",
   });
 });
 
@@ -265,7 +269,7 @@ test("תאריך לידה כמספר סידורי של אקסל מומר נכו�
     ["נועה", 43535], // 11.3.2019 בלוח השנה של אקסל
   ];
   const rows = parseStudentGrid(grid);
-  expect(rows[0].birthDate).toBe("2019-03-11");
+  expect(rows[0].birthDate).toBe("2000-03-11");
 });
 
 test("מזהה את שורת הכותרת גם כשמעליה שורות כותרת/שם מוסד (קובץ משרד החינוך)", () => {
@@ -282,7 +286,7 @@ test("מזהה את שורת הכותרת גם כשמעליה שורות כות�
     firstName: "נועה",
     lastName: "כהן",
     parentPhoneNumber: "050-0000000",
-    birthDate: "2019-11-03",
+    birthDate: "2000-11-03",
   });
 });
 
@@ -326,9 +330,9 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
       lastName: "לוי",
       parentName: "דנה לוי",
       parentPhoneNumber: "0501234567",
+      // נכנס **עם** שנה מלאה בכוונה — כדי שהבדיקה תוכיח שהיא נחתכת
       birthDate: "2020-05-12",
       parentBName: "אבי לוי",
-      parentsMarried: "כן",
     },
   ];
   const createFn = jest.fn(() => Promise.resolve({ id: 1 }));
@@ -337,11 +341,15 @@ test("importStudents שולח את השדות הנוספים לשרת", async ()
   expect(createFn).toHaveBeenCalledWith(
     expect.objectContaining({
       firstName: "הילי",
-      birthDate: "2020-05-12",
+      // 🔒 גם אם השורה הגיעה עם שנה מלאה — נשלחת לשרת בלי שנת לידה
+      birthDate: "2000-05-12",
       parentBName: "אבי לוי",
-      parentsMarried: "כן",
     })
   );
+  // ואין דליפה של השדות שהוסרו
+  const sent = createFn.mock.calls[0][0];
+  expect(sent.address).toBeUndefined();
+  expect(sent.parentsMarried).toBeUndefined();
 });
 
 test('importStudents מדלג על כפילויות (לפי שם מלא)', async () => {

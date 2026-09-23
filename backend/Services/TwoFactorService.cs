@@ -46,15 +46,20 @@ namespace ParentCommitteeAPI.Services
 
         private const int BackupCodeCount = 10;
 
+        /* רק כדי לדעת אם אפשר לשלוח בכלל — ראו IsMandatoryAsync. */
+        private readonly IEmailSender _email;
+
         public TwoFactorService(
             AppDbContext db,
             IEnumerable<ITwoFactorChannel> channels,
             ISmsSender sms,
+            IEmailSender email,
             ILogger<TwoFactorService> logger)
         {
             _db = db;
             _channels = channels;
             _sms = sms;
+            _email = email;
             _logger = logger;
         }
 
@@ -62,11 +67,45 @@ namespace ParentCommitteeAPI.Services
 
         public async Task<bool> IsRequiredAsync(User user, string? deviceToken)
         {
-            if (!user.TwoFactorEnabled)
+            if (!user.TwoFactorEnabled && !await IsMandatoryAsync(user))
             {
                 return false;
             }
             return !await IsTrustedDeviceAsync(user.Id, deviceToken);
+        }
+
+        /*
+          אימות דו-שלבי **חובה** לבעלי הרשאת בעלים/מנהל (בדיקת הפרטיות
+          23.09.2026, החלטת בעלת המוצר). אלה החשבונות שרואים את נתוני כל
+          הילדים וההורים במוסד; סיסמה לבדה אינה מספיקה עליהם.
+
+          הקוד נשלח למייל החשבון, ולכן האכיפה עובדת גם למי שמעולם לא הפעיל
+          אימות בעצמו — אין מה "להגדיר" מראש.
+
+          ⚠️ **שסתום בטיחות:** אם אין ספק מייל מוגדר, לא אוכפים. שליחת הקוד
+          בולעת שגיאות בכוונה (כדי שתקלת מייל לא תפיל התחברות), ולכן אכיפה
+          בלי ספק מייל הייתה יוצרת אתגר שקודו לעולם לא מגיע — ונועלת את כל
+          בעלי המוסדות בחוץ, בשקט. עדיף אכיפה שממתינה לתשתית מאשר מערכת
+          שנעולה בפני הלקוחות שלה.
+        */
+        public async Task<bool> IsMandatoryAsync(User user)
+        {
+            if (!_email.IsConfigured)
+            {
+                return false;
+            }
+            if (user.Role == "SuperAdmin")
+            {
+                return true;
+            }
+            // בעלים של מוסד
+            if (await _db.Groups.AnyAsync(g => g.UserId == user.Id))
+            {
+                return true;
+            }
+            // מנהל במוסד של מישהו אחר
+            return await _db.GroupMembers
+                .AnyAsync(m => m.UserId == user.Id && m.Role == "manager");
         }
 
         public async Task<TwoFactorRequiredDto> StartChallengeAsync(User user, string? channelKey = null)

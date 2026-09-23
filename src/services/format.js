@@ -32,8 +32,15 @@ export function formatUnit(unit) {
 }
 
 /* "2023-05-08" ← "8.5.2023" (תאריך מלא; פירוק ידני כדי לא להיות תלוי באזור זמן) */
+/*
+  יום וחודש בלבד — בלי שנה.
+
+  🔒 שנת הלידה אינה נשמרת עוד (בדיקת פרטיות 23.09.2026); ברשומות ישנות היא
+  הוחלפה בשנת-דמה. הצגתה הייתה מציגה שנה שקרית, ולכן היא פשוט לא מוצגת.
+*/
 export function formatBirthday(isoDate) {
   if (!isoDate) return "";
-  const [year, month, day] = isoDate.slice(0, 10).split("-");
-  return `${Number(day)}.${Number(month)}.${year}`;
+  const [, month, day] = isoDate.slice(0, 10).split("-");
+  if (!month || !day) return "";
+  return `${Number(day)}.${Number(month)}`;
 }

@@ -1,4 +1,5 @@
 import useForm from "../hooks/useForm";
+import BirthdayFields from "./BirthdayFields";
 import Input from "./Input";
 import Button from "./Button";
 
@@ -46,12 +47,10 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         parentPhoneNumber: initialStudent?.parentPhoneNumber ?? "",
         // שדות נוספים (מיובאים מקובץ משרד החינוך; כולם לא חובה)
         gender: initialStudent?.gender ?? "",
-        address: initialStudent?.address ?? "",
         parentEmail: initialStudent?.parentEmail ?? "",
         parentBName: initialStudent?.parentBName ?? "",
         parentBPhone: initialStudent?.parentBPhone ?? "",
         parentBEmail: initialStudent?.parentBEmail ?? "",
-        parentsMarried: initialStudent?.parentsMarried ?? "",
       },
       (v) => validateStudent(v)
     );
@@ -86,14 +85,16 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         onChange={handleChange}
         error={errors.parentName}
       />
-      <Input
-        id="student-birth-date"
-        name="birthDate"
-        label="תאריך לידה (לא חובה)"
-        type="date"
+      {/*
+        יום וחודש בלבד — **לא מבקשים שנת לידה** (בדיקת פרטיות 23.09.2026).
+        השימוש היחיד הוא ברכת יום הולדת, ושנת הלידה היא מה שהופך תאריך
+        לנתון מזהה. לא מבקשים מה שלא צריך, ולא רק "לא שומרים".
+      */}
+      <BirthdayFields
         value={values.birthDate}
-        onChange={handleChange}
-        error={errors.birthDate}
+        onChange={(next) =>
+          handleChange({ target: { name: "birthDate", value: next } })
+        }
       />
       {hasGroups && (
         <>
@@ -149,8 +150,14 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
         error={errors.parentPhoneNumber}
       />
 
-      {/* פרטים נוספים — מגיעים אוטומטית מקובץ משרד החינוך, וניתן להשלים ידנית.
-          תעודת הזהות נשמרת (לזיהוי כפילויות בייבוא) אך אינה מוצגת — מטעמי פרטיות. */}
+      {/*
+        פרטים נוספים — מגיעים אוטומטית מקובץ משרד החינוך, וניתן להשלים ידנית.
+
+        🔒 תעודת זהות **אינה נשמרת** במערכת (הוסרה 17.08.2026; זיהוי כפילויות
+        בייבוא נעשה לפי שם מלא). ההערה שהייתה כאן וטענה אחרת הוסרה בבדיקת
+        הפרטיות 23.09.2026 — הערה שגויה על נתון רגיש מטעה את מי שקורא את הקוד
+        בדיוק כמו טקסט שגוי למשתמש.
+      */}
       <details className="student-form__extra">
         <summary>פרטים נוספים (לא חובה)</summary>
 
@@ -159,13 +166,6 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
           name="gender"
           label="מין"
           value={values.gender}
-          onChange={handleChange}
-        />
-        <Input
-          id="student-address"
-          name="address"
-          label="כתובת"
-          value={values.address}
           onChange={handleChange}
         />
         <Input
@@ -201,14 +201,6 @@ function StudentForm({ initialStudent = null, subgroups = [], onSubmit, onCancel
           type="email"
           dir="ltr"
           value={values.parentBEmail}
-          onChange={handleChange}
-        />
-        <Input
-          id="student-parents-married"
-          name="parentsMarried"
-          label="האם ההורים נשואים"
-          placeholder="כן / לא"
-          value={values.parentsMarried}
           onChange={handleChange}
         />
       </details>

@@ -18,12 +18,12 @@ namespace ParentCommitteeAPI.DTOs
 
         public string Gender { get; set; } = string.Empty;
         // אלרגיות ברמת הילד אינן מוחזרות עוד ללקוח (09.09.2026) — ראו Group.AllergiesNote.
-        public string Address { get; set; } = string.Empty;
+        // כתובת הילד ו"האם ההורים נשואים" הוסרו (בדיקת פרטיות 23.09.2026).
         public string ParentEmail { get; set; } = string.Empty;
         public string ParentBName { get; set; } = string.Empty;
         public string ParentBPhone { get; set; } = string.Empty;
         public string ParentBEmail { get; set; } = string.Empty;
-        public string ParentsMarried { get; set; } = string.Empty;
+
 
         /* סך התשלומים ששולמו עד כה — מחושב בשרת מהתשלומים, לא נשמר במסד */
         public decimal TotalPaid { get; set; }

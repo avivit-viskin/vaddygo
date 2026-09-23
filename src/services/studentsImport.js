@@ -22,12 +22,10 @@ function emptyExtras() {
   return {
     birthDate: "",
     gender: "",
-    address: "",
     parentEmail: "",
     parentBName: "",
     parentBPhone: "",
     parentBEmail: "",
-    parentsMarried: "",
   };
 }
 
@@ -114,6 +112,19 @@ function findHeaderRowIndex(rows) {
 /* ── פירוק תאריך לידה (Excel Date או טקסט) ל-YYYY-MM-DD ──────── */
 const pad = (n) => String(n).padStart(2, "0");
 
+/*
+  מסיר את שנת הלידה ומשאיר יום וחודש (עם שנת-דמה קבועה).
+
+  🔒 בדיקת הפרטיות 23.09.2026: השרת מנרמל גם הוא, אבל מסירים כאן כדי שהשנה
+  האמיתית לא תעבור ברשת בכלל — קובץ משרד החינוך מכיל תאריך לידה מלא.
+*/
+export function stripBirthYear(iso) {
+  const s = String(iso || "").slice(0, 10);
+  const parts = s.split("-");
+  if (parts.length !== 3 || !parts[1] || !parts[2]) return "";
+  return `2000-${parts[1]}-${parts[2]}`;
+}
+
 function parseBirthDate(value) {
   if (value == null || value === "") return "";
   if (value instanceof Date && !Number.isNaN(value.getTime())) {
@@ -159,15 +170,11 @@ function rowFromCells(cells, map) {
   }
   if (!firstName) return null;
 
-  const street = get("street");
-  const house = get("houseNumber");
-  const apt = get("apartment");
-  const address = [
-    [street, house].filter(Boolean).join(" "),
-    apt && `דירה ${apt}`,
-  ]
-    .filter(Boolean)
-    .join(", ");
+  /*
+    🔒 כתובת הילד ו"האם ההורים נשואים" אינם נקלטים עוד מהקובץ (בדיקת פרטיות
+    23.09.2026). בקובץ משרד החינוך הם קיימים — ודווקא משום כך חשוב לא לקלוט
+    אותם: ייבוא "כל מה שיש בקובץ" הוא איך שנתונים מיותרים נכנסים למערכת.
+  */
 
   const rawBirth = map.birthDate == null ? "" : c[map.birthDate];
 
@@ -193,14 +200,12 @@ function rowFromCells(cells, map) {
     lastName,
     parentName: primary.name,
     parentPhoneNumber: primary.phone,
-    birthDate: parseBirthDate(rawBirth),
+    birthDate: stripBirthYear(parseBirthDate(rawBirth)),
     gender: get("gender"),
-    address,
     parentEmail: primary.email,
     parentBName: secondary.name,
     parentBPhone: secondary.phone,
     parentBEmail: secondary.email,
-    parentsMarried: get("married"),
   };
 }
 
@@ -481,14 +486,12 @@ export async function importStudents(
         parentName: row.parentName || "",
         className: "",
         parentPhoneNumber: row.parentPhoneNumber || "",
-        birthDate: row.birthDate || null,
+        birthDate: stripBirthYear(row.birthDate) || null,
         gender: row.gender || "",
-        address: row.address || "",
         parentEmail: row.parentEmail || "",
         parentBName: row.parentBName || "",
         parentBPhone: row.parentBPhone || "",
         parentBEmail: row.parentBEmail || "",
-        parentsMarried: row.parentsMarried || "",
       });
       added += 1;
       // מוסיפים לאינדקס כדי לזהות כפילויות גם בתוך אותו קובץ

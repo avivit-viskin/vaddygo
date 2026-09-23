@@ -38,8 +38,8 @@ namespace ParentCommitteeAPI.DTOs
         // אלרגיות ברמת הילד הוסרו (09.09.2026, החלטת בעלת המוצר): לא אוספים ולא
         // מציגים אלרגיה לכל ילד. במקומן יש הערת אלרגיות אחת לכל המוסד (Group.AllergiesNote).
 
-        [StringLength(150, ErrorMessage = "הכתובת ארוכה מדי")]
-        public string Address { get; set; } = string.Empty;
+        // כתובת הילד הוסרה (בדיקת פרטיות 23.09.2026): לא הוצגה, לא יוצאה
+        // ולא שימשה בשום תהליך — כלומר נאספה בלי צורך תפעולי.
 
         [StringLength(100, ErrorMessage = "כתובת המייל ארוכה מדי")]
         public string ParentEmail { get; set; } = string.Empty;
@@ -53,7 +53,7 @@ namespace ParentCommitteeAPI.DTOs
         [StringLength(100, ErrorMessage = "כתובת המייל ארוכה מדי")]
         public string ParentBEmail { get; set; } = string.Empty;
 
-        [StringLength(20, ErrorMessage = "שדה סטטוס הנישואין ארוך מדי")]
-        public string ParentsMarried { get; set; } = string.Empty;
+        // "האם ההורים נשואים" הוסר (בדיקת פרטיות 23.09.2026) — נתון על מצב
+        // משפחתי, בלי שום שימוש במערכת.
     }
 }

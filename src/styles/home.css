@@ -600,6 +600,14 @@
   font-size: var(--font-size-sm);
 }
 
+/* רמז לקבוצה חדשה שעדיין אין בה ילדים — כיוון לשייך תלמידים */
+.subgroup-row__hint {
+  margin: 4px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.4;
+}
+
 /* ── כרטיס הקבוצה (חלון פרטים) ── */
 .subgroup-card__top {
   display: flex;

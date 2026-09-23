@@ -16,10 +16,10 @@ import ExpenseModal from "./ExpenseModal";
   כשיש קבוצות עם ילדים.
 */
 function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
-  // קבוצות פעילות עם ילדים, וגם קבוצות שנמחקו (נשמרות למעקב)
-  const rows = (subgroups || []).filter(
-    (s) => (Number(s.childrenCount) || 0) > 0 || s.archived
-  );
+  // מציגים כל קבוצה שהוגדרה — כולל קבוצה חדשה שעדיין אין בה ילדים — כדי שהיא
+  // תיראה כאן מיד אחרי שנוצרה בהגדרות. (קודם קבוצה ריקה הוסתרה, ואז בעלת המוצר
+  // "שמרה קבוצה ולא ראתה אותה במסך הבית".) קבוצות שנמחקו נשמרות למעקב.
+  const rows = subgroups || [];
   const [selectedName, setSelectedName] = useState(null);
 
   if (rows.length === 0) {
@@ -43,6 +43,9 @@ function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
           const collected = Number(sg.collectedAmount) || 0;
           const percent =
             target > 0 ? Math.min(100, Math.round((collected / target) * 100)) : 0;
+          // קבוצה פעילה שעדיין אין בה ילדים — מציגים רמז שמכוון לשייך תלמידים,
+          // במקום "0 ₪ מתוך 0 ₪" שנראה כאילו משהו לא עבד.
+          const isEmpty = !sg.archived && (Number(sg.childrenCount) || 0) === 0;
           return (
             <li key={sg.name}>
               <button
@@ -56,21 +59,35 @@ function SubgroupBreakdown({ subgroups, onExpenseChanged, readOnly = false }) {
                   <span className="subgroup-row__chip">{sg.childrenCount} ילדים</span>
                   <Icon name="chart" size={16} className="subgroup-row__go" />
                 </div>
-                <div
-                  className="subgroup-row__bar"
-                  role="progressbar"
-                  aria-valuenow={percent}
-                  aria-valuemin={0}
-                  aria-valuemax={100}
-                >
-                  <div className="subgroup-row__fill" style={{ width: `${percent}%` }} />
-                </div>
-                <div className="subgroup-row__amounts">
-                  <span className="subgroup-row__collected">
-                    {formatShekels(collected)}
-                  </span>
-                  <span className="subgroup-row__of">מתוך {formatShekels(target)}</span>
-                </div>
+                {isEmpty ? (
+                  <p className="subgroup-row__hint">
+                    הקבוצה נוצרה ✓ — שייכי אליה תלמידים ברשימת התלמידים כדי לראות
+                    גבייה ויעד
+                  </p>
+                ) : (
+                  <>
+                    <div
+                      className="subgroup-row__bar"
+                      role="progressbar"
+                      aria-valuenow={percent}
+                      aria-valuemin={0}
+                      aria-valuemax={100}
+                    >
+                      <div
+                        className="subgroup-row__fill"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <div className="subgroup-row__amounts">
+                      <span className="subgroup-row__collected">
+                        {formatShekels(collected)}
+                      </span>
+                      <span className="subgroup-row__of">
+                        מתוך {formatShekels(target)}
+                      </span>
+                    </div>
+                  </>
+                )}
               </button>
             </li>
           );

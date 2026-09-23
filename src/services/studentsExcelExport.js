@@ -13,6 +13,11 @@
 
   התאמת תשלום↔קטגוריה נעשית לפי *שם הקטגוריה* (הגדרת הגן המקומית לא כוללת מזהה
   שרת). משתמש ב-xlsx-js-style (fork של SheetJS שתומך בצביעה) בטעינה עצלה.
+
+  מקור הקטגוריות (שמות + סכומים) הוא **השרת** (getGroups של המוסד הפעיל), ולא
+  המטמון המקומי — כך הוספת קטגוריה, שינוי שם או שינוי סכום ב"עריכת גבייה"
+  משתקפים מיד גם בקובץ. (באג שדווח: שינוי קטגוריה לא התעדכן בטבלה כי נקרא
+  מהמטמון הישן.) נופלים למטמון ואז לשמות שבתשלומים רק אם השרת לא זמין.
 */
 import { getStudents } from "./studentsService";
 import {
@@ -21,6 +26,8 @@ import {
   amountRemaining,
   isCategoryFullyPaid,
 } from "./paymentsService";
+import { getGroups } from "./groupsService";
+import { getActiveServerGroupId } from "./institutionsService";
 import { getOnboarding } from "./onboardingService";
 
 // צבעי מילוי (RGB בלי #) — רך ותואם לאקסל
@@ -41,7 +48,7 @@ function statusFor(payment) {
   תלמידים מסוננת (אופציונלי). מחזיר את מספר התלמידים שיוצאו (0 = אין תלמידים).
 */
 export async function exportStudentsToExcel(filteredStudents, options = {}) {
-  const [mod, students, rows] = await Promise.all([
+  const [mod, students, rows, groups] = await Promise.all([
     import("xlsx-js-style"),
     Array.isArray(filteredStudents)
       ? Promise.resolve(filteredStudents)
@@ -49,11 +56,21 @@ export async function exportStudentsToExcel(filteredStudents, options = {}) {
     getAllStudentPayments()
       .then((r) => r || [])
       .catch(() => []),
+    getGroups()
+      .then((g) => g || [])
+      .catch(() => []),
   ]);
   const XLSX = mod.default || mod;
   if (students.length === 0) {
     return 0;
   }
+
+  // הקטגוריות הנוכחיות של המוסד הפעיל מהשרת (מקור האמת) — קטגוריות בסיס בלבד,
+  // עם השם והסכום העדכניים. כך שינוי ב"עריכת גבייה" משתקף מיד בקובץ.
+  const activeId = getActiveServerGroupId();
+  const activeGroup =
+    groups.find((g) => g.id === activeId) || groups[0] || null;
+  const liveCategories = activeGroup?.categories || [];
 
   // מפה: studentId → (שם קטגוריה → שורת תשלום)
   const byStudent = new Map();
@@ -69,10 +86,14 @@ export async function exportStudentsToExcel(filteredStudents, options = {}) {
     }
   });
 
-  // עמודות הקטגוריות: לפי הגדרת הגן (סדר קבוע); אם אין — נגזור משמות שבתשלומים.
-  let categoryNames = (getOnboarding()?.categories || [])
-    .map((c) => c.name)
-    .filter(Boolean);
+  // עמודות הקטגוריות: קודם מהשרת (הקטגוריות הנוכחיות של הגן). אם השרת לא זמין —
+  // מהמטמון המקומי, ואם גם אין — נגזור משמות הקטגוריות שבשורות התשלום.
+  let categoryNames = liveCategories.map((c) => c.name).filter(Boolean);
+  if (categoryNames.length === 0) {
+    categoryNames = (getOnboarding()?.categories || [])
+      .map((c) => c.name)
+      .filter(Boolean);
+  }
   if (categoryNames.length === 0) {
     const seen = new Set();
     rows.forEach((p) => p.categoryName && seen.add(p.categoryName));
@@ -90,11 +111,19 @@ export async function exportStudentsToExcel(filteredStudents, options = {}) {
     categoryNames = kept.length > 0 ? kept : only;
   }
 
-  // הסכום המבוקש לכל קטגוריה — קודם מהגדרת הגן (amountPerChild), ואם אין, מתוך
-  // שורת תשלום כלשהי של אותה קטגוריה. משמש גם בכותרת וגם בחישוב היתרה.
+  // הסכום המבוקש לכל קטגוריה — קודם מהשרת (amountPerChild הנוכחי), אחר כך
+  // מהמטמון המקומי, ואם אין — מתוך שורת תשלום כלשהי של אותה קטגוריה. משמש גם
+  // בכותרת וגם בחישוב היתרה.
   const amountByName = new Map();
+  liveCategories.forEach((c) => {
+    if (c.name && Number(c.amountPerChild) > 0) {
+      amountByName.set(c.name, Number(c.amountPerChild));
+    }
+  });
   (getOnboarding()?.categories || []).forEach((c) => {
-    if (c.name && Number(c.amount) > 0) amountByName.set(c.name, Number(c.amount));
+    if (c.name && !amountByName.has(c.name) && Number(c.amount) > 0) {
+      amountByName.set(c.name, Number(c.amount));
+    }
   });
   rows.forEach((p) => {
     if (p.categoryName && !amountByName.has(p.categoryName) && Number(p.amount) > 0) {
@@ -188,7 +217,7 @@ export async function exportStudentsToExcel(filteredStudents, options = {}) {
   // תצוגה מימין לשמאל (עברית)
   wb.Workbook = { Views: [{ RTL: true }] };
 
-  const ganName = getOnboarding()?.ganName;
+  const ganName = activeGroup?.name || getOnboarding()?.ganName;
   const fileName = ganName
     ? `רשימת תלמידים - ${ganName}.xlsx`
     : "רשימת תלמידים - VaddyGo.xlsx";

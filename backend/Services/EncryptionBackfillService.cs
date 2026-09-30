@@ -43,7 +43,7 @@ namespace ParentCommitteeAPI.Services
           אינו נחשב — אין מה להצפין בו.
         */
         private static bool NeedsEncryption(Models.Student s) =>
-            IsPlain(s.Allergies) || IsPlain(s.ParentPhoneNumber)
+            IsPlain(s.ParentPhoneNumber)
             || IsPlain(s.ParentEmail) || IsPlain(s.ParentBPhone) || IsPlain(s.ParentBEmail);
 
         private static bool IsPlain(string? value) =>
@@ -83,7 +83,6 @@ namespace ParentCommitteeAPI.Services
             await using var tx = await _db.Database.BeginTransactionAsync();
             foreach (var s in pending)
             {
-                s.Allergies = FieldEncryption.Protect(s.Allergies);
                 s.ParentPhoneNumber = FieldEncryption.Protect(s.ParentPhoneNumber);
                 s.ParentEmail = FieldEncryption.Protect(s.ParentEmail);
                 s.ParentBPhone = FieldEncryption.Protect(s.ParentBPhone);

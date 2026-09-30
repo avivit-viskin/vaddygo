@@ -161,8 +161,8 @@ namespace ParentCommitteeAPI.Services
             student.BirthDate = NormalizeBirthDate(dto.BirthDate);
             // שדות משרד החינוך
             student.Gender = dto.Gender.Trim();
-            // אלרגיות ברמת הילד לא נאספות עוד (09.09.2026) — יש הערת אלרגיות למוסד.
-            // עמודת Student.Allergies נשארת במסד לנתונים קיימים אך אינה נכתבת/נקראת.
+            // אלרגיות ברמת הילד לא נאספות עוד (09.09.2026) — יש הערת אלרגיות למוסד
+            // (Group.AllergiesNote). העמודה הישנה Student.Allergies נמחקה מהמסד (30.09.2026).
             student.ParentEmail = FieldEncryption.Protect(dto.ParentEmail.Trim());
             student.ParentBName = dto.ParentBName.Trim();
             student.ParentBPhone = FieldEncryption.Protect(

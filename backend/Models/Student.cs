@@ -30,7 +30,8 @@ namespace ParentCommitteeAPI.Models
         /* ── שדות נוספים מקובץ משרד החינוך (כולם אופציונליים) ────────────
            נאספים בייבוא הקובץ הרשמי; ניתן להשלים/לתקן בעריכת התלמיד. */
         public string Gender { get; set; } = string.Empty;          // מין
-        public string Allergies { get; set; } = string.Empty;       // אלרגיות
+        // שדה Allergies הישן (אלרגיה לכל ילד) הוסר — אלרגיות מנוהלות ברמת המוסד
+        // (Group.AllergiesNote, מוצפן). העמודה ונתוניה ההיסטוריים נמחקו במיגרציה.
         public string ParentEmail { get; set; } = string.Empty;     // דוא"ל הורה א'
         public string ParentBName { get; set; } = string.Empty;     // שם הורה ב'
         public string ParentBPhone { get; set; } = string.Empty;    // טלפון הורה ב'

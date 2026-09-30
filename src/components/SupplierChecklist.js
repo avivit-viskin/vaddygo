@@ -61,8 +61,8 @@ function SupplierChecklist({ vendor, onGoTo }) {
           alignItems: "center",
           gap: 8,
           width: "100%",
-          margin: "4px 0 16px",
-          padding: "10px 14px",
+          margin: "4px 0 10px",
+          padding: "9px 14px",
           border: "1px solid var(--color-primary)",
           borderRadius: "var(--radius-md)",
           background: "var(--color-primary-light)",
@@ -81,7 +81,7 @@ function SupplierChecklist({ vendor, onGoTo }) {
   }
 
   return (
-    <div className="card" style={{ margin: "4px 0 16px", position: "relative" }}>
+    <div className="card" style={{ margin: "4px 0 10px", position: "relative" }}>
       <button
         type="button"
         aria-label="סגירת החלון"
@@ -106,7 +106,7 @@ function SupplierChecklist({ vendor, onGoTo }) {
         ✕
       </button>
       <div className="sup-checklist__head">
-        <ProgressRing percent={percent} size={64} />
+        <ProgressRing percent={percent} size={52} />
         <div className="sup-checklist__head-text">
           <p className="sup-card__title" style={{ margin: 0 }}>
             הכרטיס שלך {percent}% מוכן

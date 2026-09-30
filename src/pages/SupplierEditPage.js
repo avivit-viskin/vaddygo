@@ -32,6 +32,7 @@ import SupplierCatalog from "../components/SupplierCatalog";
 import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierTrialBanner from "../components/SupplierTrialBanner";
 import SupplierChecklist from "../components/SupplierChecklist";
+import CommitteeCountBanner from "../components/CommitteeCountBanner";
 import SupplierWeeklySummary from "../components/SupplierWeeklySummary";
 import SupplierHolidayNudge from "../components/SupplierHolidayNudge";
 import SupplierHome from "../components/SupplierHome";
@@ -444,11 +445,16 @@ function SupplierEditPage() {
           ☰
         </button>
         {/* מותג במרכז — לוגו VaddyGo (כמו בסרגל העליון של בעלי המוסדות) +
-            תת-כותרת "פורטל ספקים" כדי להבדיל מהאפליקציה של הוועדים */}
-        <div className="sup-head__brand">
+            תת-כותרת "פורטל ספקים". לחיצה על הלוגו מחזירה לדף הבית. */}
+        <button
+          type="button"
+          className="sup-head__brand sup-head__brand--link"
+          onClick={() => goTo("home")}
+          aria-label="לדף הבית"
+        >
           <Logo />
           <span className="sup-head__sub">פורטל ספקים</span>
-        </div>
+        </button>
         {/* אווטאר החשבון בצד שמאל — לחיצה מציגה שם העסק ומייל ההתחברות */}
         <div style={{ marginInlineStart: "auto" }}>
           <SupplierAvatar name={vendor.name} email={vendor.loginEmail} />
@@ -569,9 +575,11 @@ function SupplierEditPage() {
 
       {view === "home" && (
         <>
+          {/* מספר הוועדים — ראשון בדף הבית (בקשת בעלת המוצר) */}
+          <CommitteeCountBanner />
           <SupplierChecklist vendor={vendor} onGoTo={goTo} />
-          <SupplierHolidayNudge onGoTo={goTo} hasOffer={Boolean(vendor?.offer)} />
           <SupplierWeeklySummary vendor={vendor} token={token} onGoTo={goTo} />
+          <SupplierHolidayNudge onGoTo={goTo} hasOffer={Boolean(vendor?.offer)} />
           {!vendor?.hasLogin && (
             <form
               className="supplier-edit__login"

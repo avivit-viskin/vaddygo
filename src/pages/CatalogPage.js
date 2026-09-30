@@ -8,7 +8,6 @@ import { withDisplayNames } from "../services/vendorProducts";
 import { formatShekels, formatUnit } from "../services/format";
 import { whatsappUrlWithText } from "../services/whatsapp";
 import { isTopRated } from "../services/vendorReputation";
-import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import KosherBadge from "../components/KosherBadge";
 import WhatsAppIcon from "../components/WhatsAppIcon";
@@ -82,12 +81,20 @@ function CatalogPage() {
   const wa = vendor.whatsApp
     ? whatsappUrlWithText(vendor.whatsApp, "היי! ראיתי את הקטלוג שלכם 🙂")
     : null;
+  // זהות הספק בכותרת — תמונת המוצר הראשונה כאווטאר, אחרת מונוגרם (אות ראשונה).
+  // כך הכרטיס הוא של הספק, לא של VaddyGo (המותג של VaddyGo נשאר בפוטר בלבד).
+  const avatarImg = (vendor.products || []).find((p) => p.imageUrl)?.imageUrl;
+  const monogram = (vendor.name || "?").trim().charAt(0) || "?";
 
   return (
     <div className="pub" dir="rtl">
       <header className="pub-hero">
-        <div className="pub-hero__logo">
-          <Logo />
+        <div className="pub-hero__avatar" aria-hidden="true">
+          {avatarImg ? (
+            <img src={avatarImg} alt="" loading="lazy" />
+          ) : (
+            <span>{monogram}</span>
+          )}
         </div>
         <h1 className="pub-hero__name">
           {vendor.name}

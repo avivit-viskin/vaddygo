@@ -236,6 +236,16 @@
   grid-template-columns: repeat(3, 1fr);
   gap: 7px;
 }
+/* אריחי לשונית המוצרים — 2 בשורה בנייד, עד 4 במסך רחב (auto-fit). התוויות
+   מותרות לגלוש לשתי שורות ("דורש טיפול") כדי שלא ייחתכו. */
+.sup-stats--products {
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.sup-stats--products .sup-stat__label {
+  white-space: normal;
+}
 .sup-stat--sm {
   padding: 8px 3px;
 }

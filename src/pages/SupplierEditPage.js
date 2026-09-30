@@ -36,6 +36,7 @@ import CommitteeCountBanner from "../components/CommitteeCountBanner";
 import SupplierWeeklySummary from "../components/SupplierWeeklySummary";
 import SupplierHolidayNudge from "../components/SupplierHolidayNudge";
 import SupplierHome from "../components/SupplierHome";
+import SupplierProductStats from "../components/SupplierProductStats";
 import SupplierOffer from "../components/SupplierOffer";
 import SupplierReports from "../components/SupplierReports";
 import SupplierLeads from "../components/SupplierLeads";
@@ -674,6 +675,7 @@ function SupplierEditPage() {
 
       {view === "products" && (
         <>
+          <SupplierProductStats vendor={vendor} />
           <p className="supplier-edit__intro" style={{ margin: "0 0 14px" }}>
             הוסיפו ועדכנו את המוצרים והפרטים — כל שינוי שתשמרו יופיע{" "}
             <strong>מיד</strong> לוועדים.

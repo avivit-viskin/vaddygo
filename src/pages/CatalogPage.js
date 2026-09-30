@@ -1,15 +1,19 @@
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useParams, useSearchParams, Link } from "react-router-dom";
 import useApi from "../hooks/useApi";
 import { getPublicCatalog } from "../services/vendorsService";
+import { getVendorReviews } from "../services/reviewsService";
 import { groupByFolder } from "../services/vendorFolders";
 import { withDisplayNames } from "../services/vendorProducts";
 import { formatShekels, formatUnit } from "../services/format";
 import { whatsappUrlWithText } from "../services/whatsapp";
+import { isTopRated } from "../services/vendorReputation";
 import Logo from "../components/Logo";
 import Icon from "../components/Icon";
 import KosherBadge from "../components/KosherBadge";
 import WhatsAppIcon from "../components/WhatsAppIcon";
+import StarRating from "../components/StarRating";
+import VendorReviews from "../components/VendorReviews";
 import Spinner from "../components/Spinner";
 import ErrorMessage from "../components/ErrorMessage";
 import "../styles/supplier-public.css";
@@ -26,6 +30,25 @@ function CatalogPage() {
   const folderParam = (searchParams.get("folder") || "").trim();
   const fetcher = useCallback(() => getPublicCatalog(id), [id]);
   const { data: vendor, isLoading, error, reload } = useApi(fetcher);
+  // מוניטין הספק — נגזר מהביקורות (הקטלוג הציבורי אינו מחזיר ממוצע, ולכן
+  // מחשבים כאן מרשימת הביקורות הציבורית). מוצג בכותרת כהוכחה חברתית.
+  const [rep, setRep] = useState({ average: 0, count: 0 });
+  useEffect(() => {
+    let cancelled = false;
+    getVendorReviews(id)
+      .then((list) => {
+        if (cancelled || !Array.isArray(list) || list.length === 0) return;
+        const sum = list.reduce((s, r) => s + (Number(r.stars) || 0), 0);
+        setRep({
+          average: Math.round((sum / list.length) * 10) / 10,
+          count: list.length,
+        });
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [id]);
   // תמונת מוצר להגדלה (לייטבוקס); null = סגור
   const [zoomImage, setZoomImage] = useState(null);
   // מפתחות מוצרים שהתיאור שלהם מורחב ("קרא עוד"); ברירת מחדל — מקוצר ל-2 שורות
@@ -80,6 +103,25 @@ function CatalogPage() {
         {folderParam && folders.length > 0 && (
           <p className="pub-hero__meta">
             <Icon name="folder" size={15} /> קטלוג: {folderParam}
+          </p>
+        )}
+        {/* מוניטין — כוכבים + תג "ספק מצטיין" (הוכחה חברתית בראש הכרטיס) */}
+        {rep.count > 0 && (
+          <div className="pub-hero__rating">
+            <StarRating value={rep.average} size={17} />
+            <span className="pub-hero__rating-num">{rep.average}</span>
+            <span className="pub-hero__rating-count">
+              ({rep.count} ביקורות)
+            </span>
+            {isTopRated({ averageRating: rep.average, reviewCount: rep.count }) && (
+              <span className="pub-hero__top-rated">🏆 ספק מצטיין</span>
+            )}
+          </div>
+        )}
+        {/* מבצע — הנעה לרכישה, בולט כמו בכרטיס שהוועד רואה */}
+        {vendor.offer && (
+          <p className="pub-offer">
+            <Icon name="tag" size={15} /> {vendor.offer}
           </p>
         )}
         <div className="pub-hero__contacts">
@@ -193,6 +235,22 @@ function CatalogPage() {
             </div>
           </section>
         ))
+      )}
+
+      {/* ביקורות ודירוג — קריאה בלבד (מבקר בקטלוג הציבורי אינו מדרג; דירוג
+          נכתב רק בתוך המערכת ע"י ועד מחובר). מוסיף אמון למי ששוקל לפנות. */}
+      {rep.count > 0 && (
+        <section className="pub-reviews">
+          <h2 className="pub-folder__title">
+            <Icon name="star" size={18} /> ביקורות ודירוג
+          </h2>
+          <VendorReviews
+            vendorId={id}
+            average={rep.average}
+            count={rep.count}
+            readOnly
+          />
+        </section>
       )}
 
       <p className="pub-foot">

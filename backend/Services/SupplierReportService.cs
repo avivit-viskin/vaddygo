@@ -110,6 +110,19 @@ namespace ParentCommitteeAPI.Services
                 ? (DateTime?)null
                 : days.Min(d => d.Day);
 
+            // 7 הימים האחרונים ביחס להיום (כולל היום) — לפעימה השבועית בדף הבית.
+            var last7From = DateTime.UtcNow.Date.AddDays(-6);
+            var inLast7Days = days
+                .Where(d => d.Day >= last7From)
+                .Sum(d => d.Count);
+
+            // סדרה יומית בתוך הטווח, ממוינת — לגרף "צפיות לאורך זמן".
+            var series = days
+                .Where(d => d.Day >= from.Date && d.Day <= to.Date)
+                .OrderBy(d => d.Day)
+                .Select(d => new SupplierViewDayDto { Day = d.Day, Count = d.Count })
+                .ToList();
+
             return new SupplierViewsDto
             {
                 Total = vendor.Views,
@@ -121,6 +134,8 @@ namespace ParentCommitteeAPI.Services
                 // והמסך חייב לומר זאת ולא להציג אותו כעובדה.
                 RangeStartsBeforeTracking =
                     trackedSince == null || from.Date < trackedSince.Value.Date,
+                InLast7Days = inLast7Days,
+                Series = series,
             };
         }
 

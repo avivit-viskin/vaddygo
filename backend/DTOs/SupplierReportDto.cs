@@ -42,6 +42,26 @@ namespace ParentCommitteeAPI.DTOs
 
         /* האם הטווח שנבחר קודם לתחילת הספירה (ואז InRange אינו מלא). */
         public bool RangeStartsBeforeTracking { get; set; }
+
+        /*
+          צפיות ב-7 הימים האחרונים — תמיד ביחס להיום, ללא תלות בטווח שנבחר.
+          מזין את הפעימה השבועית בדף הבית של הספק ("X צפיות השבוע").
+        */
+        public int InLast7Days { get; set; }
+
+        /*
+          סדרת הצפיות היומית בטווח — רק ימים שבהם באמת הייתה צפייה (דלילה),
+          ממוינת לפי יום עולה. מזינה את גרף "צפיות לאורך זמן". ימים ללא צפייה
+          נגזרים בצד הלקוח כדי לא לנפח את התשובה בשורות של אפסים.
+        */
+        public List<SupplierViewDayDto> Series { get; set; } = new();
+    }
+
+    /* נקודה בסדרת הצפיות היומית: יום (תאריך) וכמה צפיות היו בו. */
+    public class SupplierViewDayDto
+    {
+        public DateTime Day { get; set; }
+        public int Count { get; set; }
     }
 
     public class SupplierLeadsDto

@@ -133,6 +133,43 @@ function SupplierReports({ vendor, token, isPro }) {
       </div>
 
       {/*
+        שיעור המרה — כמה מהצופים בקטלוג באמת פנו. מדד המפתח לספק: צפיות רבות
+        עם מעט פניות = כדאי לשפר את הכרטיס (מחירים/תמונות/מבצע). נגזר מהמספרים
+        הכוללים שכבר יש; טרנד לאורך זמן יתווסף כשיהיה series יומי מהשרת.
+      */}
+      {views > 0 && (
+        <div
+          style={{
+            display: "flex",
+            alignItems: "center",
+            gap: 10,
+            background: "var(--color-primary-light)",
+            borderRadius: "var(--radius-lg)",
+            padding: "12px 14px",
+            marginBottom: 16,
+          }}
+        >
+          <div
+            style={{
+              fontSize: 22,
+              fontWeight: 800,
+              color: "var(--color-primary-dark)",
+              fontVariantNumeric: "tabular-nums",
+            }}
+          >
+            {Math.round((leadTotal / views) * 100)}%
+          </div>
+          <div style={{ fontSize: 13, color: "var(--color-text-muted)", lineHeight: 1.4 }}>
+            שיעור המרה — מכל {views.toLocaleString("he-IL")} צפיות, {leadTotal}{" "}
+            {leadTotal === 1 ? "ועד פנה" : "ועדים פנו"} אליך.
+            {leadTotal === 0
+              ? " טיפ: תמונות ברורות, מחירים ומבצע מגדילים פניות."
+              : ""}
+          </div>
+        </div>
+      )}
+
+      {/*
         החלק התקופתי — טווח תאריכים, המיקום ברשימה, ומועדי העדכון האחרונים.
         מוצג מתחת למספרים הכוללים: קודם "כמה בסך הכל", אחר כך "מה קרה מתי".
       */}

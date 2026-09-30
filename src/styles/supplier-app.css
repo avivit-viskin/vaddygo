@@ -21,6 +21,18 @@
   cursor: pointer;
   font-family: inherit;
 }
+/* פורטל הספק על כל הרוחב — הניווט התחתון נמתח גם הוא לכל הרוחב (ולא נשאר
+   עמודה של 640px במרכז, כמו במסגרת הדסקטופ של בעלי המוסדות). שתי מחלקות
+   גוברות על כלל .bottom-nav של הדסקטופ. */
+.bottom-nav.sup-bottom-nav {
+  left: 0;
+  right: 0;
+  transform: none;
+  width: auto;
+  max-width: none;
+  border-inline: 0;
+  border-radius: 0;
+}
 
 /* ── סרגל עליון בסגנון הוועדים (.app-header): ☰ מימין, לוגו במרכז, אווטאר משמאל ── */
 .sup-head {
@@ -849,10 +861,10 @@
   position: relative;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 9px;
   margin: 4px 0 10px;
-  padding: 9px 36px 9px 12px;
-  border-radius: var(--radius-lg);
+  padding: 8px 34px 8px 12px;
+  border-radius: var(--radius-md);
   background: linear-gradient(135deg, #fff2f7, #fde7cf);
   border: 1px solid #f4c9a5;
 }
@@ -861,20 +873,16 @@
   line-height: 1;
   flex-shrink: 0;
 }
-.sup-holiday__text {
+/* טקסט בשורה אחת — שם החג + מתי + קריאה לפעולה קצרה. לא נשבר לשתי פסקאות. */
+.sup-holiday__line {
   flex: 1;
   min-width: 0;
-}
-.sup-holiday__title {
-  display: block;
-  color: #8a4b1e;
-  font-size: var(--font-size-base);
-}
-.sup-holiday__sub {
-  margin: 2px 0 0;
-  color: #7a5a40;
   font-size: var(--font-size-sm);
-  line-height: 1.45;
+  line-height: 1.4;
+  color: #7a5a40;
+}
+.sup-holiday__line strong {
+  color: #8a4b1e;
 }
 .sup-holiday__cta {
   flex-shrink: 0;
@@ -889,14 +897,15 @@
 }
 .sup-holiday__close {
   position: absolute;
-  top: 6px;
-  inset-inline-end: 8px;
-  width: 26px;
-  height: 26px;
+  top: 50%;
+  transform: translateY(-50%);
+  inset-inline-end: 6px;
+  width: 24px;
+  height: 24px;
   border: none;
   background: none;
   color: #a5794f;
-  font-size: 15px;
+  font-size: 14px;
   line-height: 1;
   cursor: pointer;
 }
@@ -905,6 +914,6 @@
     flex-wrap: wrap;
   }
   .sup-holiday__cta {
-    margin-inline-start: 38px;
+    margin-inline-start: auto;
   }
 }

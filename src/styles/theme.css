@@ -172,6 +172,20 @@ h3 {
     calc(var(--bottom-nav-height) + env(safe-area-inset-bottom, 0px) + 16px);
 }
 
+/*
+  פורטל הספק על כל רוחב המסך — בלי עמודת 640px צרה שמשאירה שוליים ריקים
+  משני הצדדים (בקשת בעלת המוצר). מנטרל גם את מסגרת הדסקטופ (גבול/צל). הריפוד
+  הפנימי והכותרת מגיעים מ-.supplier-edit עצמו. שתי מחלקות גוברות על כלל
+  .app-main של הדסקטופ (media query) בזכות ספֵּציפיות גבוהה יותר.
+*/
+.app-main.app-main--full {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+  border: 0;
+  box-shadow: none;
+}
+
 /* ===== המותג — VaddyGo תמיד מודגש ===== */
 
 .brand-name {

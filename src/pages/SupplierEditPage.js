@@ -176,6 +176,21 @@ function SupplierEditPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
+  // גלילה לעורך המבצע (בדף הבית) ומיקוד בו — מופעל מהדחיפה לחג ("הוספת מבצע")
+  function focusOffer() {
+    if (view !== "home") {
+      goTo("home");
+    }
+    // מחכים לרינדור דף הבית לפני הגלילה/המיקוד
+    setTimeout(() => {
+      const el = document.getElementById("supplier-offer");
+      if (!el) return;
+      el.scrollIntoView({ behavior: "smooth", block: "start" });
+      const ta = el.querySelector("textarea");
+      if (ta) setTimeout(() => ta.focus(), 400);
+    }, 60);
+  }
+
   // סיור היכרות לספק — פעם אחת, בכניסה הראשונה. רק כשהפורטל באמת מוצג (קיים
   // הניווט sup-nav), כדי לא לפתוח את הסיור על מסך הכניסה/טעינה.
   useEffect(() => {
@@ -579,7 +594,7 @@ function SupplierEditPage() {
           <CommitteeCountBanner />
           <SupplierChecklist vendor={vendor} onGoTo={goTo} />
           <SupplierWeeklySummary vendor={vendor} token={token} onGoTo={goTo} />
-          <SupplierHolidayNudge onGoTo={goTo} hasOffer={Boolean(vendor?.offer)} />
+          <SupplierHolidayNudge onAddOffer={focusOffer} hasOffer={Boolean(vendor?.offer)} />
           {!vendor?.hasLogin && (
             <form
               className="supplier-edit__login"
@@ -643,7 +658,7 @@ function SupplierEditPage() {
           <div style={{ marginTop: 16 }}>
             <SupplierLeads token={token} isPro={vendor?.isPro} vendorName={vendor?.name} />
           </div>
-          <div style={{ marginTop: 16 }}>
+          <div id="supplier-offer" style={{ marginTop: 16, scrollMarginTop: 12 }}>
             <SupplierOffer vendor={vendor} onSave={handleSaveOffer} />
           </div>
           <div style={{ marginTop: 16 }}>

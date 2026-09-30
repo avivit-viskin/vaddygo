@@ -312,7 +312,11 @@ function App() {
           הזה, בלי אפשרות לערוך.
         </div>
       )}
-      <main className={`app-main${isLoginRoute ? " app-main--login" : ""}`}>
+      <main
+        className={`app-main${isLoginRoute ? " app-main--login" : ""}${
+          isSupplierEdit ? " app-main--full" : ""
+        }`}
+      >
         {/* מסכים נטענים לפי דרישה — עד שהחבילה מגיעה מוצג ספינר קצר */}
         <Suspense fallback={<Spinner text="רגע, טוענים…" />}>
         <Routes>

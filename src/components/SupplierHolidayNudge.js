@@ -3,17 +3,18 @@ import { nextHoliday } from "../services/upcomingHoliday";
 import { holidayEmoji } from "../data/holidays";
 
 /*
-  SupplierHolidayNudge — דחיפה עדינה לספק לקראת החג הקרוב: "עוד שבועיים פורים —
-  זה הזמן לעדכן מבצע/מוצרים כדי שהוועדים ימצאו אתכם". החגים הם שיא הרכישות של
-  ועדי ההורים (מתנות לצוות/לילדים), וספק שמעודכן בדיוק לפני החג מקבל יותר פניות.
+  SupplierHolidayNudge — שורת דחיפה עדינה וקומפקטית לספק לקראת החג הקרוב:
+  "פורים בעוד שבועיים — הוסיפו מבצע". החגים הם שיא הרכישות של ועדי ההורים,
+  וספק שמעודכן בדיוק לפני החג מקבל יותר פניות.
 
   מבוסס על לוח השנה העברי הקיים בצד הלקוח (upcomingHoliday) — בלי שרת. מוצג רק
-  כשהחג בטווח NUDGE_WINDOW ימים, וניתן לסגירה לכל חג בנפרד (נזכר במכשיר).
+  כשהחג בטווח NUDGE_WINDOW ימים, שורה אחת בלבד (לא תופס מקום), וניתן לסגירה
+  לכל חג בנפרד (נזכר במכשיר). לחיצה על ה-CTA מובילה ישר לעורך המבצע.
 */
 const NUDGE_WINDOW_DAYS = 40;
 const DISMISS_PREFIX = "vaddygo.supplierHolidayNudge.";
 
-function SupplierHolidayNudge({ onGoTo, hasOffer = false }) {
+function SupplierHolidayNudge({ onAddOffer, hasOffer = false }) {
   const holiday = nextHoliday();
   const dismissKey = holiday ? DISMISS_PREFIX + holiday.key : null;
   const [dismissed, setDismissed] = useState(() => {
@@ -48,6 +49,20 @@ function SupplierHolidayNudge({ onGoTo, hasOffer = false }) {
 
   return (
     <div className="sup-holiday" role="status">
+      <span className="sup-holiday__emoji" aria-hidden="true">
+        {emoji}
+      </span>
+      <span className="sup-holiday__line">
+        <strong>
+          {holiday.name} {when}
+        </strong>{" "}
+        — {hasOffer ? "עדכנו מבצע לחג" : "הוסיפו מבצע לחג"} כדי שהוועדים ימצאו אתכם
+      </span>
+      {onAddOffer && (
+        <button type="button" className="sup-holiday__cta" onClick={onAddOffer}>
+          {hasOffer ? "לעדכון »" : "להוספה »"}
+        </button>
+      )}
       <button
         type="button"
         className="sup-holiday__close"
@@ -56,27 +71,6 @@ function SupplierHolidayNudge({ onGoTo, hasOffer = false }) {
       >
         ✕
       </button>
-      <span className="sup-holiday__emoji" aria-hidden="true">
-        {emoji}
-      </span>
-      <div className="sup-holiday__text">
-        <strong className="sup-holiday__title">
-          {holiday.name} {when} — זה הזמן להתכונן
-        </strong>
-        <p className="sup-holiday__sub">
-          חגים הם שיא הרכישות של הוועדים. {hasOffer ? "עדכנו" : "הוסיפו"} מבצע
-          לחג ורעננו מוצרים — כך תופיעו בדיוק כשהוועדים מחפשים.
-        </p>
-      </div>
-      {onGoTo && (
-        <button
-          type="button"
-          className="sup-holiday__cta"
-          onClick={() => onGoTo("home")}
-        >
-          {hasOffer ? "לעדכון המבצע »" : "להוספת מבצע »"}
-        </button>
-      )}
     </div>
   );
 }

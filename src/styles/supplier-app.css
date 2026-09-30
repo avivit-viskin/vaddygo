@@ -691,3 +691,212 @@
   color: var(--color-primary-dark);
   white-space: nowrap;
 }
+
+/* ── טבעת התקדמות (ProgressRing) ── */
+.progress-ring {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.progress-ring__center {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.progress-ring__pct {
+  font-weight: 800;
+  font-size: 15px;
+  color: var(--color-primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── כותרת צ'ק-ליסט עם טבעת ── */
+.sup-checklist__head {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 10px;
+}
+.sup-checklist__head-text {
+  min-width: 0;
+}
+
+/* ── "מה קרה לאחרונה" (SupplierWeeklySummary) ── */
+.sup-summary {
+  margin: 4px 0 16px;
+  padding: 14px 16px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(180deg, #fffdf8, var(--color-surface) 60%);
+}
+.sup-summary__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--color-primary-dark);
+  margin-bottom: 10px;
+}
+.sup-summary__title {
+  margin: 0;
+  font-size: var(--font-size-base);
+  font-weight: 800;
+}
+.sup-summary__news {
+  list-style: none;
+  margin: 0 0 10px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.sup-summary__news-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.sup-summary__news-emoji {
+  font-size: 18px;
+  line-height: 1;
+}
+.sup-summary__news-text {
+  flex: 1;
+}
+.sup-summary__news-go {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: var(--color-link);
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sup-summary__quiet {
+  margin: 0 0 10px;
+  padding: 10px 12px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.sup-summary__rep {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-bottom: 4px;
+}
+.sup-summary__rep-num {
+  font-weight: 700;
+  color: var(--color-primary-dark);
+}
+.sup-summary__rep-count {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+.sup-summary__badge {
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: #1d7a4d;
+  background: linear-gradient(135deg, #e3f7ec, #c9f0da);
+  border: 1px solid #9adcb7;
+  border-radius: 999px;
+  padding: 2px 10px;
+  margin-inline-start: 2px;
+}
+.sup-summary__hint {
+  margin: 2px 0 0;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+  line-height: 1.5;
+}
+.sup-summary__totals {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 10px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--color-border);
+  color: var(--color-text);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+}
+.sup-summary__total {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── דחיפה לחג (SupplierHolidayNudge) ── */
+.sup-holiday {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 16px;
+  padding: 12px 40px 12px 14px;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(135deg, #fff2f7, #fde7cf);
+  border: 1px solid #f4c9a5;
+}
+.sup-holiday__emoji {
+  font-size: 26px;
+  line-height: 1;
+  flex-shrink: 0;
+}
+.sup-holiday__text {
+  flex: 1;
+  min-width: 0;
+}
+.sup-holiday__title {
+  display: block;
+  color: #8a4b1e;
+  font-size: var(--font-size-base);
+}
+.sup-holiday__sub {
+  margin: 2px 0 0;
+  color: #7a5a40;
+  font-size: var(--font-size-sm);
+  line-height: 1.45;
+}
+.sup-holiday__cta {
+  flex-shrink: 0;
+  border: none;
+  background: none;
+  color: #b3541a;
+  font-family: var(--font-family);
+  font-weight: 700;
+  font-size: var(--font-size-sm);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.sup-holiday__close {
+  position: absolute;
+  top: 6px;
+  inset-inline-end: 8px;
+  width: 26px;
+  height: 26px;
+  border: none;
+  background: none;
+  color: #a5794f;
+  font-size: 15px;
+  line-height: 1;
+  cursor: pointer;
+}
+@media (max-width: 480px) {
+  .sup-holiday {
+    flex-wrap: wrap;
+  }
+  .sup-holiday__cta {
+    margin-inline-start: 38px;
+  }
+}

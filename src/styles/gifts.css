@@ -324,6 +324,20 @@
   border-radius: 999px;
   padding: 2px 10px;
 }
+/* "ספק מצטיין" — דירוג גבוה מוועדים (מוניטין). ירוק-אמון, נבדל מהזהב של
+   "מומלץ" ומהוורוד של "מבצע", כדי ששלושת התגים ייקראו בבירור זה לצד זה. */
+.vendors__top-rated {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: var(--font-size-sm);
+  font-weight: 700;
+  color: #1d7a4d;
+  background: linear-gradient(135deg, #e3f7ec, #c9f0da);
+  border: 1px solid #9adcb7;
+  border-radius: 999px;
+  padding: 2px 10px;
+}
 /* "מבצע" — ורוד-רוז מלהיב שמושך את העין (הנעה לרכישה) */
 .vendors__offer {
   display: inline-flex;

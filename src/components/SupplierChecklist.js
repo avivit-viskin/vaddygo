@@ -1,5 +1,6 @@
 import { useState } from "react";
 import Icon from "./Icon";
+import ProgressRing from "./ProgressRing";
 import { vendorChecklist } from "../services/vendorProgress";
 
 /*
@@ -18,6 +19,7 @@ const COLLAPSE_KEY = "vaadygo.supplierChecklistCollapsed";
 function SupplierChecklist({ vendor, onGoTo }) {
   const items = vendorChecklist(vendor);
   const doneCount = items.filter((i) => i.done).length;
+  const percent = Math.round((doneCount / items.length) * 100);
   const [collapsed, setCollapsed] = useState(() => {
     try {
       return localStorage.getItem(COLLAPSE_KEY) === "1";
@@ -72,9 +74,7 @@ function SupplierChecklist({ vendor, onGoTo }) {
         }}
       >
         <Icon name="star" size={16} />
-        <span>
-          להשלמת הכרטיס ({doneCount}/{items.length})
-        </span>
+        <span>הכרטיס שלך {percent}% מוכן — להשלמה</span>
         <span style={{ marginInlineStart: "auto", fontWeight: 700 }}>הצג ▾</span>
       </button>
     );
@@ -105,12 +105,19 @@ function SupplierChecklist({ vendor, onGoTo }) {
       >
         ✕
       </button>
-      <p className="sup-card__title">
-        <Icon name="star" size={18} /> להשלמת הכרטיס ({doneCount}/{items.length})
-      </p>
-      <p className="sup-card__hint">
-        כמה צעדים קטנים כדי שהכרטיס שלכם ייראה מושלם לוועדים:
-      </p>
+      <div className="sup-checklist__head">
+        <ProgressRing percent={percent} size={64} />
+        <div className="sup-checklist__head-text">
+          <p className="sup-card__title" style={{ margin: 0 }}>
+            הכרטיס שלך {percent}% מוכן
+          </p>
+          <p className="sup-card__hint" style={{ margin: "2px 0 0" }}>
+            {percent >= 80
+              ? "כמעט שם! עוד צעד קטן והכרטיס יהיה מושלם לוועדים 🎉"
+              : "כמה צעדים קטנים כדי שהכרטיס שלכם ייראה מושלם לוועדים:"}
+          </p>
+        </div>
+      </div>
       <ul style={{ listStyle: "none", margin: 0, padding: 0 }}>
         {items.map((item) => (
           <li

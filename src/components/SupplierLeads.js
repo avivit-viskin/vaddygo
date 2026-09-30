@@ -21,6 +21,15 @@ const STATUS = {
 };
 const ORDER = ["new", "quoted", "won", "closed", "irrelevant"];
 
+// פנייה "חדשה" שלא נגעו בה כבר כך וכך ימים — מזכירים לספק לחזור אליה, כי פנייה
+// שמתקררת הופכת לעסקה שאבדה. הסטטוס עדיין "new" = לא הוגשה הצעה ולא נסגרה.
+const STALE_DAYS = 3;
+function isStaleNew(lead) {
+  if (!lead || lead.status !== "new" || !lead.createdAt) return false;
+  const t = new Date(lead.createdAt).getTime();
+  return Number.isFinite(t) && Date.now() - t >= STALE_DAYS * 86400000;
+}
+
 const box = {
   border: "1px solid var(--color-border)",
   borderRadius: "var(--radius-lg)",
@@ -80,6 +89,9 @@ function SupplierLeads({ token, isPro, vendorName }) {
       /* אחסון חסום — לא קריטי */
     }
   }
+
+  // פניות חדשות שמחכות מעל STALE_DAYS ימים — לתזכורת "אל תשכח לחזור"
+  const staleNew = (Array.isArray(leads) ? leads : []).filter(isStaleNew);
 
   const load = useCallback(() => {
     if (!isPro || !token) {
@@ -156,6 +168,20 @@ function SupplierLeads({ token, isPro, vendorName }) {
             ({count})
           </span>
         ) : null}
+        {staleNew.length > 0 && (
+          <span
+            style={{
+              fontSize: 12,
+              fontWeight: 700,
+              color: "#fff",
+              background: "var(--color-error)",
+              borderRadius: 999,
+              padding: "2px 9px",
+            }}
+          >
+            {staleNew.length} ממתינות לך
+          </span>
+        )}
         <span
           style={{
             marginInlineStart: "auto",
@@ -222,6 +248,42 @@ function SupplierLeads({ token, isPro, vendorName }) {
           ✕
         </button>
       </div>
+
+      {/* תזכורת — פניות חדשות שמחכות כבר כמה ימים בלי מענה. פנייה שמתקררת
+          הופכת לעסקה שאבדה, ולכן מבליטים ומציעים לסנן אליהן בלחיצה. */}
+      {staleNew.length > 0 && (
+        <button
+          type="button"
+          onClick={() => setStatusFilter("new")}
+          style={{
+            width: "100%",
+            textAlign: "start",
+            display: "flex",
+            alignItems: "center",
+            gap: 8,
+            border: "1px solid #f5b7b1",
+            background: "#fdecea",
+            color: "#b03a2e",
+            borderRadius: "var(--radius-md)",
+            padding: "10px 12px",
+            marginBottom: 12,
+            fontFamily: "var(--font-family)",
+            fontSize: "var(--font-size-sm)",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          <span aria-hidden="true" style={{ fontSize: 18 }}>
+            ⏰
+          </span>
+          <span style={{ flex: 1 }}>
+            {staleNew.length === 1
+              ? "יש פנייה שממתינה לך כבר כמה ימים — חזרה מהירה שומרת על העסקה."
+              : `יש ${staleNew.length} פניות שממתינות לך כבר כמה ימים — כדאי לחזור אליהן לפני שהן מתקררות.`}
+          </span>
+          <span style={{ fontWeight: 700, whiteSpace: "nowrap" }}>הצג ←</span>
+        </button>
+      )}
 
       {error && <p className="field__error">{error}</p>}
       {!error && leads === null && (

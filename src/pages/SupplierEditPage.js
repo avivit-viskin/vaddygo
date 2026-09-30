@@ -32,6 +32,8 @@ import SupplierCatalog from "../components/SupplierCatalog";
 import SupplierAvatar from "../components/SupplierAvatar";
 import SupplierTrialBanner from "../components/SupplierTrialBanner";
 import SupplierChecklist from "../components/SupplierChecklist";
+import SupplierWeeklySummary from "../components/SupplierWeeklySummary";
+import SupplierHolidayNudge from "../components/SupplierHolidayNudge";
 import SupplierHome from "../components/SupplierHome";
 import SupplierOffer from "../components/SupplierOffer";
 import SupplierReports from "../components/SupplierReports";
@@ -568,6 +570,8 @@ function SupplierEditPage() {
       {view === "home" && (
         <>
           <SupplierChecklist vendor={vendor} onGoTo={goTo} />
+          <SupplierHolidayNudge onGoTo={goTo} hasOffer={Boolean(vendor?.offer)} />
+          <SupplierWeeklySummary vendor={vendor} token={token} onGoTo={goTo} />
           {!vendor?.hasLogin && (
             <form
               className="supplier-edit__login"

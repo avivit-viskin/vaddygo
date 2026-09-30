@@ -21,6 +21,7 @@ import {
 import { whatsappUrl, whatsappUrlWithText } from "../services/whatsapp";
 import { recordVendorContact } from "../services/leadsService";
 import { vendorProgress } from "../services/vendorProgress";
+import { isTopRated } from "../services/vendorReputation";
 import { getHolidayBudgets } from "../services/holidayBudgetsService";
 import { getExpenses } from "../services/expensesService";
 import { syncGiftExpense, giftExpenseDescription } from "../services/giftExpense";
@@ -136,6 +137,11 @@ function GiftsPage() {
   const sortedVendors = visibleVendors.slice().sort((a, b) => {
     if (!!b.featured !== !!a.featured) {
       return (b.featured ? 1 : 0) - (a.featured ? 1 : 0);
+    }
+    // ספק מצטיין (דירוג גבוה מוועדים) עולה מעל ספק ללא מוניטין — תמריץ אמיתי
+    // לשירות טוב, ומראה לוועדים קודם את מי שכבר קיבל ביקורות מצוינות.
+    if (isTopRated(b) !== isTopRated(a)) {
+      return (isTopRated(b) ? 1 : 0) - (isTopRated(a) ? 1 : 0);
     }
     const sa = vendorScore.get(a.id);
     const sb = vendorScore.get(b.id);
@@ -410,12 +416,18 @@ function GiftsPage() {
                             </span>
                           )}
                           {(vendor.featured ||
+                            isTopRated(vendor) ||
                             vendor.offer ||
                             vendor.products?.length > 0) && (
                             <span className="vendors__tags">
                               {vendor.featured && (
                                 <span className="vendors__featured">
                                   ⭐ מומלץ
+                                </span>
+                              )}
+                              {isTopRated(vendor) && (
+                                <span className="vendors__top-rated">
+                                  🏆 ספק מצטיין
                                 </span>
                               )}
                               {vendor.offer && (

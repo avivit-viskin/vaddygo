@@ -40,6 +40,22 @@ namespace ParentCommitteeAPI.Services
             new(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
 
         /*
+          **הרגע המדויק** שבו הפרו החינמי נסגר: חצות של 1.10 **בשעון ישראל**,
+          שהם 30.09 בשעה 21:00 UTC.
+
+          🔴 למה זה נכתב כרגע מדויק ולא כהשוואת תאריכים: ההשוואה הקודמת הייתה
+          "תאריך הסיום גדול-או-שווה לתאריך של היום ב-UTC", ולכן הפרו היה נשאר
+          פתוח **כל יום ה-1.10** ונסגר רק ב-2.10 בשעה 03:00 שעון ישראל — כ-51
+          שעות אחרי הכוונה. שתי סיבות הצטברו: ה-greater-or-equal נתן יום שלם
+          נוסף, והשוואה לפי תאריך UTC הזיזה את הרגע בשלוש שעות נוספות.
+
+          כתיבה כרגע אחד פותרת את שניהם, ואינה תלויה בהתקנת אזורי-זמן בשרת:
+          ב-1.10 ישראל היא UTC+3 (שעון הקיץ מסתיים רק בסוף אוקטובר).
+        */
+        public static readonly DateTime PromoEndsAtUtc =
+            new(2026, 9, 30, 21, 0, 0, DateTimeKind.Utc);
+
+        /*
           מתי הפרו החינמי נגמר בפועל.
 
           הכלל תלוי ב**מועד ההרשמה** ולא באורך הניסיון:
@@ -69,8 +85,19 @@ namespace ParentCommitteeAPI.Services
 
           trialUntil הוא `User.SubscriptionValidUntil` של בעל/ת הגן.
         */
-        public static bool IsTrialActive(DateTime? trialUntil, DateTime? registeredAt) =>
-            EffectiveTrialEnd(trialUntil, registeredAt).Date >= DateTime.UtcNow.Date;
+        public static bool IsTrialActive(DateTime? trialUntil, DateTime? registeredAt)
+        {
+            var end = EffectiveTrialEnd(trialUntil, registeredAt);
+
+            // המבצע נסגר ברגע מדויק (חצות 1.10 בישראל) — ראו PromoEndsAtUtc.
+            if (end == PromoFreeProUntil)
+            {
+                return DateTime.UtcNow < PromoEndsAtUtc;
+            }
+
+            // ניסיון אישי רגיל (נרשמו אחרי 1.10) — נשאר לפי יום, "עד סוף היום".
+            return end.Date >= DateTime.UtcNow.Date;
+        }
 
         /*
           האם לגן יש פיצ'רי פרו פעילים כרגע — בתשלום או בזכות הניסיון.

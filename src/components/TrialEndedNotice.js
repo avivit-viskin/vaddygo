@@ -59,8 +59,17 @@ export function shouldShowTrialEnded(institution) {
   if (!institution.trialEndsAt) {
     return false;
   }
-  const ended = new Date(institution.trialEndsAt).getTime();
-  return Number.isFinite(ended) && ended < Date.now();
+
+  /*
+    🔴 **השרת הוא מקור האמת, לא התאריך.** כאן הייתה השוואה נוספת
+    ("תאריך הסיום כבר עבר?"), והיא יצרה חלון של שלוש שעות שבו הפרו כבר
+    סגור — כי השרת סוגר בחצות שעון ישראל — אבל ההודעה שמסבירה את זה עוד
+    לא הופיעה, כי התאריך שנשלח (1.10 בחצות UTC) עדיין לא עבר.
+
+    ועד שרואה פיצ'רים ננעלים בלי שום הסבר חושב שמשהו נשבר. מרגע שהשרת
+    אומר isTrial=false ואינו מנוי — יש מה להסביר, ומסבירים.
+  */
+  return true;
 }
 
 function TrialEndedNotice() {

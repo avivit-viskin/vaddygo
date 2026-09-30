@@ -109,7 +109,7 @@ namespace ParentCommitteeAPI.Services
                 .OrderBy(b => b.NextBirthday)
                 .ToList();
 
-            var alerts = BuildAlerts(group, collected, birthdays, today);
+            var alerts = BuildAlerts(group, collected, birthdays, today, studentGroups.Count);
             // התראה למנהל הוועד: מי הצטרף לגן לאחרונה (רק למי שרשאי לנהל את הגן)
             if (await _access.CanManageGroupAsync(group.Id))
             {
@@ -244,7 +244,8 @@ namespace ParentCommitteeAPI.Services
             expenses.Where(e => e.Method == method).Sum(e => e.Amount);
 
         private static List<DashboardAlertDto> BuildAlerts(
-            Group group, decimal collected, List<DashboardBirthdayDto> birthdays, DateTime today)
+            Group group, decimal collected, List<DashboardBirthdayDto> birthdays, DateTime today,
+            int studentsInList)
         {
             var alerts = new List<DashboardAlertDto>();
 
@@ -254,6 +255,23 @@ namespace ParentCommitteeAPI.Services
                 {
                     Type = "payments",
                     Message = $"הגבייה עוד לא התחילה — {group.ChildrenCount} ילדים טרם שילמו",
+                });
+            }
+            /*
+              🔴 יעד הגבייה מחושב לפי **מספר הילדים המוגדר בגן**, ולא לפי כמות
+              התלמידים ברשימה. כשמוסיפים ילדים (למשל בפתיחת קבוצה חדשה) המספר
+              המוגדר אינו זז מעצמו, ולכן היעד והחוב הפתוח נשארים על מקומם —
+              וזה נראה כאילו המערכת לא מתעדכנת.
+
+              במקום לשנות בשקט את חישוב הכסף, אומרים את זה במפורש: מי שרואה
+              את ההתראה יודע גם מה קורה וגם מה לעשות.
+            */
+            if (studentsInList > group.ChildrenCount)
+            {
+                alerts.Add(new DashboardAlertDto
+                {
+                    Type = "children-count",
+                    Message = $"יש {studentsInList} ילדים ברשימה, אבל הגן מוגדר ל-{group.ChildrenCount}. יעד הגבייה והחוב הפתוח מחושבים לפי {group.ChildrenCount} — כדאי לעדכן את מספר הילדים בהגדרות.",
                 });
             }
 

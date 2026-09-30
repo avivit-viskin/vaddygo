@@ -649,11 +649,7 @@ function SupplierEditPage() {
             </form>
           )}
           <div style={{ marginTop: 16 }}>
-            <SupplierHome
-              vendor={vendor}
-              onGoTo={goTo}
-              onShareCatalog={openShareCatalog}
-            />
+            <SupplierHome vendor={vendor} />
           </div>
           <div style={{ marginTop: 16 }}>
             <SupplierLeads token={token} isPro={vendor?.isPro} vendorName={vendor?.name} />

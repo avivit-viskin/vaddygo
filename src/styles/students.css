@@ -171,3 +171,48 @@
   display: flex;
   align-items: center;
 }
+
+/*
+  סימון תשלום מרוכז — החלון שנפתח מ"סימון תשלום" בשורת הבחירה.
+  הסכום הכולל בולט בכוונה: זו הפעולה היחידה במסך שרושמת כסף להרבה ילדים
+  בלחיצה אחת, וכדאי שמי שלוחצת תראה את הסכום לפני ולא אחרי.
+*/
+.bulk-payment__intro {
+  margin: 0 0 12px;
+  color: var(--color-text-muted);
+  font-size: var(--font-size-sm);
+}
+
+.bulk-payment__note {
+  margin: 8px 0;
+  padding: 9px 12px;
+  border-radius: var(--radius-md, 10px);
+  background: var(--color-bg);
+  border: 1px solid var(--color-border);
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+}
+
+.bulk-payment__total {
+  margin: 14px 0 4px;
+  font-size: var(--font-size-md, 1rem);
+}
+
+.bulk-payment__actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-top: 14px;
+}
+
+.bulk-payment__result {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  line-height: 1.6;
+}
+
+.bulk-payment__failed {
+  color: var(--color-danger, #c0392b);
+  font-weight: 600;
+}

@@ -28,6 +28,7 @@ import StudentForm from "../components/StudentForm";
 import InstitutionAllergyBanner from "../components/InstitutionAllergyBanner";
 import ConfirmDialog from "../components/ConfirmDialog";
 import StudentsImport from "./students/StudentsImport";
+import BulkPaymentModal from "./students/BulkPaymentModal";
 import StudentsStartOptions from "./students/StudentsStartOptions";
 import BulkPaymentRequestButton from "../components/BulkPaymentRequestButton";
 import { exportStudentsToExcel } from "../services/studentsExcelExport";
@@ -82,6 +83,7 @@ function StudentsPage() {
 
   // העברת הנבחרים לקבוצה אחרת (מהרשימה, בלי לפתוח כל כרטיס)
   const [showMoveGroup, setShowMoveGroup] = useState(false);
+  const [showBulkPayment, setShowBulkPayment] = useState(false);
   const [moveTarget, setMoveTarget] = useState("");
   const [isMoving, setIsMoving] = useState(false);
   const [moveError, setMoveError] = useState("");
@@ -558,6 +560,10 @@ function StudentsPage() {
               >
                 <Icon name="users" size={16} /> העברה לקבוצה
               </Button>
+              {/* סימון תשלום לכל הנבחרים — אותה פעולה מרובה, על הכסף */}
+              <Button variant="brand" onClick={() => setShowBulkPayment(true)}>
+                <Icon name="wallet" size={16} /> סימון תשלום
+              </Button>
               <Button variant="danger" onClick={() => setShowBulkDelete(true)}>
                 <Icon name="trash" size={16} /> מחיקת הנבחרים
               </Button>
@@ -665,6 +671,20 @@ function StudentsPage() {
         }}
         isLoading={isBulkDeleting}
         error={bulkDeleteError}
+      />
+
+      {/* סימון תשלום מרוכז לכל הנבחרים */}
+      <BulkPaymentModal
+        isOpen={showBulkPayment}
+        studentIds={[...selectedIds]}
+        students={students}
+        onClose={async () => {
+          // הניקוי והרענון בסגירה בלבד: רענון בזמן שהחלון פתוח מחזיר את
+          // המסך למצב טעינה, מפרק את החלון ומוחק את הודעת האישור.
+          setShowBulkPayment(false);
+          setSelectedIds(new Set());
+          await reload();
+        }}
       />
 
       {/* העברת הנבחרים לקבוצה — בחירה מהרשימה או שם חדש חופשי */}

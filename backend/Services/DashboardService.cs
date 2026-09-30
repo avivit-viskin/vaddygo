@@ -164,21 +164,44 @@ namespace ParentCommitteeAPI.Services
             var bySubgroup = new List<DashboardSubgroupDto>();
             if (subgroupNames.Length > 0)
             {
-                var collectedByStudent = paidPayments
-                    .GroupBy(p => p.StudentId)
-                    .ToDictionary(gr => gr.Key, gr => gr.Sum(PaidTotal));
+                /*
+                  🔴 כרטיס הקבוצה סופר **רק את התוספת** — לא את הגבייה הכללית
+                  של אותם ילדים (החלטת בעלת המוצר 30.09.2026).
+
+                  מה היה קודם ולמה זה הטעה: הכרטיס סכם את **כל** תשלומי הילדים
+                  בקבוצה, כולל הגבייה הכללית שלהם — והכללי סכם אותה שוב. כך אותם
+                  שקלים הופיעו פעמיים, ו"יתרת הקופה" של הקבוצה הראתה כסף שאינו
+                  שלה. קבוצה שמוציאה יותר מהתוספות שגבתה הייתה נראית ביתרה חיובית
+                  בזמן שבפועל היא לוקחת מהקופה הכללית.
+
+                  עכשיו: יעד = התוספת × הילדים המסומנים בקבוצה, ונגבה = התוספת
+                  × הילדים ששילמו אותה. הגבייה הכללית נשארת במקום אחד בלבד —
+                  במסך הכללי, ושם היא נספרת לכל ילדי הגן, גם אלה שבקבוצה.
+
+                  זה גם מיישר את הקבוצות הפעילות עם קבוצות שנמחקו, שכבר חושבו כך.
+                */
+                var addonIdByName = group.Categories
+                    .Where(c => c.SubgroupName != null)
+                    .ToDictionary(c => c.SubgroupName!, c => c.Id);
+
                 foreach (var sub in subgroupNames)
                 {
                     var kids = studentGroups.Where(s => s.ClassName == sub).ToList();
-                    var perChild = totalPerChild
-                        + (addonByName.TryGetValue(sub, out var a) ? a : 0m);
+                    var addon = addonByName.TryGetValue(sub, out var a) ? a : 0m;
+
+                    // רק תשלומי קטגוריית-התוספת של הקבוצה הזו
+                    var addonCollected = addonIdByName.TryGetValue(sub, out var catId)
+                        ? paidPayments
+                            .Where(pm => pm.CollectionCategoryId == catId)
+                            .Sum(PaidTotal)
+                        : 0m;
+
                     bySubgroup.Add(new DashboardSubgroupDto
                     {
                         Name = sub,
                         ChildrenCount = kids.Count,
-                        TargetAmount = perChild * kids.Count,
-                        CollectedAmount = kids.Sum(k =>
-                            collectedByStudent.TryGetValue(k.Id, out var v) ? v : 0m),
+                        TargetAmount = addon * kids.Count,
+                        CollectedAmount = addonCollected,
                         SpentAmount = expenses.Where(e => e.SubgroupName == sub).Sum(e => e.Amount),
                     });
                 }

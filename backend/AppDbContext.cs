@@ -116,5 +116,86 @@ namespace ParentCommitteeAPI
             modelBuilder.Entity<VendorViewDay>()
                 .HasIndex(v => new { v.VendorId, v.Day }).IsUnique();
         }
+
+        /*
+          ישויות ששייכות לגן (יש להן GroupId) אך אינן נחשבות "עריכת נתוני הגן":
+          פניות/ביקורות של ספקים, חברוּת והזמנות צוות, וכוונת רכישת פרו — אלה
+          פעולות סביב הגן, ולא עריכה של תוכנו. הן לא מעדכנות את LastEditedAt.
+        */
+        private static readonly HashSet<string> _nonEditGroupEntities = new()
+        {
+            nameof(Lead), nameof(VendorReview), nameof(GroupMember),
+            nameof(GroupInvite), nameof(PendingProIntent),
+        };
+
+        /*
+          עדכון אוטומטי של Group.LastEditedAt: כל שמירה שכוללת יצירה/עריכה של
+          ישות ששייכת לגן (תלמיד, קטגוריה, הוצאה, אירוע, מתנה, צוות, תיקייה,
+          סקר) או עריכה של הגן עצמו — מסמנת את הגן כ"נערך עכשיו". כך המנהלת רואה
+          בנתוני שימוש אילו מוסדות פעילים, בלי לתחזק חותמת ידנית בכל שירות.
+
+          נעשה אחרי base.SaveChangesAsync בעדכון ישיר (ExecuteUpdate) ובתוך
+          try — חותמת המעקב לעולם לא מפילה שמירה אמיתית.
+        */
+        public override async Task<int> SaveChangesAsync(
+            CancellationToken cancellationToken = default)
+        {
+            var groupIds = CollectEditedGroupIds();
+            var result = await base.SaveChangesAsync(cancellationToken);
+            if (groupIds.Count > 0)
+            {
+                try
+                {
+                    var now = DateTime.UtcNow;
+                    await Groups
+                        .Where(g => groupIds.Contains(g.Id))
+                        .ExecuteUpdateAsync(
+                            s => s.SetProperty(g => g.LastEditedAt, now),
+                            cancellationToken);
+                }
+                catch
+                {
+                    // מדד בלבד — לא מפילים את השמירה האמיתית בגלל כשל בחותמת.
+                }
+            }
+            return result;
+        }
+
+        // אילו גנים נגעו בשמירה הנוכחית (יצירה/עריכה של ישות-גן, או עריכת הגן
+        // עצמו). נאסף *לפני* base.SaveChangesAsync כי אחריה המצבים מתאפסים.
+        private List<int> CollectEditedGroupIds()
+        {
+            var ids = new HashSet<int>();
+            foreach (var entry in ChangeTracker.Entries())
+            {
+                if (entry.State != EntityState.Added && entry.State != EntityState.Modified)
+                {
+                    continue;
+                }
+                if (entry.Entity is Group group)
+                {
+                    // עריכת הגן עצמו (שם/קישורים/תקציבים...) — אך לא עצם יצירתו.
+                    if (entry.State == EntityState.Modified && group.Id > 0)
+                    {
+                        ids.Add(group.Id);
+                    }
+                    continue;
+                }
+                if (_nonEditGroupEntities.Contains(entry.Entity.GetType().Name))
+                {
+                    continue;
+                }
+                var prop = entry.Metadata.FindProperty("GroupId");
+                if (prop == null)
+                {
+                    continue;
+                }
+                if (entry.CurrentValues[prop] is int gid && gid > 0)
+                {
+                    ids.Add(gid);
+                }
+            }
+            return ids.ToList();
+        }
     }
 }

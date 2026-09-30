@@ -45,6 +45,7 @@ namespace ParentCommitteeAPI.Services
                     g.Name,
                     g.City,
                     g.IsPro,
+                    g.LastEditedAt,
                     Until = g.ProValidUntil,
                     Created = _db.Users
                         .Where(u => u.Id == g.UserId)
@@ -152,6 +153,7 @@ namespace ParentCommitteeAPI.Services
                             today, registeredAt: c.Created), c.Protected, protectedEmails);
                         var studentCount = studentCountByGroup.TryGetValue(c.Id, out var n) ? n : 0;
                         row.City = c.City ?? string.Empty;
+                        row.LastEditedAt = c.LastEditedAt;
                         row.CategoryCount = c.CategoryCount;
                         row.StudentCount = studentCount;
                         row.ChildrenCount = c.ChildrenCount;

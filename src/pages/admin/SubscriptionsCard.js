@@ -203,6 +203,15 @@ function SubscriptionList({
                   נרשם {new Date(row.createdAt).toLocaleDateString("he-IL")}
                 </span>
               )}
+              {showSetup && row.lastEditedAt && (
+                <span
+                  className="subs__created"
+                  title="מתי המוסד נערך לאחרונה (מדד פעילות)"
+                >
+                  עריכה אחרונה{" "}
+                  {new Date(row.lastEditedAt).toLocaleDateString("he-IL")}
+                </span>
+              )}
               <span className="subs__until">{validUntilText(row)}</span>
               {/*
                 פתיחה/סגירה ידנית של פרו לגן. עד עכשיו פרו לוועד נפתח רק

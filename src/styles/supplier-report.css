@@ -122,3 +122,75 @@
   color: var(--color-danger, #b3261e);
   font-size: 13px;
 }
+
+/* ── גרף צפיות לאורך זמן (ViewsChart) ── */
+.sup-chart {
+  margin: 12px 0 4px;
+}
+.sup-chart__bars {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 120px;
+  padding: 14px 2px 0;
+  border-bottom: 1px solid var(--color-border);
+}
+.sup-chart__col {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  height: 100%;
+}
+.sup-chart__bar-wrap {
+  position: relative;
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+.sup-chart__bar {
+  width: 100%;
+  max-width: 22px;
+  border-radius: 4px 4px 0 0;
+  background: var(--color-primary);
+  transition: height 0.4s ease;
+}
+.sup-chart__bar--peak {
+  background: var(--color-primary-muted);
+}
+.sup-chart__peak {
+  position: absolute;
+  top: -14px;
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--color-primary-dark);
+  font-variant-numeric: tabular-nums;
+}
+.sup-chart__xlabel {
+  margin-top: 4px;
+  font-size: 10px;
+  color: var(--color-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+.sup-chart__caption {
+  margin: 8px 0 0;
+  font-size: 13px;
+  color: var(--color-text-muted);
+  text-align: center;
+}
+.sup-chart__empty {
+  margin: 12px 0 4px;
+  padding: 14px;
+  border: 1px dashed var(--color-border);
+  border-radius: 12px;
+  color: var(--color-text-muted);
+  font-size: 13px;
+  text-align: center;
+  line-height: 1.5;
+}

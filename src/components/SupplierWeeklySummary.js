@@ -3,6 +3,7 @@ import Icon from "./Icon";
 import StarRating from "./StarRating";
 import { getVendorReviews } from "../services/reviewsService";
 import { getSupplierLeads } from "../services/leadsService";
+import { getSupplierReport } from "../services/supplierReportService";
 import {
   isTopRated,
   hasRating,
@@ -36,6 +37,7 @@ function SupplierWeeklySummary({ vendor, token, onGoTo }) {
   const vendorId = vendor?.id;
   const [newReviews, setNewReviews] = useState(0);
   const [newLeads, setNewLeads] = useState(0);
+  const [newViews, setNewViews] = useState(0);
 
   // ביקורות חדשות השבוע — קריאה ציבורית לפי מזהה הספק
   useEffect(() => {
@@ -51,6 +53,20 @@ function SupplierWeeklySummary({ vendor, token, onGoTo }) {
       cancelled = true;
     };
   }, [vendorId]);
+
+  // צפיות ב-7 הימים האחרונים — מהדוח (מבוסס ספירה יומית בשרת), לפי הטוקן
+  useEffect(() => {
+    if (!token) return undefined;
+    let cancelled = false;
+    getSupplierReport(token)
+      .then((report) => {
+        if (!cancelled) setNewViews(Number(report?.views?.inLast7Days) || 0);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
 
   // פניות חדשות השבוע — רק לספק פרו (לאחרים תיבת הפניות חסומה ממילא)
   useEffect(() => {
@@ -76,6 +92,14 @@ function SupplierWeeklySummary({ vendor, token, onGoTo }) {
 
   // אירועי "השבוע" שבאמת קרו — כל אחד מוצג רק אם > 0
   const highlights = [];
+  if (newViews > 0) {
+    highlights.push({
+      key: "views",
+      icon: "👀",
+      text: `${newViews} ${newViews === 1 ? "צפייה" : "צפיות"} בקטלוג השבוע`,
+      go: "preview",
+    });
+  }
   if (newLeads > 0) {
     highlights.push({
       key: "leads",

@@ -3,6 +3,7 @@ import {
   getSupplierReport,
   presetRanges,
 } from "../services/supplierReportService";
+import ViewsChart from "./ViewsChart";
 import "../styles/supplier-report.css";
 
 /*
@@ -146,6 +147,9 @@ function SupplierReportRange({ token }) {
               <div className="sup-range__label">מוצרים שנוספו</div>
             </div>
           </div>
+
+          {/* גרף צפיות לאורך זמן — עמודות לפי דלי מותאם (יומי/שבועי/חודשי) */}
+          <ViewsChart series={views?.series} from={range.from} to={range.to} />
 
           {/*
             בלי המשפט הזה, תקופה שקודמת לתחילת הספירה מציגה 0 צפיות — ומי

@@ -14,6 +14,7 @@ import {
 } from "../../services/subscriptionsService";
 import { deleteVendor } from "../../services/vendorsService";
 import { buildWhatsappReminderUrl } from "../../services/paymentsService";
+import { exportInstitutionsToExcel } from "../../services/institutionsExcelExport";
 import "../../styles/subscriptions.css";
 
 /*
@@ -315,8 +316,13 @@ function SubscriptionsCard() {
   // פעיל מתעלמים ממסנן "רק פעילים", כדי שחיפוש/כפילות ימצאו גם גנים בפרו-חינם.
   const [search, setSearch] = useState("");
   const [dupOnly, setDupOnly] = useState(false);
+  // "נערכו ב-24 שעות האחרונות" — לראות אילו מוסדות פעילים ממש עכשיו.
+  const [recent24h, setRecent24h] = useState(false);
   const q = search.trim().toLowerCase();
-  const visibleCommittees = (dupOnly || q ? committees : onlyActive(committees))
+  const since24h = Date.now() - 24 * 60 * 60 * 1000;
+  const visibleCommittees = (
+    dupOnly || q || recent24h ? committees : onlyActive(committees)
+  )
     .filter(
       (c) => !dupOnly || dupCommitteeKeys.has((c.name || "").trim().toLowerCase())
     )
@@ -325,7 +331,31 @@ function SubscriptionsCard() {
         !q ||
         (c.name || "").toLowerCase().includes(q) ||
         (c.email || "").toLowerCase().includes(q)
+    )
+    .filter(
+      (c) =>
+        !recent24h ||
+        (c.lastEditedAt && new Date(c.lastEditedAt).getTime() >= since24h)
     );
+
+  // ייצוא רשימת המוסדות המסוננת לאקסל (שם מוסד / איש קשר / טלפון / תאריך הקמה).
+  const [exporting, setExporting] = useState(false);
+  async function handleExportInstitutions() {
+    setExporting(true);
+    setMsg(null);
+    try {
+      const n = await exportInstitutionsToExcel(visibleCommittees);
+      setMsg(
+        n > 0
+          ? { ok: true, text: `יוצאו ${n} מוסדות לאקסל.` }
+          : { ok: false, text: "אין מוסדות לייצוא בסינון הנוכחי." }
+      );
+    } catch {
+      setMsg({ ok: false, text: "הייצוא נכשל. אפשר לנסות שוב." });
+    } finally {
+      setExporting(false);
+    }
+  }
 
   // בחירת גנים למחיקה (ניקוי גני-בדיקה) — מנגנון נפרד מהספקים
   const [selectedC, setSelectedC] = useState(() => new Set());
@@ -508,6 +538,21 @@ function SubscriptionsCard() {
               />
               הצג רק כפילויות ({dupCommitteeKeys.size})
             </label>
+            <label className="subs__filter">
+              <input
+                type="checkbox"
+                checked={recent24h}
+                onChange={(e) => setRecent24h(e.target.checked)}
+              />
+              נערכו ב-24 שעות האחרונות
+            </label>
+            <Button
+              variant="secondary"
+              onClick={handleExportInstitutions}
+              isLoading={exporting}
+            >
+              📊 ייצוא לאקסל ({visibleCommittees.length})
+            </Button>
           </div>
 
           <SubscriptionList

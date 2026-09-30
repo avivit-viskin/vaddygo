@@ -479,6 +479,17 @@
   padding: 8px 16px;
   font-size: var(--font-size-sm);
 }
+/* "תשלום לספק" + "בקשת הצעת מחיר" זה לצד זה (נשבר לשורה בנייד צר) */
+.vendor-panel__pay-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.vendor-panel__pay-actions .btn {
+  min-height: 40px;
+  padding: 8px 16px;
+  font-size: var(--font-size-sm);
+}
 .vendor-panel__pay-btn {
   align-self: flex-start;
   background: var(--color-primary-dark);

@@ -355,13 +355,24 @@ function VendorPanel({
           {/* פרטי התשלום מוסתרים כברירת מחדל — נחשפים רק כשהוועד רוצה לשלם */}
           {hasPayInfo &&
             (!showPay ? (
-              <button
-                type="button"
-                className="btn btn--primary vendor-panel__pay-cta"
-                onClick={() => setShowPay(true)}
-              >
-                <Icon name="card" size={16} /> תשלום לספק
-              </button>
+              // "תשלום לספק" ולצדו "בקשת הצעת מחיר" — לפני שמשלמים אפשר לבקש
+              // הצעה. שני הכפתורים זה לצד זה (בקשת בעלת המוצר).
+              <div className="vendor-panel__pay-actions">
+                <button
+                  type="button"
+                  className="btn btn--primary vendor-panel__pay-cta"
+                  onClick={() => setShowPay(true)}
+                >
+                  <Icon name="card" size={16} /> תשלום לספק
+                </button>
+                <button
+                  type="button"
+                  className="btn btn--secondary"
+                  onClick={() => setRfqOpen(true)}
+                >
+                  <Icon name="message" size={16} /> בקשת הצעת מחיר
+                </button>
+              </div>
             ) : (
               <div className="vendor-panel__pay-open">
                 <p className="vendor-panel__pay-title">אפשרויות תשלום לספק</p>

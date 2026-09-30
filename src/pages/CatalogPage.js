@@ -265,6 +265,20 @@ function CatalogPage() {
         <Link to="/suppliers">VaddyGo</Link> — ניהול ועדי הורים
       </p>
 
+      {/* כפתור וואטסאפ צף — תמיד נגיש בזמן גלילה בקטלוג, ליצירת קשר מיידית */}
+      {wa && (
+        <a
+          className="pub-wa-fab"
+          href={wa}
+          target="_blank"
+          rel="noreferrer"
+          aria-label="שליחת וואטסאפ"
+          title="וואטסאפ"
+        >
+          <WhatsAppIcon color="#fff" size={30} />
+        </a>
+      )}
+
       {/* הגדלת תמונת מוצר (לייטבוקס) — לחיצה בכל מקום או על ה-✕ סוגרת */}
       {zoomImage && (
         <div

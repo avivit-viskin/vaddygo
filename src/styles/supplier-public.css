@@ -229,6 +229,28 @@
   padding-top: 18px;
   border-top: 1px solid var(--color-border);
 }
+
+/* כפתור וואטסאפ צף — נשאר בפינה בזמן גלילה בקטלוג */
+.pub-wa-fab {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  text-decoration: none;
+  z-index: 90;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.pub-wa-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.55);
+}
 .pub-foot a {
   color: var(--color-primary-dark);
   font-weight: 700;
@@ -325,11 +347,13 @@
   .pub-vendor,
   .pub-card,
   .pub-card__img,
-  .pub-btn {
+  .pub-btn,
+  .pub-wa-fab {
     transition: none;
   }
   .pub-card:hover,
-  .pub-btn:hover {
+  .pub-btn:hover,
+  .pub-wa-fab:hover {
     transform: none;
   }
   .pub-card:hover .pub-card__img {

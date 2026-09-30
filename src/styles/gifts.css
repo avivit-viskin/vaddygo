@@ -490,6 +490,35 @@
   padding: 8px 16px;
   font-size: var(--font-size-sm);
 }
+/* כפתור וואטסאפ צף בכרטיס הספק (בתוך המערכת) — נשאר בפינה מעל המודאל */
+.vendor-panel__wa-fab {
+  position: fixed;
+  bottom: calc(env(safe-area-inset-bottom, 0px) + 18px);
+  right: calc(env(safe-area-inset-right, 0px) + 18px);
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #25d366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 18px rgba(37, 211, 102, 0.45);
+  text-decoration: none;
+  z-index: 110;
+  transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+.vendor-panel__wa-fab:hover {
+  transform: translateY(-2px) scale(1.05);
+  box-shadow: 0 10px 26px rgba(37, 211, 102, 0.55);
+}
+@media (prefers-reduced-motion: reduce) {
+  .vendor-panel__wa-fab {
+    transition: none;
+  }
+  .vendor-panel__wa-fab:hover {
+    transform: none;
+  }
+}
 .vendor-panel__pay-btn {
   align-self: flex-start;
   background: var(--color-primary-dark);

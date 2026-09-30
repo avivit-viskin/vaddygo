@@ -137,6 +137,27 @@ function VendorPanel({
   // מספר התשלומים שהספק מאפשר (0/1 = תשלום אחד; גדול מ-1 = ניתן לפרוס)
   const installments = Number(vendor.paymentInstallments) || 0;
 
+  /*
+    כפתור וואטסאפ צף לספק — נשאר בפינה בזמן גלילה בכרטיס (כמו בעמוד הציבורי),
+    כדי שיצירת הקשר תמיד בהישג יד. מוצג רק כשמישהו *אחר* צופה בכרטיס (וועד/
+    מנהלת) — לא בתצוגה המקדימה של הספק עצמו (supplierToken), שם אין טעם לשלוח
+    לעצמך. z-index גבוה מה-Modal (100) וקטן מהלייטבוקס (200).
+  */
+  const renderWaFab = (href) =>
+    href && !supplierToken ? (
+      <a
+        className="vendor-panel__wa-fab"
+        href={href}
+        target="_blank"
+        rel="noreferrer"
+        onClick={() => recordVendorContact(vendor.id)}
+        aria-label="וואטסאפ לספק"
+        title="וואטסאפ לספק"
+      >
+        <WhatsAppIcon color="#fff" size={28} />
+      </a>
+    ) : null;
+
   // ── תצוגת תיקייה פתוחה: מוצרים + וואטסאפ עם הודעה מוכנה ──
   if (openFolder) {
     const waHref = whatsappUrlWithText(vendor.whatsApp, supplierMessage(openFolder.name));
@@ -250,6 +271,7 @@ function VendorPanel({
             />
           </div>
         )}
+        {renderWaFab(waHref)}
       </div>
     );
   }
@@ -655,6 +677,8 @@ function VendorPanel({
           )}
         </div>
       )}
+
+      {renderWaFab(whatsapp)}
     </div>
   );
 }

@@ -128,11 +128,17 @@
   align-items: flex-start;
   justify-content: space-between;
   gap: 12px;
+  /* גלישה: במסך צר כפתור "עדכון יתרה" יורד לשורה הבאה במקום לצאת מהמסך
+     ולגרום לגלילה אופקית של כל הדף. */
+  flex-wrap: wrap;
 }
 
 .collection__balance {
   display: flex;
   gap: 24px;
+  /* אם המספרים גדולים — היתרה והחוב נערמים במקום לגלוש מהמסך */
+  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .collection__label {

@@ -90,16 +90,22 @@ test("פתיחת דף ספק מציגה את המוצרים והמחירים", a
 
   render(<GiftsPage />);
 
-  const vendorButton = await screen.findByRole("button", {
+  // שם הספק עשוי להופיע גם בעוזרת התקציב (הצעת ספק) — בוחרים את הכפתור של
+  // *רשימת הספקים* (vendors__item) כדי לפתוח את כרטיס הספק.
+  const vendorButtons = await screen.findAllByRole("button", {
     name: /מתנות בלב/,
   });
+  const vendorButton =
+    vendorButtons.find((b) => b.classList.contains("vendors__item")) ||
+    vendorButtons[0];
   userEvent.click(vendorButton);
 
   // המוצרים נמצאים בתוך תיקייה — מוצר בלי תיקייה מקובץ תחת "כללי"
   userEvent.click(await screen.findByRole("button", { name: /כללי/ }));
 
   expect(await screen.findByText("כוס מעוצבת")).toBeInTheDocument();
-  expect(screen.getByText(/30\s*₪/)).toBeInTheDocument();
+  // המחיר עשוי להופיע גם בעוזרת התקציב — די בכך שהוא מוצג (לפחות פעם אחת).
+  expect(screen.getAllByText(/30\s*₪/).length).toBeGreaterThan(0);
 });
 
 test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמונת מוצר", async () => {
@@ -123,7 +129,13 @@ test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמ
 
   render(<GiftsPage />);
 
-  userEvent.click(await screen.findByRole("button", { name: /מתנות בלב/ }));
+  const vendorButtons2 = await screen.findAllByRole("button", {
+    name: /מתנות בלב/,
+  });
+  userEvent.click(
+    vendorButtons2.find((b) => b.classList.contains("vendors__item")) ||
+      vendorButtons2[0]
+  );
 
   // וואטסאפ + רשת חברתית מוצגים ברמת רשימת התיקיות
   // כפתור וואטסאפ בונה קישור wa.me עם קידומת בינלאומית (0 מוביל → 972)

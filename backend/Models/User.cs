@@ -54,6 +54,14 @@ namespace ParentCommitteeAPI.Models
 
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
+        /*
+          האם בעל/ת החשבון הוכיח/ה בעלות על כתובת המייל (אימות מייל). נדלק כשמזינים
+          קוד שנשלח למייל — בהרשמה (אם RequireEmailVerification דלוק) או בכל אימות
+          דו-שלבי מוצלח (שגם הוא מוכיח גישה למייל). false = טרם אומת. סוגר את הפרצה
+          של הרשמה עם מייל פיקטיבי, ומשמש גם למעקב "כמה השלימו אימות".
+        */
+        public bool EmailVerified { get; set; }
+
         // קוד הפניה (?ref=) שדרכו נרשם המשתמש — למקור ההרשמה בדוח השימוש. אופציונלי.
         public string? ReferralCode { get; set; }
 

@@ -60,5 +60,8 @@ namespace ParentCommitteeAPI.DTOs
 
         /* כמה רכשו/קיבלו מסלול פרו פעיל (ועדים: Group.IsPro; ספקים: Vendor.IsPro) */
         public int Pro { get; set; }
+
+        /* כמה השלימו אימות מייל (הוכיחו בעלות על הכתובת) — למעקב. ועדים בלבד. */
+        public int Verified { get; set; }
     }
 }

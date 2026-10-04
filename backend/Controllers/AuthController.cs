@@ -39,6 +39,9 @@ namespace ParentCommitteeAPI.Controllers
             var result = await _authService.RegisterAsync(dto);
             if (result.Error != null)
                 return Conflict(new { message = result.Error });
+            // אימות מייל נדרש — מחזירים אתגר קוד (202) בלי טוקן, כמו בכניסה עם 2FA.
+            if (result.TwoFactor != null)
+                return StatusCode(TwoFactorPending, result.TwoFactor);
             return Ok(result.Response);
         }
 

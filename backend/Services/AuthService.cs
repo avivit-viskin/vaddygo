@@ -88,6 +88,27 @@ namespace ParentCommitteeAPI.Services
                 $"מייל: {user.Email}\n\n" +
                 "צוות VaddyGo 💗");
 
+            /*
+              אימות מייל בהרשמה — סוגר את פרצת ה"הרשמה עם מייל פיקטיבי". אם דלוק
+              (Auth:RequireEmailVerification) ויש ספק מייל, ואין מדובר בחשבון מנהלת/
+              מוגן — מנפיקים אתגר קוד (אותו מנגנון בדיוק של האימות הדו-שלבי: קוד בן
+              6 ספרות נשלח למייל) ומחזירים אותו **בלי טוקן**. הכניסה תושלם רק אחרי
+              הזנת הקוד, ואז EmailVerified נדלק (ב-TwoFactorService.VerifyAsync).
+
+              ⚠️ שסתום בטיחות: בלי ספק מייל לא אוכפים (כמו באימות הדו-שלבי) — אחרת
+              היינו מנפיקים אתגר שקודו לעולם לא מגיע, ונועלים נרשם מחוץ לחשבון.
+            */
+            if (_config.GetValue("Auth:RequireEmailVerification", true)
+                && _email.IsConfigured
+                && user.Role != "SuperAdmin"
+                && !ProtectedAccounts.IsProtectedUser(user, _config))
+            {
+                var challenge = await _twoFactor.StartChallengeAsync(user);
+                _logger.LogInformation(
+                    "Email verification challenge issued at registration (User: {UserId})", user.Id);
+                return new AuthResult(null, null, challenge);
+            }
+
             return new AuthResult(BuildResponse(user), null);
         }
 

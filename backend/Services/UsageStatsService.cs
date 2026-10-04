@@ -35,6 +35,8 @@ namespace ParentCommitteeAPI.Services
             var users = await _db.Users.CountAsync();
             var usersWithGroup = await _db.Users
                 .CountAsync(u => _db.Groups.Any(g => g.UserId == u.Id));
+            // כמה השלימו אימות מייל (בהרשמה או דרך אימות דו-שלבי) — למעקב.
+            var usersVerified = await _db.Users.CountAsync(u => u.EmailVerified);
             var usersLast30 = await _db.Users.CountAsync(u => u.CreatedAt >= since30);
             var usersLast5 = await _db.Users.CountAsync(u => u.CreatedAt >= since5);
 
@@ -119,6 +121,7 @@ namespace ParentCommitteeAPI.Services
                     RegisteredLast5Days = usersLast5,
                     RegisteredLast30Days = usersLast30,
                     Pro = committeesPro,
+                    Verified = usersVerified,
                 },
                 Suppliers = new FunnelDto
                 {

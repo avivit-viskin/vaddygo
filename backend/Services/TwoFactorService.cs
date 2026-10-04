@@ -201,6 +201,10 @@ namespace ParentCommitteeAPI.Services
             // הקוד חד-פעמי: האתגר נמחק בין אם נוצל קוד שנשלח ובין אם קוד גיבוי.
             _db.TwoFactorChallenges.Remove(challenge);
 
+            // הזנת קוד שנשלח למייל מוכיחה בעלות על הכתובת — מסמנים את המייל כמאומת.
+            // משמש גם לאימות בהרשמה וגם לכך שמשתמשים ותיקים נספרים כמאומתים בכניסה.
+            user.EmailVerified = true;
+
             string? deviceToken = null;
             if (dto.RememberDevice)
             {

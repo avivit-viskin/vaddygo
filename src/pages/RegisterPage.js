@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import BrandName from "../components/BrandName";
 import Button from "../components/Button";
@@ -8,8 +8,9 @@ import PasswordField from "../components/PasswordField";
 import ErrorMessage from "../components/ErrorMessage";
 import SupportLink from "../components/SupportLink";
 import ShareInvite from "../components/ShareInvite";
+import TwoFactorPrompt from "../components/TwoFactorPrompt";
 import useForm from "../hooks/useForm";
-import { register } from "../services/authService";
+import { register, markNewUser } from "../services/authService";
 import { captureReferralFromUrl } from "../services/referralService";
 import "../styles/onboarding.css";
 
@@ -53,14 +54,31 @@ function RegisterPage() {
   const { values, errors, submitError, isSubmitting, handleChange, handleSubmit } =
     useForm({ username: "", email: "", phone: "", password: "" }, validate);
 
+  /*
+    אתגר אימות מייל פתוח: אחרי "יצירת חשבון", אם המערכת דורשת אימות מייל, השרת
+    שולח קוד בן 6 ספרות למייל ומחזיר אתגר (בלי טוקן). עד שהקוד מאומת מציגים את
+    מסך הקוד (אותו רכיב של האימות הדו-שלבי) במקום טופס ההרשמה.
+  */
+  const [challenge, setChallenge] = useState(null);
+
+  const finishRegister = () => {
+    markNewUser(); // משתמש חדש — יראה פעם אחת את פופאפ הברוכים-הבאים
+    navigate(safeNext || "/onboarding");
+  };
+
   const onSubmit = handleSubmit(async (formValues) => {
-    await register({
+    const auth = await register({
       username: formValues.username.trim(),
       email: formValues.email.trim(),
       phone: formValues.phone.trim(),
       password: formValues.password,
     });
-    navigate(safeNext || "/onboarding");
+    // אימות מייל נדרש — מציגים מסך קוד; הכניסה תושלם בהזנת הקוד.
+    if (auth?.twoFactorRequired) {
+      setChallenge(auth);
+      return;
+    }
+    finishRegister();
   });
 
   return (
@@ -69,7 +87,20 @@ function RegisterPage() {
         <BrandName />
       </h1>
       <p className="auth-page__slogan">ארגון חכם. ניהול מנצח</p>
-      <Card title="נעים להכיר! נפתח לך חשבון">
+      <Card title={challenge ? "אימות כתובת המייל" : "נעים להכיר! נפתח לך חשבון"}>
+        {challenge ? (
+          <>
+            <p className="auth-page__hint" style={{ marginTop: 0 }}>
+              כדי להשלים את ההרשמה, הזינו את הקוד ששלחנו למייל שלכם. אם לא מצאתם
+              אותו — כדאי לבדוק גם בתיקיית ה"ספאם"/"קידומי מכירות".
+            </p>
+            <TwoFactorPrompt
+              challenge={challenge}
+              onSuccess={finishRegister}
+              onCancel={() => setChallenge(null)}
+            />
+          </>
+        ) : (
         <form onSubmit={onSubmit} noValidate>
           <Input
             id="register-username"
@@ -130,6 +161,7 @@ function RegisterPage() {
             message="מנהלים ועד הורים? VaddyGo עוזרת לנהל גבייה, תשלומים ותקשורת עם ההורים בקלות. מוזמנים להתחיל:"
           />
         </form>
+        )}
       </Card>
       <SupportLink />
     </div>

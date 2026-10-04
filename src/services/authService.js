@@ -158,9 +158,14 @@ export async function register({ username, email, phone, password }) {
     password,
     ...(ref ? { ref } : {}),
   });
+  clearReferralCode(); // נשלח — לא צריך לדבוק להרשמה הבאה במכשיר
+  // אימות מייל נדרש — עדיין אין טוקן. הכניסה תושלם אחרי הזנת הקוד (verifyTwoFactor),
+  // ואז העמוד מסמן "משתמש חדש". לא שומרים כלום עד שהקוד אומת.
+  if (auth?.twoFactorRequired) {
+    return auth;
+  }
   store(auth);
   markNewUser(); // משתמש חדש — יראה פעם אחת את פופאפ הברוכים-הבאים
-  clearReferralCode(); // נשלח — לא צריך לדבוק להרשמה הבאה במכשיר
   return auth;
 }
 

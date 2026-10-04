@@ -83,7 +83,7 @@ function UsageStatsPage() {
             />
             <p
               style={{
-                margin: "0 0 22px",
+                margin: "0 0 6px",
                 display: "flex",
                 alignItems: "center",
                 gap: 6,
@@ -94,6 +94,21 @@ function UsageStatsPage() {
             >
               <Icon name="crown" size={15} /> מתוכם רכשו מסלול פרו:{" "}
               <strong>{data.committees.pro || 0}</strong>
+            </p>
+            {/* כמה השלימו אימות מייל (הוכיחו בעלות על הכתובת) — למעקב */}
+            <p
+              style={{
+                margin: "0 0 22px",
+                display: "flex",
+                alignItems: "center",
+                gap: 6,
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 600,
+                color: "var(--color-primary-dark)",
+              }}
+            >
+              <Icon name="check-circle" size={15} /> אימתו את כתובת המייל:{" "}
+              <strong>{data.committees.verified || 0}</strong>
             </p>
             <UsageFunnel
               title="ספקים"

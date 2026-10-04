@@ -631,7 +631,12 @@ function GiftsPage() {
         )}
       </Card>
 
-      <BudgetRecommendation holidayBudgets={budgets} spent={spentOnGifts} />
+      <BudgetRecommendation
+        holidayBudgets={budgets}
+        spent={spentOnGifts}
+        vendors={vendors}
+        onOpen={setOpenVendor}
+      />
 
       {/* דוח ספק למנהלת — התקדמות הכרטיס + צפיות/פניות + שיתוף עם הספק */}
       <VendorReportModal

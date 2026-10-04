@@ -323,7 +323,14 @@ function GiftsPage() {
 
   return (
     <div className="gifts">
-      <CountdownBanner />
+      <CountdownBanner
+        onViewSuppliers={() =>
+          vendorsTopRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
+      />
       <UpcomingMonth />
       {/* "צופה" — לצפייה בלבד: בלי תזכורת/רישום הוצאה על אירועים שעברו */}
       {!readOnly && <PendingEventExpenses onRecorded={load} />}

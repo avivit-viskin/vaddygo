@@ -24,6 +24,7 @@ import SubgroupBreakdown from "./home/SubgroupBreakdown";
 import StaffBirthdays from "./home/StaffBirthdays";
 import ExpensesList from "./home/ExpensesList";
 import YearEndCleanupBanner from "./home/YearEndCleanupBanner";
+import SupplierDealsBanner from "../components/SupplierDealsBanner";
 import TrialEndedNotice from "../components/TrialEndedNotice";
 import TrialActiveBanner from "../components/TrialActiveBanner";
 import Modal from "../components/Modal";
@@ -146,6 +147,9 @@ function HomePage() {
       <TrialEndedNotice />
 
       <YearEndCleanupBanner />
+
+      {/* דחיפה לספקים לקראת החג הקרוב — מוביל לעמוד המתנות/ספקים */}
+      <SupplierDealsBanner />
 
       <CollectionCard
         dashboard={dashboard}

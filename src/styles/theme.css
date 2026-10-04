@@ -918,3 +918,24 @@ button.vendor-form__remove {
   background-color: var(--color-error);
   color: #ffffff;
 }
+
+/*
+  כפתור קטן — ממד **גודל**, לא ממד משמעות.
+
+  פעולות משנה (ייבוא, ייצוא, בקשת תשלום) נשארות באותו צבע ובאותה סמנטיקה,
+  רק קטנות יותר. כך יש בכל מסך פעולה ראשית אחת שבולטת, והשאר זמינות בלי
+  להתחרות בה. ראו ההסבר ב-Button.js.
+*/
+.btn--sm {
+  padding: 7px 14px;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  border-radius: 999px;
+  min-height: 0;
+}
+
+/* שורת פעולות: הראשית ראשונה ובמלוא הרוחב בנייד, השאר נשפכות לשורה מתחתיה */
+.page-header__actions {
+  gap: 8px;
+  align-items: center;
+}

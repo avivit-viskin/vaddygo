@@ -216,3 +216,78 @@
   color: var(--color-danger, #c0392b);
   font-weight: 600;
 }
+
+/*
+  סינון מתקפל — החיפוש גלוי תמיד, השאר מאחורי "סינון".
+
+  🔴 הסיבה: במסך התלמידים צריך היה לגלול מעבר לשלוש שורות סינון כדי להגיע
+  לילד הראשון. סינון הוא פעולה מדי פעם; הרשימה היא המסך. כשסינון פעיל —
+  מספר על הכותרת, כדי ששום סינון לא יעלם בשקט ויגרום לתהות למה חסרים ילדים.
+*/
+.toolbar__filters {
+  grid-column: 1 / -1;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 12px);
+  background: var(--color-surface);
+  padding: 0 12px;
+}
+
+.toolbar__filters > summary {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 0;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  list-style: none;
+}
+
+.toolbar__filters > summary::-webkit-details-marker {
+  display: none;
+}
+
+.toolbar__filters[open] > summary {
+  border-bottom: 1px solid var(--color-border);
+  margin-bottom: 10px;
+}
+
+.toolbar__filters-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 999px;
+  background: var(--color-primary);
+  color: var(--color-primary-dark);
+  font-size: var(--font-size-xs);
+  font-weight: 700;
+}
+
+.toolbar__filters > *:last-child {
+  margin-bottom: 12px;
+}
+
+/*
+  היררכיה בשורת הפעולות.
+
+  🔴 הכלל שלמעלה (.page-header__actions .btn) נותן לכל כפתור flex: 1 1 auto,
+  כלומר **כולם נמתחים לאותו רוחב** — וזה בדיוק מה שגרם לכך ש"הוספת תלמיד"
+  נראה בדיוק כמו "ייצוא לאקסל". כאן מחזירים את ההפרש:
+
+  • הפעולה הראשית תופסת שורה שלמה — אי אפשר לפספס אותה.
+  • פעולות המשנה מתכווצות לגודל התוכן ונשפכות לשורה מתחתיה כצ'יפים.
+*/
+.page-header__actions .btn--brand,
+.page-header__actions .btn--primary {
+  flex: 1 1 100%;
+}
+
+.page-header__actions .btn--sm {
+  flex: 0 1 auto;
+  padding: 7px 14px;
+  font-size: var(--font-size-sm);
+}

@@ -91,10 +91,11 @@ function BulkPaymentRequestButton({ students = [] }) {
     <>
       <Button
         variant="secondary"
+        size="sm"
         onClick={open}
         disabled={students.length === 0}
       >
-        <WhatsAppIcon size={18} /> בקשת תשלום בוואטסאפ{" "}
+        <WhatsAppIcon size={15} /> בקשת תשלום בוואטסאפ{" "}
         <ProBadge title="בקשת תשלום גורפת — פיצ'ר פרו" />
       </Button>
       <Modal

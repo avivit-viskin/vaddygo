@@ -378,6 +378,13 @@ function StudentsPage() {
   // מספר הילדים שהוגדר בהקמת הגן — "כמה מתוך כמה" נמצאים כבר ברשימה
   const configuredCount = Number(getOnboarding()?.childrenCount) || 0;
 
+  /*
+    כמה סינונים פעילים — מוצג על כפתור "סינון" המקופל.
+    בלי זה אפשר להסתיר סינון פעיל ולתהות למה חסרים תלמידים ברשימה.
+  */
+  const activeFilterCount =
+    (classFilter ? 1 : 0) + (onlyUnpaid ? 1 : 0) + (categoryFilter ? 1 : 0);
+
   const allVisibleSelected =
     visibleStudents.length > 0 &&
     visibleStudents.every((s) => selectedIds.has(s.id));
@@ -411,22 +418,24 @@ function StudentsPage() {
         {!readOnly && totalCount > 0 && (
           <div className="page-header__actions">
             <Button variant="brand" onClick={openAddForm} dataTour="add-student">
-              + הוספת תלמיד
+              <Icon name="plus" size={16} /> הוספת תלמיד
             </Button>
             {/* הכיתוב מזכיר את קובץ משרד החינוך — זה הקובץ שכבר ביד של
                 מנהלת המוסד, ואיש לא מנחש לבד שהמערכת קוראת אותו. */}
             <Button
               variant="secondary"
+              size="sm"
               onClick={() => setIsImportOpen(true)}
               title="אקסל, CSV, או קובץ משרד החינוך כמו שהוא"
             >
-              📄 ייבוא מקובץ
+              <Icon name="folder" size={15} /> ייבוא מקובץ
             </Button>
             <ProGate feature="bulkReminders" label="בקשת תשלום בוואטסאפ">
               <BulkPaymentRequestButton students={visibleStudents} />
             </ProGate>
             <Button
               variant="secondary"
+              size="sm"
               isLoading={exporting}
               onClick={async () => {
                 setExporting(true);
@@ -443,7 +452,7 @@ function StudentsPage() {
                   if (n === 0) {
                     toastError("אין תלמידים לייצוא (אולי הסינון מסתיר את כולם)");
                   } else {
-                    toastSuccess(`יוצאו ${n} תלמידים לאקסל 📊`);
+                    toastSuccess(`יוצאו ${n} תלמידים לאקסל`);
                   }
                 } catch {
                   toastError("לא הצלחנו לייצא. אפשר לנסות שוב.");
@@ -452,7 +461,7 @@ function StudentsPage() {
                 }
               }}
             >
-              📊 ייצוא לאקסל
+              <Icon name="chart" size={15} /> ייצוא לאקסל
             </Button>
           </div>
         )}
@@ -488,7 +497,17 @@ function StudentsPage() {
               value={searchTerm}
               onChange={(event) => setSearchTerm(event.target.value)}
             />
-            {hasGroups && (
+            <details className="toolbar__filters">
+              <summary>
+                <Icon name="settings" size={15} /> סינון
+                {activeFilterCount > 0 && (
+                  <span className="toolbar__filters-count">
+                    {activeFilterCount}
+                  </span>
+                )}
+              </summary>
+
+              {hasGroups && (
               <Select
                 id="students-class-filter"
                 label="סינון לפי קבוצה"
@@ -535,6 +554,8 @@ function StudentsPage() {
                 <option value="paid">שילמו</option>
               </Select>
             )}
+            </details>
+
             {!readOnly && (
               <Checkbox
                 id="students-select-all"

@@ -25,6 +25,7 @@ import StaffBirthdays from "./home/StaffBirthdays";
 import ExpensesList from "./home/ExpensesList";
 import YearEndCleanupBanner from "./home/YearEndCleanupBanner";
 import SupplierDealsBanner from "../components/SupplierDealsBanner";
+import BirthdayGiftNudge from "../components/BirthdayGiftNudge";
 import TrialEndedNotice from "../components/TrialEndedNotice";
 import TrialActiveBanner from "../components/TrialActiveBanner";
 import Modal from "../components/Modal";
@@ -150,6 +151,8 @@ function HomePage() {
 
       {/* דחיפה לספקים לקראת החג הקרוב — מוביל לעמוד המתנות/ספקים */}
       <SupplierDealsBanner />
+      {/* דחיפה לספקים לקראת יום הולדת קרוב של איש צוות */}
+      <BirthdayGiftNudge />
 
       <CollectionCard
         dashboard={dashboard}

@@ -314,3 +314,33 @@ button.subs__group-title--toggle {
   border: 1px solid var(--color-border);
   color: var(--color-text-muted);
 }
+
+/* ── טלפונים לוואטסאפ בקבוצות (רשימות תפוצה) ── */
+.subs__phones {
+  margin: 10px 0 16px;
+  padding: 12px 14px;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-primary-light);
+}
+.subs__phone-batches {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.subs__phone-batch {
+  border: 1px solid var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-radius: 999px;
+  padding: 8px 14px;
+  font-family: var(--font-family);
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  cursor: pointer;
+}
+.subs__phone-batch--done {
+  background: #e3f7ec;
+  border-color: #9adcb7;
+  color: #1d7a4d;
+}

@@ -394,30 +394,36 @@ function SubscriptionsCard() {
     }
   }
 
-  // העתקת כל מספרי הטלפון (בעלי מוסדות + ספקים + נרשמים שלא סיימו) — כדי להדביק
-  // ברשימת תפוצה בוואטסאפ מהטלפון. מעתיק את *כולם* (לא מושפע מהסינון), כי הבקשה
-  // היא "לכל מי שהשאיר טלפון". מספרים כפולים מסוננים.
-  const [copiedPhones, setCopiedPhones] = useState(false);
-  async function handleCopyAllPhones() {
-    const unique = [
-      ...new Set(
-        [...committees, ...suppliers, ...incomplete]
-          .map((r) => (r.phone || "").trim())
-          .filter(Boolean)
-      ),
-    ];
-    if (unique.length === 0) {
-      setMsg({ ok: false, text: "אין מספרי טלפון להעתקה." });
-      return;
-    }
+  /*
+    טלפונים לוואטסאפ, בקבוצות. וואטסאפ אינו שולח "לכולם בלחיצה" (זה דורש
+    WhatsApp Business API), ורשימת תפוצה בוואטסאפ מוגבלת ל-256 נמענים — ולכן
+    מחלקים את כל המספרים (בעלי מוסדות + ספקים + נרשמים, בלי כפולים) לקבוצות של
+    PHONE_BATCH_SIZE, ומעתיקים קבוצה-קבוצה לרשימת תפוצה חדשה. בקשת בעלת המוצר.
+  */
+  const PHONE_BATCH_SIZE = 50;
+  const [phonesOpen, setPhonesOpen] = useState(false);
+  const [copiedBatches, setCopiedBatches] = useState(() => new Set());
+  const allPhones = [
+    ...new Set(
+      [...committees, ...suppliers, ...incomplete]
+        .map((r) => (r.phone || "").trim())
+        .filter(Boolean)
+    ),
+  ];
+  const phoneBatches = [];
+  for (let i = 0; i < allPhones.length; i += PHONE_BATCH_SIZE) {
+    phoneBatches.push(allPhones.slice(i, i + PHONE_BATCH_SIZE));
+  }
+  async function copyPhoneBatch(index) {
     try {
-      await navigator.clipboard.writeText(unique.join("\n"));
-      setCopiedPhones(true);
+      await navigator.clipboard.writeText(phoneBatches[index].join("\n"));
+      setCopiedBatches((prev) => new Set(prev).add(index));
       setMsg({
         ok: true,
-        text: `הועתקו ${unique.length} מספרי טלפון. אפשר להדביק ברשימת תפוצה בוואטסאפ מהטלפון.`,
+        text: `הועתקו ${phoneBatches[index].length} מספרים (קבוצה ${
+          index + 1
+        }). פתחי "רשימת תפוצה חדשה" בוואטסאפ, הדביקי, ושלחי.`,
       });
-      setTimeout(() => setCopiedPhones(false), 2500);
     } catch {
       setMsg({
         ok: false,
@@ -630,10 +636,40 @@ function SubscriptionsCard() {
             >
               📊 ייצוא לאקסל ({visibleCommittees.length})
             </Button>
-            <Button variant="secondary" onClick={handleCopyAllPhones}>
-              {copiedPhones ? "הועתק ✓" : "📋 העתקת כל הטלפונים"}
+            <Button variant="secondary" onClick={() => setPhonesOpen((v) => !v)}>
+              📱 וואטסאפ בקבוצות ({allPhones.length})
             </Button>
           </div>
+
+          {/* טלפונים לוואטסאפ בקבוצות של 50 — העתקה קבוצה-קבוצה לרשימות תפוצה */}
+          {phonesOpen && (
+            <div className="subs__phones">
+              <p className="subs__hint" style={{ marginTop: 0 }}>
+                וואטסאפ לא שולח "לכולם בלחיצה". הנה כל המספרים ({allPhones.length})
+                בקבוצות של {PHONE_BATCH_SIZE}: העתיקי קבוצה → פתחי בוואטסאפ "רשימת
+                תפוצה חדשה" → הדביקי → שלחי. ואז הקבוצה הבאה.
+              </p>
+              {phoneBatches.length === 0 ? (
+                <p className="subs__empty">אין מספרי טלפון להעתקה.</p>
+              ) : (
+                <div className="subs__phone-batches">
+                  {phoneBatches.map((batch, i) => (
+                    <button
+                      key={i}
+                      type="button"
+                      className={`subs__phone-batch${
+                        copiedBatches.has(i) ? " subs__phone-batch--done" : ""
+                      }`}
+                      onClick={() => copyPhoneBatch(i)}
+                    >
+                      {copiedBatches.has(i) ? "✓ " : ""}קבוצה {i + 1} ·{" "}
+                      {batch.length} מספרים · העתקה
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
 
           <SubscriptionList
             title="ועדי הורים"

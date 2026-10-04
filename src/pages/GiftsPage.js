@@ -635,7 +635,12 @@ function GiftsPage() {
         holidayBudgets={budgets}
         spent={spentOnGifts}
         vendors={vendors}
-        onOpen={setOpenVendor}
+        onViewSuppliers={() =>
+          vendorsTopRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start",
+          })
+        }
       />
 
       {/* דוח ספק למנהלת — התקדמות הכרטיס + צפיות/פניות + שיתוף עם הספק */}

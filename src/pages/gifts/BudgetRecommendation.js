@@ -15,26 +15,21 @@ import "../../styles/budget-rec.css";
   חלוקת תקציב מומלצת ל-5 קטגוריות לפי מספר הילדים והצוות ותקציבי החגים.
   אפשר להתאים את הסכומים ליחידה — וההמלצה מתעדכנת מיד.
 */
-function BudgetRecommendation({ holidayBudgets, spent = 0, vendors = [], onOpen }) {
+function BudgetRecommendation({
+  holidayBudgets,
+  spent = 0,
+  vendors = [],
+  onViewSuppliers,
+}) {
   const [rates, setRates] = useState(getBudgetRates);
   const [showRates, setShowRates] = useState(false);
 
   const { rows, total } = computeBudgetRecommendation(holidayBudgets, rates);
   const remaining = total - spent;
 
-  // ספקים עם מתנות משתלמות — מחשבים לכל ספק את המחיר ההתחלתי (המוצר הזול שלו)
-  // וממיינים מהזול ליקר, כדי שהוועד ימצא מהר אפשרות שמתאימה לתקציב. כך המספר
-  // שבעוזרת הופך לפעולה: לחיצה פותחת את הספק (ופנייה פוטנציאלית — מקור ההכנסה).
-  const affordableVendors = (vendors || [])
-    .map((vendor) => {
-      const prices = (vendor.products || [])
-        .map((p) => Number(p.price))
-        .filter((n) => n > 0);
-      return prices.length ? { vendor, from: Math.min(...prices) } : null;
-    })
-    .filter(Boolean)
-    .sort((a, b) => a.from - b.from)
-    .slice(0, 6);
+  // גשר מהתקציב לספקים: כפתור אחד שמוביל לרשימת הספקים (ולא כרטיס לכל ספק —
+  // כדי לא לשכפל שמות/מחירים שכבר מופיעים ברשימה למטה). מוצג רק כשיש ספקים.
+  const hasVendors = (vendors || []).length > 0;
 
   function changeRate(key) {
     return (event) => setRates(setBudgetRate(key, event.target.value));
@@ -123,28 +118,15 @@ function BudgetRecommendation({ holidayBudgets, spent = 0, vendors = [], onOpen 
         </div>
       )}
 
-      {/* גשר מהתקציב לספקים — ספקים עם מתנות משתלמות, מהזול ליקר */}
-      {onOpen && affordableVendors.length > 0 && (
-        <div className="budget-rec__vendors">
-          <p className="budget-rec__vendors-title">
-            💡 ספקים עם מתנות משתלמות — למצוא משהו בתקציב
-          </p>
-          <div className="budget-rec__vendors-list">
-            {affordableVendors.map(({ vendor, from }) => (
-              <button
-                key={vendor.id}
-                type="button"
-                className="budget-rec__vendor"
-                onClick={() => onOpen(vendor)}
-              >
-                <span className="budget-rec__vendor-name">{vendor.name}</span>
-                <span className="budget-rec__vendor-price">
-                  מ-{formatShekels(from)} ←
-                </span>
-              </button>
-            ))}
-          </div>
-        </div>
+      {/* גשר מהתקציב לספקים — כפתור יחיד לרשימת הספקים */}
+      {onViewSuppliers && hasVendors && (
+        <button
+          type="button"
+          className="budget-rec__to-vendors"
+          onClick={onViewSuppliers}
+        >
+          🛍️ ספקים עם מתנות שמתאימות לתקציב ←
+        </button>
       )}
     </Card>
   );

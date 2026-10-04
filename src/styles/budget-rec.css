@@ -92,44 +92,22 @@
   gap: 8px;
 }
 
-/* גשר לספקים — ספקים עם מתנות משתלמות (BudgetRecommendation → ספקים) */
-.budget-rec__vendors {
+/* גשר לספקים — כפתור יחיד מהעוזרת התקציבית לרשימת הספקים */
+.budget-rec__to-vendors {
+  display: block;
+  width: 100%;
   margin-top: 14px;
-  border-top: 1px solid var(--color-border);
-  padding-top: 12px;
-}
-.budget-rec__vendors-title {
-  margin: 0 0 8px;
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  color: var(--color-text);
-}
-.budget-rec__vendors-list {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-}
-.budget-rec__vendor {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  background: var(--color-primary-light);
-  border: 1px solid var(--color-border);
-  border-radius: 999px;
-  padding: 7px 12px;
-  cursor: pointer;
+  text-align: center;
+  background: var(--color-primary-dark);
+  color: #fff;
+  border: none;
+  border-radius: 12px;
+  padding: 11px 16px;
   font-family: inherit;
   font-size: var(--font-size-sm);
-  color: var(--color-text);
-}
-.budget-rec__vendor:hover {
-  border-color: var(--color-primary);
-}
-.budget-rec__vendor-name {
   font-weight: 600;
+  cursor: pointer;
 }
-.budget-rec__vendor-price {
-  color: var(--color-primary-dark);
-  font-weight: 700;
-  white-space: nowrap;
+.budget-rec__to-vendors:hover {
+  filter: brightness(1.05);
 }

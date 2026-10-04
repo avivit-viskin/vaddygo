@@ -403,17 +403,58 @@ function SubscriptionsCard() {
   const PHONE_BATCH_SIZE = 50;
   const [phonesOpen, setPhonesOpen] = useState(false);
   const [copiedBatches, setCopiedBatches] = useState(() => new Set());
-  const allPhones = [
-    ...new Set(
-      [...committees, ...suppliers, ...incomplete]
-        .map((r) => (r.phone || "").trim())
-        .filter(Boolean)
-    ),
-  ];
+  // אנשי קשר ייחודיים (שם + טלפון), בלי כפולים לפי מספר — לייצוא vCard ולהעתקה.
+  const allContacts = (() => {
+    const seen = new Set();
+    const list = [];
+    for (const r of [...committees, ...suppliers, ...incomplete]) {
+      const phone = (r.phone || "").trim();
+      if (!phone || seen.has(phone)) continue;
+      seen.add(phone);
+      list.push({ name: (r.name || "").trim() || "איש קשר", phone });
+    }
+    return list;
+  })();
+  const allPhones = allContacts.map((c) => c.phone);
   const phoneBatches = [];
   for (let i = 0; i < allPhones.length; i += PHONE_BATCH_SIZE) {
     phoneBatches.push(allPhones.slice(i, i + PHONE_BATCH_SIZE));
   }
+
+  /*
+    הורדת כל אנשי הקשר כקובץ vCard (.vcf). זה הפתרון לבעיה "אי אפשר להדביק
+    מספרים לרשימת תפוצה": וואטסאפ בונה רשימת תפוצה רק מאנשי קשר **שמורים**, לא
+    מהדבקה. מייבאים את הקובץ פעם אחת לטלפון → כל המספרים הופכים לאנשי קשר (עם
+    הסיומת "VaddyGo") → ואז בוחרים אותם ברשימת תפוצה חדשה.
+  */
+  function downloadContactsVcard() {
+    if (allContacts.length === 0) {
+      setMsg({ ok: false, text: "אין אנשי קשר להורדה." });
+      return;
+    }
+    const esc = (s) => s.replace(/([\\,;])/g, "\\$1").replace(/\n/g, " ");
+    const vcf = allContacts
+      .map((c) => {
+        const fn = esc(`${c.name} (VaddyGo)`);
+        const tel = c.phone.replace(/[^\d+]/g, "");
+        return `BEGIN:VCARD\nVERSION:3.0\nN:;${fn};;;\nFN:${fn}\nTEL;TYPE=CELL:${tel}\nEND:VCARD`;
+      })
+      .join("\n");
+    const blob = new Blob([vcf], { type: "text/vcard;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "vaddygo-contacts.vcf";
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    setMsg({
+      ok: true,
+      text: `הורדו ${allContacts.length} אנשי קשר. פתחי את הקובץ בטלפון כדי לייבא אותם, ואז צרי רשימת תפוצה בוואטסאפ ובחרי אותם.`,
+    });
+  }
+
   async function copyPhoneBatch(index) {
     try {
       await navigator.clipboard.writeText(phoneBatches[index].join("\n"));
@@ -641,32 +682,57 @@ function SubscriptionsCard() {
             </Button>
           </div>
 
-          {/* טלפונים לוואטסאפ בקבוצות של 50 — העתקה קבוצה-קבוצה לרשימות תפוצה */}
+          {/* טלפונים לוואטסאפ — ייבוא אנשי קשר (vCard) ליצירת רשימת תפוצה */}
           {phonesOpen && (
             <div className="subs__phones">
               <p className="subs__hint" style={{ marginTop: 0 }}>
-                וואטסאפ לא שולח "לכולם בלחיצה". הנה כל המספרים ({allPhones.length})
-                בקבוצות של {PHONE_BATCH_SIZE}: העתיקי קבוצה → פתחי בוואטסאפ "רשימת
-                תפוצה חדשה" → הדביקי → שלחי. ואז הקבוצה הבאה.
+                <strong>חשוב:</strong> וואטסאפ לא מאפשר להדביק מספרים לרשימת תפוצה —
+                היא נבנית רק מאנשי קשר <strong>שמורים</strong> בטלפון. לכן:
               </p>
-              {phoneBatches.length === 0 ? (
-                <p className="subs__empty">אין מספרי טלפון להעתקה.</p>
-              ) : (
-                <div className="subs__phone-batches">
-                  {phoneBatches.map((batch, i) => (
-                    <button
-                      key={i}
-                      type="button"
-                      className={`subs__phone-batch${
-                        copiedBatches.has(i) ? " subs__phone-batch--done" : ""
-                      }`}
-                      onClick={() => copyPhoneBatch(i)}
-                    >
-                      {copiedBatches.has(i) ? "✓ " : ""}קבוצה {i + 1} ·{" "}
-                      {batch.length} מספרים · העתקה
-                    </button>
-                  ))}
-                </div>
+              <ol className="subs__phone-steps">
+                <li>הורידי את קובץ אנשי הקשר (הכפתור למטה).</li>
+                <li>פתחי אותו בטלפון ואשרי "ייבוא אנשי קשר".</li>
+                <li>
+                  בוואטסאפ: ⋮ ← "רשימת תפוצה חדשה" ← בחרי את אנשי הקשר (מופיעים
+                  עם הסיומת "VaddyGo").
+                </li>
+                <li>כתבי הודעה ושלחי — עד 256 נמענים לכל רשימה.</li>
+              </ol>
+              <div className="subs__phone-actions">
+                <Button variant="secondary" onClick={downloadContactsVcard}>
+                  📇 הורדת אנשי קשר ({allContacts.length})
+                </Button>
+              </div>
+              <p
+                className="subs__hint"
+                style={{ fontSize: "var(--font-size-xs)" }}
+              >
+                ⚠️ רשימת תפוצה מגיעה רק למי ששמר את המספר שלך. לשליחה מובטחת
+                לכולם — עדיף "שליחת עדכון במייל" (למטה בעמוד), או WhatsApp
+                Business API (שליחה אוטומטית אמיתית, בתשלום).
+              </p>
+              {/* אופציה משנית: העתקת המספרים בקבוצות (למשל לכלי אחר/גיליון) */}
+              {phoneBatches.length > 0 && (
+                <details className="subs__phone-copy">
+                  <summary>
+                    או — העתקת המספרים בקבוצות של {PHONE_BATCH_SIZE}
+                  </summary>
+                  <div className="subs__phone-batches">
+                    {phoneBatches.map((batch, i) => (
+                      <button
+                        key={i}
+                        type="button"
+                        className={`subs__phone-batch${
+                          copiedBatches.has(i) ? " subs__phone-batch--done" : ""
+                        }`}
+                        onClick={() => copyPhoneBatch(i)}
+                      >
+                        {copiedBatches.has(i) ? "✓ " : ""}קבוצה {i + 1} ·{" "}
+                        {batch.length} מספרים · העתקה
+                      </button>
+                    ))}
+                  </div>
+                </details>
               )}
             </div>
           )}

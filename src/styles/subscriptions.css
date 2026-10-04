@@ -344,3 +344,24 @@ button.subs__group-title--toggle {
   border-color: #9adcb7;
   color: #1d7a4d;
 }
+
+.subs__phone-steps {
+  margin: 4px 0 10px;
+  padding-inline-start: 20px;
+  font-size: var(--font-size-sm);
+  line-height: 1.6;
+  color: var(--color-text);
+}
+.subs__phone-actions {
+  margin-bottom: 8px;
+}
+.subs__phone-copy {
+  margin-top: 10px;
+  font-size: var(--font-size-sm);
+}
+.subs__phone-copy summary {
+  cursor: pointer;
+  color: var(--color-primary-dark);
+  font-weight: 600;
+  margin-bottom: 8px;
+}

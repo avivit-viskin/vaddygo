@@ -32,7 +32,9 @@ test("הוספת מתנה מציגה אותה ברשימה עם סטטוס וס�
 
   const card = (await screen.findByText("מתנת ראש השנה")).closest(".gift-card");
   expect(card).toHaveTextContent("בוצע");
-  expect(card).toHaveTextContent("800 ₪");
+  // רגקס ולא מחרוזת: toHaveTextContent מנרמל רווחים ומוחק את הרווח
+  // הבלתי-שביר שהפורמט מוסיף לפני ה-₪.
+  expect(card).toHaveTextContent(/800\s*₪/);
 });
 
 test("אירוע 'אחר' עם הקלדה חופשית נשמר ומופיע ברשימת המתנות", async () => {
@@ -69,7 +71,7 @@ test("עוזרת התקציב מציגה כמה כבר הוצא ממתנות ש�
   const spentRow = (await screen.findByText("כבר הוצאתם")).closest(
     ".budget-rec__row"
   );
-  expect(spentRow.textContent).toMatch(/300 ₪/);
+  expect(spentRow.textContent).toMatch(/300\s*₪/);
   expect(screen.getByText("נשאר מהמומלץ")).toBeInTheDocument();
 });
 
@@ -97,7 +99,7 @@ test("פתיחת דף ספק מציגה את המוצרים והמחירים", a
   userEvent.click(await screen.findByRole("button", { name: /כללי/ }));
 
   expect(await screen.findByText("כוס מעוצבת")).toBeInTheDocument();
-  expect(screen.getByText("30 ₪")).toBeInTheDocument();
+  expect(screen.getByText(/30\s*₪/)).toBeInTheDocument();
 });
 
 test("דף ספק מציג כפתור וואטסאפ, רשת חברתית ותמונת מוצר", async () => {

@@ -45,7 +45,7 @@ describe("buildReminderMessage", () => {
     expect(message).toContain("הילי לוי");
     expect(message).toContain("הזנה");
     expect(message).toContain("דמי ועד");
-    expect(message).toContain("1,700 ₪"); // 1200 + 500
+    expect(message).toMatch(/1,700\s*₪/); // 1200 + 500
   });
 });
 

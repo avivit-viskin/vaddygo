@@ -858,3 +858,63 @@ button.vendor-form__remove {
     border-top-right-radius: var(--radius-lg);
   }
 }
+
+/* ───────────────────────── שכבת ליטוש עיצובית ─────────────────────────
+   שלושה תיקונים רוחביים שנראו על המסך האמיתי (04.10.2026), לא העדפות טעם.
+*/
+
+/*
+  1. מספרי כסף — כיוון, יישור וגובה אחיד.
+
+  🔴 הבאג שנראה במסך הבית: מזומן בחריגה הוצג כ-"₪ 950-" — המינוס קפץ לצד
+  הלא-נכון, כי המספר יורש כיוון RTL מהשורה שסביבו. סימן כיווניות בטקסט אינו
+  מספיק; צריך לבודד את המספר כאי LTR.
+
+  tabular-nums: הספרות באותו רוחב, ולכן סכומים בטור מיושרים זה מתחת לזה —
+  ההבדל בין "טבלה" ל"דוח". זה מה שמשדר דיוק במסך שמדבר על כסף.
+*/
+.collection__amount,
+.methods__amount,
+.subgroup-stats__value,
+.student-card__paid,
+.bulk-payment__total strong {
+  direction: ltr;
+  unicode-bidi: isolate;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/*
+  2. פס ההתקדמות — ורוד-רוז במקום כמעט-שחור.
+
+  פס שחור על מסלול ורוד נקרא כמו קו מחיקה, לא כמו התקדמות. אותו צבע קישור
+  שכבר בפלטה (--color-link), עם מעבר עדין שמוסיף עומק בלי להוסיף צבע חדש.
+*/
+.progress__fill {
+  background: linear-gradient(
+    90deg,
+    var(--color-primary-muted) 0%,
+    var(--color-link) 100%
+  );
+}
+
+/*
+  3. מחיקה — מתאר אדום במקום מילוי אדום.
+
+  🔴 במסך התלמידים כפתור "מחיקה" האדום־מלא חוזר על עצמו אחת לכל ילד, והוא
+  הדבר הבולט ביותר במסך. פעולה הרסנית לא אמורה להיות הקולנית ביותר; היא
+  אמורה להיות זמינה וברורה — ולא מזמינה. במעבר עכבר/לחיצה היא מתמלאת, כך
+  שהאזהרה חוזרת בדיוק ברגע שבו היא רלוונטית.
+*/
+.btn--danger {
+  background-color: transparent;
+  color: var(--color-error);
+  border: 1px solid var(--color-error);
+}
+
+.btn--danger:hover,
+.btn--danger:focus-visible,
+.btn--danger:active {
+  background-color: var(--color-error);
+  color: #ffffff;
+}

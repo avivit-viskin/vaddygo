@@ -24,7 +24,8 @@ test("מציג פס הדגמה, סכום ותיאור מהכתובת, וטופס
   renderAt("/pay?amount=750&for=חוגים");
   expect(screen.getByText(/מסך הדגמה/)).toBeInTheDocument();
   expect(screen.getByText("חוגים")).toBeInTheDocument();
-  expect(screen.getByText("750 ₪")).toBeInTheDocument();
+  // הסכום מופיע פעמיים במסך (הפס העליון והסיכום) — די שהוא שם
+  expect(screen.getAllByText(/750\s*₪/).length).toBeGreaterThan(0);
   expect(screen.getByLabelText("מספר כרטיס")).toBeInTheDocument();
 });
 

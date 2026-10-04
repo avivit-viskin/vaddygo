@@ -37,10 +37,11 @@ test("מציג המלצה: 200 ₪ לכל איש צוות (3 → 600), בלי א
   mockStaff(TWO);
   render(<StaffBirthdays />);
 
-  // 3 אנשי צוות × 200 ₪ = 600 — סכום כללי אחד לכל הצוות
-  expect(
-    await screen.findByText(/מומלץ להשקיע על מתנות לצוות: 600/)
-  ).toBeInTheDocument();
+  // 3 אנשי צוות × 200 ₪ = 600 — סכום כללי אחד לכל הצוות.
+  // ⚠️ בלי רגקס שחוצה את הגבול בין הטקסט למספר: formatShekels מוסיף סימן
+  // כיווניות בלתי-נראה לפני הסכום, וזה שבר התאמה של "לצוות: 600".
+  const line = await screen.findByText(/מומלץ להשקיע על מתנות לצוות/);
+  expect(line).toHaveTextContent(/600/);
   // בלי אחוזים (החישוב קבוע — 200 ₪ לאיש צוות)
   expect(screen.queryByText(/3%/)).not.toBeInTheDocument();
 });

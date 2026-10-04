@@ -20,7 +20,7 @@ import Input from "../components/Input";
 import Select from "../components/Select";
 import Checkbox from "../components/Checkbox";
 import Modal from "../components/Modal";
-import Spinner from "../components/Spinner";
+import Skeleton from "../components/Skeleton";
 import ErrorMessage from "../components/ErrorMessage";
 import EmptyState from "../components/EmptyState";
 import StudentCard from "../components/StudentCard";
@@ -365,7 +365,11 @@ function StudentsPage() {
             </div>
           )}
         </div>
-        <Spinner text="טוען את רשימת התלמידים..." />
+        {/*
+          שלד בצורת כרטיסי התלמידים — הרשימה לא "קופצת" כשהנתונים מגיעים.
+          ראו ההסבר ב-Skeleton.js, כולל באג פירוק-החלונות מ-30.09.
+        */}
+        <Skeleton count={3} label="טוען את רשימת התלמידים..." />
       </div>
     );
   }

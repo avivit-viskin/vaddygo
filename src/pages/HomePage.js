@@ -1,6 +1,6 @@
 import { useState, useEffect, useCallback } from "react";
 import { Link } from "react-router-dom";
-import Spinner from "../components/Spinner";
+import Skeleton from "../components/Skeleton";
 import EmptyState from "../components/EmptyState";
 import Button from "../components/Button";
 import Icon from "../components/Icon";
@@ -85,7 +85,7 @@ function HomePage() {
   }
 
   if (isLoading) {
-    return <Spinner text="טוען את מסך הבית..." />;
+    return <Skeleton count={2} label="טוען את מסך הבית..." />;
   }
 
   if (!dashboard) {
@@ -149,16 +149,16 @@ function HomePage() {
 
       <YearEndCleanupBanner />
 
-      {/* דחיפה לספקים לקראת החג הקרוב — מוביל לעמוד המתנות/ספקים */}
-      <SupplierDealsBanner />
-      {/* דחיפה לספקים לקראת יום הולדת קרוב של איש צוות */}
-      <BirthdayGiftNudge />
-
       <CollectionCard
         dashboard={dashboard}
         onExpenseChanged={refreshAll}
         readOnly={readOnly}
       />
+
+      {/* דחיפה לספקים לקראת החג/יום-הולדת — ממוקמים *מתחת* לכרטיס היתרה כדי
+          שהוא לא "יקפוץ" כשהבאנרים נטענים אסינכרונית (getVendors/getStaff) */}
+      <SupplierDealsBanner />
+      <BirthdayGiftNudge />
       <CategoryList categories={dashboard.byCategory} />
       <SubgroupBreakdown
         subgroups={dashboard.bySubgroup}

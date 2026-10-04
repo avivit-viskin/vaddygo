@@ -1,0 +1,65 @@
+/*
+  שלדי טעינה — מלבנים בצורת התוכן שעומד להגיע.
+
+  ה-CSS co-located ברכיב (ראו הכלל על פיצול-קוד): הרכיב נטען מכמה מסכים
+  שונים, ו-CSS של דף מסוים לא היה נטען בכל chunk.
+*/
+
+.skeleton {
+  display: block;
+  border-radius: var(--radius-sm, 8px);
+  background: linear-gradient(
+    90deg,
+    var(--color-bg) 0%,
+    var(--color-border) 50%,
+    var(--color-bg) 100%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-sweep 1.3s ease-in-out infinite;
+}
+
+/*
+  הבהוב עדין ואיטי. פס מהיר מושך את העין ומרגיש לחוץ — ההפך ממה שמצב
+  טעינה אמור לשדר.
+*/
+@keyframes skeleton-sweep {
+  0% { background-position: 100% 0; }
+  100% { background-position: -100% 0; }
+}
+
+/* למי שביקש/ה פחות תנועה — אותו מלבן, בלי הסריקה */
+@media (prefers-reduced-motion: reduce) {
+  .skeleton {
+    animation: none;
+    background: var(--color-border);
+  }
+}
+
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.skeleton-card {
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg, 16px);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.skeleton-card__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.skeleton-card__actions {
+  display: flex;
+  gap: 10px;
+  margin-top: 4px;
+}

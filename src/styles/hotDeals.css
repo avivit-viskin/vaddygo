@@ -1,0 +1,85 @@
+/*
+  hotDeals — מדף "מבצעים חמים לוועד": רצועה אופקית של כרטיסי מבצע בראש עמוד
+  המתנות. CSS משלו (co-located) כדי שייטען עם ה-chunk בלי תלות ב-gifts.css.
+*/
+.hot-deals {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  padding: 2px 2px 8px;
+  scroll-snap-type: x proximity;
+}
+.hot-deal {
+  flex: 0 0 auto;
+  width: 220px;
+  scroll-snap-align: start;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  text-align: right;
+  background: var(--color-primary-light);
+  border: 1px solid var(--color-border);
+  border-radius: 14px;
+  padding: 12px;
+  cursor: pointer;
+  transition: transform 0.06s ease, border-color 0.15s ease;
+}
+.hot-deal:hover {
+  border-color: var(--color-primary);
+}
+.hot-deal:active {
+  transform: scale(0.98);
+}
+.hot-deal--featured {
+  border-color: var(--color-primary);
+}
+.hot-deal__head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.hot-deal__avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: var(--color-primary-muted);
+  color: var(--color-primary-dark);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+.hot-deal__avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.hot-deal__name {
+  font-weight: 700;
+  color: var(--color-text);
+  line-height: 1.2;
+}
+.hot-deal__cat {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-muted);
+}
+.hot-deal__offer {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--color-primary-dark);
+  color: #fff;
+  border-radius: 10px;
+  padding: 6px 9px;
+  font-weight: 600;
+  font-size: var(--font-size-sm);
+  margin-top: 2px;
+}
+.hot-deal__featured {
+  font-size: var(--font-size-sm);
+  color: var(--color-primary-dark);
+  font-weight: 600;
+}

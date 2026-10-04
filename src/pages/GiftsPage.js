@@ -29,6 +29,7 @@ import { upcomingHolidays } from "../services/upcomingHoliday";
 import { isActiveReadOnly } from "../services/institutionsService";
 import { isSuperAdmin } from "../services/authService";
 import CountdownBanner from "./gifts/CountdownBanner";
+import HotDealsStrip from "./gifts/HotDealsStrip";
 import UpcomingMonth from "./gifts/UpcomingMonth";
 import PendingEventExpenses from "./gifts/PendingEventExpenses";
 import BudgetRecommendation from "./gifts/BudgetRecommendation";
@@ -331,6 +332,7 @@ function GiftsPage() {
           })
         }
       />
+      <HotDealsStrip vendors={vendors} onOpen={setOpenVendor} />
       <UpcomingMonth />
       {/* "צופה" — לצפייה בלבד: בלי תזכורת/רישום הוצאה על אירועים שעברו */}
       {!readOnly && <PendingEventExpenses onRecorded={load} />}

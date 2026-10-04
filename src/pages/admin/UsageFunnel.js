@@ -1,12 +1,27 @@
 import Icon from "../../components/Icon";
+import useCollapsed from "../../hooks/useCollapsed";
 import { funnelPercent } from "../../services/usageStatsService";
 
 /*
   UsageFunnel — משפך הרשמה אחד (ועדים או ספקים) במסך נתוני השימוש: כמה נרשמו,
   כמה השלימו, כמה נעצרו באמצע, ואיזה אחוז מהם הגיע עד הסוף. רכיב גנרי — לא
   מכיר את סוג המשתמש, רק מקבל מספרים ותוויות, ולכן ישרת גם משפכים עתידיים.
+
+  collapsibleKey (אופציונלי) — אם ניתן, הכותרת הופכת לכפתור קיפול והמקטע ניתן
+  להסתרה (נזכר במכשיר), כדי להגיע מהר למה שמתחת.
 */
-function UsageFunnel({ title, icon, funnel, completedLabel, stoppedLabel }) {
+function UsageFunnel({
+  title,
+  icon,
+  funnel,
+  completedLabel,
+  stoppedLabel,
+  collapsibleKey = null,
+}) {
+  const [collapsed, toggleCollapsed] = useCollapsed(
+    collapsibleKey || "__nokey__"
+  );
+  const canCollapse = Boolean(collapsibleKey);
   const registered = funnel?.registered || 0;
   const completed = funnel?.completed || 0;
   const stopped = funnel?.stopped || 0;
@@ -32,20 +47,59 @@ function UsageFunnel({ title, icon, funnel, completedLabel, stoppedLabel }) {
     </div>
   );
 
+  const headerStyle = {
+    display: "flex",
+    alignItems: "center",
+    gap: 8,
+    margin: "0 0 10px",
+    fontSize: "var(--font-size-base)",
+  };
+
   return (
     <section style={{ marginBottom: 24 }}>
-      <h3
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: 8,
-          margin: "0 0 10px",
-          fontSize: "var(--font-size-base)",
-        }}
-      >
-        <Icon name={icon} size={18} /> {title}
-      </h3>
+      {canCollapse ? (
+        <h3 style={{ margin: "0 0 10px" }}>
+          <button
+            type="button"
+            onClick={toggleCollapsed}
+            aria-expanded={!collapsed}
+            style={{
+              ...headerStyle,
+              width: "100%",
+              margin: 0,
+              border: "none",
+              background: "none",
+              cursor: "pointer",
+              fontFamily: "var(--font-family)",
+              fontWeight: 700,
+              color: "var(--color-primary-dark)",
+              padding: 0,
+            }}
+          >
+            <span aria-hidden="true" style={{ fontSize: 13 }}>
+              {collapsed ? "▸" : "▾"}
+            </span>
+            <Icon name={icon} size={18} /> {title}
+            <span
+              style={{
+                marginInlineStart: "auto",
+                fontSize: "var(--font-size-sm)",
+                fontWeight: 600,
+                color: "var(--color-link)",
+              }}
+            >
+              {collapsed ? "הצג" : "הסתר"}
+            </span>
+          </button>
+        </h3>
+      ) : (
+        <h3 style={headerStyle}>
+          <Icon name={icon} size={18} /> {title}
+        </h3>
+      )}
 
+      {collapsed ? null : (
+        <>
       <div
         style={{ display: "flex", gap: 10, flexWrap: "wrap", marginBottom: 10 }}
       >
@@ -107,6 +161,8 @@ function UsageFunnel({ title, icon, funnel, completedLabel, stoppedLabel }) {
             <li>נרשמו ב-5 הימים האחרונים: {last5}</li>
             <li>נרשמו ב-30 הימים האחרונים: {last30}</li>
           </ul>
+        </>
+      )}
         </>
       )}
     </section>

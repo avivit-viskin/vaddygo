@@ -74,6 +74,7 @@ function UsageStatsPage() {
               funnel={applyBaseline(data.committees, getBaseline("committees"))}
               completedLabel="השלימו את הגדרת הגן"
               stoppedLabel="נרשמו ולא סיימו את האשף"
+              collapsibleKey="vaadygo.usage.funnel.committees"
             />
             <ResetDisplayControl
               funnelKey="committees"

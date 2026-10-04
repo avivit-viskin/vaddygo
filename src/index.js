@@ -6,9 +6,11 @@ import './styles/reviews.css';
 import App from './App';
 import ErrorBoundary from './components/ErrorBoundary';
 import { initMonitoring } from './services/monitoring';
+import { installAccountSwitchGuard } from './services/authService';
 import reportWebVitals from './reportWebVitals';
 
 initMonitoring(); // מפעיל מעקב שגיאות בזמן אמת (רק אם הוגדר מפתח בסביבה)
+installAccountSwitchGuard(); // "חזור" אחרי החלפת חשבון לא יחזיר לחשבון הקודם (bfcache)
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(

@@ -86,6 +86,23 @@
   font-size: var(--font-size-sm);
   font-weight: 700;
 }
+/* כותרת-כפתור לקיפול קבוצה (למשל "ועדי הורים") — מסתירה רשימה ארוכה בלחיצה */
+button.subs__group-title--toggle {
+  width: 100%;
+  border: none;
+  background: none;
+  cursor: pointer;
+  font-family: var(--font-family);
+  color: var(--color-primary-dark);
+  text-align: start;
+  padding: 4px 0;
+}
+.subs__group-toggle-hint {
+  margin-inline-start: auto;
+  font-size: var(--font-size-sm);
+  font-weight: 600;
+  color: var(--color-link);
+}
 
 .subs__empty {
   margin: 0;

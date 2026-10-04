@@ -114,7 +114,15 @@ export function setLocalPlan(plan) {
 function clearCachedAppData() {
   // בחירת העוגיות היא העדפת מכשיר (לא נתוני חשבון) — שומרים אותה גם בהחלפת משתמש,
   // כדי שבאנר האישור לא יקפוץ שוב אחרי שכבר בחרו במכשיר הזה.
-  const keep = new Set([TOKEN_KEY, USER_KEY, DATA_OWNER_KEY, COOKIE_CONSENT_KEY]);
+  // אסימון המכשיר (2FA "זכור אותי") שייך למכשיר ולא לחשבון — נשמר גם בהחלפת
+  // משתמש וגם ביציאה, כדי שלא יידרש קוד מחדש בכל פעם במכשיר מוכר.
+  const keep = new Set([
+    TOKEN_KEY,
+    USER_KEY,
+    DATA_OWNER_KEY,
+    COOKIE_CONSENT_KEY,
+    DEVICE_TOKEN_KEY,
+  ]);
   Object.keys(localStorage)
     .filter((key) => key.startsWith("vaadygo.") && !keep.has(key))
     .forEach((key) => localStorage.removeItem(key));
@@ -235,8 +243,33 @@ export function resendTwoFactorCode({ challengeId, channel }) {
 }
 
 export function logout() {
+  // ניקוי מלא של נתוני החשבון במכשיר — כדי שלא יישאר שריד של החשבון הקודם
+  // (מוסדות, צוות, מטמון) למי שיתחבר אחריו. אסימון המכשיר (2FA) ובחירת העוגיות
+  // נשמרים כי הם של המכשיר ולא של החשבון.
+  clearCachedAppData();
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(USER_KEY);
+  localStorage.removeItem(DATA_OWNER_KEY);
+}
+
+/*
+  installAccountSwitchGuard — שומר מפני המצב: התחברות לחשבון א׳ → יציאה →
+  התחברות לחשבון ב׳ → "חזור" → חזרה לחשבון א׳.
+
+  הסיבה: היציאה היא ניווט-עמוד מלא (window.location), ולכן הדפדפן שומר את עמוד
+  חשבון א׳ ב-bfcache. לחיצה על "חזור" משחזרת אותו מהזיכרון עם נתוני א׳, בזמן
+  ש-localStorage כבר שייך לחשבון ב׳ — כלומר מסך של חשבון שכבר לא מחובר.
+
+  הפתרון: כשעמוד משוחזר מה-bfcache (event.persisted) טוענים אותו מחדש, כך
+  שהאפליקציה תיבנה מהמצב האמיתי ב-localStorage (החשבון הנוכחי, או מסך הכניסה אם
+  התנתקו). טעינה-מחדש אינה יוצרת לולאה: הטעינה החדשה אינה "persisted".
+*/
+export function installAccountSwitchGuard() {
+  window.addEventListener("pageshow", (event) => {
+    if (event.persisted) {
+      window.location.reload();
+    }
+  });
 }
 
 /*

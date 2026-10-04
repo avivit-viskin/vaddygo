@@ -15,6 +15,7 @@ import {
 import { deleteVendor } from "../../services/vendorsService";
 import { buildWhatsappReminderUrl } from "../../services/paymentsService";
 import { exportInstitutionsToExcel } from "../../services/institutionsExcelExport";
+import useCollapsed from "../../hooks/useCollapsed";
 import "../../styles/subscriptions.css";
 
 /*
@@ -68,25 +69,53 @@ function SubscriptionList({
   proBusyId,
   showSetup,
   dupKeys,
+  collapsibleKey = null,
 }) {
   const selectable = typeof onToggle === "function";
   const canSetPro = typeof onSetPro === "function";
+  const [collapsed, toggleCollapsed] = useCollapsed(
+    collapsibleKey || "__nokey__"
+  );
+  const canCollapse = Boolean(collapsibleKey);
+
+  // כותרת — רגילה, או כפתור קיפול (כשאפשר לקפל) שמסתיר רשימה ארוכה
+  const header = (count) =>
+    canCollapse ? (
+      <button
+        type="button"
+        className="subs__group-title subs__group-title--toggle"
+        onClick={toggleCollapsed}
+        aria-expanded={!collapsed}
+      >
+        <span aria-hidden="true" style={{ fontSize: 13 }}>
+          {collapsed ? "▸" : "▾"}
+        </span>
+        <Icon name={icon} size={16} /> {title}
+        {count != null ? ` (${count})` : ""}
+        <span className="subs__group-toggle-hint">
+          {collapsed ? "הצג" : "הסתר"}
+        </span>
+      </button>
+    ) : (
+      <h4 className="subs__group-title">
+        <Icon name={icon} size={16} /> {title}
+        {count != null ? ` (${count})` : ""}
+      </h4>
+    );
+
   if (!rows || rows.length === 0) {
     return (
       <section className="subs__group">
-        <h4 className="subs__group-title">
-          <Icon name={icon} size={16} /> {title}
-        </h4>
-        <p className="subs__empty">אין עדיין רשומות להצגה.</p>
+        {header(null)}
+        {!collapsed && <p className="subs__empty">אין עדיין רשומות להצגה.</p>}
       </section>
     );
   }
 
   return (
     <section className="subs__group">
-      <h4 className="subs__group-title">
-        <Icon name={icon} size={16} /> {title} ({rows.length})
-      </h4>
+      {header(rows.length)}
+      {collapsed ? null : (
       <ul className="subs__list">
         {rows.map((row) => {
           const status = subscriptionStatus(row.status);
@@ -244,6 +273,7 @@ function SubscriptionList({
           );
         })}
       </ul>
+      )}
     </section>
   );
 }
@@ -316,12 +346,14 @@ function SubscriptionsCard() {
   // פעיל מתעלמים ממסנן "רק פעילים", כדי שחיפוש/כפילות ימצאו גם גנים בפרו-חינם.
   const [search, setSearch] = useState("");
   const [dupOnly, setDupOnly] = useState(false);
-  // "נערכו ב-24 שעות האחרונות" — לראות אילו מוסדות פעילים ממש עכשיו.
+  // "נערכו ב-24 שעות האחרונות" / "בחודש האחרון" — לראות מי פעיל עכשיו / לאחרונה.
   const [recent24h, setRecent24h] = useState(false);
+  const [recent30d, setRecent30d] = useState(false);
   const q = search.trim().toLowerCase();
   const since24h = Date.now() - 24 * 60 * 60 * 1000;
+  const since30d = Date.now() - 30 * 24 * 60 * 60 * 1000;
   const visibleCommittees = (
-    dupOnly || q || recent24h ? committees : onlyActive(committees)
+    dupOnly || q || recent24h || recent30d ? committees : onlyActive(committees)
   )
     .filter(
       (c) => !dupOnly || dupCommitteeKeys.has((c.name || "").trim().toLowerCase())
@@ -336,6 +368,11 @@ function SubscriptionsCard() {
       (c) =>
         !recent24h ||
         (c.lastEditedAt && new Date(c.lastEditedAt).getTime() >= since24h)
+    )
+    .filter(
+      (c) =>
+        !recent30d ||
+        (c.lastEditedAt && new Date(c.lastEditedAt).getTime() >= since30d)
     );
 
   // ייצוא רשימת המוסדות המסוננת לאקסל (שם מוסד / איש קשר / טלפון / תאריך הקמה).
@@ -354,6 +391,38 @@ function SubscriptionsCard() {
       setMsg({ ok: false, text: "הייצוא נכשל. אפשר לנסות שוב." });
     } finally {
       setExporting(false);
+    }
+  }
+
+  // העתקת כל מספרי הטלפון (בעלי מוסדות + ספקים + נרשמים שלא סיימו) — כדי להדביק
+  // ברשימת תפוצה בוואטסאפ מהטלפון. מעתיק את *כולם* (לא מושפע מהסינון), כי הבקשה
+  // היא "לכל מי שהשאיר טלפון". מספרים כפולים מסוננים.
+  const [copiedPhones, setCopiedPhones] = useState(false);
+  async function handleCopyAllPhones() {
+    const unique = [
+      ...new Set(
+        [...committees, ...suppliers, ...incomplete]
+          .map((r) => (r.phone || "").trim())
+          .filter(Boolean)
+      ),
+    ];
+    if (unique.length === 0) {
+      setMsg({ ok: false, text: "אין מספרי טלפון להעתקה." });
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(unique.join("\n"));
+      setCopiedPhones(true);
+      setMsg({
+        ok: true,
+        text: `הועתקו ${unique.length} מספרי טלפון. אפשר להדביק ברשימת תפוצה בוואטסאפ מהטלפון.`,
+      });
+      setTimeout(() => setCopiedPhones(false), 2500);
+    } catch {
+      setMsg({
+        ok: false,
+        text: "ההעתקה נכשלה — ייתכן שהדפדפן חוסם גישה ללוח.",
+      });
     }
   }
 
@@ -546,12 +615,23 @@ function SubscriptionsCard() {
               />
               נערכו ב-24 שעות האחרונות
             </label>
+            <label className="subs__filter">
+              <input
+                type="checkbox"
+                checked={recent30d}
+                onChange={(e) => setRecent30d(e.target.checked)}
+              />
+              נערכו בחודש האחרון
+            </label>
             <Button
               variant="secondary"
               onClick={handleExportInstitutions}
               isLoading={exporting}
             >
               📊 ייצוא לאקסל ({visibleCommittees.length})
+            </Button>
+            <Button variant="secondary" onClick={handleCopyAllPhones}>
+              {copiedPhones ? "הועתק ✓" : "📋 העתקת כל הטלפונים"}
             </Button>
           </div>
 
@@ -565,6 +645,7 @@ function SubscriptionsCard() {
             proBusyId={proBusyId}
             showSetup
             dupKeys={dupCommitteeKeys}
+            collapsibleKey="vaadygo.subs.collapse.committees"
           />
           {q && (
             <p className="subs__hint">

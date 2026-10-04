@@ -116,6 +116,7 @@ function UsageStatsPage() {
               funnel={applyBaseline(data.suppliers, getBaseline("suppliers"))}
               completedLabel="כרטיס מוכן להצגה לוועדים"
               stoppedLabel="נרשמו ולא השלימו את הכרטיס"
+              collapsibleKey="vaadygo.usage.funnel.suppliers"
             />
             <ResetDisplayControl
               funnelKey="suppliers"

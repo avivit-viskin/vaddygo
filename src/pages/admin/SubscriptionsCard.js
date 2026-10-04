@@ -739,6 +739,7 @@ function SubscriptionsCard() {
             rows={onlyActive(data.suppliers)}
             selected={selected}
             onToggle={toggleSelected}
+            collapsibleKey="vaadygo.subs.collapse.suppliers"
           />
 
           {/* בחירה מרובה — מחיקת ספקים נבחרים בלבד (גנים אינם נמחקים מכאן) */}
@@ -797,6 +798,7 @@ function SubscriptionsCard() {
                 rows={incomplete}
                 selected={selectedI}
                 onToggle={toggleSelectedIncomplete}
+                collapsibleKey="vaadygo.subs.collapse.incomplete"
               />
               <p className="subs__hint">
                 נרשמו אך לא הקימו ועד. אפשר לפנות אליהם במייל (לחיצה על הכתובת)
